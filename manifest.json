@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "题目助手 - AI 参考答案",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "自动提取页面题目，逐题调用大模型 API 获取参考答案",
   "permissions": [
     "storage",
@@ -38,7 +38,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["icons/*.png"],
+      "resources": ["icons/*.png", "lib/*.js"],
       "matches": ["<all_urls>"]
     }
   ]

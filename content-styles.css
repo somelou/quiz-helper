@@ -5,3 +5,9 @@
   outline: 2px dashed #667eea !important;
   background-color: rgba(102, 126, 234, 0.05) !important;
 }
+
+@media (prefers-color-scheme: dark) {
+  .quiz-helper-highlight {
+    background-color: rgba(102, 126, 234, 0.12) !important;
+  }
+}
