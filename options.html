@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>题目助手 - 设置</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 0 20px;
+      color: #333;
+      background: #f8f9fa;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 22px; margin-bottom: 24px; color: #333; }
+    h2 { font-size: 18px; margin-bottom: 16px; color: #333; }
+    .form-group { margin-bottom: 20px; }
+    label {
+      display: block; font-weight: 600; margin-bottom: 6px;
+      font-size: 14px; color: #444;
+    }
+    input[type="text"], input[type="password"], textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid #ddd; border-radius: 8px;
+      font-size: 14px; transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus { outline: none; border-color: #667eea; }
+    .input-wrapper { position: relative; }
+    .toggle-visible {
+      position: absolute; right: 10px; top: 50%;
+      transform: translateY(-50%); background: none; border: none;
+      cursor: pointer; font-size: 14px; color: #666;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    .hint { font-size: 12px; color: #888; margin-top: 4px; }
+    .actions { margin-top: 24px; display: flex; gap: 10px; }
+    button {
+      padding: 10px 24px; border: none; border-radius: 8px;
+      cursor: pointer; font-size: 14px; transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .btn-secondary { background: #e0e0e0; color: #333; }
+    .btn-danger { background: #ffebee; color: #c62828; }
+    #status { margin-top: 12px; font-size: 13px; color: #2e7d32; min-height: 20px; }
+
+    /* 历史记录样式 */
+    .history-list { margin-top: 12px; }
+    .history-item {
+      border: 1px solid #eee; border-radius: 8px;
+      margin-bottom: 8px; background: #fafafa;
+    }
+    .history-item-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 12px;
+    }
+    .history-item:hover .history-item-header { background: #f0f0f0; border-radius: 8px; }
+    .history-info { flex: 1; min-width: 0; }
+    .history-title { font-size: 13px; font-weight: 600; color: #333; word-break: break-all; }
+    .history-meta { font-size: 11px; color: #888; margin-top: 3px; }
+    .history-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 8px; }
+    .history-btn {
+      padding: 4px 10px; border: none; border-radius: 4px;
+      cursor: pointer; font-size: 12px; white-space: nowrap;
+    }
+    .history-btn-view { background: #e3f2fd; color: #1565c0; }
+    .history-btn-export { background: #e8f5e9; color: #2e7d32; }
+    .history-btn-delete { background: #ffebee; color: #c62828; }
+    .history-empty { text-align: center; color: #888; padding: 20px; font-size: 13px; }
+    .history-detail {
+      border-top: 1px solid #eee;
+      padding: 14px 12px;
+      font-size: 13px;
+      display: none;
+      max-height: 600px;
+      overflow-y: auto;
+      background: #fff;
+    }
+    .history-detail.open { display: block; }
+    .history-detail .q-item {
+      margin-bottom: 14px; padding: 12px;
+      background: #f8f9fa; border-radius: 6px;
+      border: 1px solid #eee;
+    }
+    .history-detail .q-item:last-child { margin-bottom: 0; }
+    .history-detail .q-title {
+      font-size: 13px; font-weight: 600; color: #333;
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .history-detail .q-title .q-id {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 4px;
+    }
+    .history-detail .q-title .q-type {
+      font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500;
+    }
+    .history-detail .q-label {
+      font-size: 11px; font-weight: 600; color: #888;
+      margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .history-detail .q-text {
+      color: #444; margin-bottom: 10px; white-space: pre-wrap;
+      line-height: 1.6;
+      padding: 8px; background: #fff; border-radius: 4px;
+      border: 1px solid #eee;
+    }
+    .history-detail .q-answer {
+      color: #2e7d32; white-space: pre-wrap;
+      padding: 8px; background: #e8f5e9; border-radius: 4px;
+      line-height: 1.6;
+    }
+    .history-detail .q-error {
+      color: #d32f2f;
+      padding: 8px; background: #ffebee; border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>题目助手设置</h1>
+
+    <div class="form-group">
+      <label for="apiUrl">API 基础 URL</label>
+      <input type="text" id="apiUrl" placeholder="https://api.openai.com/v1">
+      <div class="hint">例如：https://api.openai.com/v1、https://api.deepseek.com/v1</div>
+    </div>
+
+    <div class="form-group">
+      <label for="apiKey">API Key</label>
+      <div class="input-wrapper">
+        <input type="password" id="apiKey" placeholder="sk-...">
+        <button type="button" class="toggle-visible" id="toggleKey">显示</button>
+      </div>
+      <div class="hint">您的 API 密钥仅存储在本地浏览器中</div>
+    </div>
+
+    <div class="form-group">
+      <label for="model">模型名称</label>
+      <input type="text" id="model" placeholder="gpt-3.5-turbo">
+      <div class="hint">例如：gpt-3.5-turbo、gpt-4、deepseek-chat、qwen-turbo</div>
+    </div>
+
+    <div class="form-group">
+      <label for="systemPrompt">系统提示词（可选，留空则按题型自动选择）</label>
+      <textarea id="systemPrompt" placeholder="单选题：直接给出正确答案选项（仅一个），附简要解析。
+多选题：给出所有正确答案选项（多个），附简要解析。
+判断题：直接回答"对"或"错"，附简要解析。
+填空题：给出详细参考答案和解析。
+
+留空将按题型自动选择最合适的提示词..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="allowedDomains">生效域名白名单（每行一个，留空则所有网站生效）</label>
+      <textarea id="allowedDomains" placeholder="example.com
+exam.example.com"></textarea>
+      <div class="hint">插件仅在列出的域名上生效，支持子域名匹配</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="saveBtn">保存设置</button>
+      <button class="btn-secondary" id="resetBtn">恢复默认</button>
+    </div>
+
+    <div id="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>历史记录</h2>
+    <div class="hint" style="margin-bottom: 12px;">每次分析完成后自动保存，最多保留 50 条</div>
+    <div id="historyList"></div>
+    <div class="actions" style="margin-top: 16px;">
+      <button class="btn-secondary" id="exportAllHistory">导出全部(JSON)</button>
+      <button class="btn-danger" id="clearHistory">清空全部</button>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+/* 题目助手 - 内容脚本外部样式（备用样式，主要样式在 Shadow DOM 内） */
+
+/* 可选：高亮检测到的题目区域 */
+.quiz-helper-highlight {
+  outline: 2px dashed #667eea !important;
+  background-color: rgba(102, 126, 234, 0.05) !important;
+}
