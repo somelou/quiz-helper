@@ -123,6 +123,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let isRecordingShortcut = false;
   let drawerType = null; // 'bank' | 'history' | 'rule' | null
   let currentDrawerId = null;
+  let ruleEditorView = 'form'; // 'form' | 'json'
+  let currentRuleEditingBase = null;
 
   // 分页状态（每页 10 条）
   const PAGE_SIZE = 10;
@@ -198,7 +200,98 @@ document.addEventListener('DOMContentLoaded', async () => {
     container.appendChild(info);
   }
 
+  async function ensureDefaultParseRuleSeeded() {
+    const markerKey = 'default_parse_rule_seeded_v1';
+    const result = await chrome.storage.local.get(['parse_rules', markerKey]);
+    if (result[markerKey]) return;
+
+    const rules = result.parse_rules || [];
+    const now = Date.now();
+    const updates = { [markerKey]: true };
+    const seedRule = {
+      domain: 'example.com',
+      id: 'default-example',
+      lastUsed: now,
+      name: 'example.com',
+      selectors: {
+        rootSelectors: [
+          '.main-padding-content > .preview-content',
+          '.main-padding-content'
+        ],
+        questionItemSelector: '.question-type-item',
+        typeHeadingSelector: '.h3.m-bottom',
+        questionTextSelectors: [
+          '.question',
+          '[data-region="content"]'
+        ],
+        optionContainerSelectors: [
+          '.options',
+          '[data-region="options"]'
+        ],
+        optionItemSelector: 'dd',
+        optionNumberSelector: '.option-num',
+        typeIndicators: {
+          single: [],
+          multiple: [],
+          judge: []
+        },
+        fallbackTextSelectors: [
+          '.main-padding-content .preview-content',
+          '.achievement-main',
+          '.main-content',
+          '.question-type-item',
+          '[data-current*="exam/exam/question/types/answer/"]',
+          '[class*="question"]',
+          '[id*="question"]',
+          '[class*="quiz"]',
+          '[id*="quiz"]',
+          '[class*="exam"]',
+          '[id*="exam"]',
+          '.q-main',
+          '.q-title',
+          '.problem',
+          '.item-title'
+        ]
+      },
+      timestamp: now,
+      typeKeywords: {
+        multiple: [
+          '多选',
+          '以下哪些',
+          '至少选',
+          '多项选择',
+          '可多选',
+          '不止一个',
+          '多个正确'
+        ],
+        judge: [
+          '正确',
+          '错误',
+          '对',
+          '错'
+        ],
+        fill: [
+          '___',
+          '【',
+          '填空'
+        ]
+      },
+      useCount: 1
+    };
+
+    const idx = rules.findIndex(r => r && r.id === 'default-example');
+    if (idx >= 0) {
+      rules[idx] = { ...rules[idx], ...seedRule };
+    } else {
+      rules.push(seedRule);
+    }
+    updates.parse_rules = rules;
+
+    await chrome.storage.local.set(updates);
+  }
+
   // ===== 初始化 =====
+  await ensureDefaultParseRuleSeeded();
   await loadSettings();
   await loadHistory();
   await loadQuestionBanks();
@@ -224,7 +317,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await chrome.storage.local.set({
       api_url: apiUrlInput.value.trim(),
       api_key: apiKeyInput.value.trim(),
-      model: modelInput.value.trim() || 'gpt-3.5-turbo',
+      model: modelInput.value.trim() || 'deepseek-v4-pro',
       system_prompt: systemPromptInput.value.trim(),
       extra_context_prompt: extraContextPromptInput.value.trim(),
       allowed_domains: domains,
@@ -235,9 +328,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   resetBtn.addEventListener('click', async () => {
-    apiUrlInput.value = 'https://api.openai.com/v1';
+    apiUrlInput.value = 'https://api.deepseek.com/v1';
     apiKeyInput.value = '';
-    modelInput.value = 'gpt-3.5-turbo';
+    modelInput.value = 'deepseek-v4-pro';
     systemPromptInput.value = '';
     extraContextPromptInput.value = '';
     allowedDomainsInput.value = '';
@@ -470,9 +563,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       'question_bank_enabled'
     ]);
 
-    apiUrlInput.value = config.api_url || 'https://api.openai.com/v1';
+    apiUrlInput.value = config.api_url || 'https://api.deepseek.com/v1';
     apiKeyInput.value = config.api_key || '';
-    modelInput.value = config.model || 'gpt-3.5-turbo';
+    modelInput.value = config.model || 'deepseek-v4-pro';
     systemPromptInput.value = config.system_prompt || '';
     extraContextPromptInput.value = config.extra_context_prompt || '';
     allowedDomainsInput.value = (config.allowed_domains || []).join('\n');
@@ -716,6 +809,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentDrawerId = data.id;
 
     if (type === 'bank') {
+      currentRuleEditingBase = null;
+      ruleEditorView = 'form';
       drawerTitleEl.textContent = data.name || '未命名题库';
       drawerMetaEl.textContent = `${new Date(data.timestamp).toLocaleString('zh-CN')} · ${data.questions.length} 题`;
       drawerSaveBtn.style.display = 'none';
@@ -744,6 +839,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         drawerBodyEl.innerHTML = html;
       }
     } else if (type === 'history') {
+      currentRuleEditingBase = null;
+      ruleEditorView = 'form';
       const date = new Date(data.timestamp).toLocaleString('zh-CN');
       const doneCount = data.questions.filter(q => q.status === 'done').length;
       const errorCount = data.questions.filter(q => q.status === 'error').length;
@@ -778,6 +875,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (type === 'rule') {
       drawerTitleEl.textContent = '编辑解析规则';
       drawerMetaEl.textContent = data.domain || '';
+      currentRuleEditingBase = JSON.parse(JSON.stringify(data || {}));
+      ruleEditorView = 'form';
       renderRuleForm(data);
       drawerSaveBtn.style.display = '';
     }
@@ -788,6 +887,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   function closeDrawer() {
     drawerType = null;
     currentDrawerId = null;
+    currentRuleEditingBase = null;
+    ruleEditorView = 'form';
     drawerOverlay.classList.remove('open');
     drawerBodyEl.innerHTML = '';
     drawerTitleEl.textContent = '详情';
@@ -909,100 +1010,127 @@ document.addEventListener('DOMContentLoaded', async () => {
     const fillKw = (typeKeywords.fill || []).join(', ');
 
     drawerBodyEl.innerHTML = `
-      <div class="rule-form-group">
-        <label>站点域名</label>
-        <input type="text" id="rule-domain" value="${escapeHtml(rule.domain || '')}" placeholder="example.com">
+      <div class="rule-view-toggle">
+        <button type="button" class="rule-view-btn active" data-view="form">表单</button>
+        <button type="button" class="rule-view-btn" data-view="json">JSON</button>
       </div>
 
-      <div class="rule-form-section">CSS 选择器配置</div>
+      <div id="ruleViewForm">
+        <div class="rule-form-group">
+          <label>站点域名</label>
+          <input type="text" id="rule-domain" value="${escapeHtml(rule.domain || '')}" placeholder="example.com">
+        </div>
 
-      <div class="rule-form-group">
-        <label>根容器选择器（每行一个，按优先级排序）</label>
-        <textarea id="rule-rootSelectors" rows="3">${escapeHtml(rootSelectors)}</textarea>
-      </div>
-      <div class="rule-form-group">
-        <label>题目项选择器</label>
-        <input type="text" id="rule-questionItemSelector" value="${escapeHtml(selectors.questionItemSelector || '')}" placeholder=".question-type-item">
-      </div>
-      <div class="rule-form-group">
-        <label>题型标题选择器（可选）</label>
-        <input type="text" id="rule-typeHeadingSelector" value="${escapeHtml(selectors.typeHeadingSelector || '')}" placeholder=".h3.m-bottom">
-      </div>
-      <div class="rule-form-group">
-        <label>题干选择器（每行一个，按优先级排序）</label>
-        <textarea id="rule-questionTextSelectors" rows="2">${escapeHtml(questionTextSelectors)}</textarea>
-      </div>
-      <div class="rule-form-group">
-        <label>选项容器选择器（每行一个，按优先级排序）</label>
-        <textarea id="rule-optionContainerSelectors" rows="2">${escapeHtml(optionContainerSelectors)}</textarea>
-      </div>
-      <div class="rule-form-group">
-        <label>选项元素选择器</label>
-        <input type="text" id="rule-optionItemSelector" value="${escapeHtml(selectors.optionItemSelector || '')}" placeholder="dd">
-      </div>
-      <div class="rule-form-group">
-        <label>选项编号选择器（可选）</label>
-        <input type="text" id="rule-optionNumberSelector" value="${escapeHtml(selectors.optionNumberSelector || '')}" placeholder=".option-num">
+        <div class="rule-form-section">CSS 选择器配置</div>
+
+        <div class="rule-form-group">
+          <label>根容器选择器（每行一个，按优先级排序）</label>
+          <textarea id="rule-rootSelectors" rows="3">${escapeHtml(rootSelectors)}</textarea>
+        </div>
+        <div class="rule-form-group">
+          <label>题目项选择器</label>
+          <input type="text" id="rule-questionItemSelector" value="${escapeHtml(selectors.questionItemSelector || '')}" placeholder=".question-type-item">
+        </div>
+        <div class="rule-form-group">
+          <label>题型标题选择器（可选）</label>
+          <input type="text" id="rule-typeHeadingSelector" value="${escapeHtml(selectors.typeHeadingSelector || '')}" placeholder=".h3.m-bottom">
+        </div>
+        <div class="rule-form-group">
+          <label>题干选择器（每行一个，按优先级排序）</label>
+          <textarea id="rule-questionTextSelectors" rows="2">${escapeHtml(questionTextSelectors)}</textarea>
+        </div>
+        <div class="rule-form-group">
+          <label>选项容器选择器（每行一个，按优先级排序）</label>
+          <textarea id="rule-optionContainerSelectors" rows="2">${escapeHtml(optionContainerSelectors)}</textarea>
+        </div>
+        <div class="rule-form-group">
+          <label>选项元素选择器</label>
+          <input type="text" id="rule-optionItemSelector" value="${escapeHtml(selectors.optionItemSelector || '')}" placeholder="dd">
+        </div>
+        <div class="rule-form-group">
+          <label>选项编号选择器（可选）</label>
+          <input type="text" id="rule-optionNumberSelector" value="${escapeHtml(selectors.optionNumberSelector || '')}" placeholder=".option-num">
+        </div>
+
+        <div class="rule-form-section">题型指示器（class 名关键词，逗号分隔）</div>
+        <div class="hint" style="margin-bottom: 8px; font-size: 12px;">题目元素或其父元素的 class 包含这些关键词时，优先据此判断题型（适用于用 checkbox 模拟单选等场景）</div>
+        <div class="rule-form-group">
+          <label>单选指示器</label>
+          <input type="text" id="rule-singleIndicators" value="${escapeHtml(singleIndicators)}" placeholder="singleContainer, singleChoice">
+        </div>
+        <div class="rule-form-group">
+          <label>多选指示器</label>
+          <input type="text" id="rule-multipleIndicators" value="${escapeHtml(multipleIndicators)}" placeholder="multipleContainer, multipleChoice">
+        </div>
+        <div class="rule-form-group">
+          <label>判断指示器</label>
+          <input type="text" id="rule-judgeIndicators" value="${escapeHtml(judgeIndicators)}" placeholder="judgeContainer, true-false">
+        </div>
+
+        <div class="rule-form-section">文本降级选择器</div>
+        <div class="rule-form-group">
+          <label>降级文本选择器（每行一个）</label>
+          <textarea id="rule-fallbackTextSelectors" rows="4">${escapeHtml(fallbackTextSelectors)}</textarea>
+        </div>
+
+        <div class="rule-form-section">题型检测关键词</div>
+        <div class="rule-form-group">
+          <label>多选题关键词（逗号分隔）</label>
+          <input type="text" id="rule-kwMultiple" value="${escapeHtml(multipleKw)}" placeholder="多选, 以下哪些, 至少选">
+        </div>
+        <div class="rule-form-group">
+          <label>判断题关键词（逗号分隔）</label>
+          <input type="text" id="rule-kwJudge" value="${escapeHtml(judgeKw)}" placeholder="正确, 错误, 对, 错">
+        </div>
+        <div class="rule-form-group">
+          <label>填空题关键词（逗号分隔）</label>
+          <input type="text" id="rule-kwFill" value="${escapeHtml(fillKw)}" placeholder="___, 【, 填空">
+        </div>
       </div>
 
-      <div class="rule-form-section">题型指示器（class 名关键词，逗号分隔）</div>
-      <div class="hint" style="margin-bottom: 8px; font-size: 12px;">题目元素或其父元素的 class 包含这些关键词时，优先据此判断题型（适用于用 checkbox 模拟单选等场景）</div>
-      <div class="rule-form-group">
-        <label>单选指示器</label>
-        <input type="text" id="rule-singleIndicators" value="${escapeHtml(singleIndicators)}" placeholder="singleContainer, singleChoice">
-      </div>
-      <div class="rule-form-group">
-        <label>多选指示器</label>
-        <input type="text" id="rule-multipleIndicators" value="${escapeHtml(multipleIndicators)}" placeholder="multipleContainer, multipleChoice">
-      </div>
-      <div class="rule-form-group">
-        <label>判断指示器</label>
-        <input type="text" id="rule-judgeIndicators" value="${escapeHtml(judgeIndicators)}" placeholder="judgeContainer, true-false">
-      </div>
-
-      <div class="rule-form-section">文本降级选择器</div>
-      <div class="rule-form-group">
-        <label>降级文本选择器（每行一个）</label>
-        <textarea id="rule-fallbackTextSelectors" rows="4">${escapeHtml(fallbackTextSelectors)}</textarea>
-      </div>
-
-      <div class="rule-form-section">题型检测关键词</div>
-      <div class="rule-form-group">
-        <label>多选题关键词（逗号分隔）</label>
-        <input type="text" id="rule-kwMultiple" value="${escapeHtml(multipleKw)}" placeholder="多选, 以下哪些, 至少选">
-      </div>
-      <div class="rule-form-group">
-        <label>判断题关键词（逗号分隔）</label>
-        <input type="text" id="rule-kwJudge" value="${escapeHtml(judgeKw)}" placeholder="正确, 错误, 对, 错">
-      </div>
-      <div class="rule-form-group">
-        <label>填空题关键词（逗号分隔）</label>
-        <input type="text" id="rule-kwFill" value="${escapeHtml(fillKw)}" placeholder="___, 【, 填空">
+      <div id="ruleViewJson" class="rule-json" style="display:none;">
+        <div class="rule-form-group">
+          <label>规则 JSON</label>
+          <textarea id="rule-json" rows="18"></textarea>
+          <div class="hint" style="margin-top: 6px;">可直接编辑 JSON；切回表单或保存时会校验格式。</div>
+        </div>
       </div>
     `;
 
     drawerSaveBtn.dataset.action = 'save-rule';
     drawerSaveBtn.dataset.ruleId = rule.id || '';
     drawerSaveBtn.dataset.ruleDomain = rule.domain || '';
+
+    drawerBodyEl.dataset.ruleView = 'form';
+    ruleEditorView = 'form';
+
+    drawerBodyEl.querySelectorAll('.rule-view-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetView = btn.dataset.view;
+        setRuleEditorView(targetView);
+      });
+    });
   }
 
-  /**
-   * 从抽屉表单中收集数据并保存规则
-   */
-  async function saveRuleFromDrawer() {
-    const originalId = drawerSaveBtn.dataset.ruleId || '';
-    const originalDomain = drawerSaveBtn.dataset.ruleDomain || '';
+  function parseLines(text) {
+    return String(text || '').split('\n').map(s => s.trim()).filter(Boolean);
+  }
 
-    const domain = drawerBodyEl.querySelector('#rule-domain').value.trim();
-    if (!domain) {
-      showRuleStatus('域名不能为空');
-      return;
-    }
+  function parseKeywords(text) {
+    return String(text || '').split(',').map(s => s.trim()).filter(Boolean);
+  }
 
-    const parseLines = (text) => text.split('\n').map(s => s.trim()).filter(Boolean);
-    const parseKeywords = (text) => text.split(',').map(s => s.trim()).filter(Boolean);
+  function normalizeArrayField(value, mode) {
+    if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
+    if (typeof value === 'string') return mode === 'keywords' ? parseKeywords(value) : parseLines(value);
+    return [];
+  }
 
-    const updatedFields = {
+  function getRuleUpdatedFieldsFromForm() {
+    const domain = drawerBodyEl.querySelector('#rule-domain')?.value?.trim() || '';
+    if (!domain) return null;
+
+    return {
       domain,
       name: domain,
       selectors: {
@@ -1026,24 +1154,193 @@ document.addEventListener('DOMContentLoaded', async () => {
         fill: parseKeywords(drawerBodyEl.querySelector('#rule-kwFill').value)
       }
     };
+  }
+
+  function populateRuleFormFromRule(rule) {
+    const selectors = rule.selectors || {};
+    const typeKeywords = rule.typeKeywords || {};
+    const typeIndicators = selectors.typeIndicators || {};
+
+    const setValue = (id, value) => {
+      const el = drawerBodyEl.querySelector(id);
+      if (!el) return;
+      el.value = value == null ? '' : String(value);
+    };
+
+    setValue('#rule-domain', rule.domain || '');
+    setValue('#rule-rootSelectors', (selectors.rootSelectors || []).join('\n'));
+    setValue('#rule-questionItemSelector', selectors.questionItemSelector || '');
+    setValue('#rule-typeHeadingSelector', selectors.typeHeadingSelector || '');
+    setValue('#rule-questionTextSelectors', (selectors.questionTextSelectors || []).join('\n'));
+    setValue('#rule-optionContainerSelectors', (selectors.optionContainerSelectors || []).join('\n'));
+    setValue('#rule-optionItemSelector', selectors.optionItemSelector || '');
+    setValue('#rule-optionNumberSelector', selectors.optionNumberSelector || '');
+    setValue('#rule-singleIndicators', (typeIndicators.single || []).join(', '));
+    setValue('#rule-multipleIndicators', (typeIndicators.multiple || []).join(', '));
+    setValue('#rule-judgeIndicators', (typeIndicators.judge || []).join(', '));
+    setValue('#rule-fallbackTextSelectors', (selectors.fallbackTextSelectors || []).join('\n'));
+    setValue('#rule-kwMultiple', (typeKeywords.multiple || []).join(', '));
+    setValue('#rule-kwJudge', (typeKeywords.judge || []).join(', '));
+    setValue('#rule-kwFill', (typeKeywords.fill || []).join(', '));
+  }
+
+  function normalizeRuleUpdatedFieldsFromJson(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const id = String(raw.id || '').trim();
+    const domain = String(raw.domain || '').trim();
+    if (!domain) return null;
+
+    const selectors = raw.selectors || {};
+    const typeIndicators = selectors.typeIndicators || {};
+    const typeKeywords = raw.typeKeywords || {};
+
+    return {
+      id,
+      domain,
+      name: String(raw.name || domain),
+      selectors: {
+        rootSelectors: normalizeArrayField(selectors.rootSelectors, 'lines'),
+        questionItemSelector: String(selectors.questionItemSelector || '').trim(),
+        typeHeadingSelector: String(selectors.typeHeadingSelector || '').trim(),
+        questionTextSelectors: normalizeArrayField(selectors.questionTextSelectors, 'lines'),
+        optionContainerSelectors: normalizeArrayField(selectors.optionContainerSelectors, 'lines'),
+        optionItemSelector: String(selectors.optionItemSelector || '').trim(),
+        optionNumberSelector: String(selectors.optionNumberSelector || '').trim(),
+        typeIndicators: {
+          single: normalizeArrayField(typeIndicators.single, 'keywords'),
+          multiple: normalizeArrayField(typeIndicators.multiple, 'keywords'),
+          judge: normalizeArrayField(typeIndicators.judge, 'keywords')
+        },
+        fallbackTextSelectors: normalizeArrayField(selectors.fallbackTextSelectors, 'lines')
+      },
+      typeKeywords: {
+        multiple: normalizeArrayField(typeKeywords.multiple, 'keywords'),
+        judge: normalizeArrayField(typeKeywords.judge, 'keywords'),
+        fill: normalizeArrayField(typeKeywords.fill, 'keywords')
+      }
+    };
+  }
+
+  function makeUniqueRuleId(desiredId, rules, skipIndex) {
+    const base = String(desiredId || '').trim();
+    const candidateBase = base || `manual-${Date.now()}`;
+    const isTaken = value => rules.some((r, idx) => idx !== skipIndex && r && r.id === value);
+    if (!isTaken(candidateBase)) return candidateBase;
+    for (let i = 1; i < 1000; i++) {
+      const next = `${candidateBase}-${i}`;
+      if (!isTaken(next)) return next;
+    }
+    return `${candidateBase}-${Date.now()}`;
+  }
+
+  function buildRuleObjectForJson(baseRule, updatedFields) {
+    const base = baseRule ? JSON.parse(JSON.stringify(baseRule)) : {};
+    return {
+      ...base,
+      ...updatedFields,
+      selectors: updatedFields.selectors || {},
+      typeKeywords: updatedFields.typeKeywords || {}
+    };
+  }
+
+  function setRuleEditorView(view) {
+    const targetView = view === 'json' ? 'json' : 'form';
+    if (targetView === ruleEditorView) return;
+
+    const formPanel = drawerBodyEl.querySelector('#ruleViewForm');
+    const jsonPanel = drawerBodyEl.querySelector('#ruleViewJson');
+    const jsonTextarea = drawerBodyEl.querySelector('#rule-json');
+    if (!formPanel || !jsonPanel || !jsonTextarea) return;
+
+    if (targetView === 'json') {
+      const updatedFields = getRuleUpdatedFieldsFromForm();
+      if (!updatedFields) {
+        showRuleStatus('域名不能为空');
+        return;
+      }
+      const fullRule = buildRuleObjectForJson(currentRuleEditingBase, updatedFields);
+      jsonTextarea.value = JSON.stringify(fullRule, null, 2);
+      formPanel.style.display = 'none';
+      jsonPanel.style.display = '';
+    } else {
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonTextarea.value || '');
+      } catch (e) {
+        showRuleStatus('JSON 格式错误，无法切回表单');
+        return;
+      }
+      const updatedFields = normalizeRuleUpdatedFieldsFromJson(parsed);
+      if (!updatedFields) {
+        showRuleStatus('JSON 缺少 domain 或结构不正确');
+        return;
+      }
+      const fullRule = buildRuleObjectForJson(currentRuleEditingBase, updatedFields);
+      populateRuleFormFromRule(fullRule);
+      jsonPanel.style.display = 'none';
+      formPanel.style.display = '';
+    }
+
+    ruleEditorView = targetView;
+    drawerBodyEl.dataset.ruleView = targetView;
+    drawerBodyEl.querySelectorAll('.rule-view-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === targetView);
+    });
+  }
+
+  /**
+   * 从抽屉表单中收集数据并保存规则
+   */
+  async function saveRuleFromDrawer() {
+    const originalId = drawerSaveBtn.dataset.ruleId || '';
+    const originalDomain = drawerSaveBtn.dataset.ruleDomain || '';
+
+    const view = drawerBodyEl.dataset.ruleView || 'form';
+    let updatedFields = null;
+    if (view === 'json') {
+      const jsonText = drawerBodyEl.querySelector('#rule-json')?.value || '';
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonText);
+      } catch (e) {
+        showRuleStatus('JSON 格式错误，无法保存');
+        return;
+      }
+      updatedFields = normalizeRuleUpdatedFieldsFromJson(parsed);
+      if (!updatedFields) {
+        showRuleStatus('JSON 缺少 domain 或结构不正确');
+        return;
+      }
+    } else {
+      updatedFields = getRuleUpdatedFieldsFromForm();
+      if (!updatedFields) {
+        showRuleStatus('域名不能为空');
+        return;
+      }
+    }
 
     const result = await chrome.storage.local.get(['parse_rules']);
     const rules = result.parse_rules || [];
 
     // 如果域名变了，检查是否与其他规则冲突
-    if (domain !== originalDomain) {
-      const conflict = rules.find(r => r.domain === domain);
+    if (updatedFields.domain !== originalDomain) {
+      const conflict = rules.find(r => r.domain === updatedFields.domain);
       if (conflict) {
-        showRuleStatus(`域名 ${domain} 已存在规则，无法重复`);
+        showRuleStatus(`域名 ${updatedFields.domain} 已存在规则，无法重复`);
         return;
       }
     }
 
     const idx = rules.findIndex(r => r.id === originalId);
+    const desiredId = view === 'json'
+      ? (updatedFields.id || originalId || `manual-${Date.now()}`)
+      : (originalId || `manual-${Date.now()}`);
+    const finalId = makeUniqueRuleId(desiredId, rules, idx >= 0 ? idx : -1);
+    const now = Date.now();
     if (idx >= 0) {
-      rules[idx] = { ...rules[idx], ...updatedFields, lastUsed: Date.now() };
+      rules[idx] = { ...rules[idx], ...updatedFields, id: finalId, lastUsed: now };
     } else {
-      rules.push({ ...updatedFields, id: `manual-${Date.now()}`, timestamp: Date.now(), lastUsed: Date.now() });
+      rules.push({ ...updatedFields, id: finalId, timestamp: now, lastUsed: now });
     }
 
     await chrome.storage.local.set({ parse_rules: rules });

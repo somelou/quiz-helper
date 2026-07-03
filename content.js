@@ -50,8 +50,14 @@
     questionItemSelector: '.question-type-item',
     typeHeadingSelector: '.h3.m-bottom',
     questionTextSelectors: ['.question', '[data-region="content"]'],
-    optionContainerSelectors: ['.options', '[data-region="options"]'],
-    optionItemSelector: 'dd',
+    optionContainerSelectors: [
+      '.options', '[data-region="options"]',
+      '.option', '.option-list', '.optionList',
+      '.choices', '.choice', '.answers', '.answer', '.answer-list',
+      '[role="radiogroup"]', '[role="listbox"]',
+      'ul', 'ol'
+    ],
+    optionItemSelector: 'dd, li, label, .option-item, .choice, .answer-item, [role="option"]',
     optionNumberSelector: '.option-num',
     typeIndicators: {
       single: ['singleContainer', 'single-question', 'singleChoice'],
@@ -268,15 +274,52 @@
   async function ensureDefaultRules() {
     const result = await chrome.storage.local.get(['parse_rules']);
     const rules = result.parse_rules || [];
-    if (!rules.some(r => r.domain === 'example.com')) {
+    if (!rules.some(r => r.id === 'default-example')) {
+      const now = Date.now();
       rules.push({
         id: 'default-example',
         domain: 'example.com',
-        name: 'Example（默认）',
-        timestamp: Date.now(),
-        lastUsed: Date.now(),
-        selectors: DEFAULT_SELECTORS,
-        typeKeywords: DEFAULT_TYPE_KEYWORDS
+        lastUsed: now,
+        name: 'example.com',
+        selectors: {
+          rootSelectors: [
+            '.main-padding-content > .preview-content',
+            '.main-padding-content'
+          ],
+          questionItemSelector: '.question-type-item',
+          typeHeadingSelector: '.h3.m-bottom',
+          questionTextSelectors: [
+            '.question',
+            '[data-region="content"]'
+          ],
+          optionContainerSelectors: [
+            '.options',
+            '[data-region="options"]'
+          ],
+          optionItemSelector: 'dd',
+          optionNumberSelector: '.option-num',
+          typeIndicators: {
+            single: [],
+            multiple: [],
+            judge: []
+          },
+          fallbackTextSelectors: [
+            '.main-padding-content .preview-content',
+            '.achievement-main', '.main-content', '.question-type-item',
+            '[data-current*="exam/exam/question/types/answer/"]',
+            '[class*="question"]', '[id*="question"]',
+            '[class*="quiz"]', '[id*="quiz"]',
+            '[class*="exam"]', '[id*="exam"]',
+            '.q-main', '.q-title', '.problem', '.item-title'
+          ]
+        },
+        timestamp: now,
+        typeKeywords: {
+          multiple: ['多选', '以下哪些', '至少选', '多项选择', '可多选', '不止一个', '多个正确'],
+          judge: ['正确', '错误', '对', '错'],
+          fill: ['___', '【', '填空']
+        },
+        useCount: 1
       });
       await chrome.storage.local.set({ parse_rules: rules });
     }
@@ -329,6 +372,15 @@
     return normalizeWhitespace(clone.innerText || '');
   }
 
+  function sliceWithTail(text, limit) {
+    const value = String(text || '');
+    if (value.length <= limit) return value;
+    const marker = '\n...\n';
+    const headLen = Math.floor((limit - marker.length) / 2);
+    const tailLen = Math.max(0, limit - marker.length - headLen);
+    return value.slice(0, headLen) + marker + value.slice(-tailLen);
+  }
+
   /**
    * 提取元素的外层 HTML，移除脚本和样式，并限制长度
    * @param {Element} el
@@ -339,7 +391,7 @@
     if (!el) return '';
     const clone = el.cloneNode(true);
     clone.querySelectorAll('script, style, iframe').forEach(node => node.remove());
-    return normalizeWhitespace(clone.outerHTML || '').slice(0, limit);
+    return sliceWithTail(normalizeWhitespace(clone.outerHTML || ''), limit);
   }
 
   // ===== 题型识别 =====
@@ -474,7 +526,7 @@
     if (!optionsEl) return [];
 
     const selectors = getSelectors();
-    const optionItemSel = selectors.optionItemSelector || 'dd';
+    const optionItemSel = selectors.optionItemSelector || DEFAULT_SELECTORS.optionItemSelector || 'dd';
     const optionNumSel = selectors.optionNumberSelector || '.option-num';
 
     // 优先查找结构化选项元素
@@ -498,6 +550,25 @@
       }).filter(Boolean);
     }
 
+    const labelItems = Array.from(optionsEl.querySelectorAll('label')).filter(label => {
+      if (label.querySelector('input[type="radio"], input[type="checkbox"]')) return true;
+      const forId = label.getAttribute('for');
+      if (!forId) return false;
+      try {
+        return Boolean(optionsEl.querySelector(`#${CSS.escape(forId)}`));
+      } catch (e) {
+        return false;
+      }
+    });
+    if (labelItems.length >= 2) {
+      return labelItems.map((label, index) => {
+        const text = normalizeWhitespace(getCleanText(label) || label.innerText || '');
+        if (!text) return '';
+        if (/^[A-Ha-h][\.\、\)]\s*/.test(text)) return text;
+        return `${String.fromCharCode(65 + index)}. ${text}`.trim();
+      }).filter(Boolean);
+    }
+
     // 降级为直接文本拆分
     const raw = getCleanText(optionsEl);
     return raw ? raw.split('\n').map(line => normalizeWhitespace(line)).filter(Boolean) : [];
@@ -512,6 +583,37 @@
    * @param {number} index
    * @returns {Object|null}
    */
+  function findCommonAncestor(root, elements) {
+    if (!root || !elements || elements.length === 0) return null;
+    let candidate = elements[0] instanceof Element ? elements[0] : elements[0]?.parentElement;
+    while (candidate && candidate !== root) {
+      if (elements.every(el => candidate.contains(el))) return candidate;
+      candidate = candidate.parentElement;
+    }
+    if (root instanceof Element && elements.every(el => root.contains(el))) return root;
+    return null;
+  }
+
+  function findOptionsElement(questionEl) {
+    const selectors = getSelectors();
+    const direct = selectors.optionContainerSelectors
+      .map(sel => questionEl.querySelector(sel))
+      .find(Boolean);
+    if (direct) return direct;
+
+    const inputs = Array.from(questionEl.querySelectorAll('input[type="radio"], input[type="checkbox"]'));
+    if (inputs.length >= 2) {
+      return findCommonAncestor(questionEl, inputs);
+    }
+
+    const labels = Array.from(questionEl.querySelectorAll('label'));
+    if (labels.length >= 2) {
+      return findCommonAncestor(questionEl, labels);
+    }
+
+    return null;
+  }
+
   function buildQuestionRecord(questionEl, fallbackType, index) {
     const selectors = getSelectors();
     const questionNode = selectors.questionTextSelectors
@@ -522,9 +624,7 @@
     const questionText = normalizeWhitespace(getCleanText(questionNode)).replace(/^(\d+[\.\、\)\】\]])\s*\n\s*/, '$1 ');
     if (!questionText) return null;
 
-    const optionsEl = selectors.optionContainerSelectors
-      .map(sel => questionEl.querySelector(sel))
-      .find(Boolean);
+    const optionsEl = findOptionsElement(questionEl);
     const optionLines = collectOptionLines(optionsEl);
     const optionText = optionLines.join('\n');
     const fullText = optionText ? `${questionText}\n${optionText}` : questionText;
@@ -854,7 +954,7 @@
         padding: 8px;
         border-radius: 4px;
         font-size: 13px;
-        line-height: 1.5;
+        line-height: 1.6;
         color: #333;
         max-height: 200px;
         overflow-y: auto;
@@ -876,8 +976,17 @@
         user-select: text;
       }
       .qh-loading-text { color: #667eea; font-style: italic; }
-      .qh-error-text { color: #d32f2f; }
-      .qh-answer-text { white-space: pre-wrap; }
+      .qh-error-text { 
+        color: #d32f2f; 
+        font-size: 13px; 
+        line-height: 1.6; 
+      }
+      .qh-answer-text { 
+        white-space: pre-wrap; 
+        font-size: 13px; 
+        line-height: 1.6; 
+        color: #333; 
+      }
       .qh-bank-refs { margin-top: 12px; }
       .qh-bank-ref {
         margin-bottom: 6px;
@@ -1030,6 +1139,12 @@
       :host(.dark) .qh-card-body code {
         background: #333;
         color: #ccc;
+      }
+      :host(.dark) .qh-answer-text {
+        color: #ccc;
+      }
+      :host(.dark) .qh-error-text {
+        color: #ef5350;
       }
       :host(.dark) .qh-type-single { background: #1a2a44; color: #64b5f6; }
       :host(.dark) .qh-type-multiple { background: #2a1a3a; color: #ce93d8; }
@@ -2006,9 +2121,9 @@
     try {
       const response = await chrome.runtime.sendMessage({
         action: 'extractQuestions',
-        pageText: selectedText.slice(0, 8000),
+        pageText: sliceWithTail(selectedText, 8000),
         pageStructure: sanitizeOuterHTML(element, 12000),
-        selectionText: selectedText.slice(0, 2000),
+        selectionText: sliceWithTail(selectedText, 2000),
         elementHint: describeElement(element)
       });
 
@@ -2034,9 +2149,9 @@
                 : ['.question', '[data-region="content"]'],
               optionContainerSelectors: response.selectors.optionContainerSelector
                 ? [response.selectors.optionContainerSelector]
-                : ['.options', '[data-region="options"]'],
-              optionItemSelector: response.selectors.optionItemSelector || 'dd',
-              optionNumberSelector: response.selectors.optionNumberSelector || '.option-num',
+                : DEFAULT_SELECTORS.optionContainerSelectors,
+              optionItemSelector: response.selectors.optionItemSelector || DEFAULT_SELECTORS.optionItemSelector || 'dd',
+              optionNumberSelector: response.selectors.optionNumberSelector || DEFAULT_SELECTORS.optionNumberSelector || '.option-num',
               typeIndicators: response.selectors.typeIndicators || DEFAULT_SELECTORS.typeIndicators,
               fallbackTextSelectors: DEFAULT_SELECTORS.fallbackTextSelectors
             },

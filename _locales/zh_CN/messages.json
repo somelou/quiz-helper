@@ -1,0 +1,8 @@
+{
+  "appName": {
+    "message": "题目助手 - AI 参考答案"
+  },
+  "appDescription": {
+    "message": "自动提取页面题目，逐题调用大模型 API 获取参考答案"
+  }
+}

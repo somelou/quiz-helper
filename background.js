@@ -64,9 +64,9 @@ async function handleFetchAnswer(questionText, questionType) {
     'system_prompt',
     'extra_context_prompt'
   ]);
-  const apiUrl = (config.api_url || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  const apiUrl = (config.api_url || 'https://api.deepseek.com/v1').replace(/\/+$/, '');
   const apiKey = config.api_key || '';
-  const model = config.model || 'gpt-3.5-turbo';
+  const model = config.model || 'deepseek-v4-pro';
 
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
@@ -119,9 +119,9 @@ async function handleVerifyBankAnswer(questionText, questionType, bankMatches) {
     'model',
     'extra_context_prompt'
   ]);
-  const apiUrl = (config.api_url || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  const apiUrl = (config.api_url || 'https://api.deepseek.com/v1').replace(/\/+$/, '');
   const apiKey = config.api_key || '';
-  const model = config.model || 'gpt-3.5-turbo';
+  const model = config.model || 'deepseek-v4-pro';
 
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
@@ -202,9 +202,9 @@ ${refText}
  */
 async function handleExtractQuestions(pageText, pageStructure, selectionText, elementHint) {
   const config = await chrome.storage.local.get(['api_url', 'api_key', 'model']);
-  const apiUrl = (config.api_url || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  const apiUrl = (config.api_url || 'https://api.deepseek.com/v1').replace(/\/+$/, '');
   const apiKey = config.api_key || '';
-  const model = config.model || 'gpt-3.5-turbo';
+  const model = config.model || 'deepseek-v4-pro';
 
   if (!apiKey) {
     throw new Error('未配置 API Key');
@@ -267,31 +267,61 @@ async function handleExtractQuestions(pageText, pageStructure, selectionText, el
  * @returns {string}
  */
 function buildExtractPrompt(pageText, pageStructure, selectionText, elementHint) {
-  return `你是一个网页题目提取助手。用户从网页中选中了一块局部 DOM 区域，请只基于这块区域提取题目，不要假设整页上下文。
+  return `你是一个网页题目提取助手。用户从网页中选中了一块局部 DOM 区域，请只基于这块局部区域提取题目，不要假设整页上下文，不要补充选区外的信息。
 
-要求：
-1. 每道题独立提取，保留完整题号
-2. 判断每道题的题型：single(单选)、multiple(多选)、judge(判断)、fill(填空)
-3. 优先结合局部 HTML 结构判断题型：
-   - 有 checkbox 通常是 multiple，但要注意某些考试系统用 checkbox 模拟单选（外层 class 含 singleContainer 等）
-   - 题目容器或其父元素的 class 名往往直接表明题型：如 singleContainer/单选、multipleContainer/多选、judgeContainer/判断
-   - 有 radio 且选项为 正确/错误 或 对/错 通常是 judge
-   - 有 radio 且存在 A/B/C/D 等选项通常是 single
-   - 有明显空格线、填空提示通常是 fill
-4. 同时分析 HTML 结构，提取 CSS 选择器配置，用于后续自动解析：
-   - rootSelector: 包含所有题目的根容器选择器
-   - questionItemSelector: 单个题目元素的选择器
-   - typeHeadingSelector: 题型标题元素的选择器（如"单选题"标题，如无则为空字符串）
-   - questionTextSelector: 题干内容元素的选择器
-   - optionContainerSelector: 选项容器元素的选择器
-   - optionItemSelector: 单个选项元素的选择器
-   - optionNumberSelector: 选项编号元素的选择器（如无则为空字符串）
-5. 提取题型指示器（typeIndicators），用于通过 class 名判断题型（当 checkbox/radio 无法准确区分时尤为重要）：
-   - single: 题目元素或其祖先元素 class 中表示"单选"的关键词列表（如 singleContainer、single-question）
-   - multiple: 表示"多选"的关键词列表（如 multipleContainer、multi-question）
-   - judge: 表示"判断"的关键词列表（如 judgeContainer、true-false）
-   - 如果 HTML 中没有明显的 class 区分，对应数组留空 []
-6. 输出为严格的 JSON 对象格式（不要输出 markdown）：
+你的任务分两步，必须按顺序完成：
+第 1 步：先从局部区域中完整提取所有题目，优先保证题干和选项不要漏。
+第 2 步：再根据你已经识别出的题目结构，反推出后续自动解析可用的 CSS selectors。
+
+抽取原则：
+1. 如果选区中包含多道题，必须全部拆分出来，不能把整块区域压成一题。
+2. 每道题独立提取，保留完整题号、题干、选项，并输出题型：single(单选)、multiple(多选)、judge(判断)、fill(填空)。
+3. 先识别重复出现的单题容器，再在每个题容器内识别题干和选项；不要先生成 selectors 再倒推题目。
+4. 如果题型标题（如“单选”“多选”“判断”）和多道题共存，题型标题只是分组信息，不能把整组题合并成一题。
+5. 若不同分组内题号重复（如都从“1、”开始），仍要按 DOM 结构拆题，不能按题号去重。
+
+选项识别规则（非常重要，宁可多提也不要漏提）：
+1. input[type=radio]、input[type=checkbox] 只是控件，不是选项文本。
+2. 选项文本通常在控件后面的 label、span、div、dd、li、p 等节点里；需要把这些文本拼接为完整选项。
+3. 如果存在 A./B./C./D.、A、B、C、D、A) B) 等编号，应视为显式选项编号并保留在题目文本中。
+4. 对判断题，即使没有 A/B/C/D，只要存在“正确/错误”或“对/错”这类互斥选项，也必须提取为 judge，并把这些选项写入题目文本。
+5. 如果一个题目块中既有控件又有紧邻文本，即使 HTML 很深，也要把紧邻文本识别为选项，而不是只提取控件。
+6. 如果无法百分百确认某段文本是否为当前题选项，但它高度疑似属于当前题，请优先并入当前题文本，避免漏掉选项。
+7. 不允许只提取题干而丢掉明显存在的选项，除非该题在局部区域中确实没有出现任何选项文本。
+
+题型判断规则：
+1. 有 checkbox 通常是 multiple，但如果题目容器或祖先 class 明显表示单选，也可以判为 single。
+2. 有 radio 且存在 A/B/C/D 等选项通常是 single。
+3. 有 radio 且选项为“正确/错误”或“对/错”通常是 judge。
+4. 有明显空格线、填空提示、下划线时通常是 fill。
+5. 如果 HTML 中的 class、标题或 data-current 明确指示题型，应优先参考这些结构线索。
+
+噪音过滤规则：
+1. 收藏、待检查、已完成、标记、提交、交卷、上一题、下一题、按钮、导航、页脚、统计信息等默认视为噪音，不要并入题目。
+2. 只有当这些文字实际出现在题干或选项节点内部时，才可保留。
+3. 如果局部 HTML 中有与题目并列的状态区域、工具栏区域、按钮区域，请忽略它们。
+
+selectors 生成规则：
+1. selectors 必须基于你已经识别出的题目结构生成，而不是凭感觉猜测。
+2. rootSelector 应覆盖当前选区内所有题目。
+3. questionItemSelector 应指向单个题目块，并能在该根容器下批量匹配多题。
+4. questionTextSelector 应稳定命中题干节点。
+5. optionContainerSelector 应稳定命中选项区域。
+6. optionItemSelector 应尽量指向单个选项元素，如 dd、li、label、.option-item 等。
+7. optionNumberSelector 只有在存在稳定的选项编号节点时才填写，否则返回空字符串。
+8. 优先使用稳定的 class、data-region、data-current 模式；避免使用动态 id、随机 key、只适用于单题的深层路径。
+9. typeHeadingSelector 只有在题型标题节点明确且稳定时才填写，否则返回空字符串。
+10. typeIndicators 用于补充 class 名关键词：
+   - single: 题目元素或祖先 class 中表示单选的关键词数组
+   - multiple: 表示多选的关键词数组
+   - judge: 表示判断的关键词数组
+   - 如果没有明显线索，返回空数组 []
+
+输出要求：
+1. 只输出严格 JSON 对象，不要输出 markdown，不要输出解释文字。
+2. questions 中每一题的 text 必须尽量包含完整题干和完整选项。
+3. 如果局部区域中能看到选项，就必须把选项写进 text。
+4. 返回格式必须是：
 {
   "questions": [
     { "id": 1, "text": "完整题目文本", "type": "single" }
@@ -311,8 +341,6 @@ function buildExtractPrompt(pageText, pageStructure, selectionText, elementHint)
     }
   }
 }
-7. 如果这块区域包含多道题，需要全部拆分出来
-8. 只输出 JSON 对象，不要输出其他文字、不要输出 markdown
 
 区域说明：
 - 选中元素：${elementHint || 'unknown'}
@@ -447,9 +475,9 @@ async function handleParseQuestionBank(text, fileName) {
   try {
     const fallbackQuestions = parseQuestionBankByRules(text);
     const config = await chrome.storage.local.get(['api_url', 'api_key', 'model']);
-    const apiUrl = (config.api_url || 'https://api.openai.com/v1').replace(/\/+$/, '');
+    const apiUrl = (config.api_url || 'https://api.deepseek.com/v1').replace(/\/+$/, '');
     const apiKey = config.api_key || '';
-    const model = config.model || 'gpt-3.5-turbo';
+    const model = config.model || 'deepseek-v4-pro';
 
     if (!apiKey) {
       if (fallbackQuestions.length > 0) {

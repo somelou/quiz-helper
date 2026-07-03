@@ -477,6 +477,37 @@
       margin: 16px 0 8px 0; padding-bottom: 6px;
       border-bottom: 1px solid #eee;
     }
+    .rule-view-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #e6e8f0;
+    }
+    .rule-view-btn {
+      height: 28px;
+      padding: 0 12px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      color: #666;
+      transition: background 0.2s, color 0.2s, opacity 0.2s;
+    }
+    .rule-view-btn:hover { opacity: 0.9; }
+    .rule-view-btn.active {
+      background: #fff;
+      color: #333;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .rule-json textarea {
+      min-height: 320px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
     .rule-form-actions {
       display: flex; gap: 8px; margin-top: 16px;
     }
@@ -672,6 +703,9 @@
       background: #333; border-color: #555; color: #ccc;
     }
     body.dark .rule-form-section { color: #ddd; border-bottom-color: #3a3a3a; }
+    body.dark .rule-view-toggle { background: #2a2a2a; border-color: #3a3a3a; }
+    body.dark .rule-view-btn { color: #aaa; }
+    body.dark .rule-view-btn.active { background: #333; color: #e0e0e0; box-shadow: 0 1px 3px rgba(0,0,0,0.35); }
     body.dark .shortcut-box { background: #2a2a2a; border-color: #3a3a3a; }
     body.dark .shortcut-value { color: #e0e0e0; }
     body.dark .switch-slider { background: #555; }
@@ -721,8 +755,8 @@
 
     <div class="form-group">
       <label for="apiUrl">API 基础 URL</label>
-      <input type="text" id="apiUrl" placeholder="https://api.openai.com/v1">
-      <div class="hint">例如：https://api.openai.com/v1、https://api.deepseek.com/v1</div>
+      <input type="text" id="apiUrl" placeholder="https://api.deepseek.com/v1">
+      <div class="hint">例如：https://api.deepseek.com/v1、https://api.openai.com/v1</div>
     </div>
 
     <div class="form-group">
@@ -736,8 +770,8 @@
 
     <div class="form-group">
       <label for="model">模型名称</label>
-      <input type="text" id="model" placeholder="gpt-3.5-turbo">
-      <div class="hint">例如：gpt-3.5-turbo、gpt-4、deepseek-chat、qwen-turbo</div>
+      <input type="text" id="model" placeholder="deepseek-v4-pro">
+      <div class="hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</div>
     </div>
 
     <div class="form-group">
