@@ -92,4 +92,4 @@ body {
   margin-top: 4px;
   line-height: 1.5;
 }
-.hint strong { color: var(--color-primary); }
+.hint strong { color: var(--color-primary); letter-spacing: 1px; }

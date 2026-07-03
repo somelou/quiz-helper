@@ -5,6 +5,8 @@
   if (window.__quizHelperInjected) return;
   window.__quizHelperInjected = true;
 
+  const { safeSet } = globalThis.QuizHelperStorageUtils;
+
   // ===== 状态变量 =====
   let shadowRoot = null;
   let panelElement = null;
@@ -27,8 +29,7 @@
     metaKey: false,
     shiftKey: false,
     code: 'KeyQ',
-    key: 'q',
-    display: 'Alt+Q'
+    key: 'q'
   };
 
   const TYPE_LABELS = {
@@ -256,7 +257,7 @@
       rule.lastUsed = Date.now();
       rules.push(rule);
     }
-    await chrome.storage.local.set({ parse_rules: rules });
+    await safeSet({ parse_rules: rules });
     currentRule = rules[existingIdx] || rule;
   }
 
@@ -272,7 +273,7 @@
     if (idx >= 0) {
       rules[idx].useCount = (rules[idx].useCount || 0) + 1;
       rules[idx].lastUsed = Date.now();
-      await chrome.storage.local.set({ parse_rules: rules });
+      await safeSet({ parse_rules: rules });
       currentRule = rules[idx];
     }
   }
@@ -305,7 +306,7 @@
         typeKeywords: seedRule.typeKeywords,
         useCount: 1
       });
-      await chrome.storage.local.set({ parse_rules: rules });
+      await safeSet({ parse_rules: rules });
     }
   }
 
@@ -1326,7 +1327,7 @@
     const history = result.exam_history || [];
     history.unshift(record);
     if (history.length > 50) history.length = 50;
-    await chrome.storage.local.set({ exam_history: history });
+    await safeSet({ exam_history: history });
   }
 
   /**

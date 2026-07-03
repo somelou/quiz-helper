@@ -1,9 +1,12 @@
 // 快捷键管理模块 - 录制/显示/格式化
 
-const DEFAULT_SHORTCUT = {
-  altKey: true, ctrlKey: false, metaKey: false, shiftKey: false,
-  code: 'KeyQ', key: 'q', display: 'Alt+Q'
-};
+const {
+  normalizeShortcutConfig: sharedNormalizeShortcut,
+  formatShortcutDisplay: sharedFormatShortcut,
+  getDefaultShortcut: sharedGetDefaultShortcut,
+  isModifierKey: sharedIsModifierKey,
+  isMacOS: sharedIsMacOS
+} = globalThis.QuizHelperShortcutUtils;
 
 function initShortcut({
   shortcutDisplayEl, shortcutHintEl,
@@ -13,48 +16,20 @@ function initShortcut({
   let isRecordingShortcut = false;
 
   function getDefaultShortcut() {
-    return { ...DEFAULT_SHORTCUT };
+    const s = sharedGetDefaultShortcut();
+    s.display = sharedFormatShortcut(s);
+    return s;
   }
 
   function normalizeShortcutConfig(shortcut) {
-    if (!shortcut || typeof shortcut !== 'object') return null;
-    const normalized = {
-      altKey: !!shortcut.altKey, ctrlKey: !!shortcut.ctrlKey,
-      metaKey: !!shortcut.metaKey, shiftKey: !!shortcut.shiftKey,
-      code: String(shortcut.code || ''), key: String(shortcut.key || '')
-    };
-    if (!normalized.altKey && !normalized.ctrlKey && !normalized.metaKey && !normalized.shiftKey) return null;
-    if (!normalized.code && !normalized.key) return null;
-    normalized.display = formatShortcutDisplay(normalized);
+    const normalized = sharedNormalizeShortcut(shortcut);
+    if (!normalized) return null;
+    normalized.display = sharedFormatShortcut(normalized);
     return normalized;
   }
 
-  function formatShortcutDisplay(shortcut) {
-    if (!shortcut) return '未设置';
-    const parts = [];
-    if (shortcut.ctrlKey) parts.push('Ctrl');
-    if (shortcut.metaKey) parts.push('Meta');
-    if (shortcut.altKey) parts.push('Alt');
-    if (shortcut.shiftKey) parts.push('Shift');
-    const keyLabel = getShortcutKeyLabel(shortcut);
-    if (keyLabel) parts.push(keyLabel);
-    return parts.join('+') || '未设置';
-  }
-
-  function getShortcutKeyLabel(shortcut) {
-    const code = shortcut.code || '';
-    const key = shortcut.key || '';
-    if (/^Key[A-Z]$/i.test(code)) return code.slice(3).toUpperCase();
-    if (/^Digit\d$/.test(code)) return code.slice(5);
-    if (/^Numpad\d$/.test(code)) return code.slice(6);
-    if (code === 'Space') return 'Space';
-    if (code.startsWith('Arrow')) return code.replace('Arrow', '');
-    if (code) return code.replace(/^Key|^Digit|^Numpad/, '');
-    return key.length === 1 ? key.toUpperCase() : key;
-  }
-
   function isModifierKey(key) {
-    return ['Alt', 'Control', 'Meta', 'Shift'].includes(key);
+    return sharedIsModifierKey(key);
   }
 
   function showStatus(msg) {
@@ -67,8 +42,9 @@ function initShortcut({
   function updateShortcutDisplay() {
     shortcutDisplayEl.classList.remove('recording');
     shortcutDisplayEl.textContent = currentShortcut ? currentShortcut.display : '未设置';
+    const defaultLabel = sharedIsMacOS() ? '⌥ Q' : 'Alt+Q';
     shortcutHintEl.textContent = currentShortcut
-      ? '默认快捷键为 Alt+Q，macOS 上对应 Option+Q'
+      ? `默认快捷键为 ${defaultLabel}`
       : '当前未设置快捷键，保存后将关闭快捷键功能。';
   }
 
@@ -76,7 +52,8 @@ function initShortcut({
     isRecordingShortcut = true;
     shortcutDisplayEl.textContent = '请按下新的快捷键组合...';
     shortcutDisplayEl.classList.add('recording');
-    shortcutHintEl.textContent = '请至少包含一个修饰键，如 Alt、Ctrl、Shift 或 Meta。按 Esc 可取消。';
+    const mods = sharedIsMacOS() ? 'Option、Ctrl、Shift 或 Cmd' : 'Alt、Ctrl、Shift 或 Meta';
+    shortcutHintEl.textContent = `请至少包含一个修饰键，如 ${mods}。按 Esc 可取消。`;
   });
 
   clearBtn.addEventListener('click', () => {
@@ -119,7 +96,7 @@ function initShortcut({
       altKey: !!event.altKey, ctrlKey: !!event.ctrlKey,
       metaKey: !!event.metaKey, shiftKey: !!event.shiftKey,
       code: event.code || '', key: event.key || '',
-      display: formatShortcutDisplay({
+      display: sharedFormatShortcut({
         altKey: !!event.altKey, ctrlKey: !!event.ctrlKey,
         metaKey: !!event.metaKey, shiftKey: !!event.shiftKey,
         code: event.code || '', key: event.key || ''

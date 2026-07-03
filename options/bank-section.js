@@ -4,6 +4,7 @@ function initBank({
   bankListEl, bankFileInput, bankStatusEl,
   questionBankEnabledInput, onOpenDrawer, onCloseDrawer
 }) {
+  const { safeSet } = globalThis.QuizHelperStorageUtils;
   const paginationState = { bank: 1 };
 
   function showBankStatus(msg) {
@@ -30,7 +31,7 @@ function initBank({
     }
 
     activeBankIds = [...new Set(activeBankIds)].filter(id => banks.some(bank => bank.id === id));
-    await chrome.storage.local.set({ active_bank_ids: activeBankIds });
+    await safeSet({ active_bank_ids: activeBankIds });
 
     return { banks, activeBankIds, questionBankEnabled: result.question_bank_enabled !== false };
   }
@@ -67,19 +68,23 @@ function initBank({
       const bank = banks[idx];
       const enabled = activeBankIds.includes(bank.id);
       const item = document.createElement('div');
-      item.className = `list-item ${enabled ? 'active' : ''}`;
+      item.className = 'list-item' + (enabled ? '' : ' model-inactive');
       item.dataset.id = bank.id;
 
       const date = new Date(bank.timestamp).toLocaleString('zh-CN');
-      const enabledText = enabled
-        ? (questionBankEnabled ? '已启用' : '已选中（总开关关闭）')
-        : '未启用';
+
+      const enabledBadge = enabled
+        ? '<span class="model-badge model-preferred">已启用</span>'
+        : '<span class="model-badge model-inactive-badge">未启用</span>';
 
       item.innerHTML = `
         <div class="list-item-header">
           <div class="list-item-info">
-            <div class="list-item-title">${escapeHtml(bank.name || '未命名题库')}</div>
-            <div class="list-item-meta">${date} · ${bank.questions.length} 题 · ${enabledText}</div>
+            <div class="list-item-title">
+              ${escapeHtml(bank.name || '未命名题库')}
+              ${enabledBadge}
+            </div>
+            <div class="list-item-meta">${date} · ${bank.questions.length} 题</div>
           </div>
           <div class="list-item-actions">
             <label class="switch">
@@ -125,9 +130,15 @@ function initBank({
         activeBankIds = activeBankIds.filter(id => id !== bank.id);
       }
       activeBankIds = [...new Set(activeBankIds)];
-      await chrome.storage.local.set({ active_bank_ids: activeBankIds });
+      await safeSet({ active_bank_ids: activeBankIds });
       showBankStatus(`${checked ? '已启用' : '已停用'}题库：${bank.name}`);
-      await loadQuestionBanks();
+      // 直接更新当前 item DOM，保留 switch 动画
+      updateBankItemDom(index, bank, checked);
+      // 更新计数提示
+      const hintEl = document.getElementById('bankCountHint');
+      if (hintEl) {
+        hintEl.textContent = `共 ${banks.length} 个题库，已启用 ${activeBankIds.length} 个`;
+      }
       return;
     }
 
@@ -151,8 +162,23 @@ function initBank({
     }
   }
 
+  function updateBankItemDom(idx, bank, enabled) {
+    const checkbox = bankListEl.querySelector(`input[data-idx="${idx}"][data-action="toggle-enabled"]`);
+    if (!checkbox) return;
+    const item = checkbox.closest('.list-item');
+    if (!item) return;
+    item.classList.toggle('model-inactive', !enabled);
+    const titleEl = item.querySelector('.list-item-title');
+    if (titleEl) {
+      const badge = enabled
+        ? '<span class="model-badge model-preferred">已启用</span>'
+        : '<span class="model-badge model-inactive-badge">未启用</span>';
+      titleEl.innerHTML = escapeHtml(bank.name || '未命名题库') + badge;
+    }
+  }
+
   questionBankEnabledInput.addEventListener('change', async () => {
-    await chrome.storage.local.set({ question_bank_enabled: questionBankEnabledInput.checked });
+    await safeSet({ question_bank_enabled: questionBankEnabledInput.checked });
     showBankStatus(questionBankEnabledInput.checked ? '已启用题库优先回答' : '已关闭题库优先回答');
     await loadQuestionBanks();
   });
@@ -226,7 +252,7 @@ function initBank({
       banks.unshift(newBank);
       if (banks.length > 10) banks.length = 10;
 
-      await chrome.storage.local.set({ question_banks: banks });
+      await safeSet({ question_banks: banks });
       showBankStatus(`题库导入成功，共 ${newBank.questions.length} 道题目`);
       await loadQuestionBanks();
     } catch (err) {

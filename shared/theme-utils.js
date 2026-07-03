@@ -24,7 +24,12 @@
   }
 
   async function saveThemeMode(themeMode, storageKey = 'theme_mode') {
-    await chrome.storage.local.set({ [storageKey]: themeMode });
+    const safeSet = globalThis.QuizHelperStorageUtils && globalThis.QuizHelperStorageUtils.safeSet;
+    if (safeSet) {
+      await safeSet({ [storageKey]: themeMode });
+    } else {
+      await chrome.storage.local.set({ [storageKey]: themeMode });
+    }
   }
 
   globalThis.QuizHelperThemeUtils = {

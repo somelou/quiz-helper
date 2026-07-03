@@ -1,6 +1,7 @@
 // 历史记录管理模块
 
 function initHistory({ historyListEl, onOpenDrawer }) {
+  const { safeSet } = globalThis.QuizHelperStorageUtils;
   const paginationState = { history: 1 };
 
   async function loadHistory() {

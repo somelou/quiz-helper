@@ -3,19 +3,54 @@ const DEFAULT_MODEL = 'deepseek-v4-pro';
 
 export async function getApiConfig() {
   const config = await chrome.storage.local.get([
+    'llm_models',
+    'active_model_id',
+    'custom_system_prompts',
+    'extra_context_prompt',
     'api_url',
     'api_key',
     'model',
-    'system_prompt',
-    'extra_context_prompt'
+    'system_prompt'
   ]);
 
+  let apiUrl = '';
+  let apiKey = '';
+  let model = '';
+  let systemPrompt = '';
+  let extraContextPrompt = config.extra_context_prompt || '';
+
+  const models = config.llm_models || [];
+  const activeModelId = config.active_model_id || '';
+
+  if (models.length > 0) {
+    const preferredModel = models.find(m => m.id === activeModelId && m.isActive);
+    const activeModel = preferredModel || models.find(m => m.isActive);
+    if (activeModel) {
+      apiUrl = activeModel.apiUrl || '';
+      apiKey = activeModel.apiKey || '';
+      model = activeModel.modelId || '';
+    }
+  }
+
+  if (!apiKey) {
+    apiUrl = (config.api_url || DEFAULT_API_URL).replace(/\/+$/, '');
+    apiKey = config.api_key || '';
+    model = config.model || DEFAULT_MODEL;
+  }
+
+  const customPrompts = config.custom_system_prompts;
+  if (customPrompts && typeof customPrompts === 'object') {
+    systemPrompt = customPrompts;
+  } else if (config.system_prompt) {
+    systemPrompt = { unknown: config.system_prompt };
+  }
+
   return {
-    apiUrl: (config.api_url || DEFAULT_API_URL).replace(/\/+$/, ''),
-    apiKey: config.api_key || '',
-    extraContextPrompt: config.extra_context_prompt || '',
-    model: config.model || DEFAULT_MODEL,
-    systemPrompt: config.system_prompt || ''
+    apiUrl: apiUrl || DEFAULT_API_URL,
+    apiKey,
+    extraContextPrompt,
+    model: model || DEFAULT_MODEL,
+    systemPrompt
   };
 }
 

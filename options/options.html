@@ -24,34 +24,23 @@
     </div>
 
     <div class="form-group">
-      <label for="apiUrl">API 基础 URL</label>
-      <input type="text" id="apiUrl" placeholder="https://api.deepseek.com/v1">
-      <div class="hint">例如：https://api.deepseek.com/v1、https://api.openai.com/v1</div>
-    </div>
-
-    <div class="form-group">
-      <label for="apiKey">API Key</label>
-      <div class="input-wrapper">
-        <input type="password" id="apiKey" placeholder="sk-...">
-        <button type="button" class="toggle-visible" id="toggleKey">显示</button>
+      <label>系统提示词（留空则使用默认提示词）</label>
+      <div class="prompt-toolbar">
+        <div class="prompt-type-tabs" data-active="single">
+          <button type="button" class="prompt-type-tab active" data-type="single">单选</button>
+          <button type="button" class="prompt-type-tab" data-type="multiple">多选</button>
+          <button type="button" class="prompt-type-tab" data-type="judge">判断</button>
+          <button type="button" class="prompt-type-tab" data-type="fill">填空</button>
+          <button type="button" class="prompt-type-tab" data-type="unknown">其他</button>
+        </div>
+        <button type="button" class="prompt-clear-btn" data-type="single">清空</button>
       </div>
-      <div class="hint">您的 API 密钥仅存储在本地浏览器中</div>
-    </div>
-
-    <div class="form-group">
-      <label for="model">模型名称</label>
-      <input type="text" id="model" placeholder="deepseek-v4-pro">
-      <div class="hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</div>
-    </div>
-
-    <div class="form-group">
-      <label for="systemPrompt">系统提示词（可选，留空则按题型自动选择）</label>
-      <textarea id="systemPrompt" placeholder="单选题：直接给出正确答案选项（仅一个），附简要解析。
-多选题：给出所有正确答案选项（多个），附简要解析。
-判断题：直接回答"对"或"错"，附简要解析。
-填空题：给出详细参考答案和解析。
-
-留空将按题型自动选择最合适的提示词..."></textarea>
+      <textarea id="systemPrompt-single" class="system-prompt-textarea" rows="6"></textarea>
+      <textarea id="systemPrompt-multiple" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
+      <textarea id="systemPrompt-judge" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
+      <textarea id="systemPrompt-fill" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
+      <textarea id="systemPrompt-unknown" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
+      <div class="hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。灰色占位符即为当前题型的默认提示词。</div>
     </div>
 
     <div class="form-group">
@@ -66,14 +55,14 @@
       <label>面板快捷键</label>
       <div class="shortcut-box">
         <div class="setting-row">
-          <div class="shortcut-value" id="shortcutDisplay">Alt+Q</div>
+          <div class="shortcut-value" id="shortcutDisplay">--</div>
           <div class="shortcut-actions" style="margin-top:0;">
             <button type="button" class="action-btn action-view" id="recordShortcutBtn">录制</button>
-            <button type="button" class="action-btn action-secondary" id="clearShortcutBtn">清空</button>
+            <button type="button" class="action-btn action-secondary action-clear" id="clearShortcutBtn">清空</button>
             <button type="button" class="action-btn action-secondary" id="resetShortcutBtn">默认</button>
           </div>
         </div>
-        <div class="hint" id="shortcutHint" style="margin-top:8px;">默认快捷键为 Alt+Q，macOS 上对应 Option+Q</div>
+        <div class="hint" id="shortcutHint" style="margin-top:8px;">--</div>
       </div>
     </div>
 
@@ -90,6 +79,16 @@ exam.example.com"></textarea>
     </div>
 
     <div id="status"></div>
+  </div>
+
+  <div class="card">
+    <div class="switch-row" style="margin-bottom: 12px;">
+      <h2 style="margin:0;">大模型管理</h2>
+      <button class="action-btn action-edit" id="addModelBtn">+ 添加</button>
+    </div>
+    <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。</div>
+    <div id="modelList"></div>
+    <div id="modelStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
   </div>
 
   <div class="card">
@@ -167,6 +166,7 @@ exam.example.com"></textarea>
   <script src="utils.js"></script>
   <script src="shortcut-section.js"></script>
   <script src="config-section.js"></script>
+  <script src="model-section.js"></script>
   <script src="history-section.js"></script>
   <script src="bank-section.js"></script>
   <script src="rule-section.js"></script>

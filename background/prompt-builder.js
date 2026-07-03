@@ -19,11 +19,19 @@ function fillTemplate(template, values) {
 export async function buildSystemPrompt(questionType, customPrompt, extraContextPrompt) {
   const templates = await loadPromptTemplates();
   const prompts = templates.answerSystemPrompts || {};
-  const basePrompt = customPrompt && customPrompt.trim()
-    ? customPrompt.trim()
-    : (prompts[questionType] || prompts.unknown || '');
-  const extraPrompt = String(extraContextPrompt || '').trim();
 
+  let basePrompt = '';
+  if (customPrompt && typeof customPrompt === 'object') {
+    basePrompt = (customPrompt[questionType] || customPrompt.unknown || '').trim();
+  } else if (customPrompt && typeof customPrompt === 'string') {
+    basePrompt = customPrompt.trim();
+  }
+
+  if (!basePrompt) {
+    basePrompt = prompts[questionType] || prompts.unknown || '';
+  }
+
+  const extraPrompt = String(extraContextPrompt || '').trim();
   return extraPrompt ? `${basePrompt}\n\n补充背景信息：\n${extraPrompt}` : basePrompt;
 }
 

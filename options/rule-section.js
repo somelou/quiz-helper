@@ -31,6 +31,7 @@ function initRules({
   ruleListEl, ruleStatusEl, drawerBodyEl, drawerTitleEl, drawerMetaEl,
   drawerSaveBtn, drawerOverlay, onCloseDrawer
 }) {
+  const { safeSet } = globalThis.QuizHelperStorageUtils;
   const paginationState = { rule: 1 };
   let ruleEditorView = 'form';
   let currentRuleEditingBase = null;
@@ -490,7 +491,7 @@ function initRules({
       rules.push({ ...updatedFields, id: finalId, timestamp: now, lastUsed: now });
     }
 
-    await chrome.storage.local.set({ parse_rules: rules });
+    await safeSet({ parse_rules: rules });
     showRuleStatus('规则已保存');
     onCloseDrawer();
     await loadParseRules();

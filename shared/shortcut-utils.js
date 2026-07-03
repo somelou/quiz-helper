@@ -36,6 +36,19 @@
     return normalized;
   }
 
+  // 通用键符号映射（两平台共用，方向键/Space/Enter/Tab/Backspace/Delete 等）
+  const KEY_SYMBOLS = {
+    Space: '␣',
+    ArrowUp: '↑',
+    ArrowDown: '↓',
+    ArrowLeft: '←',
+    ArrowRight: '→',
+    Enter: '⏎',
+    Tab: '⇥',
+    Backspace: '⌫',
+    Delete: '⌦'
+  };
+
   function getShortcutKeyLabel(shortcut) {
     const code = shortcut.code || '';
     const key = shortcut.key || '';
@@ -43,22 +56,38 @@
     if (/^Key[A-Z]$/i.test(code)) return code.slice(3).toUpperCase();
     if (/^Digit\d$/.test(code)) return code.slice(5);
     if (/^Numpad\d$/.test(code)) return code.slice(6);
-    if (code === 'Space') return 'Space';
-    if (code.startsWith('Arrow')) return code.replace('Arrow', '');
+    if (KEY_SYMBOLS[code]) return KEY_SYMBOLS[code];
     if (code) return code.replace(/^Key|^Digit|^Numpad/, '');
     return key.length === 1 ? key.toUpperCase() : key;
   }
 
+  // macOS 上 Alt 对应 Option、Meta 对应 Cmd；Ctrl/Shift 两平台一致，无需切换
+  function isMacOS() {
+    const platform = (navigator.platform || '') + ' ' + (navigator.userAgent || '');
+    return /mac|iphone|ipad|ipod/i.test(platform);
+  }
+
   function formatShortcutDisplay(shortcut) {
+    if (!shortcut) return '未设置';
+    const mac = isMacOS();
     const parts = [];
-    if (shortcut.ctrlKey) parts.push('Ctrl');
-    if (shortcut.metaKey) parts.push('Meta');
-    if (shortcut.altKey) parts.push('Alt');
-    if (shortcut.shiftKey) parts.push('Shift');
+    if (mac) {
+      // Apple 标准顺序：⇧ Shift, ⌃ Control, ⌥ Option, ⌘ Command
+      if (shortcut.shiftKey) parts.push('⇧');
+      if (shortcut.ctrlKey) parts.push('⌃');
+      if (shortcut.altKey) parts.push('⌥');
+      if (shortcut.metaKey) parts.push('⌘');
+    } else {
+      if (shortcut.ctrlKey) parts.push('Ctrl');
+      if (shortcut.metaKey) parts.push('Meta');
+      if (shortcut.altKey) parts.push('Alt');
+      if (shortcut.shiftKey) parts.push('Shift');
+    }
 
     const keyLabel = getShortcutKeyLabel(shortcut);
     if (keyLabel) parts.push(keyLabel);
-    return parts.join('+') || '未设置';
+    // macOS 用符号时以空格分隔，由 CSS letter-spacing 控制间距；Windows 用 +
+    return parts.join(mac ? ' ' : '+') || '未设置';
   }
 
   function shortcutMatches(event, shortcut) {
@@ -83,6 +112,7 @@
     formatShortcutDisplay,
     getDefaultShortcut,
     getShortcutKeyLabel,
+    isMacOS,
     isModifierKey,
     normalizeShortcutConfig,
     shortcutMatches

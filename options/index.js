@@ -1,5 +1,7 @@
 // 选项页协调层：主题管理 + 抽屉 + 模块装配
 
+const { safeSet } = globalThis.QuizHelperStorageUtils;
+
 // ===== 主题管理（提前执行，避免闪烁） =====
 const _darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 let _currentTheme = 'system';
@@ -58,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const btn = event.target.closest('.theme-btn');
       if (!btn) return;
       _currentTheme = btn.dataset.theme;
-      chrome.storage.local.set({ theme_mode: _currentTheme });
+      safeSet({ theme_mode: _currentTheme }).catch(() => {});
       applyOptionsTheme(_currentTheme);
       updateOptionsToggleUI();
     });
@@ -79,15 +81,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // --- 初始化配置模块 ---
   const configMod = initConfig({
-    apiUrlInput: document.getElementById('apiUrl'),
-    apiKeyInput: document.getElementById('apiKey'),
-    modelInput: document.getElementById('model'),
-    systemPromptInput: document.getElementById('systemPrompt'),
     extraContextPromptInput: document.getElementById('extraContextPrompt'),
     allowedDomainsInput: document.getElementById('allowedDomains'),
+    systemPromptTextareas: {
+      single: document.getElementById('systemPrompt-single'),
+      multiple: document.getElementById('systemPrompt-multiple'),
+      judge: document.getElementById('systemPrompt-judge'),
+      fill: document.getElementById('systemPrompt-fill'),
+      unknown: document.getElementById('systemPrompt-unknown')
+    },
+    promptTypeTabs: Array.from(document.querySelectorAll('.prompt-type-tab')),
+    promptClearBtns: Array.from(document.querySelectorAll('.prompt-clear-btn')),
     saveBtn: document.getElementById('saveBtn'),
     resetBtn: document.getElementById('resetBtn'),
-    toggleKeyBtn: document.getElementById('toggleKey'),
     statusDiv,
     questionBankEnabledInput: document.getElementById('questionBankEnabled'),
     getCurrentShortcut: () => shortcutMod.getCurrentShortcut(),
@@ -111,6 +117,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     drawerType = null;
     currentDrawerId = null;
     drawerOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
     drawerBodyEl.innerHTML = '';
     drawerTitleEl.textContent = '详情';
     drawerMetaEl.textContent = '';
@@ -119,6 +127,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     drawerSaveBtn.dataset.ruleId = '';
     drawerSaveBtn.dataset.ruleDomain = '';
   }
+
+  // --- 初始化模型模块 ---
+  const modelMod = initModels({
+    modelListEl: document.getElementById('modelList'),
+    modelStatusEl: document.getElementById('modelStatus'),
+    drawerBodyEl, drawerTitleEl, drawerMetaEl, drawerSaveBtn, drawerOverlay,
+    onCloseDrawer: closeDrawer
+  });
 
   // --- 初始化规则模块 ---
   const ruleMod = initRules({
@@ -195,9 +211,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } else if (type === 'rule') {
       ruleMod.openRuleDrawer(data);
+    } else if (type === 'model') {
+      modelMod.openModelDrawer(data);
     }
 
     drawerOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
   }
 
   // --- 初始化历史模块 ---
@@ -226,12 +246,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     const action = drawerSaveBtn.dataset.action;
     if (action === 'save-rule') {
       await ruleMod.saveRuleFromDrawer();
+    } else if (action === 'save-model') {
+      await modelMod.saveModelFromDrawer();
     }
   });
 
-  drawerOverlay.addEventListener('click', event => {
-    if (event.target === drawerOverlay) closeDrawer();
+  let drawerClickStartedOnOverlay = false;
+
+  drawerOverlay.addEventListener('mousedown', event => {
+    drawerClickStartedOnOverlay = event.target === drawerOverlay;
   });
+
+  drawerOverlay.addEventListener('click', event => {
+    if (drawerClickStartedOnOverlay && event.target === drawerOverlay) closeDrawer();
+  });
+
+  // 阻止抽屉打开时背景页面滚动
+  document.addEventListener('wheel', event => {
+    if (!drawerOverlay.classList.contains('open')) return;
+    if (event.target.closest('.drawer')) return;
+    event.preventDefault();
+  }, { passive: false });
 
   // --- 历史记录全局按钮 ---
   document.getElementById('exportAllHistory').addEventListener('click', async () => {
@@ -283,8 +318,55 @@ document.addEventListener('DOMContentLoaded', async () => {
       rules.push(seedRule);
     }
     updates.parse_rules = rules;
-    await chrome.storage.local.set(updates);
+    await safeSet(updates);
   }
+
+  // --- 数据迁移：旧单模型 -> 新多模型结构 ---
+  async function ensureModelMigration() {
+    const result = await chrome.storage.local.get(['llm_models', 'api_url', 'api_key', 'model']);
+    if (result.llm_models && result.llm_models.length > 0) return;
+
+    const oldApiUrl = result.api_url;
+    const oldApiKey = result.api_key;
+    const oldModel = result.model;
+
+    if (oldApiKey && oldApiUrl && oldModel) {
+      const now = Date.now();
+      const migratedModel = {
+        id: `model-${now}`,
+        name: oldModel,
+        modelId: oldModel,
+        apiUrl: oldApiUrl.replace(/\/+$/, ''),
+        apiKey: oldApiKey,
+        isActive: true,
+        timestamp: now
+      };
+      await safeSet({
+        llm_models: [migratedModel],
+        active_model_id: migratedModel.id
+      });
+    }
+  }
+
+  // --- 数据迁移：旧 system_prompt -> 新 custom_system_prompts ---
+  async function ensurePromptMigration() {
+    const result = await chrome.storage.local.get(['custom_system_prompts', 'system_prompt']);
+    if (result.custom_system_prompts) return;
+
+    const oldPrompt = result.system_prompt;
+    if (oldPrompt && oldPrompt.trim()) {
+      await safeSet({
+        custom_system_prompts: { unknown: oldPrompt.trim() }
+      });
+    } else {
+      await safeSet({ custom_system_prompts: {} });
+    }
+  }
+
+  // --- 添加模型按钮 ---
+  document.getElementById('addModelBtn').addEventListener('click', () => {
+    openDrawer('model', {});
+  });
 
   // --- 全局 Esc 键处理 ---
   document.addEventListener('keydown', event => {
@@ -295,6 +377,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // --- 启动：加载所有数据 ---
   await ensureDefaultParseRuleSeeded();
+  await ensureModelMigration();
+  await ensurePromptMigration();
   await configMod.loadSettings();
 
   // 从 storage 读取快捷键并同步到 shortcut 模块
@@ -304,4 +388,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   await historyMod.loadHistory();
   await bankMod.loadQuestionBanks();
   await ruleMod.loadParseRules();
+  await modelMod.loadModels();
 });
