@@ -1,0 +1,247 @@
+/* ===== 题目助手 Design Tokens ===== */
+
+:root, :host {
+  /* ---- 主色系 ---- */
+  --color-primary: #4f6ef7;
+  --color-primary-dark: #3b5bdb;
+  --color-primary-gradient: linear-gradient(135deg, #4f6ef7 0%, #7950f2 100%);
+  --color-primary-bg: rgba(79, 110, 247, 0.08);
+  --color-primary-light: #8c9eff;
+
+  /* ---- 语义色 ---- */
+  --color-success: #2e7d32;
+  --color-success-bg: #e8f5e9;
+  --color-error: #d32f2f;
+  --color-error-text: #c62828;
+  --color-error-bg: #ffebee;
+  --color-info: #1565c0;
+  --color-info-bg: #e3f2fd;
+  --color-warning: #e65100;
+  --color-warning-bg: #fff3e0;
+
+  /* ---- 中性色 ---- */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f8f9fa;
+  --color-surface: #fafafa;
+  --color-surface-hover: #f0f0f0;
+  --color-border: #eeeeee;
+  --color-border-light: #e0e0e0;
+  --color-border-focus: #667eea;
+
+  --color-text: #333333;
+  --color-text-heading: #333333;
+  --color-text-secondary: #444444;
+  --color-text-muted: #888888;
+  --color-text-label: #444444;
+
+  --color-input-bg: #ffffff;
+  --color-input-border: #dddddd;
+  --color-input-text: #333333;
+
+  --color-btn-secondary-bg: #f0f0f0;
+  --color-btn-secondary-text: #333333;
+
+  --color-toggle-bg: #f0f0f0;
+  --color-toggle-btn: #888888;
+  --color-toggle-btn-hover: #555555;
+  --color-toggle-slider-bg: #ffffff;
+  --color-toggle-slider-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+  --color-switch-off: #cfd3df;
+  --color-shortcut-bg: #f8f9fc;
+  --color-shortcut-border: #e6e8f0;
+
+  --color-drawer-overlay: rgba(17, 24, 39, 0.45);
+  --color-drawer-bg: #ffffff;
+  --color-drawer-shadow: -8px 0 28px rgba(0,0,0,0.14);
+  --color-drawer-close-bg: #f3f4f6;
+
+  --color-rule-view-toggle-bg: #f0f0f0;
+  --color-rule-view-toggle-border: #e6e8f0;
+  --color-rule-view-btn-active-bg: #ffffff;
+  --color-rule-view-btn-active-text: #333333;
+
+  --color-q-id-bg: #667eea;
+  --color-q-id-text: #ffffff;
+
+  --color-type-single-bg: #e3f2fd;
+  --color-type-single-text: #1565c0;
+  --color-type-multiple-bg: #f3e5f5;
+  --color-type-multiple-text: #6a1b9a;
+  --color-type-judge-bg: #e8f5e9;
+  --color-type-judge-text: #2e7d32;
+  --color-type-fill-bg: #fff3e0;
+  --color-type-fill-text: #e65100;
+  --color-type-unknown-bg: #f5f5f5;
+  --color-type-unknown-text: #616161;
+
+  --color-panel-header-text: #ffffff;
+
+  /* ---- 操作按钮色（view/edit/export/delete 等小按钮） ---- */
+  --color-btn-action-bg: #e3f2fd;
+  --color-btn-action-text: #1565c0;
+  --color-btn-export-bg: #e8f5e9;
+  --color-btn-export-text: #2e7d32;
+  --color-btn-danger-bg: #ffebee;
+  --color-btn-danger-text: #c62828;
+
+  /* ---- 圆角 ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 999px;
+  --radius-xs: 3px;
+  --radius-toggle: 6px;
+  --radius-drawer: 10px;
+
+  /* ---- 字号 ---- */
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-md: 13px;
+  --font-lg: 16px;
+  --font-xl: 20px;
+  --font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* ---- 阴影 ---- */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-toggle-active: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-drawer: -8px 0 28px rgba(0,0,0,0.14);
+
+  /* ---- 过渡 ---- */
+  --transition-fast: 0.15s;
+  --transition-normal: 0.2s;
+  --transition-toggle: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== 暗色模式 (popup + options 页面) ===== */
+body.dark {
+  --color-primary: #4f6ef7;
+  --color-primary-light: #8c9eff;
+  --color-primary-bg: rgba(79, 110, 247, 0.18);
+
+  --color-success: #81c784;
+  --color-success-bg: #1a3a1a;
+  --color-error: #ef5350;
+  --color-error-text: #f87171;
+  --color-error-bg: #3a1a1a;
+  --color-info: #60a5fa;
+  --color-info-bg: #374151;
+  --color-warning: #ffb74d;
+
+  --color-bg: #1e1e1e;
+  --color-bg-secondary: #1a1a1a;
+  --color-surface: #2a2a2a;
+  --color-surface-hover: #333333;
+  --color-border: #3a3a3a;
+  --color-border-light: #3a3a3a;
+  --color-border-focus: #667eea;
+
+  --color-text: #cccccc;
+  --color-text-heading: #e0e0e0;
+  --color-text-secondary: #bbbbbb;
+  --color-text-muted: #777777;
+  --color-text-label: #bbbbbb;
+
+  --color-input-bg: #333333;
+  --color-input-border: #555555;
+  --color-input-text: #cccccc;
+
+  --color-btn-secondary-bg: #444444;
+  --color-btn-secondary-text: #cccccc;
+
+  --color-toggle-bg: #333333;
+  --color-toggle-btn: #888888;
+  --color-toggle-btn-hover: #bbbbbb;
+  --color-toggle-slider-bg: #444444;
+  --color-toggle-slider-shadow: 0 1px 3px rgba(0,0,0,0.3);
+
+  --color-switch-off: #555555;
+  --color-shortcut-bg: #2a2a2a;
+  --color-shortcut-border: #3a3a3a;
+
+  --color-drawer-overlay: rgba(17, 24, 39, 0.6);
+  --color-drawer-bg: #242424;
+  --color-drawer-shadow: -8px 0 28px rgba(0,0,0,0.4);
+  --color-drawer-close-bg: #444444;
+
+  --color-rule-view-toggle-bg: #2a2a2a;
+  --color-rule-view-toggle-border: #3a3a3a;
+  --color-rule-view-btn-active-bg: #333333;
+  --color-rule-view-btn-active-text: #e0e0e0;
+
+  --color-q-id-bg: #667eea;
+  --color-q-id-text: #ffffff;
+
+  --color-type-single-bg: #1a2a44;
+  --color-type-single-text: #64b5f6;
+  --color-type-multiple-bg: #2a1a3a;
+  --color-type-multiple-text: #ce93d8;
+  --color-type-judge-bg: #1a2e1a;
+  --color-type-judge-text: #81c784;
+  --color-type-fill-bg: #2e2210;
+  --color-type-fill-text: #ffb74d;
+  --color-type-unknown-bg: #333333;
+  --color-type-unknown-text: #999999;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.2);
+  --shadow-md: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-toggle-active: 0 1px 3px rgba(0,0,0,0.35);
+
+  /* ---- 操作按钮暗色（保持原配色） ---- */
+  --color-btn-action-bg: #374151;
+  --color-btn-action-text: #60a5fa;
+  --color-btn-export-bg: #374151;
+  --color-btn-export-text: #4ade80;
+  --color-btn-danger-bg: #374151;
+  --color-btn-danger-text: #f87171;
+}
+
+/* ===== 暗色模式 (content panel Shadow DOM) ===== */
+:host(.dark) {
+  --color-primary: #4f6ef7;
+  --color-primary-light: #8c9eff;
+  --color-primary-bg: rgba(79, 110, 247, 0.18);
+
+  --color-success: #81c784;
+  --color-success-bg: #1a3a1a;
+  --color-error: #ef5350;
+  --color-error-text: #f87171;
+  --color-error-bg: #3a1a1a;
+  --color-info: #60a5fa;
+  --color-info-bg: #374151;
+  --color-warning: #ffb74d;
+  --color-warning-bg: #2e2210;
+
+  --color-bg: #1e1e1e;
+  --color-bg-secondary: #252525;
+  --color-surface: #2a2a2a;
+  --color-surface-hover: #333333;
+  --color-border: #3a3a3a;
+
+  --color-text: #cccccc;
+  --color-text-heading: #cccccc;
+  --color-text-secondary: #bbbbbb;
+  --color-text-muted: #888888;
+
+  --color-input-bg: #333333;
+  --color-input-border: #555555;
+  --color-input-text: #cccccc;
+
+  --color-btn-secondary-bg: #444444;
+  --color-btn-secondary-text: #cccccc;
+
+  --color-type-single-bg: #1a2a44;
+  --color-type-single-text: #64b5f6;
+  --color-type-multiple-bg: #2a1a3a;
+  --color-type-multiple-text: #ce93d8;
+  --color-type-judge-bg: #1a2e1a;
+  --color-type-judge-text: #81c784;
+  --color-type-fill-bg: #2e2210;
+  --color-type-fill-text: #ffb74d;
+  --color-type-unknown-bg: #333333;
+  --color-type-unknown-text: #999999;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.2);
+  --shadow-md: 0 2px 12px rgba(0,0,0,0.3);
+}

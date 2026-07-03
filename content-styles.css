@@ -2,12 +2,12 @@
 
 /* 可选：高亮检测到的题目区域 */
 .quiz-helper-highlight {
-  outline: 2px dashed #667eea !important;
-  background-color: rgba(102, 126, 234, 0.05) !important;
+  outline: 2px dashed #4f6ef7 !important;
+  background-color: rgba(79, 110, 247, 0.05) !important;
 }
 
 @media (prefers-color-scheme: dark) {
   .quiz-helper-highlight {
-    background-color: rgba(102, 126, 234, 0.12) !important;
+    background-color: rgba(79, 110, 247, 0.12) !important;
   }
 }

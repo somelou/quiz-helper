@@ -1,0 +1,95 @@
+/* ===== popup 弹窗样式 ===== */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  width: 280px;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ===== 头部：标题 + 主题切换 ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.header h2 {
+  font-size: var(--font-xl);
+  margin: 0;
+  color: var(--color-text-heading);
+}
+
+/* 主题切换器 */
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  background: var(--color-toggle-bg);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 1px;
+}
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 28px;
+  height: 26px;
+  background: var(--color-toggle-slider-bg);
+  border-radius: var(--radius-toggle);
+  box-shadow: var(--color-toggle-slider-shadow);
+  transition: transform var(--transition-toggle);
+}
+.theme-toggle[data-theme="dark"]::before { transform: translateX(29px); }
+.theme-toggle[data-theme="system"]::before { transform: translateX(58px); }
+.theme-btn {
+  position: relative;
+  z-index: 1;
+  width: 28px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-toggle);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-toggle-btn);
+  transition: color var(--transition-normal);
+}
+.theme-btn:hover { color: var(--color-toggle-btn-hover); }
+.theme-btn.active { color: var(--color-primary); }
+.theme-btn svg { width: 14px; height: 14px; display: block; }
+
+/* ===== 按钮 ===== */
+.btn {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-md);
+  transition: opacity var(--transition-normal);
+}
+.btn:hover { opacity: 0.9; }
+.btn-primary {
+  background: var(--color-primary-gradient);
+  color: white;
+}
+.btn-secondary {
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-btn-secondary-text);
+}
+
+/* ===== 提示 ===== */
+.hint {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.hint strong { color: var(--color-primary); }

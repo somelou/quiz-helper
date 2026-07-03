@@ -10,6 +10,8 @@
   let panelElement = null;
   let questionsData = [];
   let isAnalyzing = false;
+  let isStarting = false;
+  let _createPanelTask = null;
   let isPaused = false;
   let analysisRunId = 0;
   let pickerState = null;
@@ -80,6 +82,7 @@
     judge: ['正确', '错误', '对', '错'],
     fill: ['___', '【', '填空']
   };
+  let defaultRuleSeedPromise = null;
 
   loadPanelShortcut();
   loadThemeMode();
@@ -205,7 +208,13 @@
       return;
     }
 
-    await startAnalysis();
+    if (isStarting) return;
+    isStarting = true;
+    try {
+      await startAnalysis();
+    } finally {
+      isStarting = false;
+    }
   }
 
   /**
@@ -272,53 +281,28 @@
    * 确保默认规则（example.com）已入库
    */
   async function ensureDefaultRules() {
+    if (!defaultRuleSeedPromise) {
+      defaultRuleSeedPromise = fetch(chrome.runtime.getURL('data/default-parse-rule.json')).then(async res => {
+        if (!res.ok) {
+          throw new Error(`加载默认解析规则失败: ${res.status}`);
+        }
+        return res.json();
+      });
+    }
+
     const result = await chrome.storage.local.get(['parse_rules']);
     const rules = result.parse_rules || [];
     if (!rules.some(r => r.id === 'default-example')) {
+      const seedRule = await defaultRuleSeedPromise;
       const now = Date.now();
       rules.push({
-        id: 'default-example',
-        domain: 'example.com',
+        id: seedRule.id,
+        domain: seedRule.domain,
         lastUsed: now,
-        name: 'example.com',
-        selectors: {
-          rootSelectors: [
-            '.main-padding-content > .preview-content',
-            '.main-padding-content'
-          ],
-          questionItemSelector: '.question-type-item',
-          typeHeadingSelector: '.h3.m-bottom',
-          questionTextSelectors: [
-            '.question',
-            '[data-region="content"]'
-          ],
-          optionContainerSelectors: [
-            '.options',
-            '[data-region="options"]'
-          ],
-          optionItemSelector: 'dd',
-          optionNumberSelector: '.option-num',
-          typeIndicators: {
-            single: [],
-            multiple: [],
-            judge: []
-          },
-          fallbackTextSelectors: [
-            '.main-padding-content .preview-content',
-            '.achievement-main', '.main-content', '.question-type-item',
-            '[data-current*="exam/exam/question/types/answer/"]',
-            '[class*="question"]', '[id*="question"]',
-            '[class*="quiz"]', '[id*="quiz"]',
-            '[class*="exam"]', '[id*="exam"]',
-            '.q-main', '.q-title', '.problem', '.item-title'
-          ]
-        },
+        name: seedRule.name,
+        selectors: seedRule.selectors,
         timestamp: now,
-        typeKeywords: {
-          multiple: ['多选', '以下哪些', '至少选', '多项选择', '可多选', '不止一个', '多个正确'],
-          judge: ['正确', '错误', '对', '错'],
-          fill: ['___', '【', '填空']
-        },
+        typeKeywords: seedRule.typeKeywords,
         useCount: 1
       });
       await chrome.storage.local.set({ parse_rules: rules });
@@ -815,463 +799,108 @@
    * 创建助手面板（Shadow DOM 隔离样式）
    * @param {number} totalQuestions
    */
-  function createPanel(totalQuestions) {
-    if (panelElement) {
-      destroyPanel(false);
+  async function createPanel(totalQuestions) {
+    // 等待前一个 createPanel 完成，防止并发创建两个面板
+    if (_createPanelTask) {
+      await _createPanelTask;
     }
 
-    const host = document.createElement('div');
-    host.id = 'quiz-helper-host';
-    document.body.appendChild(host);
+    let taskDone;
+    _createPanelTask = new Promise(resolve => { taskDone = resolve; });
 
-    shadowRoot = host.attachShadow({ mode: 'open' });
-
-    // 面板样式
-    const style = document.createElement('style');
-    style.textContent = `
-      .qh-panel {
-        position: fixed; bottom: 20px; right: 20px;
-        width: 420px; max-height: 600px;
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        z-index: 2147483647;
-        display: flex; flex-direction: column;
-        overflow: hidden;
-      }
-      .qh-header {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 10px 14px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        cursor: move;
-        user-select: none;
-      }
-      .qh-title { font-weight: 600; font-size: 14px; }
-      .qh-progress { font-size: 12px; opacity: 0.9; margin-left: 6px; }
-      .qh-header-btns { display: flex; gap: 6px; }
-      .qh-header-btn {
-        width: 24px; height: 24px;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(255,255,255,0.15);
-        border: none;
-        border-radius: 6px;
-        color: white;
-        font-size: 13px;
-        cursor: pointer;
-        transition: background 0.15s;
-        line-height: 1;
-        padding: 0;
-      }
-      .qh-header-btn svg {
-        width: 14px; height: 14px;
-        display: block;
-      }
-      .qh-header-btn:hover { background: rgba(255,255,255,0.35); }
-      .qh-body {
-        padding: 10px;
-        overflow-y: auto;
-        flex: 1;
-        background: #f8f9fa;
-        max-height: 420px;
-      }
-      .qh-card {
-        background: #fff;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        border: 1px solid #eee;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-        overflow: hidden;
-      }
-      .qh-card-header {
-        display: flex; align-items: center;
-        padding: 8px 10px;
-        cursor: pointer;
-        gap: 6px;
-      }
-      .qh-card-header:hover { background: #fafafa; }
-      .qh-card-num {
-        background: #667eea;
-        color: white;
-        font-size: 11px;
-        font-weight: 600;
-        padding: 2px 7px;
-        border-radius: 4px;
-        min-width: 24px;
-        text-align: center;
-      }
-      .qh-card-type { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
-      .qh-type-single { background: #e3f2fd; color: #1565c0; }
-      .qh-type-multiple { background: #f3e5f5; color: #6a1b9a; }
-      .qh-type-judge { background: #e8f5e9; color: #2e7d32; }
-      .qh-type-fill { background: #fff3e0; color: #e65100; }
-      .qh-type-unknown { background: #f5f5f5; color: #616161; }
-      .qh-card-summary {
-        flex: 1;
-        font-size: 12px;
-        color: #333;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .qh-card-answer {
-        font-size: 11px;
-        color: #1b5e20;
-        background: #c8e6c9;
-        padding: 1px 6px;
-        border-radius: 4px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        max-width: 100px;
-      }
-      .qh-card-status { font-size: 11px; }
-      .qh-status-pending { color: #999; }
-      .qh-status-loading { color: #667eea; }
-      .qh-status-done { color: #2e7d32; }
-      .qh-status-error { color: #d32f2f; }
-      .qh-card-body {
-        padding: 10px;
-        border-top: 1px solid #eee;
-        font-size: 13px;
-        line-height: 1.6;
-        color: #333;
-        display: none;
-        user-select: text;
-      }
-      .qh-card-body.open { display: block; }
-      .qh-section-title {
-        font-size: 11px;
-        font-weight: 600;
-        color: #888;
-        margin-bottom: 4px;
-      }
-      .qh-question-text {
-        user-select: text;
-        background: #f8f8f8;
-        padding: 8px;
-        border-radius: 4px;
-        font-size: 13px;
-        line-height: 1.6;
-        color: #333;
-        max-height: 200px;
-        overflow-y: auto;
-      }
-      .qh-answer-section { margin-top: 10px; }
-      .qh-card-body pre {
-        background: #f5f5f5;
-        padding: 6px;
-        border-radius: 4px;
-        overflow-x: auto;
-        font-size: 12px;
-        user-select: text;
-      }
-      .qh-card-body code {
-        background: #f5f5f5;
-        padding: 2px 4px;
-        border-radius: 3px;
-        font-size: 12px;
-        user-select: text;
-      }
-      .qh-loading-text { color: #667eea; font-style: italic; }
-      .qh-error-text { 
-        color: #d32f2f; 
-        font-size: 13px; 
-        line-height: 1.6; 
-      }
-      .qh-answer-text { 
-        white-space: pre-wrap; 
-        font-size: 13px; 
-        line-height: 1.6; 
-        color: #333; 
-      }
-      .qh-bank-refs { margin-top: 12px; }
-      .qh-bank-ref {
-        margin-bottom: 6px;
-        border: 1px solid #e8e8e8;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #fafafa;
-        transition: border-color 0.15s;
-      }
-      .qh-bank-ref:hover { border-color: #667eea; }
-      .qh-bank-ref summary {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 12px;
-        cursor: pointer;
-        font-size: 12px;
-        user-select: none;
-        list-style: none;
-      }
-      .qh-bank-ref summary::-webkit-details-marker { display: none; }
-      .qh-bank-ref-icon {
-        width: 16px; height: 16px;
-        flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        color: #667eea;
-        transition: transform 0.15s, color 0.15s;
-      }
-      .qh-bank-ref[open] .qh-bank-ref-icon {
-        color: #4a5fd8;
-      }
-      .qh-bank-ref-icon svg { width: 13px; height: 13px; display: block; }
-      .qh-bank-ref-name {
-        flex: 1;
-        color: #333;
-        font-weight: 500;
-      }
-      .qh-bank-ref-score {
-        font-size: 11px;
-        color: #999;
-        background: #f0f0f0;
-        padding: 2px 8px;
-        border-radius: 10px;
-        flex-shrink: 0;
-      }
-      .qh-bank-ref summary:hover { background: #f5f5ff; }
-      .qh-bank-ref summary:hover .qh-bank-ref-name { color: #667eea; }
-      .qh-bank-ref-detail {
-        padding: 10px 12px;
-        font-size: 12px;
-        line-height: 1.6;
-        color: #444;
-        border-top: 1px solid #eee;
-        background: #fff;
-      }
-      .qh-bank-ref-detail .qh-bank-q { margin-bottom: 8px; white-space: pre-wrap; color: #555; }
-      .qh-bank-ref-detail .qh-bank-a {
-        color: #1b5e20;
-        background: #c8e6c9;
-        padding: 6px 10px;
-        border-radius: 6px;
-        white-space: pre-wrap;
-        font-weight: 500;
-      }
-      .qh-bank-ref-detail .qh-bank-ana {
-        margin-top: 8px;
-        color: #666;
-        padding: 6px 10px;
-        background: #f8f8f8;
-        border-radius: 6px;
-        white-space: pre-wrap;
-      }
-      .qh-footer {
-        padding: 8px 10px;
-        border-top: 1px solid #eee;
-        display: flex;
-        justify-content: flex-end;
-        gap: 6px;
-        background: #fff;
-      }
-      .qh-btn {
-        padding: 5px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-        transition: opacity 0.2s;
-      }
-      .qh-btn:hover { opacity: 0.9; }
-      .qh-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-      .qh-btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-      .qh-btn-secondary { background: #e0e0e0; color: #333; }
-      .qh-btn-warning { background: #ff9800; color: white; }
-      .qh-empty { text-align: center; padding: 20px; color: #888; font-size: 13px; }
-      .qh-mini-bar {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 50%;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.2);
-        z-index: 2147483647;
-        overflow: hidden;
-        padding: 0;
-      }
-      .qh-mini-bar img {
-        width: 28px;
-        height: 28px;
-        display: block;
-        border-radius: 4px;
+    try {
+      if (panelElement) {
+        destroyPanel(false);
       }
 
-      /* ===== Dark Mode ===== */
-      :host(.dark) .qh-panel {
-        background: #1e1e1e;
-        border-color: #3a3a3a;
-      }
-      :host(.dark) .qh-body {
-        background: #252525;
-      }
-      :host(.dark) .qh-card {
-        background: #2a2a2a;
-        border-color: #3a3a3a;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      }
-      :host(.dark) .qh-card-header:hover {
-        background: #333;
-      }
-      :host(.dark) .qh-card-summary {
-        color: #ccc;
-      }
-      :host(.dark) .qh-card-body {
-        border-top-color: #3a3a3a;
-        color: #ccc;
-      }
-      :host(.dark) .qh-section-title {
-        color: #999;
-      }
-      :host(.dark) .qh-question-text {
-        background: #333;
-        color: #ccc;
-      }
-      :host(.dark) .qh-card-body pre,
-      :host(.dark) .qh-card-body code {
-        background: #333;
-        color: #ccc;
-      }
-      :host(.dark) .qh-answer-text {
-        color: #ccc;
-      }
-      :host(.dark) .qh-error-text {
-        color: #ef5350;
-      }
-      :host(.dark) .qh-type-single { background: #1a2a44; color: #64b5f6; }
-      :host(.dark) .qh-type-multiple { background: #2a1a3a; color: #ce93d8; }
-      :host(.dark) .qh-type-judge { background: #1a2e1a; color: #81c784; }
-      :host(.dark) .qh-type-fill { background: #2e2210; color: #ffb74d; }
-      :host(.dark) .qh-type-unknown { background: #333; color: #999; }
-      :host(.dark) .qh-card-answer {
-        color: #81c784;
-        background: #1a3a1a;
-      }
-      :host(.dark) .qh-btn-secondary {
-        background: #444;
-        color: #ccc;
-      }
-      :host(.dark) .qh-footer {
-        border-top-color: #3a3a3a;
-        background: #1e1e1e;
-      }
-      :host(.dark) .qh-empty {
-        color: #888;
-      }
-      :host(.dark) .qh-bank-ref {
-        border-color: #3a3a3a;
-        background: #252525;
-      }
-      :host(.dark) .qh-bank-ref:hover {
-        border-color: #667eea;
-      }
-      :host(.dark) .qh-bank-ref summary:hover {
-        background: #2a2a3e;
-      }
-      :host(.dark) .qh-bank-ref summary:hover .qh-bank-ref-name {
-        color: #8c9eff;
-      }
-      :host(.dark) .qh-bank-ref-name {
-        color: #ccc;
-      }
-      :host(.dark) .qh-bank-ref-score {
-        background: #3a3a3a;
-        color: #999;
-      }
-      :host(.dark) .qh-bank-ref-detail {
-        border-top-color: #3a3a3a;
-        background: #2a2a2a;
-        color: #bbb;
-      }
-      :host(.dark) .qh-bank-ref-detail .qh-bank-q {
-        color: #aaa;
-      }
-      :host(.dark) .qh-bank-ref-detail .qh-bank-a {
-        color: #81c784;
-        background: #1a3a1a;
-      }
-      :host(.dark) .qh-bank-ref-detail .qh-bank-ana {
-        color: #999;
-        background: #333;
-      }
-      :host(.dark) .qh-btn-warning {
-        background: #6b4f00;
-        color: #ffd54f;
-      }
-      :host(.dark) .qh-status-pending { color: #777; }
-      :host(.dark) .qh-status-loading { color: #8c9eff; }
-      :host(.dark) .qh-status-done { color: #81c784; }
-      :host(.dark) .qh-status-error { color: #ef5350; }
-      :host(.dark) .qh-loading-text { color: #8c9eff; }
-      :host(.dark) .qh-error-text { color: #ef5350; }
-      :host(.dark) .qh-bank-ref-icon { color: #8c9eff; }
-      :host(.dark) .qh-bank-ref[open] .qh-bank-ref-icon { color: #aab4ff; }
-    `;
-    shadowRoot.appendChild(style);
+      const host = document.createElement('div');
+      host.id = 'quiz-helper-host';
+      document.body.appendChild(host);
 
-    // 监听系统主题变化（仅 system 模式下生效）
-    const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    darkMediaQuery.addEventListener('change', () => {
-      if (themeMode === 'system') updateDarkMode();
-    });
+      shadowRoot = host.attachShadow({ mode: 'open' });
 
-    // 应用当前主题
-    applyTheme();
+      // Design Token 变量（内联注入以确保 Shadow DOM 中可用）
+      try {
+        const variablesUrl = chrome.runtime.getURL('shared/variables.css');
+        const resp = await fetch(variablesUrl);
+        if (resp.ok) {
+          const cssText = await resp.text();
+          const variablesStyle = document.createElement('style');
+          variablesStyle.textContent = cssText;
+          shadowRoot.appendChild(variablesStyle);
+        }
+      } catch (e) {
+        // 静默降级：variables.css 加载失败时使用 panel.css 中的默认值
+      }
 
-    // 主面板
-    panelElement = document.createElement('div');
-    panelElement.className = 'qh-panel';
-    panelElement.innerHTML = `
-      <div class="qh-header">
-        <div>
-          <span class="qh-title">题目助手</span>
-          <span class="qh-progress">- 共 ${totalQuestions} 题</span>
+      // 面板样式
+      const styleLink = document.createElement('link');
+      styleLink.rel = 'stylesheet';
+      styleLink.href = chrome.runtime.getURL('content/panel.css');
+      shadowRoot.appendChild(styleLink);
+
+      // 监听系统主题变化（仅 system 模式下生效）
+      const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      darkMediaQuery.addEventListener('change', () => {
+        if (themeMode === 'system') updateDarkMode();
+      });
+
+      // 应用当前主题
+      applyTheme();
+
+      // 主面板
+      panelElement = document.createElement('div');
+      panelElement.className = 'qh-panel';
+      panelElement.innerHTML = `
+        <div class="qh-header">
+          <div>
+            <span class="qh-title">题目助手</span>
+            <span class="qh-progress">- 共 ${totalQuestions} 题</span>
+          </div>
+          <div class="qh-header-btns">
+            <button class="qh-header-btn" id="qh-minimize" title="最小化"><span data-icon="minimize"></span></button>
+            <button class="qh-header-btn" id="qh-close" title="关闭"><span data-icon="close"></span></button>
+          </div>
         </div>
-        <div class="qh-header-btns">
-          <button class="qh-header-btn" id="qh-minimize" title="最小化"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="8" x2="13" y2="8"/></svg></button>
-          <button class="qh-header-btn" id="qh-close" title="关闭"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l8 8M12 4L4 12"/></svg></button>
+        <div class="qh-body" id="qh-body"></div>
+        <div class="qh-footer">
+          <div class="qh-seg">
+            <button class="qh-seg-btn" id="qh-ai-parse">AI 选区</button>
+            <button class="qh-seg-btn" id="qh-reparse" style="display:none;">规则解析</button>
+          </div>
+          <button class="qh-btn qh-btn-warning" id="qh-pause">暂停</button>
+          <button class="qh-btn qh-btn-primary" id="qh-retry">重新作答</button>
         </div>
-      </div>
-      <div class="qh-body" id="qh-body"></div>
-      <div class="qh-footer">
-        <button class="qh-btn qh-btn-secondary" id="qh-ai-parse">AI选区解析</button>
-        <button class="qh-btn qh-btn-secondary" id="qh-reparse" style="display:none;">规则重解析</button>
-        <button class="qh-btn qh-btn-warning" id="qh-pause">暂停</button>
-        <button class="qh-btn qh-btn-primary" id="qh-retry">重新作答</button>
-      </div>
-    `;
-    shadowRoot.appendChild(panelElement);
+      `;
+      shadowRoot.appendChild(panelElement);
 
-    // 最小化悬浮球
-    const miniBar = document.createElement('div');
-    miniBar.className = 'qh-mini-bar';
-    miniBar.id = 'qh-mini-bar';
-    const iconUrl = chrome.runtime.getURL('icons/icon48.png');
-    miniBar.innerHTML = `<img src="${iconUrl}" width="28" height="28" alt="题目助手" draggable="false">`;
-    shadowRoot.appendChild(miniBar);
+      // 最小化悬浮球
+      const miniBar = document.createElement('div');
+      miniBar.className = 'qh-mini-bar';
+      miniBar.id = 'qh-mini-bar';
+      const iconUrl = chrome.runtime.getURL('icons/icon48.png');
+      miniBar.innerHTML = `<img src="${iconUrl}" width="28" height="28" alt="题目助手" draggable="false">`;
+      shadowRoot.appendChild(miniBar);
 
-    // 绑定事件
-    shadowRoot.getElementById('qh-minimize').addEventListener('click', minimizePanel);
-    shadowRoot.getElementById('qh-close').addEventListener('click', removePanel);
-    shadowRoot.getElementById('qh-ai-parse').addEventListener('click', toggleAiPicker);
-    shadowRoot.getElementById('qh-reparse').addEventListener('click', reparseAndAnalyze);
-    shadowRoot.getElementById('qh-pause').addEventListener('click', togglePauseAnalysis);
-    shadowRoot.getElementById('qh-retry').addEventListener('click', restartAnalysis);
-    miniBar.addEventListener('click', restorePanel);
+      // 绑定事件
+      shadowRoot.getElementById('qh-minimize').addEventListener('click', minimizePanel);
+      shadowRoot.getElementById('qh-close').addEventListener('click', removePanel);
+      shadowRoot.getElementById('qh-ai-parse').addEventListener('click', toggleAiPicker);
+      shadowRoot.getElementById('qh-reparse').addEventListener('click', reparseAndAnalyze);
+      shadowRoot.getElementById('qh-pause').addEventListener('click', togglePauseAnalysis);
+      shadowRoot.getElementById('qh-retry').addEventListener('click', restartAnalysis);
+      miniBar.addEventListener('click', restorePanel);
 
-    // 启用拖拽
-    makeDraggable(shadowRoot.querySelector('.qh-header'), panelElement);
-    makeDraggable(miniBar, miniBar);
+      // 启用拖拽
+      makeDraggable(shadowRoot.querySelector('.qh-header'), panelElement);
+      makeDraggable(miniBar, miniBar);
 
-    renderCards();
+      renderCards();
+      window.QuizHelperIcons?.replaceIcons(shadowRoot);
+    } finally {
+      taskDone();
+      _createPanelTask = null;
+    }
   }
 
   /**
@@ -1400,7 +1029,7 @@
     if (!body) return;
 
     if (questionsData.length === 0) {
-      body.innerHTML = '<div class="qh-empty">未提取到题目。可先尝试规则解析，或点击"AI选区解析"后在页面中点选一块题目区域。</div>';
+      body.innerHTML = '<div class="qh-empty">未提取到题目。可先尝试规则解析，或点击"AI 选区解析"后在页面中点选一块题目区域。</div>';
       updateControls();
       updateProgress();
       return;
@@ -1474,7 +1103,7 @@
         bankRefsHtml += `
           <details class="qh-bank-ref">
             <summary>
-              <span class="qh-bank-ref-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5a3 3 0 0 0 4.2 0l2-2a3 3 0 1 0-4.2-4.2L7.5 4.3"/><path d="M9.5 6.5a3 3 0 0 0-4.2 0l-2 2a3 3 0 1 0 4.2 4.2l1-1"/></svg></span>
+              <span class="qh-bank-ref-icon" data-icon="link"></span>
               <span class="qh-bank-ref-name">题库${m.source}</span>
               ${m.score ? `<span class="qh-bank-ref-score">相似度 ${m.score}</span>` : ''}
             </summary>
@@ -1511,6 +1140,8 @@
       });
       bodyEl.appendChild(retryBtn);
     }
+
+    window.QuizHelperIcons?.replaceIcons(bodyEl);
 
     // 同步更新卡片头部的答案预览和状态
     const card = bodyEl.closest('.qh-card');
@@ -1571,16 +1202,25 @@
     const reparseBtn = shadowRoot.getElementById('qh-reparse');
     const pauseBtn = shadowRoot.getElementById('qh-pause');
     const retryBtn = shadowRoot.getElementById('qh-retry');
+    const segEl = shadowRoot.querySelector('.qh-seg');
 
     if (aiBtn) {
-      aiBtn.textContent = pickerState ? '取消选区' : 'AI选区解析';
+      aiBtn.textContent = pickerState ? '取消选区' : 'AI 选区';
       aiBtn.disabled = isAnalyzing;
+      aiBtn.classList.toggle('active', !!pickerState);
     }
 
     if (reparseBtn) {
       // 仅当当前域名有解析规则时显示
       reparseBtn.style.display = currentRule ? '' : 'none';
       reparseBtn.disabled = isAnalyzing || pickerState !== null;
+      reparseBtn.classList.toggle('active', !!currentRule && !pickerState);
+    }
+
+    // 滑块位置：AI解析激活时在左，否则规则可见时在右
+    if (segEl) {
+      const showRight = !!currentRule && !pickerState;
+      segEl.dataset.active = showRight ? 'reparse' : 'ai-parse';
     }
 
     if (pauseBtn) {
@@ -1950,7 +1590,7 @@
     if (!success) {
       questionsData = [];
       createPanel(0);
-      showPanelMessage('规则解析未提取到题目。点击"AI选区解析"后，在页面中点选包含题目的区域，再由 AI 做局部解析。');
+      showPanelMessage('规则解析未提取到题目。点击"AI 选区解析"后，在页面中点选包含题目的区域，再由 AI 做局部解析。');
       return;
     }
 
@@ -2074,7 +1714,7 @@
     const onKeyDown = event => {
       if (event.key !== 'Escape') return;
       stopElementPicker();
-      showPanelMessage('已取消 AI 选区解析。可继续规则解析，或再次点击"AI选区解析"后选择页面区域。');
+      showPanelMessage('已取消 AI 选区解析。可继续规则解析，或再次点击"AI 选区解析"后选择页面区域。');
     };
 
     pickerState = {
@@ -2178,7 +1818,7 @@
     const target = findMainContentElement();
     if (!target) {
       createPanel(0);
-      showPanelMessage('未找到页面主内容区域，请点击"AI选区解析"手动选择题目区域。');
+      showPanelMessage('未找到页面主内容区域，请点击"AI 选区解析"手动选择题目区域。');
       return;
     }
 
@@ -2188,7 +1828,7 @@
     if (!success) {
       questionsData = [];
       createPanel(0);
-      showPanelMessage('AI 未能自动解析出题目。请点击"AI选区解析"后，在页面中手动点选一块题目区域。');
+      showPanelMessage('AI 未能自动解析出题目。请点击"AI 选区解析"后，在页面中手动点选一块题目区域。');
       return;
     }
 
@@ -2269,7 +1909,7 @@
       // 规则解析失败，提示用户
       questionsData = [];
       createPanel(0);
-      showPanelMessage('规则解析未能提取到题目。可点击"AI选区解析"重新选取区域，AI 将自动更新规则。');
+      showPanelMessage('规则解析未能提取到题目。可点击"AI 选区解析"重新选取区域，AI 将自动更新规则。');
       return;
     }
 
@@ -2295,7 +1935,12 @@
 
   chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     if (request.action === 'analyze') {
-      startAnalysis();
+      if (isStarting) {
+        sendResponse({ status: 'already_starting' });
+        return true;
+      }
+      isStarting = true;
+      startAnalysis().finally(() => { isStarting = false; });
       sendResponse({ status: 'started' });
     }
     return true;

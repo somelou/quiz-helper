@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_appName__",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "description": "__MSG_appDescription__",
   "default_locale": "zh_CN",
   "permissions": [
@@ -13,25 +13,37 @@
     "<all_urls>"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["content-styles.css"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "icons.js",
+        "shared/constants.js",
+        "shared/shortcut-utils.js",
+        "shared/theme-utils.js",
+        "shared/storage-utils.js",
+        "content/index.js"
+      ],
+      "css": [
+        "content-styles.css"
+      ],
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
   },
-  "options_page": "options.html",
+  "options_page": "options/options.html",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -39,8 +51,17 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["icons/*.png", "lib/*.js"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "icons/*.png",
+        "icons/*.svg",
+        "lib/*.js",
+        "data/*.json",
+        "content/*.css",
+        "shared/*.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
