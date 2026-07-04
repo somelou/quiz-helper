@@ -153,7 +153,7 @@ function initRules({
 
       <div id="ruleViewForm">
         <div class="rule-form-group">
-          <label>站点域名</label>
+          <label>生效域名</label>
           <input type="text" id="rule-domain" value="${escapeHtml(rule.domain || '')}" placeholder="example.com">
         </div>
 
@@ -253,6 +253,18 @@ function initRules({
     if (jsonTextarea) {
       jsonTextarea.addEventListener('input', updateJsonHighlight);
       jsonTextarea.addEventListener('scroll', syncJsonScroll);
+      // 阻止鼠标滚轮穿透到主页面
+      jsonTextarea.addEventListener('wheel', (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = jsonTextarea;
+        const atTop = scrollTop <= 0;
+        const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+        const scrollingUp = e.deltaY < 0;
+        const scrollingDown = e.deltaY > 0;
+        // 未到边界时阻止事件传播
+        if (!((scrollingUp && atTop) || (scrollingDown && atBottom))) {
+          e.stopPropagation();
+        }
+      });
     }
 
     const copyBtn = drawerBodyEl.querySelector('#ruleCopyJsonBtn');
@@ -387,7 +399,15 @@ function initRules({
     const jsonTextarea = drawerBodyEl.querySelector('#rule-json');
     const jsonHighlight = drawerBodyEl.querySelector('#rule-json-highlight');
     if (!jsonTextarea || !jsonHighlight) return;
-    jsonHighlight.scrollTop = jsonTextarea.scrollTop;
+    // 用百分比同步，避免 font render 差异导致内容滚动不到位
+    const taMaxScroll = jsonTextarea.scrollHeight - jsonTextarea.clientHeight;
+    const preMaxScroll = jsonHighlight.scrollHeight - jsonHighlight.clientHeight;
+    if (taMaxScroll > 0) {
+      const pct = jsonTextarea.scrollTop / taMaxScroll;
+      jsonHighlight.scrollTop = pct * preMaxScroll;
+    } else {
+      jsonHighlight.scrollTop = 0;
+    }
     jsonHighlight.scrollLeft = jsonTextarea.scrollLeft;
   }
 
@@ -412,6 +432,8 @@ function initRules({
       updateJsonHighlight();
       formPanel.style.display = 'none';
       jsonPanel.style.display = 'flex';
+      // 显示后同步滚动和滚动条位置
+      requestAnimationFrame(() => syncJsonScroll());
       if (copyBtn) copyBtn.style.display = '';
     } else {
       let parsed;

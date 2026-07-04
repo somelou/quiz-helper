@@ -49,9 +49,58 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 initTheme();
 
+// ===== 侧边导航 =====
+function initSidebarNav() {
+  const navItems = document.querySelectorAll('.nav-item');
+  const sections = Array.from(navItems).map(item => {
+    const id = item.getAttribute('href')?.replace('#', '');
+    return document.getElementById(id);
+  }).filter(Boolean);
+
+  if (!navItems.length || !sections.length) return;
+
+  // 点击导航项平滑滚动
+  navItems.forEach(item => {
+    item.addEventListener('click', event => {
+      event.preventDefault();
+      const targetId = item.getAttribute('href')?.replace('#', '');
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // IntersectionObserver: 在视口顶部创建 10% 高的「激活带」
+  // 只有 top 边缘进入这个带的 section 才会触发高亮
+  // rootMargin '-5% 0px -85% 0px' → 带从 5% 到 15% 处
+  const observer = new IntersectionObserver(entries => {
+    const visible = entries.filter(e => e.isIntersecting);
+
+    if (visible.length > 0) {
+      // 多个同时进入带时，选最靠上的
+      visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      const id = visible[0].target.id;
+      navItems.forEach(nav => {
+        const href = nav.getAttribute('href')?.replace('#', '');
+        nav.classList.toggle('active', href === id);
+      });
+    }
+    // 无 section 在带内时不更新，保持上一次高亮
+  }, {
+    threshold: 0,
+    rootMargin: '-5% 0px -85% 0px'
+  });
+
+  sections.forEach(s => observer.observe(s));
+}
+
 // ===== 模块装配 =====
 document.addEventListener('DOMContentLoaded', async () => {
   await window.QuizHelperIcons?.replaceIcons(document);
+
+  // --- 初始化侧边导航 ---
+  initSidebarNav();
 
   // --- 主题切换器 ---
   const themeToggle = document.getElementById('themeToggle');
@@ -160,12 +209,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         let html = '';
         data.questions.forEach((q, idx) => {
           const typeLabel = TYPE_LABELS[q.type] || '其他';
-          const typeStyle = TYPE_CLASSES[q.type] || TYPE_CLASSES.unknown;
+          const typeClass = TYPE_CLASSES[q.type] || TYPE_CLASSES.unknown;
           html += `
             <div class="q-item">
               <div class="q-title">
                 <span class="q-id">${idx + 1}</span>
-                <span class="q-type" style="${typeStyle}">${typeLabel}</span>
+                <span class="q-type ${typeClass}">${typeLabel}</span>
               </div>
               <div class="q-label">题目</div>
               <div class="q-text">${escapeHtml(q.text)}</div>
@@ -191,7 +240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let html = '';
         data.questions.forEach((q, idx) => {
           const typeLabel = TYPE_LABELS[q.type] || '其他';
-          const typeStyle = TYPE_CLASSES[q.type] || TYPE_CLASSES.unknown;
+          const typeClass = TYPE_CLASSES[q.type] || TYPE_CLASSES.unknown;
           const answerHtml = q.status === 'error'
             ? `<div class="q-label">解析结果</div><div class="q-error">分析出错</div>`
             : `<div class="q-label">参考答案</div><div class="q-answer">${escapeHtml(q.answer || '未获取答案')}</div>`;
@@ -199,7 +248,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="q-item">
               <div class="q-title">
                 <span class="q-id">${idx + 1}</span>
-                <span class="q-type" style="${typeStyle}">${typeLabel}</span>
+                <span class="q-type ${typeClass}">${typeLabel}</span>
               </div>
               <div class="q-label">题目</div>
               <div class="q-text">${escapeHtml(q.text)}</div>
@@ -338,6 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         modelId: oldModel,
         apiUrl: oldApiUrl.replace(/\/+$/, ''),
         apiKey: oldApiKey,
+        apiFormat: 'openai',
         isActive: true,
         timestamp: now
       };

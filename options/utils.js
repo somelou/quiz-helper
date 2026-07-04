@@ -4,11 +4,11 @@ const PAGE_SIZE = 10;
 
 const TYPE_LABELS = { single: '单选', multiple: '多选', judge: '判断', fill: '填空', unknown: '其他' };
 const TYPE_CLASSES = {
-  single: 'background:#e3f2fd;color:#1565c0',
-  multiple: 'background:#f3e5f5;color:#6a1b9a',
-  judge: 'background:#e8f5e9;color:#2e7d32',
-  fill: 'background:#fff3e0;color:#e65100',
-  unknown: 'background:#f5f5f5;color:#616161'
+  single: 'q-type-single',
+  multiple: 'q-type-multiple',
+  judge: 'q-type-judge',
+  fill: 'q-type-fill',
+  unknown: 'q-type-unknown'
 };
 
 function escapeHtml(text) {

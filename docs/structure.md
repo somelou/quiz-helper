@@ -15,7 +15,7 @@
    - 作用：负责模型配置、快捷键、域名白名单、解析规则管理、题库管理、历史记录管理
 
 3. `content` 注入面板
-   - 文件：`content/app.js` + `content/panel.css`
+   - 文件：`content/index.js` + `content/state.js` + `content/dom-parser.js` + `content/panel-ui.js` + `content/analyzer.js` + `content/panel.css`
    - 作用：注入到目标网页中，负责提取题目、展示题目卡片、调用后台分析答案、AI 选区解析、题库匹配展示
 
 此外还有 1 个不可见的后台服务：
@@ -32,6 +32,12 @@
 quiz-helper/
 ├── background/                # 后台逻辑模块
 ├── content/                   # 内容脚本主逻辑与面板样式
+│   ├── index.js               # 编排入口（主题/快捷键/规则CRUD/消息监听）
+│   ├── state.js               # 共享可变状态与 content 专用常量
+│   ├── dom-parser.js          # DOM 题目提取（题型识别/选项提取/题目构造）
+│   ├── panel-ui.js            # 面板生命周期 + 拖拽 + 卡片渲染
+│   ├── analyzer.js            # 分析控制 + AI 选区解析 + AI 作答流程
+│   └── panel.css              # 面板样式
 ├── data/                      # 静态 JSON 数据（默认解析规则、提示词模板）
 ├── docs/                      # 项目说明文档
 ├── icons/                     # PNG/SVG 图标资源
@@ -46,6 +52,12 @@ quiz-helper/
 │   ├── bank-section.js        # 题库管理
 │   └── rule-section.js        # 解析规则
 ├── shared/                    # 共享常量与工具
+│   ├── constants.js           # 常量定义
+│   ├── shortcut-utils.js      # 快捷键工具
+│   ├── theme-utils.js         # 主题工具
+│   ├── storage-utils.js       # 存储工具
+│   ├── text-utils.js          # 文本工具（转义/规范化/正则）
+│   └── variables.css          # Design Token 变量
 ├── background.js              # Background 薄入口（ES module import）
 ├── content-styles.css         # 页面注入通用样式
 ├── icons.js                   # SVG 图标加载与替换
@@ -70,12 +82,17 @@ quiz-helper/
   - `shared/shortcut-utils.js`
   - `shared/theme-utils.js`
   - `shared/storage-utils.js`
-  - `content/app.js`
+  - `shared/text-utils.js`
+  - `content/state.js`
+  - `content/dom-parser.js`
+  - `content/panel-ui.js`
+  - `content/analyzer.js`
+  - `content/index.js`
 
 说明：
 
 - `background.js` 作为 ES module 薄入口，通过 `import './background/app.js'` 加载主逻辑。这是唯一需要薄入口的场景（MV3 service worker 只能指定一个文件且使用 `type: "module"`）。
-- `content_scripts` 和 `options.html` 直接在清单/HTML 中加载实际逻辑文件（`content/app.js`、`options/app.js`），不需要额外的薄入口壳文件。
+- `content_scripts` 采用 IIFE + `globalThis` 模式按顺序注入。共享工具（`shared/`）先于 content 模块加载，content 模块之间通过 `globalThis.QuizHelperContentState` 共享状态，通过 `globalThis.QuizHelperXxx` 调用彼此 API。
 
 ## 4. Popup 页面
 
@@ -120,7 +137,7 @@ quiz-helper/
 - 读取 `panel_shortcut` 并格式化展示
 - 点击“分析当前页面题目”时：
   - 先尝试给当前标签页发送 `analyze` 消息
-  - 如果 content script 未加载，则动态注入共享脚本 + `content/app.js`
+  - 如果 content script 未加载，则动态注入共享脚本 + `content/` 模块文件
   - 注入后再发送 `analyze` 消息
 - 点击“打开设置”时打开 `options.html`
 
@@ -248,13 +265,24 @@ quiz-helper/
 
 ### 6.1 文件
 
-- 主逻辑：`content/app.js`
-- 面板样式：`content/panel.css`
-- 页面通用注入样式：`content-styles.css`
+content/ 目录已拆分为 5 个 JS 模块 + 1 个 CSS：
+
+| 文件 | 行数 | 职责 |
+|------|------|------|
+| `content/state.js` | ~60 | 共享可变状态（`shadowRoot`/`questionsData`/`isAnalyzing` 等）+ content 专用常量（`DEFAULT_SELECTORS`/`DEFAULT_TYPE_KEYWORDS`） |
+| `content/dom-parser.js` | ~450 | DOM 题目提取：题型识别、选项提取、文本清洗、结构化/降级题目提取 |
+| `content/panel-ui.js` | ~630 | 面板生命周期（创建/销毁/最小化/恢复）、元素拖拽、卡片渲染、答案格式化 |
+| `content/analyzer.js` | ~620 | 分析控制（题库→AI 流程/暂停/继续/重作）+ AI 选区解析 + AI 全页解析 |
+| `content/index.js` | ~260 | 编排入口：主题管理、快捷键监听、解析规则 CRUD、域名白名单、`startAnalysis` 总编排、`analyze` 消息监听 |
+| `content/panel.css` | — | Shadow DOM 内部面板样式 |
+
+各模块通过 `globalThis.QuizHelperContentState` 共享状态，通过 `globalThis.QuizHelperDomParser` / `QuizHelperPanelUI` / `QuizHelperAnalyzer` / `QuizHelperApp` 调用彼此 API。
+
+依赖注入顺序：`state.js → dom-parser.js → panel-ui.js → analyzer.js → index.js`（shared/ 工具先于所有 content 模块）。
 
 ### 6.2 生命周期
 
-`content/app.js` 在页面中注入后，主要做这些事：
+`content/index.js` 在页面中注入后，主要负责编排：
 
 1. 防止重复注入
    - 使用 `window.__quizHelperInjected`
@@ -327,52 +355,55 @@ quiz-helper/
    - 可包含题库参考区 `.qh-bank-refs`
    - 每个题库参考项为 `.qh-bank-ref`
 
-### 6.5 `content/app.js` 的主要职责
+### 6.5 各模块主要职责
+
+content 目录 5 个模块的职责划分如下：
 
 当前主要包含以下几类逻辑：
 
-1. 主题与快捷键
+1. 主题与快捷键（→ `content/index.js`）
    - 主题模式同步
    - 全局快捷键监听
    - 面板显示/隐藏控制
 
-2. 解析规则与默认规则
+2. 解析规则与默认规则（→ `content/index.js`）
    - 默认规则种子写入
    - 当前站点规则选择
    - 规则解析与 AI 解析配合
 
-3. DOM 题目提取
+3. DOM 题目提取（→ `content/dom-parser.js`）
    - 题型识别
    - 文本清洗
    - 选项提取
    - 题目列表构造
 
-4. 面板渲染
+4. 面板渲染（→ `content/panel-ui.js`）
    - `createPanel(totalQuestions)`
    - `renderCards()`
    - `updateCardBody(index, content, isError)`
 
-5. AI 分析流程
+5. AI 分析流程（→ `content/analyzer.js`）
    - `analyzeSingleQuestion(index)`
    - `analyzeAllQuestions({ resume })`
    - 先查题库，再校验，再走 AI 答题
 
-6. AI 选区解析
+6. AI 选区解析（→ `content/analyzer.js`）
    - 在页面中高亮并选择区域
    - 将局部 DOM 与文本发给 background 的 `extractQuestions`
 
-7. 消息入口
+7. 消息入口（→ `content/index.js`）
    - 接收 popup 或其它来源发来的 `analyze` 指令
 
 ### 6.6 维护重点
 
-- `content/app.js` 仍然是当前最复杂的文件之一。
-- 后续如果继续模块化，最优先拆分方向建议是：
-  - `panel.js`
-  - `parser.js`
-  - `analysis.js`
-  - `ai-picker.js`
-  - `rule-store.js`
+- `content/index.js`（~260 行）已从原 ~2050 行巨型文件拆分为 5 个模块，各模块职责单一。
+- 各模块文件对应职责：
+  - **改主题/快捷键/解析规则/编排** → `content/index.js`
+  - **改 DOM 题目提取** → `content/dom-parser.js`
+  - **改面板生命周期或渲染** → `content/panel-ui.js`
+  - **改分析流程或 AI 解析** → `content/analyzer.js`
+  - **改共享状态或 content 专用常量** → `content/state.js`
+- 跨模块调用通过 `globalThis.QuizHelperXxx` 在函数体内引用（非 IIFE 顶层），确保加载顺序无关。
 - 页面结构改动时，要特别注意：
   - Shadow DOM 内部结构是否与 `content/panel.css` 对齐
   - `data-icon` 图标替换是否在 ShadowRoot 内生效
@@ -474,6 +505,14 @@ quiz-helper/
 - `shared/storage-utils.js`
   - 常见 storage 读取工具
 
+- `shared/text-utils.js`
+  - `normalizeWhitespace` — 空白字符规范化
+  - `escapeRegex` — 正则特殊字符转义
+  - `escapeHtml` — HTML 实体转义
+
+- `shared/variables.css`
+  - Design Token 变量定义，运行时通过 `fetch` 注入 Shadow DOM
+
 ### 8.2 data 目录
 
 当前静态数据有两份：
@@ -494,7 +533,7 @@ quiz-helper/
 
 1. 要改页面布局或新增 DOM 节点
    - 先看 `popup.html` / `options.html`
-   - content 面板则看 `content/app.js` 的 `createPanel` 与卡片渲染代码
+   - content 面板则看 `content/panel-ui.js` 的 `createPanel` 与卡片渲染代码
 
 2. 要改样式
    - popup：`popup/popup.html` + `popup/popup.css`
@@ -512,7 +551,10 @@ quiz-helper/
    - 最后看 `background/question-bank.js` / `background/json-parser.js`
 
 5. 要改题目提取或面板交互
-   - 重点看 `content/app.js`
+   - DOM 解析：`content/dom-parser.js`
+   - 面板渲染：`content/panel-ui.js`
+   - 分析流程：`content/analyzer.js`
+   - 编排入口：`content/index.js`
 
 6. 要改设置页功能
    - 重点看 `options/app.js`
@@ -525,8 +567,9 @@ quiz-helper/
 - `popup/popup.html` + `popup/popup.css` 已完成样式独立
 - `popup/popup.js` 体量较小
 - `background` 已完成较明确的模块化
-- `options/app.js` 和 `content/app.js` 仍偏长，后续仍可继续细拆
-- `content/app.js` 当前仍保留较多常量和工具函数，尚未完全迁移到 `shared/`
+- `content/index.js` 已拆分为 5 个模块（`state.js` / `dom-parser.js` / `panel-ui.js` / `analyzer.js` / `index.js`），单文件最大 ~630 行
+- `options/app.js` 仍可继续细拆
+- 重复的常量和快捷键函数已被消除，改为统一引用 `shared/`
 
 ## 11. 建议后续 AI 接手顺序
 
@@ -537,6 +580,6 @@ quiz-helper/
 3. 再看 `background/router.js`
 4. 再看 `popup/popup.html` + `popup/popup.js`
 5. 再看 `options.html` + `options/app.js`
-6. 最后看 `content/app.js`
+6. 最后看 content 模块，按注入顺序：`content/state.js` → `content/dom-parser.js` → `content/panel-ui.js` → `content/analyzer.js` → `content/index.js`
 
 这样能先建立入口和消息流，再进入最复杂的注入逻辑。

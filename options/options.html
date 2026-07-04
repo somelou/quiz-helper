@@ -7,137 +7,151 @@
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
-  <div class="card">
-    <div class="header">
-      <h1>题目助手设置</h1>
-      <div class="theme-toggle" id="themeToggle">
-        <button class="theme-btn" data-theme="light" title="浅色模式">
-          <span data-icon="sun"></span>
-        </button>
-        <button class="theme-btn" data-theme="dark" title="深色模式">
-          <span data-icon="moon"></span>
-        </button>
-        <button class="theme-btn" data-theme="system" title="跟随系统">
-          <span data-icon="system"></span>
-        </button>
-      </div>
-    </div>
+  <div class="page-layout">
+    <nav class="sidebar" id="sidebar">
+      <ul class="nav-list">
+        <li><a class="nav-item active" href="#section-settings">基本设置</a></li>
+        <li><a class="nav-item" href="#section-models">大模型管理</a></li>
+        <li><a class="nav-item" href="#section-rules">解析规则管理</a></li>
+        <li><a class="nav-item" href="#section-bank">题库管理</a></li>
+        <li><a class="nav-item" href="#section-history">历史记录</a></li>
+      </ul>
+    </nav>
 
-    <div class="form-group">
-      <label>系统提示词（留空则使用默认提示词）</label>
-      <div class="prompt-toolbar">
-        <div class="prompt-type-tabs" data-active="single">
-          <button type="button" class="prompt-type-tab active" data-type="single">单选</button>
-          <button type="button" class="prompt-type-tab" data-type="multiple">多选</button>
-          <button type="button" class="prompt-type-tab" data-type="judge">判断</button>
-          <button type="button" class="prompt-type-tab" data-type="fill">填空</button>
-          <button type="button" class="prompt-type-tab" data-type="unknown">其他</button>
-        </div>
-        <button type="button" class="prompt-clear-btn" data-type="single">清空</button>
-      </div>
-      <textarea id="systemPrompt-single" class="system-prompt-textarea" rows="6"></textarea>
-      <textarea id="systemPrompt-multiple" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
-      <textarea id="systemPrompt-judge" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
-      <textarea id="systemPrompt-fill" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
-      <textarea id="systemPrompt-unknown" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
-      <div class="hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。灰色占位符即为当前题型的默认提示词。</div>
-    </div>
-
-    <div class="form-group">
-      <label for="extraContextPrompt">补充提示词 / 领域背景（仅最终答题时生效）</label>
-      <textarea id="extraContextPrompt" placeholder="例如：
-你是一名通信领域与 AI 大模型方向的专业助手。
-回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
-      <div class="hint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</div>
-    </div>
-
-    <div class="form-group">
-      <label>面板快捷键</label>
-      <div class="shortcut-box">
-        <div class="setting-row">
-          <div class="shortcut-value" id="shortcutDisplay">--</div>
-          <div class="shortcut-actions" style="margin-top:0;">
-            <button type="button" class="action-btn action-view" id="recordShortcutBtn">录制</button>
-            <button type="button" class="action-btn action-secondary action-clear" id="clearShortcutBtn">清空</button>
-            <button type="button" class="action-btn action-secondary" id="resetShortcutBtn">默认</button>
+    <main class="main-content">
+      <div class="card" id="section-settings">
+        <div class="section-header">
+          <h2 style="margin:0;">基本设置</h2>
+          <div class="theme-toggle" id="themeToggle">
+            <button class="theme-btn" data-theme="light" title="浅色模式">
+              <span data-icon="sun"></span>
+            </button>
+            <button class="theme-btn" data-theme="dark" title="深色模式">
+              <span data-icon="moon"></span>
+            </button>
+            <button class="theme-btn" data-theme="system" title="跟随系统">
+              <span data-icon="system"></span>
+            </button>
           </div>
         </div>
-        <div class="hint" id="shortcutHint" style="margin-top:8px;">--</div>
-      </div>
-    </div>
 
-    <div class="form-group">
-      <label for="allowedDomains">生效域名白名单（每行一个，留空则所有网站生效）</label>
-      <textarea id="allowedDomains" placeholder="example.com
+        <div class="form-group">
+          <label>系统提示词（留空则使用默认提示词）</label>
+          <div class="prompt-toolbar">
+            <div class="prompt-type-tabs" data-active="single">
+              <button type="button" class="prompt-type-tab active" data-type="single">单选</button>
+              <button type="button" class="prompt-type-tab" data-type="multiple">多选</button>
+              <button type="button" class="prompt-type-tab" data-type="judge">判断</button>
+              <button type="button" class="prompt-type-tab" data-type="fill">填空</button>
+              <button type="button" class="prompt-type-tab" data-type="unknown">其他</button>
+            </div>
+            <button type="button" class="prompt-clear-btn" data-type="single">清空</button>
+          </div>
+          <textarea id="systemPrompt-single" class="system-prompt-textarea" rows="6"></textarea>
+          <textarea id="systemPrompt-multiple" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
+          <textarea id="systemPrompt-judge" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
+          <textarea id="systemPrompt-fill" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
+          <textarea id="systemPrompt-unknown" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
+          <div class="hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。灰色占位符即为当前题型的默认提示词。</div>
+        </div>
+
+        <div class="form-group">
+          <label for="extraContextPrompt">补充提示词 / 领域背景（仅最终答题时生效）</label>
+          <textarea id="extraContextPrompt" placeholder="例如：
+你是一名通信领域与 AI 大模型方向的专业助手。
+回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
+          <div class="hint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</div>
+        </div>
+
+        <div class="form-group">
+          <label>面板快捷键</label>
+          <div class="shortcut-box">
+            <div class="setting-row">
+              <div class="shortcut-value" id="shortcutDisplay">--</div>
+              <div class="shortcut-actions" style="margin-top:0;">
+                <button type="button" class="action-btn action-view" id="recordShortcutBtn">录制</button>
+                <button type="button" class="action-btn action-secondary action-clear" id="clearShortcutBtn">清空</button>
+                <button type="button" class="action-btn action-secondary" id="resetShortcutBtn">默认</button>
+              </div>
+            </div>
+            <div class="hint" id="shortcutHint" style="margin-top:8px;">--</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="allowedDomains">生效域名白名单（每行一个，留空则所有网站生效）</label>
+          <textarea id="allowedDomains" placeholder="example.com
 exam.example.com"></textarea>
-      <div class="hint">插件仅在列出的域名上生效，支持子域名匹配</div>
-    </div>
+          <div class="hint">插件仅在列出的域名上生效，支持子域名匹配</div>
+        </div>
 
-    <div class="actions">
-      <button class="btn-primary" id="saveBtn">保存设置</button>
-      <button class="btn-secondary" id="resetBtn">恢复默认</button>
-    </div>
+        <div class="actions">
+          <button class="btn-primary" id="saveBtn">保存设置</button>
+          <button class="btn-secondary" id="resetBtn">恢复默认</button>
+        </div>
 
-    <div id="status"></div>
-  </div>
-
-  <div class="card">
-    <div class="switch-row" style="margin-bottom: 12px;">
-      <h2 style="margin:0;">大模型管理</h2>
-      <button class="action-btn action-edit" id="addModelBtn">+ 添加</button>
-    </div>
-    <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。</div>
-    <div id="modelList"></div>
-    <div id="modelStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
-  </div>
-
-  <div class="card">
-    <h2 style="margin:0 0 12px 0;">解析规则管理</h2>
-    <div class="hint" style="margin-bottom: 12px;">管理各站点的题目解析规则。有规则的站点优先使用规则解析，无规则的站点首次解析时由 AI 自动生成规则。</div>
-    <div id="parseRuleList"></div>
-    <div id="ruleStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
-  </div>
-
-  <div class="card">
-    <div class="switch-row" style="margin-bottom: 12px;">
-      <h2 style="margin:0;">题库管理</h2>
-      <label class="switch">
-        <input type="checkbox" id="questionBankEnabled">
-        <span class="switch-slider"></span>
-      </label>
-    </div>
-    <div class="hint" style="margin-bottom: 12px;">开启后优先从题库匹配答案。导入 Excel(.xlsx/.xls) 或 Word(.docx) 文件，AI 将自动解析题目和答案。</div>
-    <div class="bank-toolbar">
-      <div class="bank-toolbar-left">
-        <label class="btn btn-secondary">
-          <input type="file" id="questionBankFile" accept=".xlsx,.xls,.docx" style="display: none;">
-          + 导入题库
-        </label>
+        <div id="status"></div>
       </div>
-      <div class="bank-toolbar-right">
-        <span id="bankCountHint" class="hint" style="margin-top: 0;"></span>
-      </div>
-    </div>
-    <div id="questionBankList"></div>
-    <div id="bankStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
-  </div>
 
-  <div class="card">
-    <div class="switch-row" style="margin-bottom: 12px;">
-      <h2 style="margin:0;">历史记录</h2>
-      <div class="history-toolbar-right">
-        <button class="action-btn action-export" id="exportAllHistory">
-          <span data-icon="export"></span>
-          导出
-        </button>
-        <button class="action-btn action-delete" id="clearHistory">
-          <span data-icon="trash"></span>
-          清空
-        </button>
+      <div class="card" id="section-models">
+        <div class="switch-row" style="margin-bottom: 12px;">
+          <h2 style="margin:0;">大模型管理</h2>
+          <button class="action-btn action-edit" id="addModelBtn">+ 添加</button>
+        </div>
+        <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。</div>
+        <div id="modelList"></div>
+        <div id="modelStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
       </div>
-    </div>
-    <div class="hint" style="margin-bottom: 12px;">每次分析完成后自动保存，最多保留 50 条</div>
-    <div id="historyList"></div>
+
+      <div class="card" id="section-rules">
+        <h2 style="margin:0 0 12px 0;">解析规则管理</h2>
+        <div class="hint" style="margin-bottom: 12px;">管理各站点的题目解析规则。有规则的站点优先使用规则解析，无规则的站点首次解析时由 AI 自动生成规则。</div>
+        <div id="parseRuleList"></div>
+        <div id="ruleStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
+      </div>
+
+      <div class="card" id="section-bank">
+        <div class="switch-row" style="margin-bottom: 12px;">
+          <h2 style="margin:0;">题库管理</h2>
+          <label class="switch">
+            <input type="checkbox" id="questionBankEnabled">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div class="hint" style="margin-bottom: 12px;">开启后优先从题库匹配答案。导入 Excel(.xlsx/.xls) 或 Word(.docx) 文件，AI 将自动解析题目和答案。</div>
+        <div class="bank-toolbar">
+          <div class="bank-toolbar-left">
+            <label class="btn btn-secondary">
+              <input type="file" id="questionBankFile" accept=".xlsx,.xls,.docx" style="display: none;">
+              + 导入题库
+            </label>
+          </div>
+          <div class="bank-toolbar-right">
+            <span id="bankCountHint" class="hint" style="margin-top: 0;"></span>
+          </div>
+        </div>
+        <div id="questionBankList"></div>
+        <div id="bankStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
+      </div>
+
+      <div class="card" id="section-history">
+        <div class="switch-row" style="margin-bottom: 12px;">
+          <h2 style="margin:0;">历史记录</h2>
+          <div class="history-toolbar-right">
+            <button class="action-btn action-export" id="exportAllHistory">
+              <span data-icon="export"></span>
+              导出
+            </button>
+            <button class="action-btn action-delete" id="clearHistory">
+              <span data-icon="trash"></span>
+              清空
+            </button>
+          </div>
+        </div>
+        <div class="hint" style="margin-bottom: 12px;">每次分析完成后自动保存，最多保留 50 条</div>
+        <div id="historyList"></div>
+      </div>
+    </main>
   </div>
 
   <div class="drawer-overlay" id="drawerOverlay">

@@ -5,7 +5,7 @@ import { normalizeParsedQuestions, normalizeQuestionType, parseQuestionBankResul
 export async function handleParseQuestionBank(text, fileName) {
   try {
     const fallbackQuestions = parseQuestionBankByRules(text);
-    const { apiUrl, apiKey, model } = await getApiConfig();
+    const { apiUrl, apiKey, apiFormat, model } = await getApiConfig();
 
     if (!apiKey) {
       if (fallbackQuestions.length > 0) {
@@ -19,6 +19,7 @@ export async function handleParseQuestionBank(text, fileName) {
       const raw = await postChatCompletion({
         apiKey,
         apiUrl,
+        apiFormat,
         messages: [
           { role: 'system', content: prompt.system },
           { role: 'user', content: prompt.user }

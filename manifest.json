@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_appName__",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "__MSG_appDescription__",
   "default_locale": "zh_CN",
   "permissions": [
@@ -27,6 +27,11 @@
         "shared/shortcut-utils.js",
         "shared/theme-utils.js",
         "shared/storage-utils.js",
+        "shared/text-utils.js",
+        "content/state.js",
+        "content/dom-parser.js",
+        "content/panel-ui.js",
+        "content/analyzer.js",
         "content/index.js"
       ],
       "css": [

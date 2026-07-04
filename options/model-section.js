@@ -178,6 +178,19 @@ function initModels({
     await loadModels();
   }
 
+  function generateModelName(apiUrl, modelId) {
+    if (!apiUrl || !modelId) return '';
+    try {
+      const url = new URL(apiUrl);
+      let hostname = url.hostname;
+      hostname = hostname.replace(/^(api|openai|chat)\./, '');
+      const domain = hostname.split('.')[0];
+      return `${domain}/${modelId}`;
+    } catch {
+      return '';
+    }
+  }
+
   function openModelDrawer(model) {
     const isEdit = !!model;
     drawerTitleEl.textContent = isEdit ? '编辑大模型' : '添加大模型';
@@ -193,14 +206,26 @@ function initModels({
   }
 
   function renderModelForm(model) {
+    const isNew = !model.id;
+    let nameManuallyEdited = !!model.name;
+
     drawerBodyEl.innerHTML = `
       <div class="rule-form-group">
-        <label>模型名称 <span style="color:var(--color-error-text);">*</span></label>
-        <input type="text" id="model-name" value="${escapeHtml(model.name || '')}" placeholder="例如：DeepSeek Pro、我的 GPT-5">
-        <div class="hint">用于区分不同模型配置，自定义名称，需全局唯一</div>
+        <label>模型展示名称 <span style="color:var(--color-error-text);">*</span></label>
+        <input type="text" id="model-name" value="${escapeHtml(model.name || '')}" placeholder="自动生成：主站名/模型ID">
+        <div class="hint">用于区分不同模型配置，需全局唯一</div>
       </div>
 
       <div class="rule-form-section">API 配置</div>
+
+      <div class="rule-form-group">
+        <label>API 格式</label>
+        <div class="format-toggle" id="model-apiFormat" data-format="${!model.apiFormat || model.apiFormat === 'openai' ? 'openai' : 'anthropic'}">
+          <button type="button" class="format-btn${!model.apiFormat || model.apiFormat === 'openai' ? ' active' : ''}" data-value="openai">OpenAI</button>
+          <button type="button" class="format-btn${model.apiFormat === 'anthropic' ? ' active' : ''}" data-value="anthropic">Anthropic</button>
+        </div>
+        <div class="hint">根据 API 服务商提供的请求格式设置</div>
+      </div>
 
       <div class="rule-form-group">
         <label>API 基础 URL <span style="color:var(--color-error-text);">*</span></label>
@@ -231,6 +256,41 @@ function initModels({
       </div>
     `;
 
+    // 自动生成名称
+    const nameInput = drawerBodyEl.querySelector('#model-name');
+    const apiUrlInput = drawerBodyEl.querySelector('#model-apiUrl');
+    const modelIdInput = drawerBodyEl.querySelector('#model-modelId');
+    const formatToggle = drawerBodyEl.querySelector('#model-apiFormat');
+
+    // API 格式滑块切换
+    formatToggle.querySelectorAll('.format-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        formatToggle.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        formatToggle.dataset.format = btn.dataset.value;
+      });
+    });
+
+    function tryAutoGenerateName() {
+      if (nameManuallyEdited) return;
+      const autoName = generateModelName(apiUrlInput.value.trim(), modelIdInput.value.trim());
+      if (autoName) {
+        nameInput.value = autoName;
+      }
+    }
+
+    nameInput.addEventListener('input', () => {
+      nameManuallyEdited = true;
+    });
+
+    apiUrlInput.addEventListener('input', tryAutoGenerateName);
+    modelIdInput.addEventListener('input', tryAutoGenerateName);
+
+    // 新增时初始触发一次自动生成
+    if (isNew) {
+      tryAutoGenerateName();
+    }
+
     const toggleKeyBtn = drawerBodyEl.querySelector('#model-toggleKey');
     const apiKeyInput = drawerBodyEl.querySelector('#model-apiKey');
     toggleKeyBtn.addEventListener('click', () => {
@@ -254,6 +314,7 @@ function initModels({
     const apiKey = drawerBodyEl.querySelector('#model-apiKey').value.trim();
     const modelId = drawerBodyEl.querySelector('#model-modelId').value.trim();
     const testText = drawerBodyEl.querySelector('#model-testText').value.trim();
+    const apiFormat = drawerBodyEl.querySelector('#model-apiFormat')?.dataset?.format || 'openai';
 
     if (!apiUrl || !apiKey || !modelId) {
       resultEl.textContent = '请先填写 API URL、API Key 和模型 ID';
@@ -267,27 +328,53 @@ function initModels({
     const userContent = testText || '请回复 OK';
 
     try {
-      const response = await fetch(`${apiUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: modelId,
-          messages: [{ role: 'user', content: userContent }],
-          temperature: 0
-        })
-      });
+      let response, data;
 
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
+      if (apiFormat === 'anthropic') {
+        response = await fetch(`${apiUrl}/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: modelId,
+            messages: [{ role: 'user', content: userContent }],
+            max_tokens: 256,
+            temperature: 0
+          })
+        });
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
+        }
+        data = await response.json();
+        const text = data.content?.[0]?.text || '';
+        resultEl.innerHTML = `<span style="color:var(--color-success)">连接成功！</span><br><span style="color:var(--color-text-muted)">模型回复：</span><span style="color:var(--color-text-primary)">${escapeHtml(text)}</span>`;
+      } else {
+        response = await fetch(`${apiUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: modelId,
+            messages: [{ role: 'user', content: userContent }],
+            temperature: 0
+          })
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
+        }
+
+        data = await response.json();
+        const content = data.choices?.[0]?.message?.content || '';
+        resultEl.innerHTML = `<span style="color:var(--color-success)">连接成功！</span><br><span style="color:var(--color-text-muted)">模型回复：</span><span style="color:var(--color-text-primary)">${escapeHtml(content)}</span>`;
       }
-
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content || '';
-      resultEl.innerHTML = `<span style="color:var(--color-success)">连接成功！</span><br><span style="color:var(--color-text-muted)">模型回复：</span><span style="color:var(--color-text-primary)">${escapeHtml(content)}</span>`;
     } catch (err) {
       resultEl.textContent = `连接失败: ${err.message}`;
       resultEl.style.color = 'var(--color-error-text)';
@@ -299,13 +386,14 @@ function initModels({
     const apiUrl = drawerBodyEl.querySelector('#model-apiUrl')?.value?.trim().replace(/\/+$/, '') || '';
     const apiKey = drawerBodyEl.querySelector('#model-apiKey')?.value?.trim() || '';
     const modelId = drawerBodyEl.querySelector('#model-modelId')?.value?.trim() || '';
+    const apiFormat = drawerBodyEl.querySelector('#model-apiFormat')?.dataset?.format || 'openai';
 
-    if (!name) { showModelStatus('模型名称不能为空'); return null; }
+    if (!name) { showModelStatus('模型展示名称不能为空'); return null; }
     if (!apiUrl) { showModelStatus('API URL 不能为空'); return null; }
     if (!apiKey) { showModelStatus('API Key 不能为空'); return null; }
     if (!modelId) { showModelStatus('模型 ID 不能为空'); return null; }
 
-    return { name, apiUrl, apiKey, modelId };
+    return { name, apiUrl, apiKey, modelId, apiFormat };
   }
 
   async function saveModelFromDrawer() {
@@ -321,7 +409,7 @@ function initModels({
       return m.name === updated.name;
     });
     if (nameConflict) {
-      showModelStatus(`模型名称「${updated.name}」已存在，请使用其他名称`);
+      showModelStatus(`模型展示名称「${updated.name}」已存在，请使用其他名称`);
       return;
     }
 

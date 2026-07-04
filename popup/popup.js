@@ -1,4 +1,4 @@
-// Popup 逻辑：向当前标签页发送分析指令 + 主题切换
+// Popup 逻辑：向当前标签页发送分析指令 + 主题切换 + 模型选择
 
 window.QuizHelperIcons?.replaceIcons(document);
 const { DEFAULT_SHORTCUT, STORAGE_KEYS } = globalThis.QuizHelperConstants;
@@ -7,6 +7,10 @@ const { applyBodyTheme, loadThemeMode, saveThemeMode, updateThemeToggleUI } = gl
 
 const popupHint = document.getElementById('popupHint');
 const themeToggle = document.getElementById('themeToggle');
+const modelDropdown = document.getElementById('modelDropdown');
+const modelDropdownBtn = document.getElementById('modelDropdownBtn');
+const modelDropdownLabel = modelDropdownBtn.querySelector('.model-dropdown-label');
+const modelDropdownMenu = document.getElementById('modelDropdownMenu');
 
 // ===== 主题管理 =====
 
@@ -15,6 +19,7 @@ const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 loadTheme();
 loadShortcutDisplay();
+loadModelSelector();
 
 // 主题切换按钮事件
 themeToggle.addEventListener('click', event => {
@@ -97,3 +102,67 @@ async function loadShortcutDisplay() {
 
   popupHint.innerHTML = `唤起助手快捷键：<strong>${shortcutText}</strong>`;
 }
+
+// ===== 模型选择 =====
+
+let activeModelId = '';
+
+async function loadModelSelector() {
+  const result = await chrome.storage.local.get([STORAGE_KEYS.LLM_MODELS, STORAGE_KEYS.ACTIVE_MODEL_ID]);
+  const models = result[STORAGE_KEYS.LLM_MODELS] || [];
+  activeModelId = result[STORAGE_KEYS.ACTIVE_MODEL_ID] || '';
+
+  const activeModels = models.filter(m => m.isActive);
+
+  if (activeModels.length === 0) {
+    modelDropdownLabel.textContent = '无可用模型';
+    modelDropdownBtn.disabled = true;
+    modelDropdownMenu.innerHTML = '';
+    return;
+  }
+
+  modelDropdownBtn.disabled = false;
+  const currentModel = activeModels.find(m => m.id === activeModelId);
+  modelDropdownLabel.textContent = currentModel ? (currentModel.name || currentModel.modelId) : '选择模型';
+
+  modelDropdownMenu.innerHTML = '';
+  activeModels.forEach(m => {
+    const opt = document.createElement('button');
+    opt.className = 'model-dropdown-option';
+    if (m.id === activeModelId) opt.classList.add('selected');
+    opt.textContent = m.name || m.modelId;
+    opt.addEventListener('mousedown', async e => {
+      e.preventDefault();
+      await selectModel(m.id, m.name || m.modelId);
+    });
+    modelDropdownMenu.appendChild(opt);
+  });
+}
+
+async function selectModel(id, label) {
+  activeModelId = id;
+  await chrome.storage.local.set({ [STORAGE_KEYS.ACTIVE_MODEL_ID]: id });
+  modelDropdownLabel.textContent = label;
+  modelDropdownMenu.querySelectorAll('.model-dropdown-option').forEach(opt => {
+    opt.classList.toggle('selected', opt.textContent === label);
+  });
+  closeModelDropdown();
+}
+
+function toggleModelDropdown() {
+  if (modelDropdownBtn.disabled) return;
+  modelDropdown.classList.toggle('open');
+}
+
+function closeModelDropdown() {
+  modelDropdown.classList.remove('open');
+}
+
+modelDropdownBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  toggleModelDropdown();
+});
+
+document.addEventListener('click', () => {
+  closeModelDropdown();
+});

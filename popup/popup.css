@@ -73,6 +73,7 @@ body {
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: var(--font-md);
+  line-height: 1.5;
   transition: opacity var(--transition-normal);
 }
 .btn:hover { opacity: 0.9; }
@@ -83,6 +84,72 @@ body {
 .btn-secondary {
   background: var(--color-btn-secondary-bg);
   color: var(--color-btn-secondary-text);
+}
+
+/* ===== 模型切换自定义下拉 ===== */
+.model-dropdown {
+  position: relative;
+  margin-bottom: 10px;
+}
+.model-dropdown-btn {
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.model-dropdown-arrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--color-btn-secondary-text);
+  opacity: 0.6;
+  transition: transform 0.2s;
+}
+.model-dropdown.open .model-dropdown-arrow {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* 下拉菜单 */
+.model-dropdown-menu {
+  display: none;
+  margin-top: 2px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+.model-dropdown.open .model-dropdown-menu {
+  display: block;
+}
+
+/* 下拉选项 */
+.model-dropdown-option {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-btn-secondary-text);
+  font-size: var(--font-md);
+  cursor: pointer;
+  text-align: center;
+  transition: opacity var(--transition-normal);
+}
+.model-dropdown-option:not(:last-child) {
+  border-bottom: 1px solid var(--color-border);
+}
+.model-dropdown-option:hover {
+  opacity: 0.9;
+}
+.model-dropdown-option.selected {
+  background: var(--color-primary-gradient);
+  color: white;
 }
 
 /* ===== 提示 ===== */

@@ -4,7 +4,7 @@ import { buildExtractPrompt, buildSystemPrompt, buildVerifyPrompt } from './prom
 import { handleParseQuestionBank, handleSearchQuestionBank } from './question-bank.js';
 
 async function handleFetchAnswer(questionText, questionType) {
-  const { apiUrl, apiKey, extraContextPrompt, model, systemPrompt } = await getApiConfig();
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt } = await getApiConfig();
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
   }
@@ -12,6 +12,7 @@ async function handleFetchAnswer(questionText, questionType) {
   const answer = await postChatCompletion({
     apiKey,
     apiUrl,
+    apiFormat,
     messages: [
       { role: 'system', content: await buildSystemPrompt(questionType, systemPrompt, extraContextPrompt) },
       { role: 'user', content: questionText }
@@ -24,7 +25,7 @@ async function handleFetchAnswer(questionText, questionType) {
 }
 
 async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) {
-  const { apiUrl, apiKey, extraContextPrompt, model } = await getApiConfig();
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model } = await getApiConfig();
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
   }
@@ -33,6 +34,7 @@ async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) 
   const answer = await postChatCompletion({
     apiKey,
     apiUrl,
+    apiFormat,
     messages: [
       { role: 'system', content: prompt.system },
       { role: 'user', content: prompt.user }
@@ -44,16 +46,17 @@ async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) 
   return { success: true, answer: answer || '未获取到有效答案' };
 }
 
-async function handleExtractQuestions(pageText, pageStructure, selectionText, elementHint) {
-  const { apiUrl, apiKey, model } = await getApiConfig();
+async function handleExtractQuestions(pageText, pageStructure, selectionText, elementHint, existingRule) {
+  const { apiUrl, apiKey, apiFormat, model } = await getApiConfig();
   if (!apiKey) {
     throw new Error('未配置 API Key');
   }
 
-  const prompt = await buildExtractPrompt(pageText, pageStructure, selectionText, elementHint);
+  const prompt = await buildExtractPrompt(pageText, pageStructure, selectionText, elementHint, existingRule);
   const raw = await postChatCompletion({
     apiKey,
     apiUrl,
+    apiFormat,
     messages: [
       { role: 'system', content: prompt.system },
       { role: 'user', content: prompt.user }
@@ -106,7 +109,8 @@ export function registerBackgroundRouter() {
         request.pageText,
         request.pageStructure,
         request.selectionText,
-        request.elementHint
+        request.elementHint,
+        request.existingRule
       )
         .then(sendResponse)
         .catch(err => sendResponse({ success: false, error: err.message }));

@@ -16,6 +16,7 @@ export async function getApiConfig() {
   let apiUrl = '';
   let apiKey = '';
   let model = '';
+  let apiFormat = 'openai';
   let systemPrompt = '';
   let extraContextPrompt = config.extra_context_prompt || '';
 
@@ -29,6 +30,7 @@ export async function getApiConfig() {
       apiUrl = activeModel.apiUrl || '';
       apiKey = activeModel.apiKey || '';
       model = activeModel.modelId || '';
+      apiFormat = activeModel.apiFormat || 'openai';
     }
   }
 
@@ -48,6 +50,7 @@ export async function getApiConfig() {
   return {
     apiUrl: apiUrl || DEFAULT_API_URL,
     apiKey,
+    apiFormat,
     extraContextPrompt,
     model: model || DEFAULT_MODEL,
     systemPrompt
@@ -57,10 +60,16 @@ export async function getApiConfig() {
 export async function postChatCompletion({
   apiKey,
   apiUrl,
+  apiFormat = 'openai',
   messages,
   model,
   temperature = 0.2
 }) {
+  if (apiFormat === 'anthropic') {
+    return postAnthropicMessage({ apiKey, apiUrl, messages, model, temperature });
+  }
+
+  // OpenAI Chat Completions 格式
   const response = await fetch(`${apiUrl}/chat/completions`, {
     method: 'POST',
     headers: {
@@ -81,4 +90,51 @@ export async function postChatCompletion({
 
   const data = await response.json();
   return data.choices?.[0]?.message?.content || '';
+}
+
+async function postAnthropicMessage({
+  apiKey,
+  apiUrl,
+  messages,
+  model,
+  temperature = 0.2
+}) {
+  // 分离 system 消息（Anthropic 要求 system 放在顶层）
+  let systemPrompt = '';
+  const nonSystemMsgs = [];
+  for (const msg of messages) {
+    if (msg.role === 'system') {
+      systemPrompt += (systemPrompt ? '\n' : '') + msg.content;
+    } else {
+      nonSystemMsgs.push(msg);
+    }
+  }
+
+  const body = {
+    model,
+    messages: nonSystemMsgs,
+    max_tokens: 4096,
+    temperature
+  };
+  if (systemPrompt) {
+    body.system = systemPrompt;
+  }
+
+  const response = await fetch(`${apiUrl}/messages`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`API 请求失败 (${response.status}): ${errText}`);
+  }
+
+  const data = await response.json();
+  return data.content?.[0]?.text || '';
 }

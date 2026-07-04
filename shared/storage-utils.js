@@ -40,6 +40,7 @@
     let apiUrl = '';
     let apiKey = '';
     let model = '';
+    let apiFormat = 'openai';
     let systemPrompt = '';
     const extraContextPrompt = config[STORAGE_KEYS.EXTRA_CONTEXT_PROMPT || 'extra_context_prompt'] || '';
 
@@ -53,6 +54,7 @@
         apiUrl = activeModel.apiUrl || '';
         apiKey = activeModel.apiKey || '';
         model = activeModel.modelId || '';
+        apiFormat = activeModel.apiFormat || 'openai';
       }
     }
 
@@ -72,6 +74,7 @@
     return {
       apiUrl: apiUrl || DEFAULT_API_URL,
       apiKey,
+      apiFormat,
       model: model || DEFAULT_MODEL,
       systemPrompt,
       extraContextPrompt

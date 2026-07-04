@@ -231,6 +231,12 @@ body.dark {
   --color-btn-secondary-bg: #444444;
   --color-btn-secondary-text: #cccccc;
 
+  --color-toggle-bg: #333333;
+  --color-toggle-btn: #888888;
+  --color-toggle-btn-hover: #bbbbbb;
+  --color-toggle-slider-bg: #444444;
+  --color-toggle-slider-shadow: 0 1px 3px rgba(0,0,0,0.3);
+
   --color-type-single-bg: #1a2a44;
   --color-type-single-text: #64b5f6;
   --color-type-multiple-bg: #2a1a3a;

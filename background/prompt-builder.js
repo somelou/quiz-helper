@@ -56,11 +56,69 @@ ${refText}
   };
 }
 
-export async function buildExtractPrompt(pageText, pageStructure, selectionText, elementHint) {
+function buildExistingRuleInfo(existingRule) {
+  if (!existingRule || !existingRule.selectors) return '';
+
+  const s = existingRule.selectors;
+  const parts = ['## 已有解析规则（请在此基础上优化合并）'];
+  parts.push(`该域名「${existingRule.domain || ''}」已有以下解析规则。请对比当前页面结构，判断已有选择器是否仍然有效：`);
+  parts.push('');
+
+  if (s.rootSelectors && s.rootSelectors.length) {
+    parts.push(`- 根容器选择器：${s.rootSelectors.join(', ')}`);
+  }
+  if (s.questionItemSelector) {
+    parts.push(`- 单题容器选择器：${s.questionItemSelector}`);
+  }
+  if (s.typeHeadingSelector) {
+    parts.push(`- 题型标题选择器：${s.typeHeadingSelector}`);
+  }
+  if (s.questionTextSelectors && s.questionTextSelectors.length) {
+    parts.push(`- 题干文本选择器：${s.questionTextSelectors.join(', ')}`);
+  }
+  if (s.optionContainerSelectors && s.optionContainerSelectors.length) {
+    parts.push(`- 选项容器选择器：${s.optionContainerSelectors.join(', ')}`);
+  }
+  if (s.optionItemSelector) {
+    parts.push(`- 选项元素选择器：${s.optionItemSelector}`);
+  }
+  if (s.optionNumberSelector) {
+    parts.push(`- 选项编号选择器：${s.optionNumberSelector}`);
+  }
+  if (s.typeIndicators) {
+    const ti = s.typeIndicators;
+    const tiParts = [];
+    if (ti.single && ti.single.length) tiParts.push(`单选: [${ti.single.join(', ')}]`);
+    if (ti.multiple && ti.multiple.length) tiParts.push(`多选: [${ti.multiple.join(', ')}]`);
+    if (ti.judge && ti.judge.length) tiParts.push(`判断: [${ti.judge.join(', ')}]`);
+    if (tiParts.length) parts.push(`- 题型指示器 class 关键词：${tiParts.join('，')}`);
+  }
+  if (existingRule.typeKeywords) {
+    const tk = existingRule.typeKeywords;
+    const tkParts = [];
+    if (tk.multiple && tk.multiple.length) tkParts.push(`多选: [${tk.multiple.join(', ')}]`);
+    if (tk.judge && tk.judge.length) tkParts.push(`判断: [${tk.judge.join(', ')}]`);
+    if (tk.fill && tk.fill.length) tkParts.push(`填空: [${tk.fill.join(', ')}]`);
+    if (tkParts.length) parts.push(`- 题型文本关键词：${tkParts.join('，')}`);
+  }
+
+  parts.push('');
+  parts.push('合并优化原则：');
+  parts.push('1. 如果已有选择器在当前页面中仍然有效且命中稳定，保留它们');
+  parts.push('2. 如果当前页面结构有变化（class 名不同、DOM 层级不同），请用新的选择器替换');
+  parts.push('3. 如果已有选择器过于宽泛（如只用了 "div"），请用更精确的选择器优化');
+  parts.push('4. 题型指示器关键词和题型文本关键词应与已有值合并去重，保留有效的并补充新发现的');
+  parts.push('5. 返回的 selectors 应该是合并优化后的完整结果，而非增量');
+
+  return parts.join('\n');
+}
+
+export async function buildExtractPrompt(pageText, pageStructure, selectionText, elementHint, existingRule) {
   const templates = await loadPromptTemplates();
   return {
     system: templates.extractQuestionsSystemPrompt || '',
     user: fillTemplate(templates.extractPromptTemplate, {
+      existingRuleInfo: buildExistingRuleInfo(existingRule),
       elementHint: elementHint || 'unknown',
       pageStructure: (pageStructure || '').slice(0, 12000),
       pageText: (pageText || '').slice(0, 8000),
