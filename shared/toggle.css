@@ -1,0 +1,95 @@
+/* ===== 统一滑块与开关控件 ===== */
+
+/* ---- 开关 (Toggle Switch) ---- */
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 26px;
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-bottom: 0px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  background: var(--color-switch-off);
+  transition: background var(--transition-toggle);
+  border-radius: var(--radius-full);
+}
+.switch-slider::before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  transition: transform var(--transition-toggle);
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+.switch input:checked + .switch-slider {
+  background: var(--color-primary-gradient);
+}
+.switch input:checked + .switch-slider::before {
+  transform: translateX(20px);
+}
+
+/* ---- 分段滑块 (Segmented Control) ---- */
+.segmented-control {
+  position: relative;
+  display: inline-flex;
+  background: var(--color-toggle-bg);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 2px;
+  overflow: hidden;
+}
+/* 滑动指示器 */
+.segmented-control::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: var(--seg-left, 3px);
+  width: var(--seg-width, 0px);
+  height: calc(100% - 6px);
+  background: var(--color-toggle-slider-bg);
+  border-radius: calc(var(--radius-md) - 2px);
+  box-shadow: var(--color-toggle-slider-shadow);
+  /* 只过渡 left（滑动），width 跟随按钮字重瞬间变化 */
+  transition: left var(--transition-toggle);
+  z-index: 0;
+}
+/* 未初始化时隐藏指示器，避免首次绘制时 width:0 闪烁 */
+.segmented-control:not(.seg-ready)::before {
+  visibility: hidden;
+}
+.segmented-control button {
+  position: relative;
+  z-index: 1;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--color-toggle-btn);
+  font-size: var(--font-md);
+  border-radius: calc(var(--radius-md) - 2px);
+  cursor: pointer;
+  transition: color var(--transition-toggle);
+  white-space: nowrap;
+}
+.segmented-control button:hover {
+  color: var(--color-toggle-btn-hover);
+}
+.segmented-control button.seg-active {
+  color: var(--color-text);
+  font-weight: 600;
+}

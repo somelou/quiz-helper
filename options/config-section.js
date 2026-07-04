@@ -38,10 +38,7 @@ function initConfig({
   function switchPromptType(type) {
     currentPromptType = type;
     const tabsEl = document.querySelector('.prompt-type-tabs');
-    if (tabsEl) tabsEl.dataset.active = type;
-    promptTypeTabs.forEach(tab => {
-      tab.classList.toggle('active', tab.dataset.type === type);
-    });
+    if (tabsEl) setSegValue(tabsEl, type);
     Object.keys(systemPromptTextareas).forEach(key => {
       if (systemPromptTextareas[key]) {
         systemPromptTextareas[key].style.display = key === type ? '' : 'none';
@@ -79,7 +76,7 @@ function initConfig({
 
   promptTypeTabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      switchPromptType(tab.dataset.type);
+      switchPromptType(tab.dataset.value);
     });
   });
 

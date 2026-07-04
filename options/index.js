@@ -95,6 +95,48 @@ function initSidebarNav() {
   sections.forEach(s => observer.observe(s));
 }
 
+// ===== 分段滑块全局工具 =====
+function setSegValue(el, value) {
+  // 预测量目标按钮在 font-weight:600 时的宽度，避免切换时指示器膨胀
+  const targetBtn = el.querySelector(`button[data-value="${value}"]`);
+  if (targetBtn) {
+    const prevClass = targetBtn.className;
+    targetBtn.classList.add('seg-active');
+    const w = targetBtn.offsetWidth;
+    if (w > 0) el.style.setProperty('--seg-width', w + 'px');
+    targetBtn.className = prevClass;
+  }
+
+  el.querySelectorAll('button').forEach(b => {
+    b.classList.toggle('seg-active', b.dataset.value === value);
+  });
+
+  const active = el.querySelector('.seg-active');
+  if (active) {
+    el.style.setProperty('--seg-left', active.offsetLeft + 'px');
+    el.style.setProperty('--seg-width', active.offsetWidth + 'px');
+  }
+
+  // 首次初始化后标记 ready，显示指示器并启用 transition
+  el.classList.add('seg-ready');
+}
+function getSegValue(el) {
+  const active = el.querySelector('.seg-active');
+  return active ? active.dataset.value : '';
+}
+
+// 全局委托：所有 .segmented-control 按钮点击自动处理（滑动指示器 + data-active）
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.segmented-control button');
+  if (!btn) return;
+  const seg = btn.closest('.segmented-control');
+  if (!seg) return;
+  const value = btn.dataset.value;
+  if (!value) return;
+  setSegValue(seg, value);
+  seg.dataset.active = value;
+});
+
 // ===== 模块装配 =====
 document.addEventListener('DOMContentLoaded', async () => {
   await window.QuizHelperIcons?.replaceIcons(document);
@@ -139,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       fill: document.getElementById('systemPrompt-fill'),
       unknown: document.getElementById('systemPrompt-unknown')
     },
-    promptTypeTabs: Array.from(document.querySelectorAll('.prompt-type-tab')),
+    promptTypeTabs: Array.from(document.querySelectorAll('.prompt-type-tabs button')),
     promptClearBtns: Array.from(document.querySelectorAll('.prompt-clear-btn')),
     saveBtn: document.getElementById('saveBtn'),
     resetBtn: document.getElementById('resetBtn'),
@@ -181,6 +223,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const modelMod = initModels({
     modelListEl: document.getElementById('modelList'),
     modelStatusEl: document.getElementById('modelStatus'),
+    drawerBodyEl, drawerTitleEl, drawerMetaEl, drawerSaveBtn, drawerOverlay,
+    onCloseDrawer: closeDrawer
+  });
+
+  // --- 初始化搜索模块 ---
+  const searchMod = initSearch({
+    searchListEl: document.getElementById('searchList'),
+    searchStatusEl: document.getElementById('searchStatus'),
+    searchEnabledInput: document.getElementById('webSearchEnabled'),
+    countInput: document.getElementById('searchCount'),
+    timeRangeEl: document.getElementById('searchTimeRange'),
+    langEl: document.getElementById('searchLang'),
     drawerBodyEl, drawerTitleEl, drawerMetaEl, drawerSaveBtn, drawerOverlay,
     onCloseDrawer: closeDrawer
   });
@@ -262,11 +316,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       ruleMod.openRuleDrawer(data);
     } else if (type === 'model') {
       modelMod.openModelDrawer(data);
+    } else if (type === 'search') {
+      searchMod.openSearchDrawer(data);
     }
 
     drawerOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
+
+    // 强制布局计算，确保 drawer 内元素 offset 可用（同步，首次绘制前即就位）
+    drawerBodyEl.getBoundingClientRect();
+    drawerBodyEl.querySelectorAll('.segmented-control').forEach(seg => {
+      const active = seg.querySelector('.seg-active');
+      if (active) setSegValue(seg, active.dataset.value);
+    });
   }
 
   // --- 初始化历史模块 ---
@@ -297,6 +360,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       await ruleMod.saveRuleFromDrawer();
     } else if (action === 'save-model') {
       await modelMod.saveModelFromDrawer();
+    } else if (action === 'save-search') {
+      await searchMod.saveSearchFromDrawer();
     }
   });
 
@@ -439,4 +504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await bankMod.loadQuestionBanks();
   await ruleMod.loadParseRules();
   await modelMod.loadModels();
+
+  // 加载搜索模块
+  await searchMod.loadSearchProviders();
 });

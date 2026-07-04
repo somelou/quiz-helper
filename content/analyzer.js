@@ -57,21 +57,46 @@
   }
 
   /**
+   * 获取恢复分析的起始索引：从最后一道已处理（done/loading）的题目开始
+   * 如果该题正在加载中，从该题开始；如果已完成，从下一题开始
+   * @returns {number}
+   */
+  function getResumeStartIndex() {
+    let lastActiveIndex = -1;
+    for (let i = state.questionsData.length - 1; i >= 0; i--) {
+      const q = state.questionsData[i];
+      if (q.status === 'done' || q.status === 'loading') {
+        lastActiveIndex = i;
+        break;
+      }
+    }
+    if (lastActiveIndex === -1) return 0;
+    if (state.questionsData[lastActiveIndex].status === 'loading') return lastActiveIndex;
+    return lastActiveIndex + 1;
+  }
+
+  /**
    * 分析单道题目（优先搜索题库，题库无匹配时调用 AI）
    * @param {number} index
+   * @param {Object} [options]
+   * @param {boolean} [options.forceSearch] - 强制联网搜索
    */
-  async function analyzeSingleQuestion(index) {
+  async function analyzeSingleQuestion(index, options = {}) {
     if (state.isAnalyzing) return;
 
     const question = state.questionsData[index];
     if (!question) return;
 
+    const wasPaused = state.isPaused;
     state.isPaused = false;
     state.isAnalyzing = true;
     const runId = ++state.analysisRunId;
     question.status = 'loading';
     question.answer = null;
+    question.webSearchRefs = null;
     UI.updateCardBody(index, '<div class="qh-loading-text">正在分析...</div>');
+
+    let bankMatched = false;
 
     try {
       const bankResponse = await chrome.runtime.sendMessage({
@@ -114,29 +139,31 @@
           UI.updateCardBody(index, UI.formatAnswer(fallbackAnswer));
         }
 
-        state.isAnalyzing = false;
-        UI.updateControls();
-        UI.updateProgress();
-        return;
+        bankMatched = true;
       }
 
-      UI.updateCardBody(index, '<div class="qh-loading-text">正在请求 AI 分析...</div>');
+      if (!bankMatched) {
+        UI.updateCardBody(index, '<div class="qh-loading-text">正在请求 AI 分析...</div>');
 
-      const aiResponse = await chrome.runtime.sendMessage({
-        action: 'fetchAnswer',
-        data: question.text,
-        questionType: question.type
-      });
+        const aiResponse = await chrome.runtime.sendMessage({
+          action: 'fetchAnswerWithSearch',
+          data: question.text,
+          questionType: question.type,
+          forceSearch: options.forceSearch || false
+        });
 
-      if (runId !== state.analysisRunId) return;
+        if (runId !== state.analysisRunId) return;
 
-      if (aiResponse.success) {
-        question.status = 'done';
-        question.answer = aiResponse.answer;
-        UI.updateCardBody(index, UI.formatAnswer(aiResponse.answer));
-      } else {
-        question.status = 'error';
-        UI.updateCardBody(index, `请求失败：${UI.escapeHtml(aiResponse.error)}`, true);
+        if (aiResponse.success) {
+          question.status = 'done';
+          question.answer = aiResponse.answer;
+          question.webSearchRefs = aiResponse.referenceLinks || [];
+          question.searchProviderName = aiResponse.searchProviderName || '';
+          UI.updateCardBody(index, UI.formatAnswer(aiResponse.answer));
+        } else {
+          question.status = 'error';
+          UI.updateCardBody(index, `请求失败：${UI.escapeHtml(aiResponse.error)}`, true);
+        }
       }
     } catch (error) {
       if (runId !== state.analysisRunId) return;
@@ -145,8 +172,10 @@
     } finally {
       if (runId === state.analysisRunId) {
         state.isAnalyzing = false;
+        state.isPaused = wasPaused;
         UI.updateControls();
         UI.updateProgress();
+        if (wasPaused) UI.renderCards();
       }
     }
   }
@@ -168,8 +197,7 @@
 
     let startIndex = 0;
     if (resume) {
-      const pendingIndex = getNextPendingQuestionIndex();
-      startIndex = pendingIndex === -1 ? state.questionsData.length : pendingIndex;
+      startIndex = getResumeStartIndex();
     }
 
     for (let index = startIndex; index < state.questionsData.length; index += 1) {
@@ -235,23 +263,26 @@
         UI.updateCardBody(index, '<div class="qh-loading-text">正在请求 AI 分析...</div>');
 
         const aiResponse = await chrome.runtime.sendMessage({
-          action: 'fetchAnswer',
-          data: question.text,
-          questionType: question.type
-        });
+            action: 'fetchAnswerWithSearch',
+            data: question.text,
+            questionType: question.type,
+            forceSearch: false
+          });
 
-        if (runId !== state.analysisRunId) return;
+          if (runId !== state.analysisRunId) return;
 
-        if (aiResponse.success) {
-          question.status = 'done';
-          question.answer = aiResponse.answer;
-          UI.updateCardBody(index, UI.formatAnswer(aiResponse.answer));
-        } else {
-          question.status = 'error';
-          UI.updateCardBody(index, `请求失败：${UI.escapeHtml(aiResponse.error)}`, true);
-        }
-      } catch (error) {
-        if (runId !== state.analysisRunId) return;
+          if (aiResponse.success) {
+            question.status = 'done';
+            question.answer = aiResponse.answer;
+            question.webSearchRefs = aiResponse.referenceLinks || [];
+            question.searchProviderName = aiResponse.searchProviderName || '';
+            UI.updateCardBody(index, UI.formatAnswer(aiResponse.answer));
+          } else {
+            question.status = 'error';
+            UI.updateCardBody(index, `请求失败：${UI.escapeHtml(aiResponse.error)}`, true);
+          }
+        } catch (error) {
+          if (runId !== state.analysisRunId) return;
         question.status = 'error';
         UI.updateCardBody(index, `通信错误：${UI.escapeHtml(error.message)}`, true);
       }
@@ -272,6 +303,7 @@
       state.isPaused = false;
       UI.updateControls();
       UI.updateProgress();
+      UI.renderCards();
       analyzeAllQuestions({ resume: true });
       return;
     }
@@ -280,6 +312,7 @@
     state.isPaused = true;
     UI.updateControls();
     UI.updateProgress();
+    UI.renderCards();
   }
 
   async function restartAnalysis() {
@@ -618,11 +651,11 @@
 
     // 当前域名已有规则时，提示用户正在进行合并优化
     const existingRule = state.currentRule;
-    if (existingRule) {
-      UI.showPanelMessage(`正在使用 AI 优化已有解析规则：${describeElement(element)}（当前域名「${location.hostname}」已有规则，将进行合并优化）`);
-    } else {
-      UI.showPanelMessage(`正在使用 AI 解析选中区域：${describeElement(element)}`);
-    }
+    const loadingMsg = existingRule
+      ? `AI 优化规则中...（${location.hostname}）`
+      : `AI 解析选中区域...`;
+    UI.ensurePanel(state.questionsData.length || 1);
+    UI.showPanelMessage(loadingMsg);
 
     // 获取已有规则的上下文信息用于提示词
     const existingRuleContext = getExistingRuleContext(existingRule);
@@ -703,7 +736,7 @@
       return;
     }
 
-    UI.showPanelMessage('首次访问，正在使用 AI 解析页面并生成解析规则...');
+    UI.showPanelMessage('AI 解析页面中...');
 
     const success = await aiParseQuestionsFromElement(target);
     if (!success) {

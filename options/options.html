@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>题目助手 - 设置</title>
   <link rel="stylesheet" href="../shared/variables.css">
+  <link rel="stylesheet" href="../shared/toggle.css">
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
@@ -12,6 +13,7 @@
       <ul class="nav-list">
         <li><a class="nav-item active" href="#section-settings">基本设置</a></li>
         <li><a class="nav-item" href="#section-models">大模型管理</a></li>
+        <li><a class="nav-item" href="#section-search">联网搜索设置</a></li>
         <li><a class="nav-item" href="#section-rules">解析规则管理</a></li>
         <li><a class="nav-item" href="#section-bank">题库管理</a></li>
         <li><a class="nav-item" href="#section-history">历史记录</a></li>
@@ -38,12 +40,12 @@
         <div class="form-group">
           <label>系统提示词（留空则使用默认提示词）</label>
           <div class="prompt-toolbar">
-            <div class="prompt-type-tabs" data-active="single">
-              <button type="button" class="prompt-type-tab active" data-type="single">单选</button>
-              <button type="button" class="prompt-type-tab" data-type="multiple">多选</button>
-              <button type="button" class="prompt-type-tab" data-type="judge">判断</button>
-              <button type="button" class="prompt-type-tab" data-type="fill">填空</button>
-              <button type="button" class="prompt-type-tab" data-type="unknown">其他</button>
+            <div class="segmented-control prompt-type-tabs" data-active="single">
+            <button type="button" class="seg-active" data-value="single">单选</button>
+            <button type="button" data-value="multiple">多选</button>
+            <button type="button" data-value="judge">判断</button>
+            <button type="button" data-value="fill">填空</button>
+            <button type="button" data-value="unknown">其他</button>
             </div>
             <button type="button" class="prompt-clear-btn" data-type="single">清空</button>
           </div>
@@ -101,6 +103,54 @@ exam.example.com"></textarea>
         <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。</div>
         <div id="modelList"></div>
         <div id="modelStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
+      </div>
+
+      <div class="card" id="section-search">
+        <div class="switch-row" style="margin-bottom: 12px;">
+          <h2 style="margin:0;">联网搜索设置</h2>
+          <label class="switch">
+            <input type="checkbox" id="webSearchEnabled">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div class="hint" style="margin-bottom: 12px;">开启后，大模型答题时将检索联网信息作为辅助参考（仅一种搜索服务同时生效）。</div>
+
+        <div class="rule-form-section">公共参数</div>
+        <div class="rule-form-group">
+          <label for="searchCount">结果数量</label>
+          <input type="number" id="searchCount" min="1" max="50" value="10">
+          <div class="hint">单次搜索返回的最大结果数 (1-50)</div>
+        </div>
+        <div class="rule-form-group">
+          <label for="searchTimeRange">时间范围</label>
+          <div class="segmented-control" id="searchTimeRange">
+            <button data-value="" class="seg-active">不限制</button>
+            <button data-value="OneDay">一天</button>
+            <button data-value="OneWeek">一周</button>
+            <button data-value="OneMonth">一月</button>
+            <button data-value="OneYear">一年</button>
+          </div>
+          <div class="hint">过滤搜索结果的时间范围（部分服务商可能不支持）</div>
+        </div>
+        <div class="rule-form-group">
+          <label for="searchLang">搜索语言</label>
+          <div class="segmented-control" id="searchLang">
+            <button data-value="auto" class="seg-active">自动</button>
+            <button data-value="zh">中文</button>
+            <button data-value="zh-CN">简体中文</button>
+            <button data-value="zh-TW">繁体中文</button>
+            <button data-value="en">英文</button>
+            <button data-value="ja">日文</button>
+            <button data-value="ko">韩文</button>
+            <button data-value="fr">法文</button>
+            <button data-value="de">德文</button>
+          </div>
+          <div class="hint">搜索结果的语言偏好，选择「自动」由服务商自行判断</div>
+        </div>
+
+        <div class="rule-form-section">搜索服务商</div>
+        <div id="searchList"></div>
+        <div id="searchStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
       </div>
 
       <div class="card" id="section-rules">
@@ -184,6 +234,7 @@ exam.example.com"></textarea>
   <script src="history-section.js"></script>
   <script src="bank-section.js"></script>
   <script src="rule-section.js"></script>
+  <script src="search-section.js"></script>
   <script src="index.js"></script>
 </body>
 </html>

@@ -17,7 +17,12 @@
     QUESTION_BANK_ENABLED: 'question_bank_enabled',
     QUESTION_BANKS: 'question_banks',
     SYSTEM_PROMPT: 'system_prompt',
-    THEME_MODE: 'theme_mode'
+    THEME_MODE: 'theme_mode',
+    WEB_SEARCH_ENABLED: 'web_search_enabled',
+    ACTIVE_SEARCH_PROVIDER_ID: 'active_search_provider_id',
+    WEB_SEARCH_SETTINGS: 'web_search_settings',
+    WEB_SEARCH_PROVIDERS: 'web_search_providers',
+    WEB_SEARCH_USAGE: 'web_search_usage'
   };
 
   const DEFAULT_SHORTCUT = {

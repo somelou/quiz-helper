@@ -110,6 +110,7 @@
       const answerPreview = (question.answer && question.status === 'done')
         ? `<span class="qh-card-answer">${escapeHtml(getAnswerResult(question.answer))}</span>`
         : '';
+      const showAnswerBtn = state.isPaused && question.status === 'pending';
       card.innerHTML = `
         <div class="qh-card-header">
           <span class="qh-card-num">${question.id}</span>
@@ -120,8 +121,16 @@
         </div>
         <div class="qh-card-body" id="card-body-${index}">
           <div class="qh-loading-text">${question.answer ? '已生成答案' : '待分析'}</div>
+          ${showAnswerBtn ? '<button class="qh-btn qh-btn-primary qh-answer-btn" data-index="' + index + '" style="margin-top:10px;">作答</button>' : ''}
         </div>
       `;
+
+      if (showAnswerBtn) {
+        card.querySelector('.qh-answer-btn').addEventListener('click', event => {
+          event.stopPropagation();
+          globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(index, { forceSearch: true });
+        });
+      }
 
       card.querySelector('.qh-card-header').addEventListener('click', () => {
         card.querySelector(`#card-body-${index}`).classList.toggle('open');
@@ -185,6 +194,32 @@
       bankRefsHtml += '</div>';
     }
 
+    // 联网搜索参考链接
+    let searchRefsHtml = '';
+    const webSearchRefs = question.webSearchRefs || [];
+    if (webSearchRefs.length > 0) {
+      const providerName = question.searchProviderName || '';
+      searchRefsHtml = `<details class="qh-search-ref" open>
+        <summary>
+          <span class="qh-search-ref-icon" data-icon="link"></span>
+          <span class="qh-search-ref-name">参考链接${providerName ? `<span class="qh-search-ref-provider"> · ${escapeHtml(providerName)}</span>` : ''}</span>
+          <span class="qh-bank-ref-score">${webSearchRefs.length} 条</span>
+        </summary>
+        <div class="qh-search-ref-detail">`;
+      webSearchRefs.forEach((ref, i) => {
+        const domain = (() => {
+          try { return new URL(ref.url).hostname; } catch { return ''; }
+        })();
+        searchRefsHtml += `
+          <div class="qh-search-ref-item">
+            <a class="qh-search-ref-title" href="${escapeHtml(ref.url)}" target="_blank" rel="noopener">${i + 1}. ${escapeHtml(ref.title || '无标题')}</a>
+            <div class="qh-search-ref-url">${escapeHtml(domain)}</div>
+            ${ref.snippet ? `<div class="qh-search-ref-snippet">${escapeHtml(ref.snippet)}</div>` : ''}
+          </div>`;
+      });
+      searchRefsHtml += '</div></details>';
+    }
+
     bodyEl.innerHTML = `
       <div class="qh-question-section">
         <div class="qh-section-title">题目</div>
@@ -194,6 +229,7 @@
         <div class="qh-section-title">参考答案</div>
         <div class="${isError ? 'qh-error-text' : 'qh-answer-text'}">${content}</div>
       </div>
+      ${searchRefsHtml}
       ${bankRefsHtml}
     `;
 
@@ -204,7 +240,7 @@
       retryBtn.textContent = '重新作答';
       retryBtn.addEventListener('click', event => {
         event.stopPropagation();
-        globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(index);
+        globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(index, { forceSearch: true });
       });
       bodyEl.appendChild(retryBtn);
     }
@@ -366,14 +402,14 @@
     }
   }
 
-  async function refreshModelIdDisplay() {
-    const el = state.shadowRoot?.getElementById('qh-model-id');
+  async function refreshModelNameDisplay() {
+    const el = state.shadowRoot?.getElementById('qh-model-name');
     if (!el) return;
     const result = await chrome.storage.local.get(['llm_models', 'active_model_id']);
     const models = result.llm_models || [];
     const activeId = result.active_model_id || '';
     const model = models.find(m => m.id === activeId && m.isActive);
-    el.textContent = model?.modelId || '';
+    el.textContent = model?.name || model?.modelId || '';
   }
 
   // ===== 面板生命周期 =====
@@ -443,7 +479,7 @@
         </div>
         <div class="qh-body" id="qh-body"></div>
         <div class="qh-footer">
-          <span class="qh-model-id" id="qh-model-id"></span>
+          <span class="qh-model-name" id="qh-model-name"></span>
           <div class="qh-footer-actions">
             <div class="qh-seg">
               <button class="qh-seg-btn" id="qh-ai-parse">AI 选区</button>
@@ -484,7 +520,7 @@
       makeDraggable(miniBar, miniBar);
 
       renderCards();
-      refreshModelIdDisplay();
+      refreshModelNameDisplay();
       window.QuizHelperIcons?.replaceIcons(state.shadowRoot);
     } finally {
       taskDone();
@@ -622,6 +658,6 @@
     updateControls,
     escapeHtml,
     formatAnswer,
-    refreshModelIdDisplay
+    refreshModelNameDisplay
   };
 })();

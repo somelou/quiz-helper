@@ -137,3 +137,63 @@ export async function buildQuestionBankPrompt(text, fileName) {
     })
   };
 }
+
+export async function buildSearchAwarePrompt(questionType, customPrompt, extraContextPrompt) {
+  const templates = await loadPromptTemplates();
+  const basePrompt = templates.answerWithSearchSystemPrompt || '';
+
+  // 合并用户自定义系统提示词（优先）
+  let customPart = '';
+  if (customPrompt && typeof customPrompt === 'object') {
+    customPart = (customPrompt[questionType] || customPrompt.unknown || '').trim();
+  } else if (customPrompt && typeof customPrompt === 'string') {
+    customPart = customPrompt.trim();
+  }
+
+  const extraPrompt = String(extraContextPrompt || '').trim();
+
+  let systemPrompt = basePrompt;
+  if (customPart) {
+    systemPrompt = systemPrompt + '\n\n用户自定义要求：\n' + customPart;
+  }
+  if (extraPrompt) {
+    systemPrompt = systemPrompt + '\n\n补充背景信息：\n' + extraPrompt;
+  }
+
+  return systemPrompt;
+}
+
+export async function buildSearchResultPrompt(questionText, questionType, searchResults, searchQuery, extraContextPrompt) {
+  const templates = await loadPromptTemplates();
+  const prompts = templates.answerSystemPrompts || {};
+  const systemPrompt = templates.answerWithSearchResultsSystemPrompt || '';
+
+  let formatHint = '';
+  if (questionType) {
+    const typePrompt = prompts[questionType] || prompts.unknown || '';
+    // 从题型提示中提取格式要求部分
+    const fmtMatch = typePrompt.match(/请按以下格式输出[：:][\s\S]+/);
+    if (fmtMatch) {
+      formatHint = '\n\n' + fmtMatch[0];
+    }
+  }
+
+  const extraPrompt = String(extraContextPrompt || '').trim();
+  const finalSystem = [systemPrompt, formatHint, extraPrompt ? `补充背景：${extraPrompt}` : '']
+    .filter(Boolean).join('\n\n');
+
+  const searchText = searchResults || '（未获取到搜索结果）';
+
+  return {
+    system: finalSystem,
+    user: `用户题目：
+${questionText}
+
+搜索关键词：${searchQuery || '（自动生成）'}
+
+联网搜索结果：
+${searchText}
+
+请基于以上搜索结果作答。`
+  };
+}

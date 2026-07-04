@@ -124,6 +124,13 @@ function initRules({
     drawerSaveBtn.dataset.ruleId = rule.id || '';
     drawerSaveBtn.dataset.ruleDomain = rule.domain || '';
     drawerOverlay.classList.add('open');
+
+    // 初始化分段滑块指示器（同步执行，确保首次绘制前 CSS 变量已就位）
+    drawerBodyEl.getBoundingClientRect();
+    drawerBodyEl.querySelectorAll('.segmented-control').forEach(seg => {
+      const active = seg.querySelector('.seg-active');
+      if (active) setSegValue(seg, active.dataset.value);
+    });
   }
 
   function renderRuleForm(rule) {
@@ -144,9 +151,9 @@ function initRules({
 
     drawerBodyEl.innerHTML = `
       <div class="rule-view-header">
-        <div class="rule-view-toggle">
-          <button type="button" class="rule-view-btn active" data-view="form">表单</button>
-          <button type="button" class="rule-view-btn" data-view="json">JSON</button>
+        <div class="segmented-control rule-view-seg" data-active="form">
+          <button type="button" class="seg-active" data-value="form">表单</button>
+          <button type="button" data-value="json">JSON</button>
         </div>
         <button type="button" class="rule-copy-btn" id="ruleCopyJsonBtn" style="display:none;">复制</button>
       </div>
@@ -239,15 +246,14 @@ function initRules({
     drawerBodyEl.dataset.ruleView = 'form';
     ruleEditorView = 'form';
 
-    drawerBodyEl.querySelectorAll('.rule-view-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetView = btn.dataset.view;
-        setRuleEditorView(targetView);
+    // 视图切换委托（滑动指示器由全局 delegate 处理）
+    const ruleSeg = drawerBodyEl.querySelector('.rule-view-seg');
+    if (ruleSeg) {
+      ruleSeg.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (btn) setRuleEditorView(btn.dataset.value);
       });
-    });
-
-    const toggleEl = drawerBodyEl.querySelector('.rule-view-toggle');
-    if (toggleEl) toggleEl.dataset.active = 'form';
+    }
 
     const jsonTextarea = drawerBodyEl.querySelector('#rule-json');
     if (jsonTextarea) {
@@ -457,11 +463,8 @@ function initRules({
 
     ruleEditorView = targetView;
     drawerBodyEl.dataset.ruleView = targetView;
-    const toggleEl = drawerBodyEl.querySelector('.rule-view-toggle');
-    if (toggleEl) toggleEl.dataset.active = targetView;
-    drawerBodyEl.querySelectorAll('.rule-view-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.view === targetView);
-    });
+    const ruleSeg = drawerBodyEl.querySelector('.rule-view-seg');
+    if (ruleSeg) setSegValue(ruleSeg, targetView);
   }
 
   async function saveRuleFromDrawer() {

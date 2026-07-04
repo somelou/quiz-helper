@@ -57,7 +57,7 @@
       updateDarkMode();
     }
     if (changes.active_model_id || changes.llm_models) {
-      globalThis.QuizHelperPanelUI.refreshModelIdDisplay();
+      globalThis.QuizHelperPanelUI.refreshModelNameDisplay();
     }
   }
 
@@ -243,8 +243,9 @@
       state.isStarting = true;
       startAnalysis().finally(() => { state.isStarting = false; });
       sendResponse({ status: 'started' });
+      return true;
     }
-    return true;
+    return false;
   });
 
   // 导出 API（供其他模块运行时调用）

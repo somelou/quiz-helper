@@ -203,6 +203,13 @@ function initModels({
     drawerOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
+
+    // 初始化分段滑块指示器（同步执行，确保首次绘制前 CSS 变量已就位）
+    drawerBodyEl.getBoundingClientRect();
+    drawerBodyEl.querySelectorAll('.segmented-control').forEach(seg => {
+      const active = seg.querySelector('.seg-active');
+      if (active) setSegValue(seg, active.dataset.value);
+    });
   }
 
   function renderModelForm(model) {
@@ -220,9 +227,9 @@ function initModels({
 
       <div class="rule-form-group">
         <label>API 格式</label>
-        <div class="format-toggle" id="model-apiFormat" data-format="${!model.apiFormat || model.apiFormat === 'openai' ? 'openai' : 'anthropic'}">
-          <button type="button" class="format-btn${!model.apiFormat || model.apiFormat === 'openai' ? ' active' : ''}" data-value="openai">OpenAI</button>
-          <button type="button" class="format-btn${model.apiFormat === 'anthropic' ? ' active' : ''}" data-value="anthropic">Anthropic</button>
+        <div class="segmented-control" id="model-apiFormat" data-active="${!model.apiFormat || model.apiFormat === 'openai' ? 'openai' : 'anthropic'}">
+          <button type="button" class="${!model.apiFormat || model.apiFormat === 'openai' ? 'seg-active' : ''}" data-value="openai">OpenAI</button>
+          <button type="button" class="${model.apiFormat === 'anthropic' ? 'seg-active' : ''}" data-value="anthropic">Anthropic</button>
         </div>
         <div class="hint">根据 API 服务商提供的请求格式设置</div>
       </div>
@@ -261,15 +268,6 @@ function initModels({
     const apiUrlInput = drawerBodyEl.querySelector('#model-apiUrl');
     const modelIdInput = drawerBodyEl.querySelector('#model-modelId');
     const formatToggle = drawerBodyEl.querySelector('#model-apiFormat');
-
-    // API 格式滑块切换
-    formatToggle.querySelectorAll('.format-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        formatToggle.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        formatToggle.dataset.format = btn.dataset.value;
-      });
-    });
 
     function tryAutoGenerateName() {
       if (nameManuallyEdited) return;
@@ -314,7 +312,7 @@ function initModels({
     const apiKey = drawerBodyEl.querySelector('#model-apiKey').value.trim();
     const modelId = drawerBodyEl.querySelector('#model-modelId').value.trim();
     const testText = drawerBodyEl.querySelector('#model-testText').value.trim();
-    const apiFormat = drawerBodyEl.querySelector('#model-apiFormat')?.dataset?.format || 'openai';
+    const apiFormat = drawerBodyEl.querySelector('#model-apiFormat')?.dataset?.active || 'openai';
 
     if (!apiUrl || !apiKey || !modelId) {
       resultEl.textContent = '请先填写 API URL、API Key 和模型 ID';
@@ -386,7 +384,7 @@ function initModels({
     const apiUrl = drawerBodyEl.querySelector('#model-apiUrl')?.value?.trim().replace(/\/+$/, '') || '';
     const apiKey = drawerBodyEl.querySelector('#model-apiKey')?.value?.trim() || '';
     const modelId = drawerBodyEl.querySelector('#model-modelId')?.value?.trim() || '';
-    const apiFormat = drawerBodyEl.querySelector('#model-apiFormat')?.dataset?.format || 'openai';
+    const apiFormat = drawerBodyEl.querySelector('#model-apiFormat')?.dataset?.active || 'openai';
 
     if (!name) { showModelStatus('模型展示名称不能为空'); return null; }
     if (!apiUrl) { showModelStatus('API URL 不能为空'); return null; }
