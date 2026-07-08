@@ -1,12 +1,12 @@
 import { getApiConfig, postChatCompletion } from './api-client.js';
 import { buildQuestionBankPrompt } from './prompt-builder.js';
 import { normalizeParsedQuestions, normalizeQuestionType, parseQuestionBankResult } from './json-parser.js';
+import { splitTextByQuestions } from '../shared/text-splitter.js';
 
 export async function handleParseQuestionBank(text, fileName) {
   try {
     const fallbackQuestions = parseQuestionBankByRules(text);
-    const { apiUrl, apiKey, apiFormat, model } = await getApiConfig();
-
+    const { apiUrl, apiKey, apiFormat, model } = await getApiConfig('bank');
     if (!apiKey) {
       if (fallbackQuestions.length > 0) {
         return { success: true, questions: fallbackQuestions };
@@ -44,6 +44,213 @@ export async function handleParseQuestionBank(text, fileName) {
   } catch (error) {
     return { success: false, error: '解析过程出错：' + error.message };
   }
+}
+
+/**
+ * 分批解析题库（通过 port 上报进度）
+ * @param {string} text - 题库文本
+ * @param {string} fileName - 文件名
+ * @param {chrome.runtime.Port} port - 通信端口
+ */
+export async function handleParseQuestionBankBatched(text, fileName, port) {
+  const sendProgress = (current, total, totalQuestions, message) => {
+    try {
+      port.postMessage({ type: 'progress', current, total, totalQuestions, message });
+    } catch (_) {
+      // 端口已断开，忽略
+    }
+  };
+
+  const sendResult = (result) => {
+    try {
+      port.postMessage({ type: 'result', ...result });
+    } catch (_) {
+      // 端口已断开，忽略
+    }
+  };
+
+  try {
+    // 读取导入模式，映射并发数和每批题数
+    const modeConfig = await chrome.storage.local.get(['import_mode']);
+    const MODE_MAP = {
+      eco: { concurrency: 5, batchSize: 100 },
+      balanced: { concurrency: 10, batchSize: 50 },
+      precise: { concurrency: 10, batchSize: 25 }
+    };
+    const mode = MODE_MAP[modeConfig.import_mode] || MODE_MAP.balanced;
+    const CONCURRENCY = mode.concurrency;
+    const batchSize = mode.batchSize;
+
+    // 拆分为批次
+    const { batches, totalQuestions } = splitTextByQuestions(text, batchSize);
+    const totalBatches = batches.length;
+
+    // 本地规则全量解析作为全局 fallback
+    const allFallbackQuestions = parseQuestionBankByRules(text);
+
+    const { apiUrl, apiKey, apiFormat, model } = await getApiConfig('bank');
+
+    if (!apiKey) {
+      if (allFallbackQuestions.length > 0) {
+        sendResult({ success: true, questions: allFallbackQuestions });
+      } else {
+        sendResult({ success: false, error: '未配置 API Key，请先在设置页面配置' });
+      }
+      return;
+    }
+
+    // 构建初始进度消息
+    const countLabel = totalQuestions > 0 ? `共 ${totalQuestions} 题` : '';
+    const batchLabel = totalBatches > 1 ? `分 ${totalBatches} 批` : '';
+    const concurrencyLabel = totalBatches > 1 ? `并发 ${CONCURRENCY}` : '';
+    const desc = [countLabel, batchLabel, concurrencyLabel].filter(Boolean).join('，');
+    sendProgress(0, totalBatches, totalQuestions,
+      `正在解析题库${desc ? `（${desc}）` : ''}...`);
+
+    const allQuestions = [];
+    const parseErrors = [];
+
+    let completed = 0;
+    let nextIndex = 0;
+    let inFlight = 0;
+    let cancelled = false;
+
+    // AbortController 用于取消所有进行中的请求
+    const abortController = new AbortController();
+
+    // 监听端口断开（用户点击取消或关闭页面）
+    port.onDisconnect.addListener(() => {
+      cancelled = true;
+      abortController.abort();
+    });
+
+    await new Promise((resolve) => {
+      function runNext() {
+        if (cancelled) {
+          if (inFlight === 0) resolve();
+          return;
+        }
+        while (inFlight < CONCURRENCY && nextIndex < batches.length && !cancelled) {
+          const i = nextIndex++;
+          inFlight++;
+
+          (async () => {
+            let batchSuccess = false;
+            try {
+              const prompt = await buildQuestionBankPrompt(batches[i], fileName);
+              const raw = await postChatCompletion({
+                apiKey, apiUrl, apiFormat,
+                messages: [
+                  { role: 'system', content: prompt.system },
+                  { role: 'user', content: prompt.user }
+                ],
+                model,
+                temperature: 0.1,
+                signal: abortController.signal
+              });
+              const questions = normalizeParsedQuestions(parseQuestionBankResult(raw));
+              if (questions.length > 0) {
+                allQuestions.push(...questions);
+                batchSuccess = true;
+              }
+            } catch (error) {
+              if (cancelled) {
+                parseErrors.push(`第 ${i + 1} 批已取消`);
+              } else {
+                parseErrors.push(`第 ${i + 1} 批 AI 解析失败: ${error.message}`);
+              }
+            }
+
+            // AI 解析失败或返回空，使用本批的本地规则解析兜底
+            if (!batchSuccess && !cancelled) {
+              try {
+                const fallback = parseQuestionBankByRules(batches[i]);
+                if (fallback.length > 0) {
+                  allQuestions.push(...fallback);
+                }
+              } catch (_) {
+                // 本批彻底失败，跳过
+              }
+            }
+
+            completed++;
+            inFlight--;
+
+            if (!cancelled) {
+              const concurrentInfo = inFlight > 0 ? `（进行中 ${inFlight}）` : '';
+              sendProgress(completed, totalBatches, totalQuestions,
+                `正在 AI 解析第 ${completed}/${totalBatches} 批${concurrentInfo}`);
+            }
+
+            if (cancelled && inFlight === 0) {
+              resolve();
+            } else if (completed >= batches.length) {
+              resolve();
+            } else {
+              runNext();
+            }
+          })();
+        }
+      }
+      runNext();
+    });
+
+    // 去重（按题号 id）
+    const deduped = deduplicateQuestions(allQuestions);
+
+    if (cancelled) {
+      if (deduped.length > 0) {
+        sendResult({
+          success: true,
+          questions: deduped,
+          cancelled: true,
+          warnings: [`解析已取消，已获取 ${deduped.length} 道题目（共 ${completed}/${totalBatches} 批）`]
+        });
+      } else {
+        sendResult({ success: false, error: '解析已取消', cancelled: true });
+      }
+      return;
+    }
+
+    if (deduped.length === 0) {
+      if (allFallbackQuestions.length > 0) {
+        sendResult({
+          success: true,
+          questions: allFallbackQuestions,
+          warnings: parseErrors.length > 0
+            ? ['部分批次 AI 解析失败，已使用本地规则解析']
+            : []
+        });
+      } else {
+        sendResult({ success: false, error: 'AI 未解析到有效题目' });
+      }
+      return;
+    }
+
+    sendResult({
+      success: true,
+      questions: deduped,
+      totalBatches,
+      warnings: parseErrors.length > 0
+        ? [`共 ${parseErrors.length} 批 AI 解析失败，已用本地规则解析兜底`]
+        : []
+    });
+  } catch (error) {
+    sendResult({ success: false, error: '解析过程出错：' + error.message });
+  }
+}
+
+/**
+ * 题目去重（按 id 保留首次出现）
+ */
+function deduplicateQuestions(questions) {
+  const seen = new Set();
+  return questions.filter(q => {
+    const key = q.id != null ? String(q.id) : q.text;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export async function handleSearchQuestionBank(questionText) {
@@ -86,8 +293,9 @@ export async function handleSearchQuestionBank(questionText) {
   }
 
   allMatches.sort((a, b) => b.score - a.score);
-  return allMatches.length > 0
-    ? { success: true, found: true, matches: allMatches }
+  const topMatches = allMatches.slice(0, 3);
+  return topMatches.length > 0
+    ? { success: true, found: true, matches: topMatches }
     : { success: true, found: false, matches: [] };
 }
 

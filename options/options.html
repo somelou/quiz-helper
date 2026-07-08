@@ -100,7 +100,7 @@ exam.example.com"></textarea>
           <h2 style="margin:0;">大模型管理</h2>
           <button class="action-btn action-edit" id="addModelBtn">+ 添加</button>
         </div>
-        <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。</div>
+        <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。点击下方按钮可为各任务指定专用模型。</div>
         <div id="modelList"></div>
         <div id="modelStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
       </div>
@@ -169,6 +169,15 @@ exam.example.com"></textarea>
           </label>
         </div>
         <div class="hint" style="margin-bottom: 12px;">开启后优先从题库匹配答案。导入 Excel(.xlsx/.xls) 或 Word(.docx) 文件，AI 将自动解析题目和答案。</div>
+        <div class="rule-form-group">
+          <label for="importMode">导入解析模式</label>
+          <div class="segmented-control" id="importMode">
+            <button data-value="eco">节能</button>
+            <button data-value="balanced" class="seg-active">平衡</button>
+            <button data-value="precise">精细</button>
+          </div>
+          <div class="hint" id="importModeHint">并发 10 批 · 每批 50 题</div>
+        </div>
         <div class="bank-toolbar">
           <div class="bank-toolbar-left">
             <label class="btn btn-secondary">
@@ -181,6 +190,15 @@ exam.example.com"></textarea>
           </div>
         </div>
         <div id="questionBankList"></div>
+        <div id="bankProgress" style="display:none; margin-top: 12px;">
+          <div class="bank-progress-bar">
+            <div class="bank-progress-fill" id="bankProgressFill"></div>
+          </div>
+          <div class="bank-progress-text">
+            <span id="bankProgressText"></span>
+            <button class="bank-progress-cancel" id="bankProgressCancel" title="取消解析">取消</button>
+          </div>
+        </div>
         <div id="bankStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
       </div>
 

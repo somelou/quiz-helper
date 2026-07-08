@@ -20,12 +20,15 @@ function initModels({
   }
 
   async function loadModels() {
-    const result = await chrome.storage.local.get(['llm_models', 'active_model_id']);
+    const result = await chrome.storage.local.get([
+      'llm_models', 'active_model_id',
+      'model_bank_id', 'model_extract_id'
+    ]);
     const models = result.llm_models || [];
-    renderModels(models, result.active_model_id || '');
+    renderModels(models, result.active_model_id || '', result.model_bank_id || '', result.model_extract_id || '');
   }
 
-  function renderModels(models, activeModelId) {
+  function renderModels(models, activeModelId, bankModelId, extractModelId) {
     if (!models || models.length === 0) {
       modelListEl.innerHTML = '<div class="list-empty">暂无大模型配置，点击右上角「添加」创建。</div>';
       return;
@@ -40,16 +43,43 @@ function initModels({
     modelListEl.innerHTML = '';
     for (let idx = startIdx; idx < endIdx; idx++) {
       const model = models[idx];
-      const isPreferred = model.id === activeModelId;
+      const isAnswerModel = model.id === activeModelId;
+      const isBank = model.id === bankModelId && model.isActive;
+      const isExtract = model.id === extractModelId && model.isActive;
+
+      // 构建 badge 列表
+      const badges = [];
+      if (isAnswerModel) badges.push('<span class="model-badge model-preferred">答题</span>');
+      if (isExtract) badges.push('<span class="model-badge model-task-extract">页面解析</span>');
+      if (isBank) badges.push('<span class="model-badge model-task-bank">题库解析</span>');
+
+      const badgeHtml = badges.join('');
+
       const item = document.createElement('div');
-      item.className = 'list-item' + (isPreferred ? ' active' : (model.isActive ? '' : ' model-inactive'));
+      item.className = 'list-item' + (isAnswerModel ? ' active' : (model.isActive ? '' : ' model-inactive'));
+
+      // 构建 footer 按钮
+      const footerButtons = [];
+      if (!isAnswerModel && model.isActive) {
+        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">用于答题</button>');
+      }
+      if (!isExtract && model.isActive) {
+        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">用于页面解析</button>');
+      }
+      if (!isBank && model.isActive) {
+        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">用于题库解析</button>');
+      }
+
+      const footerHtml = footerButtons.length > 0
+        ? '<div class="list-item-footer">' + footerButtons.join('') + '</div>'
+        : '';
 
       item.innerHTML = `
         <div class="list-item-header">
           <div class="list-item-info">
             <div class="list-item-title">
               ${escapeHtml(model.name || '未命名')}
-              ${isPreferred ? '<span class="model-badge model-preferred">首选</span>' : ''}
+              ${badgeHtml}
             </div>
             <div class="list-item-meta">模型 ID: ${escapeHtml(model.modelId || '')} · ${escapeHtml(model.apiUrl || '')}</div>
           </div>
@@ -62,11 +92,7 @@ function initModels({
             <button class="action-btn action-delete" data-idx="${idx}">删除</button>
           </div>
         </div>
-        ${!isPreferred && model.isActive ? `
-        <div class="list-item-footer">
-          <button class="action-link" data-idx="${idx}" data-action="preferred">设为首选</button>
-        </div>
-        ` : ''}
+        ${footerHtml}
       `;
 
       item.querySelector('[data-action="toggle"]').addEventListener('change', event => {
@@ -75,9 +101,17 @@ function initModels({
       item.querySelector('.action-edit').addEventListener('click', () => openModelDrawer(model));
       item.querySelector('.action-delete').addEventListener('click', () => deleteModel(idx));
 
-      const preferredBtn = item.querySelector('[data-action="preferred"]');
-      if (preferredBtn) {
-        preferredBtn.addEventListener('click', () => setPreferredModel(idx));
+      const answerBtn = item.querySelector('[data-action="set-answer"]');
+      if (answerBtn) {
+        answerBtn.addEventListener('click', () => setAnswerModel(idx));
+      }
+      const extractBtn = item.querySelector('[data-action="set-extract"]');
+      if (extractBtn) {
+        extractBtn.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', '页面解析'));
+      }
+      const bankBtn = item.querySelector('[data-action="set-bank"]');
+      if (bankBtn) {
+        bankBtn.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', '题库解析'));
       }
 
       modelListEl.appendChild(item);
@@ -92,9 +126,24 @@ function initModels({
     });
   }
 
+  async function setTaskModel(idx, storageKey, label) {
+    const result = await chrome.storage.local.get(['llm_models']);
+    const models = result.llm_models || [];
+    if (!models[idx] || !models[idx].isActive) {
+      showModelStatus('请先激活该模型');
+      return;
+    }
+    await safeSet({ [storageKey]: models[idx].id });
+    showModelStatus(`已设为${label}模型`);
+    await loadModels();
+  }
+
   async function deleteModel(idx) {
     if (!confirm('确定要删除这个大模型配置吗？')) return;
-    const result = await chrome.storage.local.get(['llm_models', 'active_model_id']);
+    const result = await chrome.storage.local.get([
+      'llm_models', 'active_model_id',
+      'model_bank_id', 'model_extract_id'
+    ]);
     const models = result.llm_models || [];
     const deletedModel = models[idx];
     models.splice(idx, 1);
@@ -104,6 +153,12 @@ function initModels({
       const firstActive = models.find(m => m.isActive);
       updates.active_model_id = firstActive ? firstActive.id : '';
     }
+    if (result.model_bank_id === deletedModel.id) {
+      updates.model_bank_id = '';
+    }
+    if (result.model_extract_id === deletedModel.id) {
+      updates.model_extract_id = '';
+    }
 
     await safeSet(updates);
     showModelStatus('模型已删除');
@@ -111,26 +166,42 @@ function initModels({
   }
 
   async function toggleModelActive(idx, checked) {
-    const result = await chrome.storage.local.get(['llm_models', 'active_model_id']);
+    const result = await chrome.storage.local.get([
+      'llm_models', 'active_model_id',
+      'model_bank_id', 'model_extract_id'
+    ]);
     const models = result.llm_models || [];
+    const model = models[idx];
     models[idx].isActive = checked;
 
     const updates = { llm_models: models };
-    let preferredChanged = false;
-    if (!checked && result.active_model_id === models[idx].id) {
+    let answerChanged = false;
+    if (!checked && result.active_model_id === model.id) {
       const firstActive = models.find(m => m.isActive);
       updates.active_model_id = firstActive ? firstActive.id : '';
-      preferredChanged = true;
+      answerChanged = true;
     } else if (checked && !result.active_model_id) {
-      updates.active_model_id = models[idx].id;
-      preferredChanged = true;
+      updates.active_model_id = model.id;
+      answerChanged = true;
+    }
+
+    // 停用时清理任务映射
+    if (!checked) {
+      if (result.model_bank_id === model.id) {
+        updates.model_bank_id = '';
+        answerChanged = true;
+      }
+      if (result.model_extract_id === model.id) {
+        updates.model_extract_id = '';
+        answerChanged = true;
+      }
     }
 
     await safeSet(updates);
     showModelStatus(checked ? '模型已激活' : '模型已停用');
     const activeModelId = updates.active_model_id !== undefined ? updates.active_model_id : result.active_model_id;
-    if (preferredChanged) {
-      // 首选变化了，需要更新整个列表
+    if (answerChanged) {
+      // 答题模型变化了，需要更新整个列表
       await loadModels();
     } else {
       // 只更新当前 item，保留 switch 动画
@@ -143,22 +214,22 @@ function initModels({
     if (!checkbox) return;
     const item = checkbox.closest('.list-item');
     if (!item) return;
-    const isPreferred = model.id === activeModelId;
+    const isAnswerModel = model.id === activeModelId;
     item.classList.toggle('model-inactive', !model.isActive);
-    item.classList.toggle('active', isPreferred);
+    item.classList.toggle('active', isAnswerModel);
     // 更新 badge
     const titleEl = item.querySelector('.list-item-title');
     if (titleEl) {
       const nameText = escapeHtml(model.name || '未命名');
-      titleEl.innerHTML = nameText + (isPreferred ? '<span class="model-badge model-preferred">首选</span>' : '');
+      titleEl.innerHTML = nameText + (isAnswerModel ? '<span class="model-badge model-preferred">答题</span>' : '');
     }
-    // 更新 footer（设为首选链接）
+    // 更新 footer（用于答题链接）
     const existingFooter = item.querySelector('.list-item-footer');
-    if (!isPreferred && model.isActive) {
+    if (!isAnswerModel && model.isActive) {
       if (!existingFooter) {
         const footer = document.createElement('div');
         footer.className = 'list-item-footer';
-        footer.innerHTML = `<button class="action-link" data-idx="${idx}" data-action="preferred">设为首选</button>`;
+        footer.innerHTML = '<button class="action-link" data-idx="' + idx + '" data-action="set-answer">用于答题</button>';
         item.appendChild(footer);
       }
     } else if (existingFooter) {
@@ -166,7 +237,7 @@ function initModels({
     }
   }
 
-  async function setPreferredModel(idx) {
+  async function setAnswerModel(idx) {
     const result = await chrome.storage.local.get(['llm_models']);
     const models = result.llm_models || [];
     if (!models[idx].isActive) {
@@ -174,7 +245,7 @@ function initModels({
       return;
     }
     await safeSet({ active_model_id: models[idx].id });
-    showModelStatus('已设为首选模型');
+    showModelStatus('已设为答题模型');
     await loadModels();
   }
 

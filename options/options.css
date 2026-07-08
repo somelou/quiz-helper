@@ -436,6 +436,41 @@ body.dark .q-type.q-type-unknown { background: #333333; color: #999999; }
   color: var(--color-primary);
   font-size: var(--font-md);
 }
+.bank-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bank-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--color-primary);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.bank-progress-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: var(--font-sm);
+  color: var(--color-text-secondary);
+  margin-top: 6px;
+}
+.bank-progress-cancel {
+  padding: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.bank-progress-cancel:hover {
+  color: var(--color-danger);
+}
 .bank-toolbar {
   margin: 0 0 12px 0;
   display: flex;
@@ -859,13 +894,16 @@ body.dark .json-punctuation {
   background: var(--color-primary-bg);
   color: var(--color-primary);
   font-size: 11px;
+  line-height: 1;
   font-weight: 600;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: var(--radius-sm);
 }
 .drawer-body .q-type {
+  display: inline-block;
   font-size: 11px;
-  padding: 2px 6px;
+  line-height: 1;
+  padding: 4px 8px;
   border-radius: var(--radius-sm);
   font-weight: 400;
 }
@@ -956,6 +994,14 @@ body.dark .json-punctuation {
   background: var(--color-primary-bg);
   color: var(--color-primary);
 }
+.model-task-bank {
+  background: #fff3e0;
+  color: #e65100;
+}
+.model-task-extract {
+  background: #e0f2f1;
+  color: #00695c;
+}
 .model-active {
   background: var(--color-success-bg);
   color: var(--color-success);
@@ -969,6 +1015,14 @@ body.dark .json-punctuation {
 body.dark .model-preferred {
   background: rgba(79, 110, 247, 0.24);
   color: var(--color-primary-light);
+}
+body.dark .model-task-bank {
+  background: rgba(230, 81, 0, 0.18);
+  color: #ffab40;
+}
+body.dark .model-task-extract {
+  background: rgba(0, 105, 92, 0.2);
+  color: #80cbc4;
 }
 body.dark .model-inactive-badge {
   background: #3a3a3a;

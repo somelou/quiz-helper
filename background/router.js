@@ -1,7 +1,7 @@
 import { getApiConfig, postChatCompletion } from './api-client.js';
 import { parseExtractedQuestions, normalizeQuestionType } from './json-parser.js';
 import { buildExtractPrompt, buildSystemPrompt, buildVerifyPrompt, buildSearchAwarePrompt, buildSearchResultPrompt } from './prompt-builder.js';
-import { handleParseQuestionBank, handleSearchQuestionBank } from './question-bank.js';
+import { handleParseQuestionBank, handleParseQuestionBankBatched, handleSearchQuestionBank } from './question-bank.js';
 import { executeWebSearch, extractSearchResults, formatSearchResultsForLLM, extractReferenceLinks } from './search-proxy.js';
 
 /**
@@ -64,7 +64,7 @@ function filterReferencedLinks(answer, referenceLinks) {
 }
 
 async function handleFetchAnswer(questionText, questionType) {
-  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt } = await getApiConfig();
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt } = await getApiConfig('answer');
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
   }
@@ -85,7 +85,7 @@ async function handleFetchAnswer(questionText, questionType) {
 }
 
 async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) {
-  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model } = await getApiConfig();
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model } = await getApiConfig('answer');
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
   }
@@ -137,7 +137,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
     return handleFetchAnswer(questionText, questionType);
   }
 
-  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt: customPrompt } = await getApiConfig();
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt: customPrompt } = await getApiConfig('answer');
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
   }
@@ -218,7 +218,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
 }
 
 async function handleExtractQuestions(pageText, pageStructure, selectionText, elementHint, existingRule) {
-  const { apiUrl, apiKey, apiFormat, model } = await getApiConfig();
+  const { apiUrl, apiKey, apiFormat, model } = await getApiConfig('extract');
   if (!apiKey) {
     throw new Error('未配置 API Key');
   }
@@ -310,5 +310,16 @@ export function registerBackgroundRouter() {
     }
 
     return false;
+  });
+
+  // 分批题库解析（port 通道，支持进度上报）
+  chrome.runtime.onConnect.addListener((port) => {
+    if (port.name === 'parseQuestionBank') {
+      port.onMessage.addListener((msg) => {
+        if (msg.text && msg.fileName) {
+          handleParseQuestionBankBatched(msg.text, msg.fileName, port);
+        }
+      });
+    }
   });
 }

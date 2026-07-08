@@ -187,6 +187,31 @@ function initBank({
     const file = event.target.files[0];
     if (!file) return;
 
+    const progressEl = document.getElementById('bankProgress');
+    const progressFill = document.getElementById('bankProgressFill');
+    const progressText = document.getElementById('bankProgressText');
+    const cancelBtn = document.getElementById('bankProgressCancel');
+    let currentPort = null;
+
+    const showProgress = (visible) => {
+      if (progressEl) progressEl.style.display = visible ? 'block' : 'none';
+    };
+    const updateProgress = (percent, msg) => {
+      if (progressFill) progressFill.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+      if (progressText) progressText.textContent = msg || '';
+    };
+
+    // 取消按钮
+    const onCancel = () => {
+      if (currentPort) {
+        currentPort.disconnect();
+        currentPort = null;
+        updateProgress(0, '正在取消...');
+        cancelBtn.disabled = true;
+      }
+    };
+    cancelBtn.addEventListener('click', onCancel);
+
     showBankStatus('正在读取文件...');
 
     try {
@@ -207,24 +232,59 @@ function initBank({
         return;
       }
 
-      showBankStatus('正在使用 AI 解析题库...');
+      showBankStatus('');
+      showProgress(true);
+      updateProgress(0, '正在连接 AI 解析服务...');
+      cancelBtn.disabled = false;
+      cancelBtn.style.display = '';
 
-      const response = await chrome.runtime.sendMessage({
-        action: 'parseQuestionBank', text, fileName
-      }).catch(err => {
-        console.error('消息发送失败:', err);
-        return { success: false, error: '消息发送失败：' + err.message };
+      // 通过 port 通道通信，支持分批进度上报
+      const parseResult = await new Promise((resolve, reject) => {
+        const port = chrome.runtime.connect({ name: 'parseQuestionBank' });
+        currentPort = port;
+        let settled = false;
+
+        const finish = (result) => {
+          if (!settled) {
+            settled = true;
+            currentPort = null;
+            resolve(result);
+            port.disconnect();
+          }
+        };
+
+        port.onMessage.addListener((msg) => {
+          if (msg.type === 'progress') {
+            const pct = msg.total > 0 ? Math.round((msg.current / msg.total) * 100) : 0;
+            updateProgress(pct, msg.message || `正在解析...`);
+          } else if (msg.type === 'result') {
+            finish(msg);
+          }
+        });
+
+        port.onDisconnect.addListener(() => {
+          if (!settled) {
+            settled = true;
+            currentPort = null;
+            reject(new Error('解析服务连接已断开'));
+          }
+        });
+
+        port.postMessage({ text, fileName });
       });
 
-      if (!response || typeof response !== 'object') {
-        alert('解析失败：响应格式错误');
-        showBankStatus('');
+      showProgress(false);
+      cancelBtn.style.display = 'none';
+      showBankStatus('');
+
+      // 取消且无结果
+      if (parseResult.cancelled && !parseResult.success) {
+        showBankStatus('解析已取消');
         return;
       }
 
-      if (!response.success) {
-        alert('解析失败：' + (response.error || '未知错误'));
-        showBankStatus('');
+      if (!parseResult.success) {
+        alert('解析失败：' + (parseResult.error || '未知错误'));
         return;
       }
 
@@ -234,7 +294,7 @@ function initBank({
         id: Date.now().toString(),
         name: fileName,
         timestamp: Date.now(),
-        questions: response.questions.map((q, i) => ({
+        questions: parseResult.questions.map((q, i) => ({
           id: q.id || i + 1,
           text: (q.text || '').trim(),
           type: normalizeBankQuestionType(q.type),
@@ -245,7 +305,6 @@ function initBank({
 
       if (!newBank.questions.length) {
         alert('解析失败：未提取到有效题目');
-        showBankStatus('');
         return;
       }
 
@@ -253,16 +312,58 @@ function initBank({
       if (banks.length > 10) banks.length = 10;
 
       await safeSet({ question_banks: banks });
-      showBankStatus(`题库导入成功，共 ${newBank.questions.length} 道题目`);
+
+      const warnMsg = parseResult.warnings && parseResult.warnings.length > 0
+        ? `（${parseResult.warnings[0]}）`
+        : '';
+      showBankStatus(`题库导入成功，共 ${newBank.questions.length} 道题目${warnMsg}`);
       await loadQuestionBanks();
     } catch (err) {
       console.error('导入失败:', err);
-      alert('导入失败：' + err.message);
+      showProgress(false);
+      cancelBtn.style.display = 'none';
+      updateProgress(0, '');
+      alert('导入失败：' + (err.message || '未知错误'));
       showBankStatus('');
     }
 
     bankFileInput.value = '';
   });
+
+  // --- 导入设置 ---
+  (async function initImportSettings() {
+    const importMode = document.getElementById('importMode');
+    const importModeHint = document.getElementById('importModeHint');
+    if (!importMode) return;
+
+    const MODE_MAP = {
+      eco: { concurrency: 5, batchSize: 100, label: '并发 5 批 · 每批 100 题，速度较慢，适合 token 不足或 API 限流严格的场景' },
+      balanced: { concurrency: 10, batchSize: 50, label: '并发 10 批 · 每批 50 题，均衡速度与稳定性，推荐日常使用' },
+      precise: { concurrency: 10, batchSize: 25, label: '并发 10 批 · 每批 25 题，小批次高精度，适合题目格式复杂、容易解析出错的题库' }
+    };
+
+    const result = await chrome.storage.local.get(['import_mode']);
+    const currentMode = result.import_mode || 'balanced';
+
+    // 初始化 active 状态并触发滑动指示器
+    importMode.querySelectorAll('button').forEach(btn => {
+      btn.classList.toggle('seg-active', btn.dataset.value === currentMode);
+    });
+    setSegValue(importMode, currentMode);
+    if (importModeHint && MODE_MAP[currentMode]) {
+      importModeHint.textContent = MODE_MAP[currentMode].label;
+    }
+
+    importMode.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const mode = btn.dataset.value;
+      if (importModeHint && MODE_MAP[mode]) {
+        importModeHint.textContent = MODE_MAP[mode].label;
+      }
+      safeSet({ import_mode: mode });
+    });
+  })();
 
   return { loadQuestionBanks, getQuestionBankState };
 }
