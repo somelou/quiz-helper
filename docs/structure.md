@@ -11,8 +11,8 @@
    - 作用：从浏览器工具栏打开，负责触发当前页面分析、打开设置页、显示快捷键信息、切换主题
 
 2. `options` 设置页
-   - 文件：`options.html` + `options/app.js` + `options/options.css`
-   - 作用：负责模型配置、快捷键、域名白名单、解析规则管理、题库管理、历史记录管理
+   - 文件：`options/options.html` + `options/index.js` + `options/options.css`
+   - 作用：负责大模型管理、联网搜索设置、快捷键、域名白名单、解析规则管理、题库管理、历史记录管理
 
 3. `content` 注入面板
    - 文件：`content/index.js` + `content/state.js` + `content/dom-parser.js` + `content/panel-ui.js` + `content/analyzer.js` + `content/panel.css`
@@ -31,10 +31,18 @@
 ```text
 quiz-helper/
 ├── background/                # 后台逻辑模块
+│   ├── index.js               # 后台入口（webSearch 监听 + 路由注册）
+│   ├── router.js              # 消息路由
+│   ├── api-client.js          # LLM API 调用
+│   ├── prompt-builder.js      # 提示词构建
+│   ├── json-parser.js         # JSON 响应解析与归一化
+│   ├── question-bank.js       # 题库解析与检索
+│   ├── search-proxy.js        # 联网搜索代理（多服务商）
+│   └── webrequest-interceptor.js  # DNR 拦截器（注入认证头/规避 CORS 预检）
 ├── content/                   # 内容脚本主逻辑与面板样式
-│   ├── index.js               # 编排入口（主题/快捷键/规则CRUD/消息监听）
+│   ├── index.js               # 编排入口
 │   ├── state.js               # 共享可变状态与 content 专用常量
-│   ├── dom-parser.js          # DOM 题目提取（题型识别/选项提取/题目构造）
+│   ├── dom-parser.js          # DOM 题目提取
 │   ├── panel-ui.js            # 面板生命周期 + 拖拽 + 卡片渲染
 │   ├── analyzer.js            # 分析控制 + AI 选区解析 + AI 作答流程
 │   └── panel.css              # 面板样式
@@ -43,11 +51,14 @@ quiz-helper/
 ├── icons/                     # PNG/SVG 图标资源
 ├── lib/                       # 第三方库（xlsx、mammoth）
 ├── options/                   # 设置页主逻辑与样式
-│   ├── app.js                 # 协调层
+│   ├── options.html           # 设置页 HTML
 │   ├── options.css            # 样式
+│   ├── index.js               # 协调层
 │   ├── utils.js               # 共享工具
 │   ├── shortcut-section.js    # 快捷键管理
-│   ├── config-section.js      # 配置管理
+│   ├── config-section.js      # 基本配置管理
+│   ├── model-section.js       # 大模型管理
+│   ├── search-section.js      # 联网搜索设置
 │   ├── history-section.js     # 历史记录
 │   ├── bank-section.js        # 题库管理
 │   └── rule-section.js        # 解析规则
@@ -57,15 +68,16 @@ quiz-helper/
 │   ├── theme-utils.js         # 主题工具
 │   ├── storage-utils.js       # 存储工具
 │   ├── text-utils.js          # 文本工具（转义/规范化/正则）
-│   └── variables.css          # Design Token 变量
+│   ├── text-splitter.js       # 题库文本按题目边界拆分
+│   ├── variables.css          # Design Token 变量
+│   └── toggle.css             # 开关组件样式
 ├── background.js              # Background 薄入口（ES module import）
 ├── content-styles.css         # 页面注入通用样式
 ├── icons.js                   # SVG 图标加载与替换
 ├── manifest.json              # 扩展入口配置
-├── options.html               # 设置页 HTML
-├── popup/                      # 弹窗页
-│   ├── popup.html              # 弹窗 HTML
-│   ├── popup.js                # 弹窗逻辑
+├── popup/                     # 弹窗页
+│   ├── popup.html             # 弹窗 HTML
+│   ├── popup.js               # 弹窗逻辑
 │   └── popup.css               # 弹窗样式
 ```
 
@@ -74,7 +86,7 @@ quiz-helper/
 入口配置来自 `manifest.json`：
 
 - `action.default_popup = popup/popup.html`
-- `options_page = options.html`
+- `options_page = options/options.html`
 - `background.service_worker = background.js`
 - `content_scripts.js` 当前按顺序注入：
   - `icons.js`
@@ -91,7 +103,7 @@ quiz-helper/
 
 说明：
 
-- `background.js` 作为 ES module 薄入口，通过 `import './background/app.js'` 加载主逻辑。这是唯一需要薄入口的场景（MV3 service worker 只能指定一个文件且使用 `type: "module"`）。
+- `background.js` 作为 ES module 薄入口，通过 `import './background/index.js'` 加载主逻辑。这是唯一需要薄入口的场景（MV3 service worker 只能指定一个文件且使用 `type: "module"`）。
 - `content_scripts` 采用 IIFE + `globalThis` 模式按顺序注入。共享工具（`shared/`）先于 content 模块加载，content 模块之间通过 `globalThis.QuizHelperContentState` 共享状态，通过 `globalThis.QuizHelperXxx` 调用彼此 API。
 
 ## 4. Popup 页面
@@ -122,6 +134,7 @@ quiz-helper/
 2. 主操作区
    - `#analyzeBtn`：分析当前页面题目
    - `#optionsBtn`：打开设置
+   - `#modelDropdown`：模型快捷切换下拉（`#modelDropdownBtn` + `#modelDropdownMenu`）
 
 3. 提示区
    - `#popupHint`
@@ -150,23 +163,30 @@ quiz-helper/
 
 ### 5.1 文件
 
-- 页面结构：`options.html`
+- 页面结构：`options/options.html`
 - 样式：`options/options.css`
-- 主逻辑：`options/app.js`
+- 主逻辑：`options/index.js`
 - 第三方依赖：
   - `lib/xlsx.full.min.js`
   - `lib/mammoth.browser.min.js`
+- 共享样式依赖：
+  - `shared/variables.css`
+  - `shared/toggle.css`
 
 ### 5.2 页面结构总览
 
-`options.html` 当前主体由 4 张卡片 + 1 个抽屉层组成：
+`options/options.html` 采用侧边导航 + 滚动内容布局，由侧边栏 `#sidebar` + 6 张卡片 + 1 个通用抽屉层组成：
 
-1. 设置卡片
-   - API 基础 URL：`#apiUrl`
-   - API Key：`#apiKey`
-   - Key 显示切换：`#toggleKey`
-   - 模型名称：`#model`
-   - 系统提示词：`#systemPrompt`
+**侧边导航**（`#sidebar`）：
+
+- IntersectionObserver 实现滚动高亮，点击平滑滚动
+- 导航项对应：基本设置 / 大模型管理 / 联网搜索设置 / 解析规则管理 / 题库管理 / 历史记录
+
+**卡片区域**：
+
+1. 基本设置卡片（`#section-settings`）
+   - 系统提示词：按题型分 tab（单选/多选/判断/填空/其他），各对应一个 `textarea`
+     - `#systemPrompt-single` / `#systemPrompt-multiple` / `#systemPrompt-judge` / `#systemPrompt-fill` / `#systemPrompt-unknown`
    - 补充提示词：`#extraContextPrompt`
    - 面板快捷键显示：`#shortcutDisplay`
    - 快捷键按钮：
@@ -179,33 +199,52 @@ quiz-helper/
      - `#resetBtn`
    - 状态提示：`#status`
 
-2. 解析规则管理卡片
+2. 大模型管理卡片（`#section-models`）
+   - 添加按钮：`#addModelBtn`
+   - 列表容器：`#modelList`
+   - 状态提示：`#modelStatus`
+   - 支持多模型配置，可激活/停用，为答题/题库/抽题指定专用模型
+
+3. 联网搜索设置卡片（`#section-search`）
+   - 启用开关：`#webSearchEnabled`
+   - 公共参数：
+     - 结果数量：`#searchCount`
+     - 时间范围：`#searchTimeRange`（分段滑块）
+     - 搜索语言：`#searchLang`（分段滑块）
+   - 搜索服务商列表容器：`#searchList`
+   - 状态提示：`#searchStatus`
+   - 内置 Brave Search 和豆包搜索/火山引擎两个服务商种子
+
+4. 解析规则管理卡片（`#section-rules`）
    - 列表容器：`#parseRuleList`
    - 状态提示：`#ruleStatus`
 
-3. 题库管理卡片
+5. 题库管理卡片（`#section-bank`）
    - 启用开关：`#questionBankEnabled`
+   - 导入解析模式：`#importMode`（节能/平衡/精细，分段滑块）
    - 文件导入：`#questionBankFile`
    - 数量提示：`#bankCountHint`
    - 列表容器：`#questionBankList`
+   - 解析进度：`#bankProgress`（含进度条 `#bankProgressFill` + 文本 `#bankProgressText` + 取消按钮 `#bankProgressCancel`）
    - 状态提示：`#bankStatus`
 
-4. 历史记录卡片
+6. 历史记录卡片（`#section-history`）
    - 导出按钮：`#exportAllHistory`
    - 清空按钮：`#clearHistory`
    - 列表容器：`#historyList`
 
-5. 通用详情抽屉
-   - 覆盖层：`#drawerOverlay`
-   - 标题：`#drawerTitle`
-   - 元信息：`#drawerMeta`
-   - 内容区：`#drawerBody`
-   - 保存按钮：`#drawerSaveBtn`
-   - 关闭按钮：`#drawerCloseBtn`
+**通用详情抽屉**：
 
-### 5.3 `options/app.js` 的逻辑分块
+- 覆盖层：`#drawerOverlay`
+- 标题：`#drawerTitle`
+- 元信息：`#drawerMeta`
+- 内容区：`#drawerBody`
+- 保存按钮：`#drawerSaveBtn`（根据 `dataset.action` 分发到对应模块：`save-rule` / `save-model` / `save-search`）
+- 关闭按钮：`#drawerCloseBtn`
 
-尽管根入口已缩短，但当前 `options/app.js` 仍然是设置页的主要逻辑容器，内部主要包含以下功能块：
+### 5.3 `options/index.js` 的逻辑分块
+
+`options/index.js` 是设置页的协调层，负责主题管理、侧边导航、分段滑块全局工具、抽屉分发和模块装配。内部主要包含以下功能块：
 
 1. 主题管理
    - 初始化主题
@@ -213,37 +252,27 @@ quiz-helper/
    - 监听 `chrome.storage` 中的 `theme_mode`
    - 更新 `#themeToggle`
 
-2. 配置读取与保存
-   - 加载 API URL、Key、模型、系统提示词、补充提示词、域名白名单
-   - 恢复默认值
-   - 保存到 `chrome.storage.local`
+2. 侧边导航
+   - 点击导航项平滑滚动
+   - IntersectionObserver 实现滚动高亮
 
-3. 快捷键录制
-   - 显示当前快捷键
-   - 录制新的快捷键组合
-   - 清空快捷键
-   - 恢复默认快捷键
+3. 分段滑块全局工具
+   - `setSegValue` / `getSegValue` 滑动指示器控制
+   - 全局委托处理所有 `.segmented-control` 按钮点击
 
-4. 历史记录管理
-   - 读取 `exam_history`
-   - 渲染历史记录列表
-   - 导出所有历史
-   - 清空历史
+4. 抽屉分发
+   - `openDrawer(type, data)` 根据类型分发到各模块
+   - `closeDrawer()` 关闭并清理抽屉状态
+   - `#drawerSaveBtn` 点击按 `dataset.action` 分发
 
-5. 题库管理
-   - 导入 Excel / Word 文件
-   - 调 background 的 `parseQuestionBank`
-   - 展示题库列表
-   - 题库启用/激活
-   - 删除题库
-   - 在抽屉中预览题库详情
+5. 数据迁移
+   - 旧单模型 → 新多模型结构（`ensureModelMigration`）
+   - 旧 `system_prompt` → 新 `custom_system_prompts`（`ensurePromptMigration`）
+   - 默认解析规则种子写入（`ensureDefaultParseRuleSeeded`）
 
-6. 解析规则管理
-   - 读取 `parse_rules`
-   - 渲染规则列表
-   - 通过抽屉查看和编辑规则
-   - 表单 / JSON 双视图编辑
-   - 默认规则种子写入
+6. 模块装配
+   - `DOMContentLoaded` 后依次初始化：快捷键 → 配置 → 模型 → 搜索 → 规则 → 历史 → 题库
+   - 各模块返回对象，协调层负责串联调用
 
 ### 5.4 维护重点
 
@@ -251,13 +280,15 @@ quiz-helper/
 - 逻辑已拆分为模块：
   - `options/utils.js` — 共享常量和工具函数（分页、文本清洗、文件读取等）
   - `options/shortcut-section.js` — 快捷键录制与显示
-  - `options/config-section.js` — 配置读取/保存/重置
+  - `options/config-section.js` — 基本配置读取/保存/重置（系统提示词按题型分 tab）
+  - `options/model-section.js` — 大模型管理（多模型 CRUD、激活/停用、任务专用模型指定）
+  - `options/search-section.js` — 联网搜索设置（服务商 CRUD、公共参数配置）
   - `options/history-section.js` — 历史记录 CRUD
-  - `options/bank-section.js` — 题库导入、管理、渲染
+  - `options/bank-section.js` — 题库导入、管理、渲染（支持分批解析进度上报）
   - `options/rule-section.js` — 解析规则管理与编辑器
-  - `options/app.js` — 协调层：主题管理 + 抽屉 + 模块装配
+  - `options/index.js` — 协调层：主题管理 + 侧边导航 + 分段滑块工具 + 抽屉分发 + 模块装配
 - 如果后续 AI 要修改设置页，优先先判断是改：
-  - DOM 结构：`options.html`
+  - DOM 结构：`options/options.html`
   - 样式：`options/options.css`
   - 行为：对应模块文件（见上）
 
@@ -416,22 +447,26 @@ content 目录 5 个模块的职责划分如下：
 后台服务已模块化，当前职责边界比较清晰：
 
 - `background.js`
-  - 仅为模块入口，导入 `background/app.js`
+  - 仅为模块入口，导入 `background/index.js`
 
-- `background/app.js`
+- `background/index.js`
   - 启动后台逻辑，注册路由
+  - 独立注册 `webSearch` 消息监听器（早于 router，确保无拦截）
+  - 包含每月搜索次数限制检查和递增逻辑
 
 - `background/router.js`
   - 统一注册 `chrome.runtime.onMessage`
   - 按 `request.action` 分发请求
+  - 同时注册 `chrome.runtime.onConnect` 支持 port 通道（分批题库解析进度上报）
 
 - `background/api-client.js`
-  - 读取 API 配置
+  - 读取 API 配置（支持按任务类型读取专用模型：答题/抽题）
   - 调用 `/chat/completions`
 
 - `background/prompt-builder.js`
   - 读取 `data/prompt-templates.json`
   - 拼装答题、题库校验、AI 选区抽题、题库解析的提示词
+  - 拼装搜索感知提示词和搜索结果提示词
 
 - `background/json-parser.js`
   - 去 markdown fence
@@ -439,9 +474,20 @@ content 目录 5 个模块的职责划分如下：
   - AI 返回结构归一化
 
 - `background/question-bank.js`
-  - 题库导入解析
+  - 题库导入解析（支持分批 `handleParseQuestionBankBatched`）
   - 题库 fallback 规则解析
   - 题库相似题搜索
+
+- `background/search-proxy.js`
+  - 联网搜索代理（后台 Service Worker 执行）
+  - 支持多服务商（Brave Search、豆包搜索/火山引擎）
+  - 统一参数 → 具体服务商 API 参数映射
+  - 搜索结果提取、格式化、参考链接提取
+
+- `background/webrequest-interceptor.js`
+  - DNR（declarativeNetRequest）拦截器
+  - 动态注入认证头 + Content-Type，规避 CORS 预检
+  - 根据服务商配置动态构建 DNR 规则
 
 ### 7.2 当前消息动作清单
 
@@ -451,21 +497,35 @@ content 目录 5 个模块的职责划分如下：
    - 输入：题目文本、题型
    - 输出：AI 参考答案
 
-2. `verifyBankAnswer`
+2. `fetchAnswerWithSearch`
+   - 输入：题目文本、题型、是否强制搜索（`forceSearch`）
+   - 输出：带联网搜索结果的 AI 参考答案 + 参考链接列表
+   - 流程：第一次 LLM 调用（搜索感知）→ 判断是否需要搜索 → 执行搜索 → 第二次 LLM 调用（带搜索结果）
+   - 搜索不可用或达上限时自动降级为普通 `fetchAnswer`
+
+3. `verifyBankAnswer`
    - 输入：当前题目、题型、题库匹配结果
    - 输出：根据题目当前选项顺序重新校验后的答案
 
-3. `extractQuestions`
+4. `extractQuestions`
    - 输入：局部 HTML、局部文本、选中文本、元素提示
    - 输出：题目列表 + selectors
 
-4. `parseQuestionBank`
+5. `parseQuestionBank`
    - 输入：题库原始文本、文件名
    - 输出：解析后的题目数组
+   - 同时支持 port 通道分批解析（`handleParseQuestionBankBatched`），进度通过 port 上报
 
-5. `searchQuestionBank`
+6. `searchQuestionBank`
    - 输入：当前题目文本
    - 输出：题库相似题匹配结果
+
+此外，`background/index.js` 独立注册了 `webSearch` 动作监听器（早于 router）：
+
+7. `webSearch`
+   - 输入：搜索服务商配置、搜索设置、搜索词
+   - 输出：原始搜索结果数据
+   - 含每月搜索次数限制检查
 
 ### 7.3 维护重点
 
@@ -477,7 +537,12 @@ content 目录 5 个模块的职责划分如下：
   - `background/json-parser.js`
   - `background/question-bank.js`
 - 如果后续 AI 需要新增消息动作，优先查：
-  - `background/router.js`
+  - `background/router.js`（普通 onMessage 动作）
+  - `background/index.js`（需要独立监听器的动作）
+- 如果后续 AI 需要改联网搜索，优先查：
+  - `background/search-proxy.js`（搜索执行与结果提取）
+  - `background/webrequest-interceptor.js`（认证头注入）
+  - `options/search-section.js`（服务商配置 UI）
 
 ## 8. 共享层与静态数据
 
@@ -510,8 +575,15 @@ content 目录 5 个模块的职责划分如下：
   - `escapeRegex` — 正则特殊字符转义
   - `escapeHtml` — HTML 实体转义
 
+- `shared/text-splitter.js`
+  - `splitTextByQuestions` — 按题目边界拆分题库文本为多个批次
+  - 无法识别题号时退化为按段落 + 字符数拆分
+
 - `shared/variables.css`
   - Design Token 变量定义，运行时通过 `fetch` 注入 Shadow DOM
+
+- `shared/toggle.css`
+  - 开关组件（`.switch`）样式，供设置页使用
 
 ### 8.2 data 目录
 
@@ -532,7 +604,7 @@ content 目录 5 个模块的职责划分如下：
 如果后续 AI 需要更新页面，建议按下面的判断顺序定位：
 
 1. 要改页面布局或新增 DOM 节点
-   - 先看 `popup.html` / `options.html`
+   - 先看 `popup/popup.html` / `options/options.html`
    - content 面板则看 `content/panel-ui.js` 的 `createPanel` 与卡片渲染代码
 
 2. 要改样式
@@ -557,7 +629,7 @@ content 目录 5 个模块的职责划分如下：
    - 编排入口：`content/index.js`
 
 6. 要改设置页功能
-   - 重点看 `options/app.js`
+   - 重点看 `options/index.js` 及对应模块文件（见 5.4）
 
 ## 10. 已知现状说明
 
@@ -568,7 +640,7 @@ content 目录 5 个模块的职责划分如下：
 - `popup/popup.js` 体量较小
 - `background` 已完成较明确的模块化
 - `content/index.js` 已拆分为 5 个模块（`state.js` / `dom-parser.js` / `panel-ui.js` / `analyzer.js` / `index.js`），单文件最大 ~630 行
-- `options/app.js` 仍可继续细拆
+- `options/index.js` 仍可继续细拆
 - 重复的常量和快捷键函数已被消除，改为统一引用 `shared/`
 
 ## 11. 建议后续 AI 接手顺序
@@ -579,7 +651,7 @@ content 目录 5 个模块的职责划分如下：
 2. 再读本文件
 3. 再看 `background/router.js`
 4. 再看 `popup/popup.html` + `popup/popup.js`
-5. 再看 `options.html` + `options/app.js`
+5. 再看 `options/options.html` + `options/index.js`
 6. 最后看 content 模块，按注入顺序：`content/state.js` → `content/dom-parser.js` → `content/panel-ui.js` → `content/analyzer.js` → `content/index.js`
 
 这样能先建立入口和消息流，再进入最复杂的注入逻辑。

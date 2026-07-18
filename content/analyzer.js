@@ -6,6 +6,21 @@
   const D = globalThis.QuizHelperDomParser;
   const UI = globalThis.QuizHelperPanelUI;
 
+  /**
+   * 校验 CSS 选择器是否有效
+   * @param {string} selector
+   * @returns {boolean}
+   */
+  function isValidCSSSelector(selector) {
+    if (!selector || typeof selector !== 'string') return false;
+    try {
+      document.querySelector(selector);
+      return true;
+    } catch (_e) {
+      return false;
+    }
+  }
+
   // ===== 分析控制 =====
 
   /**
@@ -522,7 +537,7 @@
       rootSelectors: aiSelectors.rootSelector
         ? mergeArray(existing.rootSelectors, [aiSelectors.rootSelector])
         : existing.rootSelectors,
-      questionItemSelector: aiSelectors.questionItemSelector || existing.questionItemSelector || '',
+      questionItemSelector: isValidCSSSelector(aiSelectors.questionItemSelector) ? aiSelectors.questionItemSelector : (existing.questionItemSelector || ''),
       typeHeadingSelector: aiSelectors.typeHeadingSelector !== undefined
         ? aiSelectors.typeHeadingSelector
         : (existing.typeHeadingSelector || ''),
@@ -532,7 +547,7 @@
       optionContainerSelectors: aiSelectors.optionContainerSelector
         ? mergeArray(existing.optionContainerSelectors, [aiSelectors.optionContainerSelector])
         : existing.optionContainerSelectors,
-      optionItemSelector: aiSelectors.optionItemSelector || existing.optionItemSelector || '',
+      optionItemSelector: isValidCSSSelector(aiSelectors.optionItemSelector) ? aiSelectors.optionItemSelector : (existing.optionItemSelector || ''),
       optionNumberSelector: aiSelectors.optionNumberSelector !== undefined
         ? aiSelectors.optionNumberSelector
         : (existing.optionNumberSelector || ''),
@@ -585,7 +600,7 @@
         rootSelectors: responseSelectors.rootSelector
           ? [responseSelectors.rootSelector]
           : ['.main-padding-content', 'main', '#content'],
-        questionItemSelector: responseSelectors.questionItemSelector || '.question-type-item',
+        questionItemSelector: isValidCSSSelector(responseSelectors.questionItemSelector) ? responseSelectors.questionItemSelector : '.question-type-item',
         typeHeadingSelector: responseSelectors.typeHeadingSelector || '',
         questionTextSelectors: responseSelectors.questionTextSelector
           ? [responseSelectors.questionTextSelector]
@@ -593,7 +608,7 @@
         optionContainerSelectors: responseSelectors.optionContainerSelector
           ? [responseSelectors.optionContainerSelector]
           : state.DEFAULT_SELECTORS.optionContainerSelectors,
-        optionItemSelector: responseSelectors.optionItemSelector || state.DEFAULT_SELECTORS.optionItemSelector || 'dd',
+        optionItemSelector: isValidCSSSelector(responseSelectors.optionItemSelector) ? responseSelectors.optionItemSelector : (state.DEFAULT_SELECTORS.optionItemSelector || 'dd'),
         optionNumberSelector: responseSelectors.optionNumberSelector || state.DEFAULT_SELECTORS.optionNumberSelector || '.option-num',
         typeIndicators: responseSelectors.typeIndicators || state.DEFAULT_SELECTORS.typeIndicators,
         fallbackTextSelectors: state.DEFAULT_SELECTORS.fallbackTextSelectors

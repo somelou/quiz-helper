@@ -4,6 +4,21 @@
   const state = globalThis.QuizHelperContentState;
   const { normalizeWhitespace, escapeRegex } = globalThis.QuizHelperTextUtils;
 
+  /**
+   * 安全执行 querySelectorAll，选择器无效时返回空数组
+   * @param {Element} el
+   * @param {string} selector
+   * @returns {Element[]}
+   */
+  function safeQuerySelectorAll(el, selector) {
+    try {
+      return Array.from(el.querySelectorAll(selector));
+    } catch (_e) {
+      console.warn('[QuizHelper] 无效的 CSS 选择器，已跳过:', selector);
+      return [];
+    }
+  }
+
   // ===== 文本工具 =====
 
   /**
@@ -184,7 +199,7 @@
     const optionItemSel = selectors.optionItemSelector || state.DEFAULT_SELECTORS.optionItemSelector || 'dd';
     const optionNumSel = selectors.optionNumberSelector || '.option-num';
 
-    const optionItems = Array.from(optionsEl.querySelectorAll(optionItemSel));
+    const optionItems = safeQuerySelectorAll(optionsEl, optionItemSel);
     if (optionItems.length > 0) {
       return optionItems.map((item, index) => {
         const number = normalizeWhitespace(item.querySelector(optionNumSel)?.textContent || '');
@@ -298,7 +313,7 @@
     const headingSel = selectors.typeHeadingSelector;
 
     if (!itemSel) return null;
-    const structuredQuestions = Array.from(root.querySelectorAll(itemSel));
+    const structuredQuestions = safeQuerySelectorAll(root, itemSel);
     if (structuredQuestions.length === 0) return null;
 
     const questions = [];
@@ -361,7 +376,7 @@
     const selectors = getSelectors().fallbackTextSelectors;
 
     for (const selector of selectors) {
-      const elements = root.querySelectorAll(selector);
+      const elements = safeQuerySelectorAll(root, selector);
       if (elements.length === 0) continue;
 
       let bestElement = null;
