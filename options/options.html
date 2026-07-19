@@ -38,7 +38,7 @@
         </div>
 
         <div class="form-group">
-          <label>系统提示词（留空则使用默认提示词）</label>
+          <label>系统提示词</label>
           <div class="prompt-toolbar">
             <div class="segmented-control prompt-type-tabs" data-active="single">
             <button type="button" class="seg-active" data-value="single">单选</button>
@@ -58,7 +58,7 @@
         </div>
 
         <div class="form-group">
-          <label for="extraContextPrompt">补充提示词 / 领域背景（仅最终答题时生效）</label>
+          <label for="extraContextPrompt">补充提示词 / 领域背景</label>
           <textarea id="extraContextPrompt" placeholder="例如：
 你是一名通信领域与 AI 大模型方向的专业助手。
 回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
@@ -81,10 +81,10 @@
         </div>
 
         <div class="form-group">
-          <label for="allowedDomains">生效域名白名单（每行一个，留空则所有网站生效）</label>
+          <label for="allowedDomains">生效域名白名单</label>
           <textarea id="allowedDomains" placeholder="example.com
 exam.example.com"></textarea>
-          <div class="hint">插件仅在列出的域名上生效，支持子域名匹配</div>
+          <div class="hint">插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效</div>
         </div>
 
         <div class="actions">
@@ -130,22 +130,7 @@ exam.example.com"></textarea>
             <button data-value="OneMonth">一月</button>
             <button data-value="OneYear">一年</button>
           </div>
-          <div class="hint">过滤搜索结果的时间范围（部分服务商可能不支持）</div>
-        </div>
-        <div class="rule-form-group">
-          <label for="searchLang">搜索语言</label>
-          <div class="segmented-control" id="searchLang">
-            <button data-value="auto" class="seg-active">自动</button>
-            <button data-value="zh">中文</button>
-            <button data-value="zh-CN">简体中文</button>
-            <button data-value="zh-TW">繁体中文</button>
-            <button data-value="en">英文</button>
-            <button data-value="ja">日文</button>
-            <button data-value="ko">韩文</button>
-            <button data-value="fr">法文</button>
-            <button data-value="de">德文</button>
-          </div>
-          <div class="hint">搜索结果的语言偏好，选择「自动」由服务商自行判断</div>
+          <div class="hint">过滤搜索结果的时间范围</div>
         </div>
 
         <div class="rule-form-section">搜索服务商</div>

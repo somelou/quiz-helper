@@ -43,8 +43,18 @@ export function buildSearchRequest(provider, settings, query) {
     setNestedParam(params, mapping.timeRange, value);
   }
 
-  if (mapping.language && settings.language && settings.language !== 'auto') {
-    setNestedParam(params, mapping.language, settings.language);
+  if (mapping.language && provider.language) {
+    setNestedParam(params, mapping.language, provider.language);
+  }
+
+  // 服务商独立参数：authInfoLevel（豆包 Filter.AuthInfoLevel）
+  if (mapping.authInfoLevel && provider.authInfoLevel !== undefined && provider.authInfoLevel !== '') {
+    setNestedParam(params, mapping.authInfoLevel, Number(provider.authInfoLevel));
+  }
+
+  // 服务商独立参数：blockHosts（豆包 Filter.BlockHosts）
+  if (mapping.blockHosts && provider.blockHosts) {
+    setNestedParam(params, mapping.blockHosts, provider.blockHosts);
   }
 
   return params;

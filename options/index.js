@@ -132,7 +132,7 @@ document.addEventListener('click', (e) => {
   const seg = btn.closest('.segmented-control');
   if (!seg) return;
   const value = btn.dataset.value;
-  if (!value) return;
+  if (value === undefined) return;
   setSegValue(seg, value);
   seg.dataset.active = value;
 });
@@ -234,7 +234,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     searchEnabledInput: document.getElementById('webSearchEnabled'),
     countInput: document.getElementById('searchCount'),
     timeRangeEl: document.getElementById('searchTimeRange'),
-    langEl: document.getElementById('searchLang'),
     drawerBodyEl, drawerTitleEl, drawerMetaEl, drawerSaveBtn, drawerOverlay,
     onCloseDrawer: closeDrawer
   });

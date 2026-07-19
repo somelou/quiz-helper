@@ -23,12 +23,15 @@ body {
 }
 .card {
   background: var(--color-bg);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
   padding: 24px;
-  box-shadow: var(--shadow-md);
-  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
   scroll-margin-top: 60px;
+  transition: box-shadow var(--transition-fast);
 }
+.card:hover { box-shadow: var(--shadow-md); }
 .section-header {
   display: flex;
   align-items: center;
@@ -88,11 +91,13 @@ input[type="text"],
 input[type="password"],
 textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 9px 12px;
   border: 1px solid var(--color-input-border);
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   font-size: var(--font-md);
-  transition: border-color var(--transition-normal);
+  font-family: inherit;
+  line-height: 1.6;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   background: var(--color-input-bg);
   color: var(--color-input-text);
 }
@@ -100,6 +105,7 @@ input:focus,
 textarea:focus {
   outline: none;
   border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
 }
 .input-wrapper {
   position: relative;
@@ -239,24 +245,22 @@ button:hover,
 }
 /* === L4 列表项 / 工具条 动作按钮（统一形态，各自语义背景色） === */
 .action-btn {
-  padding: 2px 12px;
+  height: 28px;
+  padding: 0 10px;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: var(--font-sm);
-  line-height: 22px;
+  font-family: inherit;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
   white-space: nowrap;
-  transition:
-    color var(--transition-normal),
-    opacity var(--transition-normal);
+  transition: filter var(--transition-fast);
 }
-.action-btn:hover {
-  opacity: 0.85;
-}
+.action-btn:hover { filter: brightness(0.97); }
 .action-btn svg {
   width: 14px;
   height: 14px;
@@ -296,14 +300,16 @@ button:hover,
 /* 列表项统一样式 */
 .list-item {
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   margin-bottom: 8px;
-  background: var(--color-surface);
-  padding: 12px;
+  background: var(--color-bg);
+  padding: 12px 14px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
+.list-item:hover { box-shadow: var(--shadow-sm); }
 .list-item.active {
   border-color: var(--color-primary);
-  background: linear-gradient(135deg, var(--color-primary-bg) 0%, rgba(121, 80, 242, 0.08) 100%);
+  background: var(--color-primary-bg);
 }
 .list-item-header {
   display: flex;
@@ -319,14 +325,13 @@ button:hover,
   font-size: var(--font-md);
   font-weight: 600;
   color: var(--color-text);
-  word-break: break-all;
-  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 0;
   line-height: 1.4;
 }
-.list-item-meta {
-  font-size: 11px;
-  color: var(--color-text-muted);
-}
+.list-item-meta { font-size: var(--font-sm); color: var(--color-text-muted); margin-top: 2px; }
 .list-item-actions {
   display: inline-flex;
   align-items: center;
@@ -392,19 +397,12 @@ button:hover,
   font-weight: 400;
 }
 
-/* --- 题型 badge 颜色（浅色模式） --- */
-.q-type.q-type-single   { background: #e3f2fd; color: #1565c0; }
-.q-type.q-type-multiple { background: #f3e5f5; color: #6a1b9a; }
-.q-type.q-type-judge   { background: #e8f5e9; color: #2e7d32; }
-.q-type.q-type-fill    { background: #fff3e0; color: #e65100; }
-.q-type.q-type-unknown { background: #f5f5f5; color: #616161; }
-
-/* --- 题型 badge 颜色（暗色模式） --- */
-body.dark .q-type.q-type-single   { background: #1a2a44; color: #64b5f6; }
-body.dark .q-type.q-type-multiple { background: #2a1a3a; color: #ce93d8; }
-body.dark .q-type.q-type-judge   { background: #1a2e1a; color: #81c784; }
-body.dark .q-type.q-type-fill    { background: #2e2210; color: #ffb74d; }
-body.dark .q-type.q-type-unknown { background: #333333; color: #999999; }
+/* --- 题型 badge 颜色 --- */
+.q-type.q-type-single   { background: var(--color-type-single-bg); color: var(--color-type-single-text); }
+.q-type.q-type-multiple { background: var(--color-type-multiple-bg); color: var(--color-type-multiple-text); }
+.q-type.q-type-judge   { background: var(--color-type-judge-bg); color: var(--color-type-judge-text); }
+.q-type.q-type-fill    { background: var(--color-type-fill-bg); color: var(--color-type-fill-text); }
+.q-type.q-type-unknown { background: var(--color-type-unknown-bg); color: var(--color-type-unknown-text); }
 .bank-detail .q-label {
   font-size: var(--font-xs);
   font-weight: 600;
@@ -439,38 +437,37 @@ body.dark .q-type.q-type-unknown { background: #333333; color: #999999; }
 .bank-progress-bar {
   width: 100%;
   height: 6px;
-  background: var(--color-border);
-  border-radius: 3px;
+  background: var(--color-surface-hover);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 .bank-progress-fill {
   height: 100%;
   width: 0%;
-  background: var(--color-primary);
-  border-radius: 3px;
+  background: var(--color-primary-gradient);
+  border-radius: var(--radius-full);
   transition: width 0.3s ease;
 }
 .bank-progress-text {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  justify-content: space-between;
   font-size: var(--font-sm);
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   margin-top: 6px;
 }
 .bank-progress-cancel {
-  padding: 0;
-  font-size: 12px;
-  color: var(--color-text-muted);
-  background: none;
   border: none;
+  background: transparent;
+  color: var(--color-error);
+  font-size: var(--font-sm);
+  font-family: inherit;
   cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
   white-space: nowrap;
 }
-.bank-progress-cancel:hover {
-  color: var(--color-danger);
-}
+.bank-progress-cancel:hover { background: var(--color-error-bg); }
 .bank-toolbar {
   margin: 0 0 12px 0;
   display: flex;
@@ -645,6 +642,7 @@ body.dark .q-type.q-type-unknown { background: #333333; color: #999999; }
 /* 公共滑块样式移至 shared/toggle.css */
 
 /* 抽屉内分段滑块：不调字重，避免指示器宽度跳动 */
+.drawer-body .segmented-control button { font-weight: 400; }
 .drawer-body .segmented-control button.seg-active {
   font-weight: 400;
 }
@@ -995,12 +993,12 @@ body.dark .json-punctuation {
   color: var(--color-primary);
 }
 .model-task-bank {
-  background: #fff3e0;
-  color: #e65100;
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
 }
 .model-task-extract {
-  background: #e0f2f1;
-  color: #00695c;
+  background: var(--color-info-bg);
+  color: var(--color-info);
 }
 .model-active {
   background: var(--color-success-bg);
@@ -1013,20 +1011,20 @@ body.dark .json-punctuation {
 
 /* --- 模型 badge 暗色模式 --- */
 body.dark .model-preferred {
-  background: rgba(79, 110, 247, 0.24);
+  background: var(--color-primary-bg);
   color: var(--color-primary-light);
 }
 body.dark .model-task-bank {
-  background: rgba(230, 81, 0, 0.18);
-  color: #ffab40;
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
 }
 body.dark .model-task-extract {
-  background: rgba(0, 105, 92, 0.2);
-  color: #80cbc4;
+  background: var(--color-info-bg);
+  color: var(--color-info);
 }
 body.dark .model-inactive-badge {
-  background: #3a3a3a;
-  color: #aaaaaa;
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
 }
 .list-item-footer {
   margin-top: 8px;
@@ -1131,7 +1129,7 @@ body.dark .model-inactive-badge {
 /* ===== 联网搜索设置 ===== */
 .search-item-active {
   border-color: var(--color-primary) !important;
-  background: linear-gradient(135deg, var(--color-primary-bg) 0%, rgba(121, 80, 242, 0.08) 100%);
+  background: var(--color-primary-bg);
 }
 .search-provider-badge {
   display: inline-block;
@@ -1151,7 +1149,23 @@ body.dark .model-inactive-badge {
   color: var(--color-text-muted);
 }
 body.dark .search-badge-active {
-  background: rgba(79, 110, 247, 0.24);
+  background: var(--color-primary-bg);
   color: var(--color-primary-light);
+}
+
+/* ===== 响应式：窄屏导航变为横向 ===== */
+@media (max-width: 900px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    padding: 10px 16px;
+    margin-bottom: 16px;
+  }
+  .nav-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .main-content { max-width: none; padding: 20px; }
 }
 

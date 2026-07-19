@@ -289,7 +289,7 @@
     } else if (state.isPaused) {
       text += '，已暂停';
     } else if (state.isAnalyzing) {
-      text += '，分析中';
+      text += '，作答中';
     }
 
     progressEl.textContent = text;

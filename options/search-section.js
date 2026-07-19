@@ -10,29 +10,33 @@ const DEFAULT_WEB_SEARCH_PROVIDERS = [
     apiKey: '',
     authHeader: 'X-Subscription-Token',
     paramMapping: { count: 'count', timeRange: 'freshness', language: 'search_lang' },
-    monthlyLimit: 1000
+    defaultParams: { safesearch: 'strict' },
+    monthlyLimit: 1000,
+    language: ''
   },
   {
     id: 'volcengine-search',
-    name: '豆包搜索/火山Agent Plan',
-    desc: '火山引擎 Searchinfinity API，支持多垂类搜索',
+    name: '豆包搜索',
+    desc: '火山引擎豆包搜索 Custom 版，专为Agent场景开发',
     endpoint: 'https://open.feedcoopapi.com/search_api/web_search',
     apiKey: '',
     authHeader: 'Authorization',
-    paramMapping: { q: 'Query', count: 'Count', timeRange: 'TimeRange' },
-    defaultParams: { SearchType: 'web', NeedSummary: true },
-    monthlyLimit: 500
+    paramMapping: { q: 'Query', count: 'Count', timeRange: 'TimeRange', authInfoLevel: 'Filter.AuthInfoLevel', blockHosts: 'Filter.BlockHosts' },
+    defaultParams: { SearchType: 'web' },
+    monthlyLimit: 500,
+    authInfoLevel: '0',
+    blockHosts: ''
   }
 ];
 
-const DEFAULT_WEB_SEARCH_SETTINGS = { count: 10, timeRange: '', language: 'zh' };
+const DEFAULT_WEB_SEARCH_SETTINGS = { count: 10, timeRange: '' };
 
 // 分段滑块辅助（使用 index.js 中的全局 setSegValue/getSegValue）
 
 function initSearch({
   searchListEl, searchStatusEl,
   searchEnabledInput,
-  countInput, timeRangeEl, langEl,
+  countInput, timeRangeEl,
   drawerBodyEl, drawerTitleEl, drawerMetaEl, drawerSaveBtn, drawerOverlay,
   onCloseDrawer
 }) {
@@ -78,14 +82,44 @@ function initSearch({
           p.endpoint = DEFAULT_WEB_SEARCH_PROVIDERS[1].endpoint;
           needSave = true;
         }
-        if (p.name === '火山/豆包搜索') {
+        if (p.name === '火山/豆包搜索' || p.name === '豆包搜索/火山Agent Plan') {
           p.name = DEFAULT_WEB_SEARCH_PROVIDERS[1].name;
+          needSave = true;
+        }
+        if (p.desc !== DEFAULT_WEB_SEARCH_PROVIDERS[1].desc) {
+          p.desc = DEFAULT_WEB_SEARCH_PROVIDERS[1].desc;
           needSave = true;
         }
         // 补全缺失的 paramMapping 和 defaultParams
         if (!p.paramMapping?.q || !p.defaultParams) {
           p.paramMapping = { ...DEFAULT_WEB_SEARCH_PROVIDERS[1].paramMapping, ...p.paramMapping };
           p.defaultParams = { ...DEFAULT_WEB_SEARCH_PROVIDERS[1].defaultParams, ...p.defaultParams };
+          needSave = true;
+        }
+        // 迁移：去掉过时的 NeedSummary
+        if (p.defaultParams?.NeedSummary !== undefined) {
+          delete p.defaultParams.NeedSummary;
+          needSave = true;
+        }
+        // 补全独立参数
+        if (p.authInfoLevel === undefined) {
+          p.authInfoLevel = '0';
+          needSave = true;
+        }
+        if (p.blockHosts === undefined) {
+          p.blockHosts = '';
+          needSave = true;
+        }
+      }
+      if (p.id === 'brave-search') {
+        // 补全 safesearch 默认值
+        if (!p.defaultParams?.safesearch) {
+          p.defaultParams = { ...p.defaultParams, safesearch: 'strict' };
+          needSave = true;
+        }
+        // 迁移：language 从旧公共参数移到 provider 字段
+        if (p.language === undefined) {
+          p.language = '';
           needSave = true;
         }
       }
@@ -114,7 +148,6 @@ function initSearch({
     // 回填公共参数
     countInput.value = settings.count || 10;
     setSegValue(timeRangeEl, settings.timeRange || '');
-    setSegValue(langEl, settings.language || 'zh');
 
     // 渲染服务商列表
     renderSearchProviders(providers, activeId, result.web_search_usage);
@@ -163,14 +196,42 @@ function initSearch({
         </div>
       `;
 
-      // 激活/取消
-      item.querySelector('[data-action="toggle-search"]').addEventListener('change', event => {
+      // 激活/取消（直接操作 DOM，保留 switch 动画）
+      item.querySelector('[data-action="toggle-search"]').addEventListener('change', async (event) => {
         event.stopPropagation();
-        if (event.target.checked) {
-          toggleActiveProvider(provider.id);
+        const checked = event.target.checked;
+        if (checked) {
+          // 取消上一个激活项的选中状态
+          const prevActive = searchListEl.querySelector('.search-item-active');
+          if (prevActive && prevActive !== item) {
+            const prevCheckbox = prevActive.querySelector('[data-action="toggle-search"]');
+            if (prevCheckbox) prevCheckbox.checked = false;
+            const prevBadge = prevActive.querySelector('.search-provider-badge');
+            if (prevBadge) {
+              prevBadge.textContent = '未激活';
+              prevBadge.className = 'search-provider-badge search-badge-inactive';
+            }
+            prevActive.classList.remove('search-item-active');
+          }
+          // 更新当前项
+          item.classList.add('search-item-active');
+          const badge = item.querySelector('.search-provider-badge');
+          if (badge) {
+            badge.textContent = '当前使用';
+            badge.className = 'search-provider-badge search-badge-active';
+          }
+          await safeSet({ active_search_provider_id: provider.id });
+          showStatus(`已激活「${provider.name}」`);
         } else {
-          // 不允许直接取消当前激活（radio 行为：只能通过激活另一个来切换）
-          event.target.checked = true;
+          // 取消激活
+          item.classList.remove('search-item-active');
+          const badge = item.querySelector('.search-provider-badge');
+          if (badge) {
+            badge.textContent = '未激活';
+            badge.className = 'search-provider-badge search-badge-inactive';
+          }
+          await safeSet({ active_search_provider_id: '' });
+          showStatus('已取消激活');
         }
       });
 
@@ -183,16 +244,7 @@ function initSearch({
     });
   }
 
-  // ===== 激活 / 公共参数保存 =====
-
-  async function toggleActiveProvider(providerId) {
-    await safeSet({ active_search_provider_id: providerId });
-    const result = await chrome.storage.local.get(['web_search_providers', 'web_search_usage']);
-    const providers = result.web_search_providers || [];
-    renderSearchProviders(providers, providerId, result.web_search_usage);
-    const provider = providers.find(p => p.id === providerId);
-    showStatus(provider ? `已激活「${provider.name}」` : '已更新');
-  }
+  // ===== 公共参数保存 =====
 
   async function saveSearchSettings() {
     const count = Math.max(1, Math.min(50, parseInt(countInput.value, 10) || 10));
@@ -200,8 +252,7 @@ function initSearch({
 
     const settings = {
       count,
-      timeRange: getSegValue(timeRangeEl),
-      language: getSegValue(langEl)
+      timeRange: getSegValue(timeRangeEl)
     };
 
     const enabled = searchEnabledInput.checked;
@@ -220,7 +271,7 @@ function initSearch({
     if (el) el.addEventListener('change', () => saveSearchSettings());
   });
   // 分段滑块用 click 事件
-  [timeRangeEl, langEl].forEach(el => {
+  [timeRangeEl].forEach(el => {
     if (!el) return;
     el.addEventListener('click', (e) => {
       const btn = e.target.closest('button');
@@ -253,6 +304,48 @@ function initSearch({
   }
 
   function renderSearchDrawerForm(provider) {
+    const isBrave = provider.id === 'brave-search';
+    const isVolc = provider.id === 'volcengine-search';
+
+    let extraFields = '';
+
+    if (isBrave) {
+      const langVal = provider.language || '';
+      extraFields = `
+        <div class="rule-form-section">Brave 搜索参数</div>
+        <div class="rule-form-group">
+          <label>搜索语言</label>
+          <div class="segmented-control" id="drawer-brave-lang">
+            <button data-value=""${langVal === '' ? ' class="seg-active"' : ''}>不限制</button>
+            <button data-value="zh"${langVal === 'zh' ? ' class="seg-active"' : ''}>中文</button>
+            <button data-value="en"${langVal === 'en' ? ' class="seg-active"' : ''}>英文</button>
+            <button data-value="ja"${langVal === 'ja' ? ' class="seg-active"' : ''}>日文</button>
+            <button data-value="ko"${langVal === 'ko' ? ' class="seg-active"' : ''}>韩文</button>
+            <button data-value="fr"${langVal === 'fr' ? ' class="seg-active"' : ''}>法文</button>
+            <button data-value="de"${langVal === 'de' ? ' class="seg-active"' : ''}>德文</button>
+          </div>
+          <div class="hint">仅对 Brave 生效，选择「不限制」由 Brave 自行判断</div>
+        </div>`;
+    } else if (isVolc) {
+      const aVal = provider.authInfoLevel || '0';
+      const bhVal = provider.blockHosts || '';
+      extraFields = `
+        <div class="rule-form-section">豆包搜索参数</div>
+        <div class="rule-form-group">
+          <label>权威度限制</label>
+          <div class="segmented-control" id="drawer-volc-auth">
+            <button data-value="0"${aVal === '0' ? ' class="seg-active"' : ''}>不限制</button>
+            <button data-value="1"${aVal === '1' ? ' class="seg-active"' : ''}>非常权威</button>
+          </div>
+          <div class="hint">可指定仅在非常权威内容范围内搜索（详情请参考：<a href="https://docs.volcengine.com/docs/87772/2518319?lang=zh" target="_blank" rel="noreferrer">豆包权威度说明</a>）</div>
+        </div>
+        <div class="rule-form-group">
+          <label>屏蔽站点</label>
+          <input type="text" id="drawer-volc-blockHosts" value="${escapeHtml(bhVal)}" placeholder="多个域名用 | 分隔，如 example.com|spam.net">
+          <div class="hint">指定要屏蔽的搜索域名，最多 5 个</div>
+        </div>`;
+    }
+
     drawerBodyEl.innerHTML = `
       <div class="rule-form-section">服务商信息</div>
       <div class="rule-form-group">
@@ -282,10 +375,12 @@ function initSearch({
         <div class="hint">达到上限后使用将不再进行搜索服务。设为 0 表示不限制</div>
       </div>
 
+      ${extraFields}
+
       <div class="rule-form-section">测试搜索</div>
       <div class="rule-form-group">
         <textarea id="search-testQuery" placeholder="输入测试搜索词" rows="2" style="width:100%;box-sizing:border-box;resize:vertical;">人工智能最新进展</textarea>
-        <button type="button" class="btn-secondary" id="search-testBtn" style="width:100%;margin-top:8px;">测试搜索</button>
+        <button type="button" class="btn-primary" id="search-testBtn" style="width:100%;margin-top:8px;">测试搜索</button>
         <div class="hint" id="search-testResult" style="margin-top:8px;white-space:pre-wrap;word-break:break-all;"></div>
       </div>
     `;
@@ -337,8 +432,7 @@ function initSearch({
     const count = Math.max(1, Math.min(50, parseInt(countInput.value, 10) || 10));
     const settings = {
       count,
-      timeRange: getSegValue(timeRangeEl),
-      language: getSegValue(langEl)
+      timeRange: getSegValue(timeRangeEl)
     };
 
     // 先保存 API Key 到 storage，确保 DNR 规则同步后再发请求
@@ -448,7 +542,25 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
 
     if (!endpoint) { showStatus('搜索 API URL不能为空', true); return null; }
 
-    return { endpoint, apiKey, monthlyLimit };
+    const extra = {};
+
+    // Brave：语言
+    const braveLangEl = drawerBodyEl.querySelector('#drawer-brave-lang');
+    if (braveLangEl) {
+      extra.language = getSegValue(braveLangEl);
+    }
+
+    // 豆包：权威度 + 屏蔽站点
+    const volcAuthEl = drawerBodyEl.querySelector('#drawer-volc-auth');
+    if (volcAuthEl) {
+      extra.authInfoLevel = getSegValue(volcAuthEl);
+    }
+    const blockHostsEl = drawerBodyEl.querySelector('#drawer-volc-blockHosts');
+    if (blockHostsEl) {
+      extra.blockHosts = blockHostsEl.value.trim();
+    }
+
+    return { endpoint, apiKey, monthlyLimit, ...extra };
   }
 
   async function saveSearchFromDrawer() {
@@ -463,7 +575,18 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
     const idx = providers.findIndex(p => p.id === providerId);
     if (idx < 0) return;
 
-    providers[idx] = { ...providers[idx], endpoint: formData.endpoint, apiKey: formData.apiKey, monthlyLimit: formData.monthlyLimit };
+    providers[idx] = {
+      ...providers[idx],
+      endpoint: formData.endpoint,
+      apiKey: formData.apiKey,
+      monthlyLimit: formData.monthlyLimit
+    };
+
+    // 合并独立参数
+    if (formData.language !== undefined) providers[idx].language = formData.language;
+    if (formData.authInfoLevel !== undefined) providers[idx].authInfoLevel = formData.authInfoLevel;
+    if (formData.blockHosts !== undefined) providers[idx].blockHosts = formData.blockHosts;
+
     await safeSet({ web_search_providers: providers });
 
     showStatus(`「${providers[idx].name}」配置已保存`);

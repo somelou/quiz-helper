@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>题目助手 · UI 样式预览</title>
+<style>
+/* ============================================================
+   题目助手 · 全新现代风格设计令牌（预览稿）
+   ============================================================ */
+:root {
+  /* 主色 */
+  --color-primary: #4f46e5;
+  --color-primary-dark: #4338ca;
+  --color-primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --color-primary-bg: rgba(99, 102, 241, 0.09);
+  --color-primary-light: #a5b4fc;
+
+  /* 语义色 */
+  --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-error: #dc2626;
+  --color-error-text: #dc2626;
+  --color-error-bg: #fef2f2;
+  --color-info: #0284c7;
+  --color-info-bg: #f0f9ff;
+  --color-warning: #d97706;
+  --color-warning-bg: #fffbeb;
+
+  /* 中性色（slate 系） */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f4f4f5;
+  --color-border: #e8e8ec;
+  --color-border-light: #eeeef2;
+  --color-border-focus: #6366f1;
+
+  --color-text: #18181b;
+  --color-text-heading: #18181b;
+  --color-text-secondary: #3f3f46;
+  --color-text-muted: #71717a;
+  --color-text-label: #3f3f46;
+
+  --color-input-bg: #ffffff;
+  --color-input-border: #e4e4e7;
+  --color-input-text: #18181b;
+
+  --color-btn-secondary-bg: #f4f4f5;
+  --color-btn-secondary-text: #3f3f46;
+
+  --color-toggle-bg: #f0f0f3;
+  --color-toggle-btn: #71717a;
+  --color-toggle-btn-hover: #3f3f46;
+  --color-toggle-slider-bg: #ffffff;
+  --color-toggle-slider-shadow: 0 1px 4px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+
+  --color-switch-off: #d4d4d8;
+  --color-shortcut-bg: #f8fafc;
+  --color-shortcut-border: #e8e8ec;
+
+  --color-drawer-overlay: rgba(9, 9, 11, 0.4);
+  --color-drawer-bg: #ffffff;
+  --color-drawer-shadow: -12px 0 40px rgba(0,0,0,0.12);
+  --color-drawer-close-bg: #f4f4f5;
+
+  --color-q-id-bg: #6366f1;
+  --color-q-id-text: #ffffff;
+
+  --color-type-single-bg: #eef2ff;
+  --color-type-single-text: #4f46e5;
+  --color-type-multiple-bg: #faf5ff;
+  --color-type-multiple-text: #9333ea;
+  --color-type-judge-bg: #f0fdf4;
+  --color-type-judge-text: #16a34a;
+  --color-type-fill-bg: #fff7ed;
+  --color-type-fill-text: #ea580c;
+  --color-type-unknown-bg: #f4f4f5;
+  --color-type-unknown-text: #71717a;
+
+  --color-panel-header-text: #ffffff;
+
+  --color-btn-action-bg: #eef2ff;
+  --color-btn-action-text: #4f46e5;
+  --color-btn-export-bg: #f0fdf4;
+  --color-btn-export-text: #16a34a;
+  --color-btn-danger-bg: #fef2f2;
+  --color-btn-danger-text: #dc2626;
+
+  /* 圆角 */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-full: 999px;
+  --radius-toggle: 7px;
+
+  /* 字号 */
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-md: 13px;
+  --font-lg: 15px;
+  --font-xl: 18px;
+  --font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* 阴影（柔和多层） */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.05);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.08);
+  --shadow-primary: 0 2px 8px rgba(99, 102, 241, 0.28);
+  --shadow-toggle-active: 0 1px 3px rgba(0,0,0,0.08);
+
+  /* 过渡 */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-toggle: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --color-primary: #818cf8;
+  --color-primary-dark: #6366f1;
+  --color-primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --color-primary-bg: rgba(129, 140, 248, 0.14);
+  --color-primary-light: #a5b4fc;
+
+  --color-success: #4ade80;
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-error: #f87171;
+  --color-error-text: #f87171;
+  --color-error-bg: rgba(239, 68, 68, 0.12);
+  --color-info: #38bdf8;
+  --color-info-bg: rgba(56, 189, 248, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.12);
+
+  --color-bg: #131419;
+  --color-bg-secondary: #0f1115;
+  --color-surface: #1a1c22;
+  --color-surface-hover: #22242c;
+  --color-border: #2a2d36;
+  --color-border-light: #262931;
+  --color-border-focus: #818cf8;
+
+  --color-text: #e4e4e7;
+  --color-text-heading: #f4f4f5;
+  --color-text-secondary: #c8c9cf;
+  --color-text-muted: #8b8e98;
+  --color-text-label: #c8c9cf;
+
+  --color-input-bg: #1f222a;
+  --color-input-border: #34373f;
+  --color-input-text: #e4e4e7;
+
+  --color-btn-secondary-bg: #2a2d36;
+  --color-btn-secondary-text: #d4d4d8;
+
+  --color-toggle-bg: #22242c;
+  --color-toggle-btn: #8b8e98;
+  --color-toggle-btn-hover: #c8c9cf;
+  --color-toggle-slider-bg: #34373f;
+  --color-toggle-slider-shadow: 0 1px 3px rgba(0,0,0,0.4);
+
+  --color-switch-off: #3f424c;
+  --color-shortcut-bg: #1a1c22;
+  --color-shortcut-border: #2a2d36;
+
+  --color-drawer-overlay: rgba(0, 0, 0, 0.55);
+  --color-drawer-bg: #1a1c22;
+  --color-drawer-shadow: -12px 0 40px rgba(0,0,0,0.5);
+  --color-drawer-close-bg: #2a2d36;
+
+  --color-q-id-bg: #6366f1;
+  --color-q-id-text: #ffffff;
+
+  --color-type-single-bg: rgba(99, 102, 241, 0.16);
+  --color-type-single-text: #a5b4fc;
+  --color-type-multiple-bg: rgba(147, 51, 234, 0.16);
+  --color-type-multiple-text: #d8b4fe;
+  --color-type-judge-bg: rgba(34, 197, 94, 0.14);
+  --color-type-judge-text: #4ade80;
+  --color-type-fill-bg: rgba(234, 88, 12, 0.16);
+  --color-type-fill-text: #fdba74;
+  --color-type-unknown-bg: #2a2d36;
+  --color-type-unknown-text: #8b8e98;
+
+  --color-btn-action-bg: #2a2d36;
+  --color-btn-action-text: #a5b4fc;
+  --color-btn-export-bg: #2a2d36;
+  --color-btn-export-text: #4ade80;
+  --color-btn-danger-bg: #2a2d36;
+  --color-btn-danger-text: #f87171;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.25);
+  --shadow-md: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.25);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,0.2), 0 12px 32px rgba(0,0,0,0.35);
+  --shadow-primary: 0 2px 8px rgba(99, 102, 241, 0.35);
+  --shadow-toggle-active: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ============================================================
+   Demo 脚手架样式（仅预览页使用，不回写扩展）
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.6;
+  transition: background var(--transition-normal), color var(--transition-normal);
+}
+.demo-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+.demo-topbar h1 { font-size: 16px; font-weight: 700; color: var(--color-text-heading); }
+.demo-topbar p { font-size: 12px; color: var(--color-text-muted); }
+.demo-wrap { max-width: 1160px; margin: 0 auto; padding: 32px 28px 80px; }
+.demo-section { margin-bottom: 56px; }
+.demo-section-title { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.demo-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+.demo-section-title h2 { font-size: 20px; font-weight: 700; color: var(--color-text-heading); }
+.demo-section-desc { font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px; }
+.demo-stage {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 1px 1px, var(--color-border) 1px, transparent 0) 0 0 / 22px 22px,
+    var(--color-bg);
+  padding: 40px;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+.demo-frame-label {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: -20px;
+}
+
+/* ============================================================
+   Section 1 · Popup（沿用真实 class）
+   ============================================================ */
+.popup-preview {
+  width: 300px;
+  padding: 16px;
+  background: var(--color-bg);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+.popup-preview .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.popup-preview .header h2 {
+  font-size: var(--font-xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--color-text-heading);
+}
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  background: var(--color-toggle-bg);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 1px;
+}
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 28px;
+  height: 26px;
+  background: var(--color-toggle-slider-bg);
+  border-radius: var(--radius-toggle);
+  box-shadow: var(--color-toggle-slider-shadow);
+  transition: transform var(--transition-toggle);
+}
+.theme-toggle[data-theme="dark"]::before { transform: translateX(29px); }
+.theme-toggle[data-theme="system"]::before { transform: translateX(58px); }
+.theme-btn {
+  position: relative;
+  z-index: 1;
+  width: 28px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-toggle);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-toggle-btn);
+  transition: color var(--transition-normal);
+}
+.theme-btn:hover { color: var(--color-toggle-btn-hover); }
+.theme-btn.active { color: var(--color-primary); }
+.theme-btn svg { width: 14px; height: 14px; display: block; }
+
+/* 按钮（新：统一 38px 高度、字重、微交互） */
+.popup-preview .btn {
+  width: 100%;
+  height: 38px;
+  padding: 0 14px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: var(--font-md);
+  font-weight: 500;
+  font-family: inherit;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast),
+              background var(--transition-fast), opacity var(--transition-fast);
+}
+.popup-preview .btn:active { }
+.popup-preview .btn-primary {
+  background: var(--color-primary-gradient);
+  color: #fff;
+  box-shadow: var(--shadow-primary);
+}
+.popup-preview .btn-primary:hover { box-shadow: 0 4px 14px rgba(99,102,241,0.36); }
+.popup-preview .btn-secondary {
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-btn-secondary-text);
+}
+.popup-preview .btn-secondary:hover { background: var(--color-surface-hover); color: var(--color-text); }
+
+/* 模型下拉 */
+.model-dropdown { position: relative; margin-bottom: 10px; }
+.model-dropdown-btn { position: relative; text-align: center; }
+.model-dropdown-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.5;
+  transition: transform var(--transition-normal);
+}
+.model-dropdown.open .model-dropdown-arrow { transform: translateY(-50%) rotate(180deg); }
+.model-dropdown-menu {
+  display: none;
+  margin-top: 6px;
+  padding: 4px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+}
+.model-dropdown.open .model-dropdown-menu { display: block; }
+.model-dropdown-option {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-md);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.model-dropdown-option:not(:last-child) { margin-bottom: 2px; }
+.model-dropdown-option:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.model-dropdown-option.selected {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+.popup-preview .hint {
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+.popup-preview .hint strong { color: var(--color-primary); letter-spacing: 1px; }
+
+/* ============================================================
+   Section 2 · 答题面板（沿用真实 qh-* class）
+   ============================================================ */
+.qh-panel {
+  position: relative; /* 真实环境中为 fixed 右下角 */
+  width: 420px;
+  max-height: none;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: var(--font-md);
+}
+.qh-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-border);
+  cursor: move;
+  user-select: none;
+}
+.qh-title { font-weight: 600; font-size: var(--font-lg); }
+.qh-progress { font-size: var(--font-sm); opacity: 0.9; margin-left: 6px; }
+.qh-header-btns { display: flex; gap: 4px; }
+.qh-header-btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-toggle);
+  color: var(--color-primary);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: background var(--transition-fast), opacity var(--transition-fast);
+  padding: 0;
+}
+.qh-header-btn svg { width: 14px; height: 14px; display: block; }
+.qh-header-btn:hover { background: rgba(79, 110, 247, 0.12); opacity: 1; }
+.qh-body { padding: 12px; overflow-y: auto; flex: 1; background: var(--color-bg-secondary); }
+.qh-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  margin-bottom: 10px;
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.qh-card:hover { border-color: var(--color-border); box-shadow: var(--shadow-md); }
+.qh-card-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  cursor: pointer;
+  gap: 8px;
+  transition: background var(--transition-fast);
+}
+.qh-card-header:hover { background: var(--color-surface-hover); }
+.qh-card-num {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  min-width: 24px;
+  text-align: center;
+}
+.qh-card-type { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: var(--radius-sm); }
+.qh-type-single { background: var(--color-type-single-bg); color: var(--color-type-single-text); }
+.qh-type-multiple { background: var(--color-type-multiple-bg); color: var(--color-type-multiple-text); }
+.qh-type-judge { background: var(--color-type-judge-bg); color: var(--color-type-judge-text); }
+.qh-type-fill { background: var(--color-type-fill-bg); color: var(--color-type-fill-text); }
+.qh-type-unknown { background: var(--color-type-unknown-bg); color: var(--color-type-unknown-text); }
+.qh-card-summary {
+  flex: 1;
+  font-size: var(--font-sm);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qh-card-answer {
+  font-size: 11px;
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 110px;
+  font-weight: 700;
+}
+.qh-card-status { font-size: 11px; font-weight: 500; }
+.qh-status-pending { color: var(--color-text-muted); }
+.qh-status-loading { color: var(--color-primary); }
+.qh-status-done { color: var(--color-success); }
+.qh-status-error { color: var(--color-error); }
+.qh-status-loading::before {
+  content: '';
+  display: inline-block;
+  width: 8px; height: 8px;
+  margin-right: 5px;
+  border: 2px solid var(--color-primary-bg);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: qh-spin 0.8s linear infinite;
+  vertical-align: -1px;
+}
+@keyframes qh-spin { to { transform: rotate(360deg); } }
+.qh-card-body {
+  padding: 12px;
+  border-top: 1px solid var(--color-border-light);
+  font-size: var(--font-md);
+  line-height: 1.7;
+  color: var(--color-text);
+  display: none;
+  user-select: text;
+}
+.qh-card-body.open { display: block; }
+.qh-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+.qh-question-text {
+  user-select: text;
+  background: var(--color-bg-secondary);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-md);
+  line-height: 1.7;
+  color: var(--color-text);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.qh-answer-section { margin-top: 12px; }
+.qh-loading-text { color: var(--color-primary); font-style: italic; }
+.qh-error-text { color: var(--color-error); font-size: var(--font-md); line-height: 1.7; }
+.qh-answer-text { white-space: pre-wrap; font-size: var(--font-md); line-height: 1.7; color: var(--color-text); }
+.qh-bank-refs { margin-top: 12px; }
+.qh-bank-ref {
+  margin-bottom: 6px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  transition: border-color var(--transition-fast);
+}
+.qh-bank-ref:hover { border-color: var(--color-primary); }
+.qh-bank-ref summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  user-select: none;
+  list-style: none;
+  transition: background var(--transition-fast);
+}
+.qh-bank-ref summary::-webkit-details-marker { display: none; }
+.qh-bank-ref summary:hover { background: var(--color-primary-bg); }
+.qh-bank-ref summary:hover .qh-bank-ref-name { color: var(--color-primary); }
+.qh-bank-ref-icon {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+.qh-bank-ref-icon svg { width: 13px; height: 13px; display: block; }
+.qh-bank-ref-name { flex: 1; color: var(--color-text); font-weight: 500; }
+.qh-bank-ref-score {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  background: var(--color-surface-hover);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+.qh-bank-ref-detail {
+  padding: 10px 12px;
+  font-size: var(--font-sm);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-bg);
+}
+.qh-bank-ref-detail .qh-bank-q { margin-bottom: 8px; white-space: pre-wrap; color: var(--color-text-secondary); }
+.qh-bank-ref-detail .qh-bank-a {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  white-space: pre-wrap;
+  font-weight: 500;
+}
+.qh-bank-ref-detail .qh-bank-ana {
+  margin-top: 8px;
+  color: var(--color-text-secondary);
+  padding: 6px 10px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  white-space: pre-wrap;
+}
+.qh-search-ref {
+  margin-top: 12px;
+  margin-bottom: 6px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  transition: border-color var(--transition-fast);
+}
+.qh-search-ref:hover { border-color: var(--color-text-muted); }
+.qh-search-ref summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  user-select: none;
+  list-style: none;
+}
+.qh-search-ref summary::-webkit-details-marker { display: none; }
+.qh-search-ref summary:hover { background: var(--color-surface-hover); }
+.qh-search-ref-icon {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+.qh-search-ref-icon svg { width: 13px; height: 13px; display: block; }
+.qh-search-ref-name { flex: 1; color: var(--color-text); font-weight: 500; }
+.qh-search-ref-provider { color: var(--color-text-muted); font-weight: 400; }
+.qh-search-ref-detail {
+  padding: 10px 12px;
+  font-size: var(--font-sm);
+  line-height: 1.7;
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-bg);
+}
+.qh-search-ref-item { padding: 8px 0; border-bottom: 1px solid var(--color-border-light); }
+.qh-search-ref-item:last-child { border-bottom: none; padding-bottom: 0; }
+.qh-search-ref-title {
+  display: block;
+  font-size: var(--font-md);
+  color: var(--color-info);
+  text-decoration: none;
+  font-weight: 500;
+  word-break: break-all;
+}
+.qh-search-ref-title:hover { text-decoration: underline; }
+.qh-search-ref-url { font-size: var(--font-xs); color: var(--color-text-muted); margin-top: 2px; word-break: break-all; }
+.qh-search-ref-snippet {
+  font-size: var(--font-sm);
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.qh-footer {
+  padding: 10px 12px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg);
+  overflow: hidden;
+}
+.qh-model-name {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  mask-image: linear-gradient(to right, black 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 70%, transparent 100%);
+}
+.qh-footer-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.qh-seg {
+  position: relative;
+  display: inline-flex;
+  background: var(--color-toggle-bg);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 1px;
+}
+.qh-seg::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 72px;
+  height: calc(100% - 4px);
+  background: var(--color-toggle-slider-bg);
+  border-radius: var(--radius-toggle);
+  box-shadow: var(--color-toggle-slider-shadow);
+  transition: transform var(--transition-toggle);
+  z-index: 0;
+}
+.qh-seg[data-active="reparse"]::before { transform: translateX(73px); }
+.qh-seg-btn {
+  position: relative;
+  z-index: 1;
+  width: 72px;
+  padding: 3px 0;
+  border: none;
+  border-radius: var(--radius-toggle);
+  background: transparent;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-family: inherit;
+  line-height: 20px;
+  color: var(--color-toggle-btn);
+  transition: color var(--transition-normal);
+  white-space: nowrap;
+  outline: none;
+}
+.qh-seg-btn:hover { color: var(--color-toggle-btn-hover); }
+.qh-seg-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.qh-seg-btn.active { color: var(--color-primary); font-weight: 500; }
+.qh-btn {
+  padding: 5px 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  font-family: inherit;
+  line-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: transform var(--transition-fast), opacity var(--transition-fast),
+              background var(--transition-fast), box-shadow var(--transition-fast);
+}
+.qh-btn:active { }
+.qh-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.qh-btn-primary { background: var(--color-primary); color: #fff; }
+.qh-btn-primary:hover { background: var(--color-primary-dark); }
+.qh-btn-secondary { background: var(--color-btn-secondary-bg); color: var(--color-btn-secondary-text); }
+.qh-btn-secondary:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.qh-btn-warning { background: var(--color-warning-bg); color: var(--color-warning); }
+.qh-btn-warning:hover { opacity: 0.85; }
+/* card-body 内按钮：浅色背景 + primary 文本 */
+.qh-card-body .qh-btn-primary {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+.qh-card-body .qh-btn-primary:hover { opacity: 0.85; }
+.qh-empty { text-align: center; padding: 28px 20px; color: var(--color-text-muted); font-size: var(--font-md); line-height: 1.7; }
+.qh-mini-bar {
+  position: relative; /* 真实环境中为 fixed 右下角 */
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-primary), var(--shadow-lg);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.qh-mini-bar:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(79, 110, 247, 0.5);
+}
+.qh-mini-bar img { width: 26px; height: 26px; display: block; border-radius: 50%; object-fit: contain; pointer-events: none; }
+
+/* ============================================================
+   Section 3 · 设置页（沿用真实 class）
+   ============================================================ */
+.options-preview { width: 100%; display: flex; gap: 32px; align-items: flex-start; justify-content: center; }
+.options-preview .sidebar { width: 160px; flex-shrink: 0; position: sticky; top: 80px; }
+.options-preview .nav-list { list-style: none; margin: 0; padding: 0; }
+.options-preview .nav-item {
+  display: block;
+  padding: 8px 14px;
+  margin: 2px 0;
+  border-radius: var(--radius-md);
+  font-size: var(--font-md);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+  line-height: 1.5;
+}
+.options-preview .nav-item:hover { color: var(--color-text); background: var(--color-surface-hover); }
+.options-preview .nav-item.active { color: var(--color-primary); font-weight: 600; background: var(--color-primary-bg); }
+.options-preview .main-content { width: 640px; max-width: 100%; }
+.options-preview .card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+  transition: box-shadow var(--transition-fast);
+}
+.options-preview .card:hover { box-shadow: var(--shadow-md); }
+.options-preview .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.options-preview h2 { font-size: var(--font-xl); font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--color-text-heading); }
+.options-preview .form-group { margin-bottom: 20px; }
+.options-preview label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: var(--font-md);
+  color: var(--color-text-label);
+}
+.options-preview input[type="text"],
+.options-preview input[type="password"],
+.options-preview input[type="number"],
+.options-preview textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--color-input-border);
+  border-radius: 10px;
+  font-size: var(--font-md);
+  font-family: inherit;
+  line-height: 1.6;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+}
+.options-preview input:focus,
+.options-preview textarea:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+.options-preview textarea { resize: vertical; }
+.options-preview input:disabled { opacity: 0.55; cursor: not-allowed; }
+.options-preview .hint { font-size: var(--font-sm); color: var(--color-text-muted); margin-top: 6px; line-height: 1.6; }
+.options-preview .actions { display: flex; gap: 10px; margin-top: 24px; }
+.options-preview .btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1.2;
+  transition: opacity var(--transition-normal);
+}
+.options-preview .btn:active { }
+.options-preview .btn-primary { background: var(--color-primary-gradient); color: #fff; }
+.options-preview .btn-secondary { background: var(--color-btn-secondary-bg); color: var(--color-btn-secondary-text); }
+.options-preview .btn-secondary:hover { opacity: 0.9; }
+
+/* 开关 */
+.switch { position: relative; display: inline-flex; align-items: center; width: 46px; height: 26px; flex-shrink: 0; vertical-align: middle; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  background: var(--color-switch-off);
+  transition: background var(--transition-toggle);
+  border-radius: var(--radius-full);
+}
+.switch-slider::before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  transition: transform var(--transition-toggle);
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+.switch input:checked + .switch-slider { background: var(--color-primary-gradient); }
+.switch input:checked + .switch-slider::before { transform: translateX(20px); }
+
+/* 分段控件 */
+.segmented-control {
+  position: relative;
+  display: inline-flex;
+  background: var(--color-toggle-bg);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+.segmented-control button {
+  position: relative;
+  border: none;
+  border-radius: var(--radius-toggle);
+  background: transparent;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-family: inherit;
+  height: 28px;
+  padding: 0 12px;
+  color: var(--color-toggle-btn);
+  transition: color var(--transition-fast);
+  white-space: nowrap;
+}
+.segmented-control button:hover { color: var(--color-toggle-btn-hover); }
+.segmented-control button.seg-active {
+  background: var(--color-toggle-slider-bg);
+  color: var(--color-primary);
+  font-weight: 500;
+  box-shadow: var(--color-toggle-slider-shadow);
+}
+
+/* 操作按钮 */
+.action-btn {
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: filter var(--transition-fast), transform var(--transition-fast);
+}
+.action-btn:active { }
+.action-btn svg { width: 13px; height: 13px; display: block; }
+.action-view, .action-edit { background: var(--color-btn-action-bg); color: var(--color-btn-action-text); }
+.action-export { background: var(--color-btn-export-bg); color: var(--color-btn-export-text); }
+.action-delete { background: var(--color-btn-danger-bg); color: var(--color-btn-danger-text); }
+.action-secondary { background: var(--color-btn-secondary-bg); color: var(--color-btn-secondary-text); }
+.action-btn:hover { filter: brightness(0.97); }
+
+/* 列表项（与真实结构一致：list-item > list-item-header > info + actions） */
+.list-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  background: var(--color-bg);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.list-item:hover { box-shadow: var(--shadow-sm); }
+.list-item.active { border-color: var(--color-primary); background: var(--color-primary-bg); }
+.list-item-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.list-item-info { flex: 1; min-width: 0; }
+.list-item-title {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.list-item-meta { font-size: var(--font-sm); color: var(--color-text-muted); margin-top: 2px; }
+.list-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.list-item-footer { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--color-border); text-align: right; }
+.action-link {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.action-link:hover { text-decoration: underline; }
+.switch-row { display: flex; align-items: center; justify-content: space-between; }
+
+/* 徽标（模型/搜索服务商） */
+.model-badge, .search-provider-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  margin-left: 6px;
+  font-weight: 500;
+  vertical-align: middle;
+}
+.model-preferred, .search-badge-active { background: var(--color-primary-bg); color: var(--color-primary); }
+.model-active { background: var(--color-success-bg); color: var(--color-success); }
+.model-inactive-badge, .search-badge-inactive { background: var(--color-surface-hover); color: var(--color-text-muted); }
+.model-task-bank { background: var(--color-warning-bg); color: var(--color-warning); }
+.model-task-extract { background: var(--color-info-bg); color: var(--color-info); }
+.model-inactive { opacity: 0.6; }
+
+/* 规则/模型表单 */
+.rule-form-group { margin-bottom: 16px; }
+.rule-form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: var(--font-sm);
+  color: var(--color-text-label);
+}
+.rule-form-section {
+  font-weight: 600;
+  font-size: var(--font-md);
+  color: var(--color-text);
+  margin: 20px 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+.rule-form-section:first-child { margin-top: 0; }
+
+/* 分页 */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 16px; flex-wrap: wrap; }
+.page-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+.page-btn:hover:not(:disabled):not(.active) { border-color: var(--color-primary); color: var(--color-primary); }
+.page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.page-info { font-size: var(--font-xs); color: var(--color-text-muted); margin: 0 8px; }
+
+/* ===== 抽屉 ===== */
+.drawer-demo { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.drawer {
+  width: 440px;
+  height: 560px;
+  background: var(--color-drawer-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.drawer-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.drawer-title { font-size: var(--font-lg); font-weight: 700; color: var(--color-text-heading); }
+.drawer-meta { font-size: var(--font-sm); color: var(--color-text-muted); margin-top: 4px; }
+.drawer-header-actions { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  background: var(--color-bg-secondary);
+  display: flex;
+  flex-direction: column;
+}
+.drawer-body .q-item {
+  margin-bottom: 12px;
+  padding: 12px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+.drawer-body .q-title {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.drawer-body .q-id {
+  display: inline-block;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+.drawer-body .q-type { display: inline-block; font-size: 11px; line-height: 1; padding: 4px 8px; border-radius: var(--radius-sm); }
+.drawer-body .q-label { font-size: 11px; font-weight: 600; color: var(--color-text-muted); margin-bottom: 4px; }
+.drawer-body .q-text {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+}
+.drawer-body .q-answer {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  white-space: pre-wrap;
+  line-height: 1.6;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+}
+
+/* 输入框内切换按钮 */
+.input-wrapper { position: relative; }
+.toggle-visible {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  color: var(--color-text-secondary);
+  padding: 0;
+}
+.toggle-visible:hover { color: var(--color-text); }
+
+/* 规则 JSON 视图容器 */
+.rule-json { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.rule-json .rule-form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+}
+.rule-json .rule-form-group > label { flex-shrink: 0; }
+
+/* 规则 JSON 视图 */
+.rule-view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.rule-copy-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-family: inherit;
+}
+.rule-copy-btn:hover { color: var(--color-text); }
+.rule-json-editor {
+  flex: 1;
+  min-height: 200px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  background: var(--color-input-bg);
+  padding: 12px 14px;
+  font-family: var(--font-code);
+  font-size: 12.5px;
+  line-height: 1.8;
+  overflow: auto;
+  white-space: pre;
+}
+.json-key { color: #e06c75; }
+.json-string { color: #98c379; }
+.json-number { color: #d19a66; }
+.json-boolean { color: #56b6c2; }
+.json-punctuation { color: var(--color-text-muted); }
+
+/* 题库工具栏 & 进度条 */
+.bank-toolbar { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
+.bank-progress-bar { height: 6px; background: var(--color-surface-hover); border-radius: var(--radius-full); overflow: hidden; }
+.bank-progress-fill {
+  height: 100%;
+  width: 62%;
+  background: var(--color-primary-gradient);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+.bank-progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+.bank-progress-cancel {
+  border: none;
+  background: transparent;
+  color: var(--color-error);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+.bank-progress-cancel:hover { background: var(--color-error-bg); }
+
+/* 快捷键展示 */
+.shortcut-box {
+  border: none;
+  background: none;
+  padding: 0;
+}
+.shortcut-value {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: 2px;
+}
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+.shortcut-actions { display: flex; gap: 6px; }
+
+@media (max-width: 900px) {
+  .options-preview { flex-direction: column; }
+  .options-preview .sidebar { position: static; width: 100%; }
+  .options-preview .nav-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .demo-stage { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<header class="demo-topbar">
+  <div>
+    <h1>题目助手 · UI 样式预览</h1>
+    <p>全新现代风格设计稿 — 确认后将回写到扩展的 popup / 答题面板 / 设置页</p>
+  </div>
+  <div class="theme-toggle" id="demoThemeToggle" data-theme="light">
+    <button class="theme-btn active" data-theme="light" title="浅色模式">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
+    <button class="theme-btn" data-theme="dark" title="深色模式">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button class="theme-btn" data-theme="system" title="跟随系统">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="demo-wrap">
+
+  <!-- ================= Section 1 · Popup ================= -->
+  <section class="demo-section">
+    <div class="demo-section-title"><span class="demo-num">01</span><h2>Popup 弹窗</h2></div>
+    <p class="demo-section-desc">点击扩展图标后弹出：统一按钮高度、主按钮渐变投影、下拉菜单圆角浮层化。</p>
+    <div class="demo-stage">
+      <div class="demo-frame-label">默认状态</div>
+      <div class="popup-preview">
+        <div class="header">
+          <h2>题目助手</h2>
+          <div class="theme-toggle" data-theme="light">
+            <button class="theme-btn active" title="浅色模式"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+            <button class="theme-btn" title="深色模式"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+            <button class="theme-btn" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+          </div>
+        </div>
+        <button class="btn btn-primary">分析当前页面题目</button>
+        <button class="btn btn-secondary">打开设置</button>
+        <div class="model-dropdown">
+          <button class="btn btn-secondary model-dropdown-btn">
+            <span class="model-dropdown-label">DeepSeek-V3（默认）</span>
+            <span class="model-dropdown-arrow"></span>
+          </button>
+        </div>
+        <div class="hint">提示：选中题目文本后分析效果更佳 · 快捷键 <strong>Ctrl+Shift+Y</strong></div>
+      </div>
+
+      <div class="demo-frame-label">模型下拉展开</div>
+      <div class="popup-preview">
+        <div class="header">
+          <h2>题目助手</h2>
+          <div class="theme-toggle" data-theme="light">
+            <button class="theme-btn active" title="浅色模式"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+            <button class="theme-btn" title="深色模式"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+            <button class="theme-btn" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+          </div>
+        </div>
+        <button class="btn btn-primary">分析当前页面题目</button>
+        <button class="btn btn-secondary">打开设置</button>
+        <div class="model-dropdown open">
+          <button class="btn btn-secondary model-dropdown-btn">
+            <span class="model-dropdown-label">DeepSeek-V3（默认）</span>
+            <span class="model-dropdown-arrow"></span>
+          </button>
+          <div class="model-dropdown-menu">
+            <button class="model-dropdown-option selected">DeepSeek-V3（默认）</button>
+            <button class="model-dropdown-option">Qwen-Max</button>
+            <button class="model-dropdown-option">GLM-4-Air</button>
+          </div>
+        </div>
+        <div class="hint">提示：选中题目文本后分析效果更佳 · 快捷键 <strong>Ctrl+Shift+Y</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Section 2 · 答题面板 ================= -->
+  <section class="demo-section">
+    <div class="demo-section-title"><span class="demo-num">02</span><h2>页面内答题面板</h2></div>
+    <p class="demo-section-desc">右下角悬浮面板：加载态加旋转指示、答案/题库引用层次清晰。可点击卡片头展开/收起。</p>
+    <div class="demo-stage" style="align-items: center;">
+      <div class="demo-frame-label">答题中（点击卡片可展开）</div>
+      <div class="qh-panel">
+        <div class="qh-header">
+          <div>
+            <span class="qh-title">题目助手</span>
+            <span class="qh-progress">3/5 已完成</span>
+          </div>
+          <div class="qh-header-btns">
+            <button class="qh-header-btn" title="最小化"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+            <button class="qh-header-btn" title="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+          </div>
+        </div>
+        <div class="qh-body">
+          <!-- 卡片 1：已完成，默认展开 -->
+          <div class="qh-card">
+            <div class="qh-card-header">
+              <span class="qh-card-num">1</span>
+              <span class="qh-card-type qh-type-single">单选</span>
+              <span class="qh-card-summary">以下关于 TCP 三次握手的说法，正确的是？</span>
+              <span class="qh-card-answer">B</span>
+              <span class="qh-card-status qh-status-done">已完成</span>
+            </div>
+            <div class="qh-card-body open">
+              <div class="qh-question-section">
+                <div class="qh-section-title">题目</div>
+                <div class="qh-question-text">以下关于 TCP 三次握手的说法，正确的是？<br>A. 第一次握手客户端发送 ACK 包<br>B. 第二次握手服务端发送 SYN+ACK 包<br>C. 三次握手用于释放连接<br>D. 第三次握手必须携带数据</div>
+              </div>
+              <div class="qh-answer-section">
+                <div class="qh-section-title">参考答案</div>
+                <div class="qh-answer-text">B
+解析：TCP 三次握手过程为 SYN → SYN+ACK → ACK，用于建立连接而非释放连接，第三次握手通常不携带应用数据。</div>
+              </div>
+              <details class="qh-search-ref">
+                <summary>
+                  <span class="qh-search-ref-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+                  <span class="qh-search-ref-name">参考链接<span class="qh-search-ref-provider"> · Bing</span></span>
+                  <span class="qh-bank-ref-score">2 条</span>
+                </summary>
+                <div class="qh-search-ref-detail">
+                  <div class="qh-search-ref-item">
+                    <a class="qh-search-ref-title" href="#">1. TCP 三次握手详解 - 计算机网络基础</a>
+                    <div class="qh-search-ref-url">zh.wikipedia.org</div>
+                    <div class="qh-search-ref-snippet">第二次握手：服务器收到 SYN 报文后，向客户端发送 SYN+ACK 报文……</div>
+                  </div>
+                  <div class="qh-search-ref-item">
+                    <a class="qh-search-ref-title" href="#">2. 图解 TCP/IP 协议</a>
+                    <div class="qh-search-ref-url">developer.mozilla.org</div>
+                  </div>
+                </div>
+              </details>
+              <div class="qh-bank-refs">
+                <details class="qh-bank-ref">
+                  <summary>
+                    <span class="qh-bank-ref-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+                    <span class="qh-bank-ref-name">题库1</span>
+                    <span class="qh-bank-ref-score">相似度 0.92</span>
+                  </summary>
+                  <div class="qh-bank-ref-detail">
+                    <div class="qh-bank-q">关于 TCP 三次握手，下列说法正确的是（ ）</div>
+                    <div class="qh-bank-a">答案：B</div>
+                    <div class="qh-bank-ana">解析：第二次握手服务端回复 SYN+ACK。</div>
+                  </div>
+                </details>
+              </div>
+              <button class="qh-btn qh-btn-primary" style="margin-top:10px;">重新作答</button>
+            </div>
+          </div>
+
+          <!-- 卡片 2：加载中 -->
+          <div class="qh-card">
+            <div class="qh-card-header">
+              <span class="qh-card-num">2</span>
+              <span class="qh-card-type qh-type-multiple">多选</span>
+              <span class="qh-card-summary">以下哪些属于常见的 HTTP 状态码分类？</span>
+              <span class="qh-card-status qh-status-loading">作答中</span>
+            </div>
+            <div class="qh-card-body">
+              <div class="qh-loading-text">正在生成答案…</div>
+            </div>
+          </div>
+
+          <!-- 卡片 3：待分析 -->
+          <div class="qh-card">
+            <div class="qh-card-header">
+              <span class="qh-card-num">3</span>
+              <span class="qh-card-type qh-type-judge">判断</span>
+              <span class="qh-card-summary">IPv6 地址长度为 128 位。</span>
+              <span class="qh-card-status qh-status-pending">待分析</span>
+            </div>
+            <div class="qh-card-body">
+              <div class="qh-loading-text">待分析</div>
+            </div>
+          </div>
+        </div>
+        <div class="qh-footer">
+          <span class="qh-model-name">DeepSeek-V3</span>
+          <div class="qh-footer-actions">
+            <div class="qh-seg" data-active="ai">
+              <button class="qh-seg-btn active">AI 选区</button>
+              <button class="qh-seg-btn">规则解析</button>
+            </div>
+            <button class="qh-btn qh-btn-warning">暂停</button>
+            <button class="qh-btn qh-btn-primary">重新作答</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:24px; align-items:center;">
+        <div class="demo-frame-label" style="margin-bottom:-8px;">最小化悬浮球</div>
+        <div class="qh-mini-bar"><img src="icons/icon48.png" alt="题目助手"></div>
+        <div class="demo-frame-label" style="margin-bottom:-8px;">空状态</div>
+        <div class="qh-panel" style="max-height:none;">
+          <div class="qh-header">
+            <div>
+              <span class="qh-title">题目助手</span>
+              <span class="qh-progress">- 共 0 题</span>
+            </div>
+            <div class="qh-header-btns">
+              <button class="qh-header-btn" title="最小化"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+              <button class="qh-header-btn" title="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            </div>
+          </div>
+          <div class="qh-body">
+            <div class="qh-empty">未提取到题目。可先尝试规则解析，或点击"AI 选区解析"后在页面中点选一块题目区域。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Section 3 · 设置页 ================= -->
+  <section class="demo-section">
+    <div class="demo-section-title"><span class="demo-num">03</span><h2>设置页 Options</h2></div>
+    <p class="demo-section-desc">侧边导航 + 卡片流：输入框聚焦光环、控件统一圆角与高度。</p>
+    <div class="demo-stage" style="justify-content: stretch;">
+      <div class="options-preview">
+        <nav class="sidebar">
+          <ul class="nav-list">
+            <li><a class="nav-item active" href="#section-settings">基本设置</a></li>
+            <li><a class="nav-item" href="#section-models">大模型管理</a></li>
+            <li><a class="nav-item" href="#section-search">联网搜索设置</a></li>
+            <li><a class="nav-item" href="#section-rules">解析规则管理</a></li>
+            <li><a class="nav-item" href="#section-bank">题库管理</a></li>
+            <li><a class="nav-item" href="#section-history">历史记录</a></li>
+          </ul>
+        </nav>
+        <main class="main-content">
+
+          <div class="card">
+            <div class="section-header">
+              <h2>基本设置</h2>
+              <div class="theme-toggle" data-theme="light">
+                <button class="theme-btn active" title="浅色模式"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+                <button class="theme-btn" title="深色模式"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+                <button class="theme-btn" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>系统提示词</label>
+              <div style="margin-bottom:8px;">
+                <div class="segmented-control">
+                  <button type="button" class="seg-active">单选</button>
+                  <button type="button">多选</button>
+                  <button type="button">判断</button>
+                  <button type="button">填空</button>
+                  <button type="button">其他</button>
+                </div>
+              </div>
+              <textarea rows="4" placeholder="你是一位专业、严谨、高效的答题助手。请根据题目内容给出准确答案……"></textarea>
+              <div class="hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。</div>
+            </div>
+            <div class="form-group">
+              <label>面板快捷键</label>
+              <div class="shortcut-box">
+                <div class="setting-row">
+                  <div class="shortcut-value">Alt + Q</div>
+                  <div class="shortcut-actions" style="margin-top:0;">
+                    <button type="button" class="action-btn action-view">录制</button>
+                    <button type="button" class="action-btn action-secondary action-clear">清空</button>
+                    <button type="button" class="action-btn action-secondary">默认</button>
+                  </div>
+                </div>
+                <div class="hint" style="margin-top:8px;">在任意页面按下快捷键即可唤起答题面板</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>生效域名白名单</label>
+              <textarea rows="2" placeholder="example.com&#10;exam.example.com"></textarea>
+              <div class="hint">插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效。；留空则默认对所有网站生效。</div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary">保存设置</button>
+              <button class="btn btn-secondary">恢复默认</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="switch-row" style="margin-bottom: 12px;">
+              <h2>大模型管理</h2>
+              <button class="action-btn action-edit">+ 添加</button>
+            </div>
+            <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。</div>
+            <div class="list-item active">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">DeepSeek-V3<span class="model-badge model-preferred">默认</span><span class="model-badge model-active">已激活</span><span class="model-badge model-task-bank">题库导入</span></div>
+                  <div class="list-item-meta">https://api.deepseek.com · deepseek-chat</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="action-btn action-view">编辑</button>
+                  <button class="action-btn action-delete">删除</button>
+                </div>
+              </div>
+              <div class="list-item-footer"><button class="action-link">为各任务指定专用模型</button></div>
+            </div>
+            <div class="list-item model-inactive">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">Qwen-Max<span class="model-badge model-inactive-badge">已停用</span></div>
+                  <div class="list-item-meta">https://dashscope.aliyuncs.com · qwen-max</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="action-btn action-view">编辑</button>
+                  <button class="action-btn action-delete">删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="switch-row" style="margin-bottom: 12px;">
+              <h2>联网搜索设置</h2>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            <div class="hint" style="margin-bottom: 12px;">开启后，大模型答题时将检索联网信息作为辅助参考（仅一种搜索服务同时生效）。</div>
+            <div class="rule-form-section">公共参数</div>
+            <div class="rule-form-group">
+              <label>结果数量</label>
+              <input type="number" value="10" min="1" max="50">
+              <div class="hint">单次搜索返回的最大结果数 (1-50)</div>
+            </div>
+            <div class="rule-form-group">
+              <label>时间范围</label>
+              <div class="segmented-control">
+                <button class="seg-active">不限制</button>
+                <button>一天</button>
+                <button>一周</button>
+                <button>一月</button>
+                <button>一年</button>
+              </div>
+              <div class="hint">过滤搜索结果的时间范围</div>
+            </div>
+            <div class="rule-form-section">搜索服务商</div>
+            <div class="list-item active">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">Bing<span class="search-provider-badge search-badge-active">已启用</span></div>
+                  <div class="list-item-meta">本月 0/100 · 微软必应搜索 · 结果稳定，支持时间范围过滤</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="action-btn action-view">配置</button>
+                </div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">Tavily<span class="search-provider-badge search-badge-inactive">未配置</span></div>
+                  <div class="list-item-meta">本月 0/500 · 面向 AI 的搜索 API · 需要 API Key</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="action-btn action-view">配置</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 style="margin-bottom: 12px;">解析规则管理</h2>
+            <div class="hint" style="margin-bottom: 12px;">管理各站点的题目解析规则。有规则的站点优先使用规则解析，无规则的站点首次解析时由 AI 自动生成规则。</div>
+            <div class="list-item">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">exam.example.com</div>
+                  <div class="list-item-meta">创建: 2026-07-10 16:30:00 · 最后使用: 2026-07-15 10:22:00 · 使用次数: 12</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="action-btn action-view">查看</button>
+                  <button class="action-btn action-edit">编辑</button>
+                  <button class="action-btn action-delete">删除</button>
+                </div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">mooc.school.cn</div>
+                  <div class="list-item-meta">创建: 2026-07-08 09:15:00 · 最后使用: 2026-07-14 08:45:00 · 使用次数: 5</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="action-btn action-view">查看</button>
+                  <button class="action-btn action-edit">编辑</button>
+                  <button class="action-btn action-delete">删除</button>
+                </div>
+              </div>
+            </div>
+            <div class="pagination">
+              <button class="page-btn" disabled>上一页</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <span class="page-info">共 24 条</span>
+              <button class="page-btn">下一页</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="switch-row" style="margin-bottom: 12px;">
+              <h2>题库管理</h2>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            <div class="hint" style="margin-bottom: 12px;">开启后优先从题库匹配答案。导入 Excel(.xlsx/.xls) 或 Word(.docx) 文件。</div>
+            <div class="form-group">
+              <label>导入解析模式</label>
+              <div class="segmented-control">
+                <button>节能</button>
+                <button class="seg-active">平衡</button>
+                <button>精细</button>
+              </div>
+              <div class="hint">并发 10 批 · 每批 50 题</div>
+            </div>
+            <div class="bank-toolbar">
+              <button class="btn btn-secondary">+ 导入题库</button>
+              <span class="hint" style="margin-top:0;">共 2 个题库 · 1,280 题</span>
+            </div>
+            <div style="margin-top: 4px;">
+              <div class="bank-progress-bar"><div class="bank-progress-fill"></div></div>
+              <div class="bank-progress-text">
+                <span>正在解析：通信原理题库.xlsx（31/50 批）</span>
+                <button class="bank-progress-cancel">取消</button>
+              </div>
+            </div>
+            <div class="list-item" style="margin-top: 12px;">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">计算机网络期末题库.xlsx</div>
+                  <div class="list-item-meta">820 题 · 2026-07-10 导入</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="action-btn action-view">查看</button>
+                  <button class="action-btn action-export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>导出</button>
+                  <button class="action-btn action-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="switch-row" style="margin-bottom: 12px;">
+              <h2>历史记录</h2>
+              <div style="display:flex; gap:6px;">
+                <button class="action-btn action-export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>导出</button>
+                <button class="action-btn action-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>清空</button>
+              </div>
+            </div>
+            <div class="hint" style="margin-bottom: 12px;">每次分析完成后自动保存，最多保留 50 条</div>
+            <div class="list-item">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">计算机网络期末模拟卷（一）</div>
+                  <div class="list-item-meta">2026-07-18 14:32 · 20 题 · 已完成 20 题</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="action-btn action-view">查看</button>
+                  <button class="action-btn action-delete">删除</button>
+                </div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">通信原理在线作业 第 3 章</div>
+                  <div class="list-item-meta">2026-07-17 09:15 · 12 题 · 已完成 11 题 · 1 题出错</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="action-btn action-view">查看</button>
+                  <button class="action-btn action-delete">删除</button>
+                </div>
+              </div>
+            </div>
+            <div class="pagination">
+              <button class="page-btn" disabled>上一页</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <span class="page-info">共 28 条</span>
+              <button class="page-btn">下一页</button>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Section 4 · 抽屉 ================= -->
+  <section class="demo-section">
+    <div class="demo-section-title"><span class="demo-num">04</span><h2>抽屉 Drawer</h2></div>
+    <p class="demo-section-desc">设置页右侧滑出抽屉的四种典型内容：模型编辑、搜索服务商配置、解析规则编辑（JSON 视图）、题库/历史详情。</p>
+    <div class="demo-stage" style="justify-content: center;">
+      <div class="options-preview drawer-demo">
+
+        <!-- 抽屉 1：编辑大模型 -->
+        <div class="drawer">
+          <div class="drawer-header">
+            <div>
+              <div class="drawer-title">编辑大模型</div>
+              <div class="drawer-meta">修改模型配置，保存后立即生效</div>
+            </div>
+            <div class="drawer-header-actions">
+              <button class="btn btn-primary">保存</button>
+              <button class="btn btn-secondary">关闭</button>
+            </div>
+          </div>
+          <div class="drawer-body">
+            <div class="rule-form-group">
+              <label>模型展示名称 <span style="color:var(--color-error-text);">*</span></label>
+              <input type="text" value="DeepSeek-V3" placeholder="自动生成：主站名/模型ID">
+              <div class="hint">用于区分不同模型配置，需全局唯一</div>
+            </div>
+
+            <div class="rule-form-section">API 配置</div>
+
+            <div class="rule-form-group">
+              <label>API 格式</label>
+              <div class="segmented-control">
+                <button class="seg-active">OpenAI</button>
+                <button>Anthropic</button>
+              </div>
+              <div class="hint">根据 API 服务商提供的请求格式设置</div>
+            </div>
+
+            <div class="rule-form-group">
+              <label>API 基础 URL <span style="color:var(--color-error-text);">*</span></label>
+              <input type="text" value="https://api.deepseek.com/v1" placeholder="https://api.deepseek.com/v1">
+              <div class="hint">例如：https://api.deepseek.com/v1、https://api.openai.com/v1</div>
+            </div>
+
+            <div class="rule-form-group">
+              <label>API Key <span style="color:var(--color-error-text);">*</span></label>
+              <div class="input-wrapper">
+                <input type="password" value="sk-••••••••••••••••••••">
+                <button type="button" class="toggle-visible">显示</button>
+              </div>
+              <div class="hint">您的 API 密钥仅存储在本地浏览器中</div>
+            </div>
+
+            <div class="rule-form-group">
+              <label>模型 ID <span style="color:var(--color-error-text);">*</span></label>
+              <input type="text" value="deepseek-chat" placeholder="deepseek-v4-pro">
+              <div class="hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</div>
+            </div>
+
+            <div class="rule-form-section">测试连接</div>
+            <div class="rule-form-group">
+              <textarea rows="3" placeholder="输入测试文本" style="width:100%;resize:vertical;">请回复 OK</textarea>
+              <button type="button" class="btn btn-primary" style="width:100%;margin-top:8px;">测试连接</button>
+              <div class="hint" style="margin-top:8px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 抽屉 2：搜索服务商配置 -->
+        <div class="drawer">
+          <div class="drawer-header">
+            <div>
+              <div class="drawer-title">配置 - Tavily</div>
+              <div class="drawer-meta">面向 AI 的搜索 API · 需要 API Key</div>
+            </div>
+            <div class="drawer-header-actions">
+              <button class="btn btn-primary">保存</button>
+              <button class="btn btn-secondary">关闭</button>
+            </div>
+          </div>
+          <div class="drawer-body">
+            <div class="rule-form-section">服务商信息</div>
+            <div class="rule-form-group">
+              <label>服务商名称</label>
+              <input type="text" disabled value="Tavily">
+            </div>
+
+            <div class="rule-form-section">API 配置</div>
+
+            <div class="rule-form-group">
+              <label>搜索 API URL<span style="color:var(--color-error-text);">*</span></label>
+              <input type="text" value="https://api.tavily.com/search" placeholder="搜索 API 的请求地址">
+            </div>
+
+            <div class="rule-form-group">
+              <label>API Key <span style="color:var(--color-error-text);">*</span></label>
+              <div class="input-wrapper">
+                <input type="password" placeholder="请输入 API Key">
+                <button type="button" class="toggle-visible">显示</button>
+              </div>
+              <div class="hint">您的 API 密钥仅存储在本地浏览器中</div>
+            </div>
+
+            <div class="rule-form-group">
+              <label>每月可执行次数</label>
+              <input type="number" min="0" max="9999" value="500">
+              <div class="hint">达到上限后使用将不再进行搜索服务。设为 0 表示不限制</div>
+            </div>
+
+            <div class="rule-form-section">测试搜索</div>
+            <div class="rule-form-group">
+              <textarea rows="2" placeholder="输入测试搜索词" style="width:100%;resize:vertical;">人工智能最新进展</textarea>
+              <button type="button" class="btn btn-primary" style="width:100%;margin-top:8px;">测试搜索</button>
+              <div class="hint" style="margin-top:8px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 抽屉 3：编辑解析规则（表单 + JSON 视图） -->
+        <div class="drawer">
+          <div class="drawer-header">
+            <div>
+              <div class="drawer-title">编辑解析规则</div>
+              <div class="drawer-meta">exam.example.com</div>
+            </div>
+            <div class="drawer-header-actions">
+              <button class="btn btn-primary">保存</button>
+              <button class="btn btn-secondary">关闭</button>
+            </div>
+          </div>
+          <div class="drawer-body">
+            <div class="rule-view-header">
+              <div class="segmented-control">
+                <button class="seg-active">表单</button>
+                <button>JSON</button>
+              </div>
+              <button class="rule-copy-btn" style="display:none;">复制</button>
+            </div>
+
+            <!-- 表单视图（默认显示） -->
+            <div id="ruleViewForm">
+              <div class="rule-form-group">
+                <label>生效域名</label>
+                <input type="text" value="exam.example.com" placeholder="example.com">
+              </div>
+              <div class="rule-form-section">CSS 选择器配置</div>
+              <div class="rule-form-group">
+                <label>根容器选择器（每行一个）</label>
+                <textarea rows="2">.question-item</textarea>
+              </div>
+              <div class="rule-form-group">
+                <label>题目项选择器</label>
+                <input type="text" value=".question-item" placeholder=".question-type-item">
+              </div>
+              <div class="rule-form-group">
+                <label>题型标题选择器（可选）</label>
+                <input type="text" placeholder=".h3.m-bottom">
+              </div>
+              <div class="rule-form-group">
+                <label>题干选择器（每行一个）</label>
+                <textarea rows="2">.q-title</textarea>
+              </div>
+              <div class="rule-form-group">
+                <label>选项容器选择器（每行一个）</label>
+                <textarea rows="2">.option-list</textarea>
+              </div>
+              <div class="rule-form-group">
+                <label>选项元素选择器</label>
+                <input type="text" value="li" placeholder="dd">
+              </div>
+              <div class="rule-form-group">
+                <label>选项编号选择器（可选）</label>
+                <input type="text" placeholder=".option-num">
+              </div>
+              <div class="rule-form-section">题型指示器（class 名关键词，逗号分隔）</div>
+              <div class="hint" style="margin-bottom:8px;">题目元素或其父元素的 class 包含这些关键词时，优先据此判断题型</div>
+              <div class="rule-form-group">
+                <label>单选指示器</label>
+                <input type="text" placeholder="singleContainer, singleChoice">
+              </div>
+              <div class="rule-form-group">
+                <label>多选指示器</label>
+                <input type="text" placeholder="multipleContainer, multipleChoice">
+              </div>
+              <div class="rule-form-group">
+                <label>判断指示器</label>
+                <input type="text" placeholder="judgeContainer, true-false">
+              </div>
+              <div class="rule-form-section">文本降级选择器</div>
+              <div class="rule-form-group">
+                <label>降级文本选择器（每行一个）</label>
+                <textarea rows="3"></textarea>
+              </div>
+              <div class="rule-form-section">题型检测关键词</div>
+              <div class="rule-form-group">
+                <label>多选题关键词（逗号分隔）</label>
+                <input type="text" placeholder="多选, 以下哪些, 至少选">
+              </div>
+              <div class="rule-form-group">
+                <label>判断题关键词（逗号分隔）</label>
+                <input type="text" placeholder="正确, 错误, 对, 错">
+              </div>
+              <div class="rule-form-group">
+                <label>填空题关键词（逗号分隔）</label>
+                <input type="text" placeholder="___, 【, 填空">
+              </div>
+            </div>
+
+            <!-- JSON 视图（默认隐藏） -->
+            <div id="ruleViewJson" class="rule-json" style="display:none;">
+              <div class="rule-form-group">
+                <label>规则 JSON</label>
+                <div class="rule-json-editor"><span class="json-punctuation">{</span>
+  <span class="json-key">"domain"</span><span class="json-punctuation">:</span> <span class="json-string">"exam.example.com"</span><span class="json-punctuation">,</span>
+  <span class="json-key">"selectors"</span><span class="json-punctuation">:</span> <span class="json-punctuation">{</span>
+    <span class="json-key">"rootSelectors"</span><span class="json-punctuation">:</span> [<span class="json-string">".question-item"</span>]<span class="json-punctuation">,</span>
+    <span class="json-key">"questionTextSelectors"</span><span class="json-punctuation">:</span> [<span class="json-string">".q-title"</span>]<span class="json-punctuation">,</span>
+    <span class="json-key">"optionContainerSelectors"</span><span class="json-punctuation">:</span> [<span class="json-string">".option-list"</span>]<span class="json-punctuation">,</span>
+    <span class="json-key">"optionItemSelector"</span><span class="json-punctuation">:</span> <span class="json-string">"li"</span>
+  <span class="json-punctuation">}</span><span class="json-punctuation">,</span>
+  <span class="json-key">"enabled"</span><span class="json-punctuation">:</span> <span class="json-boolean">true</span>
+<span class="json-punctuation">}</span></div>
+                <div class="hint" style="margin-top:6px;">可直接编辑 JSON；切回表单或保存时会校验格式。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 抽屉 4：题库详情 -->
+        <div class="drawer">
+          <div class="drawer-header">
+            <div>
+              <div class="drawer-title">计算机网络期末题库.xlsx</div>
+              <div class="drawer-meta">2026-07-10 导入 · 共 820 题</div>
+            </div>
+            <div class="drawer-header-actions">
+              <button class="btn btn-secondary">关闭</button>
+            </div>
+          </div>
+          <div class="drawer-body">
+            <div class="q-item">
+              <div class="q-title"><span class="q-id">1</span><span class="q-type qh-type-single">单选</span>以下关于 TCP 三次握手的说法，正确的是？</div>
+              <div class="q-label">题目</div>
+              <div class="q-text">A. 第一次握手客户端发送 ACK 包
+B. 第二次握手服务端发送 SYN+ACK 包
+C. 三次握手用于释放连接
+D. 第三次握手必须携带数据</div>
+              <div class="q-label">答案</div>
+              <div class="q-answer">B</div>
+            </div>
+            <div class="q-item">
+              <div class="q-title"><span class="q-id">2</span><span class="q-type qh-type-judge">判断</span>IPv6 地址长度为 128 位。</div>
+              <div class="q-label">答案</div>
+              <div class="q-answer">正确</div>
+            </div>
+            <div class="q-item">
+              <div class="q-title"><span class="q-id">3</span><span class="q-type qh-type-fill">填空</span>HTTP 协议默认端口号是 ____。</div>
+              <div class="q-label">答案</div>
+              <div class="q-answer">80</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// 预览页交互：全局主题切换
+(function () {
+  var html = document.documentElement;
+  var toggle = document.getElementById('demoThemeToggle');
+  toggle.addEventListener('click', function (e) {
+    var btn = e.target.closest('.theme-btn');
+    if (!btn) return;
+    var theme = btn.dataset.theme;
+    html.dataset.theme = theme === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme;
+    toggle.dataset.theme = theme;
+    toggle.querySelectorAll('.theme-btn').forEach(function (b) {
+      b.classList.toggle('active', b === btn);
+    });
+  });
+
+  // 答题面板卡片展开/收起
+  document.querySelectorAll('.qh-card-header').forEach(function (header) {
+    header.addEventListener('click', function () {
+      var body = header.parentElement.querySelector('.qh-card-body');
+      if (body) body.classList.toggle('open');
+    });
+  });
+
+  // 设置页分段控件切换
+  document.querySelectorAll('.segmented-control').forEach(function (seg) {
+    seg.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      seg.querySelectorAll('button').forEach(function (b) { b.classList.toggle('seg-active', b === btn); });
+    });
+  });
+
+  // 设置页导航高亮
+  document.querySelectorAll('.options-preview .nav-item').forEach(function (item) {
+    item.addEventListener('click', function () {
+      item.closest('.nav-list').querySelectorAll('.nav-item').forEach(function (i) {
+        i.classList.toggle('active', i === item);
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

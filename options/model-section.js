@@ -205,35 +205,64 @@ function initModels({
       await loadModels();
     } else {
       // 只更新当前 item，保留 switch 动画
-      updateModelItemDom(idx, models[idx], activeModelId);
+      updateModelItemDom(idx, models[idx], activeModelId, result.model_bank_id, result.model_extract_id);
     }
   }
 
-  function updateModelItemDom(idx, model, activeModelId) {
+  function updateModelItemDom(idx, model, activeModelId, bankModelId, extractModelId) {
     const checkbox = modelListEl.querySelector(`input[data-idx="${idx}"][data-action="toggle"]`);
     if (!checkbox) return;
     const item = checkbox.closest('.list-item');
     if (!item) return;
     const isAnswerModel = model.id === activeModelId;
+    const isBank = model.id === bankModelId;
+    const isExtract = model.id === extractModelId;
     item.classList.toggle('model-inactive', !model.isActive);
     item.classList.toggle('active', isAnswerModel);
     // 更新 badge
     const titleEl = item.querySelector('.list-item-title');
     if (titleEl) {
       const nameText = escapeHtml(model.name || '未命名');
-      titleEl.innerHTML = nameText + (isAnswerModel ? '<span class="model-badge model-preferred">答题</span>' : '');
+      let badgeHtml = '';
+      if (isAnswerModel) badgeHtml += '<span class="model-badge model-preferred">答题</span>';
+      if (isExtract) badgeHtml += '<span class="model-badge model-task-extract">页面解析</span>';
+      if (isBank) badgeHtml += '<span class="model-badge model-task-bank">题库解析</span>';
+      titleEl.innerHTML = nameText + badgeHtml;
     }
-    // 更新 footer（用于答题链接）
+    // 重建 footer（包含全部三个操作链接）
     const existingFooter = item.querySelector('.list-item-footer');
+    const footerButtons = [];
     if (!isAnswerModel && model.isActive) {
-      if (!existingFooter) {
-        const footer = document.createElement('div');
-        footer.className = 'list-item-footer';
-        footer.innerHTML = '<button class="action-link" data-idx="' + idx + '" data-action="set-answer">用于答题</button>';
-        item.appendChild(footer);
-      }
+      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">用于答题</button>');
+    }
+    if (!isExtract && model.isActive) {
+      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">用于页面解析</button>');
+    }
+    if (!isBank && model.isActive) {
+      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">用于题库解析</button>');
+    }
+    if (existingFooter && footerButtons.length > 0) {
+      existingFooter.innerHTML = footerButtons.join('');
+    } else if (!existingFooter && footerButtons.length > 0) {
+      const footer = document.createElement('div');
+      footer.className = 'list-item-footer';
+      footer.innerHTML = footerButtons.join('');
+      item.appendChild(footer);
     } else if (existingFooter) {
       existingFooter.remove();
+    }
+    // 重新绑定 footer 按钮事件
+    const answerBtn = item.querySelector('[data-action="set-answer"]');
+    if (answerBtn) {
+      answerBtn.addEventListener('click', () => setAnswerModel(idx));
+    }
+    const extractBtn = item.querySelector('[data-action="set-extract"]');
+    if (extractBtn) {
+      extractBtn.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', '页面解析'));
+    }
+    const bankBtn = item.querySelector('[data-action="set-bank"]');
+    if (bankBtn) {
+      bankBtn.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', '题库解析'));
     }
   }
 
@@ -329,7 +358,7 @@ function initModels({
       <div class="rule-form-section">测试连接</div>
       <div class="rule-form-group">
         <textarea id="model-testText" placeholder="输入测试文本" rows="3" style="width:100%;box-sizing:border-box;resize:vertical;">请回复 OK</textarea>
-        <button type="button" class="btn-secondary" id="model-testBtn" style="width:100%;margin-top:8px;">测试连接</button>
+        <button type="button" class="btn-primary" id="model-testBtn" style="width:100%;margin-top:8px;">测试连接</button>
         <div class="hint" id="model-testResult" style="margin-top:8px;white-space:pre-wrap;word-break:break-all;"></div>
       </div>
     `;

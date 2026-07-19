@@ -48,7 +48,7 @@
 
   const STATUS_LABELS = {
     pending: '待分析',
-    loading: '分析中...',
+    loading: '作答中',
     done: '已完成',
     error: '出错'
   };

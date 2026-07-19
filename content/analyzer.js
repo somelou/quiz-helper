@@ -534,21 +534,21 @@
     if (!aiSelectors) return existing;
 
     return {
-      rootSelectors: aiSelectors.rootSelector
+      rootSelectors: isValidCSSSelector(aiSelectors.rootSelector)
         ? mergeArray(existing.rootSelectors, [aiSelectors.rootSelector])
         : existing.rootSelectors,
       questionItemSelector: isValidCSSSelector(aiSelectors.questionItemSelector) ? aiSelectors.questionItemSelector : (existing.questionItemSelector || ''),
-      typeHeadingSelector: aiSelectors.typeHeadingSelector !== undefined
+      typeHeadingSelector: isValidCSSSelector(aiSelectors.typeHeadingSelector)
         ? aiSelectors.typeHeadingSelector
         : (existing.typeHeadingSelector || ''),
-      questionTextSelectors: aiSelectors.questionTextSelector
+      questionTextSelectors: isValidCSSSelector(aiSelectors.questionTextSelector)
         ? mergeArray(existing.questionTextSelectors, [aiSelectors.questionTextSelector])
         : existing.questionTextSelectors,
-      optionContainerSelectors: aiSelectors.optionContainerSelector
+      optionContainerSelectors: isValidCSSSelector(aiSelectors.optionContainerSelector)
         ? mergeArray(existing.optionContainerSelectors, [aiSelectors.optionContainerSelector])
         : existing.optionContainerSelectors,
       optionItemSelector: isValidCSSSelector(aiSelectors.optionItemSelector) ? aiSelectors.optionItemSelector : (existing.optionItemSelector || ''),
-      optionNumberSelector: aiSelectors.optionNumberSelector !== undefined
+      optionNumberSelector: isValidCSSSelector(aiSelectors.optionNumberSelector)
         ? aiSelectors.optionNumberSelector
         : (existing.optionNumberSelector || ''),
       typeIndicators: aiSelectors.typeIndicators
@@ -597,19 +597,19 @@
       timestamp: Date.now(),
       useCount: 1,
       selectors: {
-        rootSelectors: responseSelectors.rootSelector
+        rootSelectors: isValidCSSSelector(responseSelectors.rootSelector)
           ? [responseSelectors.rootSelector]
           : ['.main-padding-content', 'main', '#content'],
         questionItemSelector: isValidCSSSelector(responseSelectors.questionItemSelector) ? responseSelectors.questionItemSelector : '.question-type-item',
-        typeHeadingSelector: responseSelectors.typeHeadingSelector || '',
-        questionTextSelectors: responseSelectors.questionTextSelector
+        typeHeadingSelector: isValidCSSSelector(responseSelectors.typeHeadingSelector) ? responseSelectors.typeHeadingSelector : '',
+        questionTextSelectors: isValidCSSSelector(responseSelectors.questionTextSelector)
           ? [responseSelectors.questionTextSelector]
           : ['.question', '[data-region="content"]'],
-        optionContainerSelectors: responseSelectors.optionContainerSelector
+        optionContainerSelectors: isValidCSSSelector(responseSelectors.optionContainerSelector)
           ? [responseSelectors.optionContainerSelector]
           : state.DEFAULT_SELECTORS.optionContainerSelectors,
         optionItemSelector: isValidCSSSelector(responseSelectors.optionItemSelector) ? responseSelectors.optionItemSelector : (state.DEFAULT_SELECTORS.optionItemSelector || 'dd'),
-        optionNumberSelector: responseSelectors.optionNumberSelector || state.DEFAULT_SELECTORS.optionNumberSelector || '.option-num',
+        optionNumberSelector: isValidCSSSelector(responseSelectors.optionNumberSelector) ? responseSelectors.optionNumberSelector : (state.DEFAULT_SELECTORS.optionNumberSelector || '.option-num'),
         typeIndicators: responseSelectors.typeIndicators || state.DEFAULT_SELECTORS.typeIndicators,
         fallbackTextSelectors: state.DEFAULT_SELECTORS.fallbackTextSelectors
       },

@@ -2,252 +2,262 @@
 
 :root, :host {
   /* ---- 主色系 ---- */
-  --color-primary: #4f6ef7;
-  --color-primary-dark: #3b5bdb;
-  --color-primary-gradient: linear-gradient(135deg, #4f6ef7 0%, #7950f2 100%);
-  --color-primary-bg: rgba(79, 110, 247, 0.08);
-  --color-primary-light: #8c9eff;
+  --color-primary: #4f46e5;
+  --color-primary-dark: #4338ca;
+  --color-primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --color-primary-bg: rgba(99, 102, 241, 0.09);
+  --color-primary-light: #a5b4fc;
 
   /* ---- 语义色 ---- */
-  --color-success: #2e7d32;
-  --color-success-bg: #e8f5e9;
-  --color-error: #d32f2f;
-  --color-error-text: #c62828;
-  --color-error-bg: #ffebee;
-  --color-info: #1565c0;
-  --color-info-bg: #e3f2fd;
-  --color-warning: #e65100;
-  --color-warning-bg: #fff3e0;
+  --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-error: #dc2626;
+  --color-error-text: #dc2626;
+  --color-error-bg: #fef2f2;
+  --color-info: #0284c7;
+  --color-info-bg: #f0f9ff;
+  --color-warning: #d97706;
+  --color-warning-bg: #fffbeb;
 
-  /* ---- 中性色 ---- */
+  /* ---- 中性色（slate 系） ---- */
   --color-bg: #ffffff;
-  --color-bg-secondary: #f8f9fa;
-  --color-surface: #fafafa;
-  --color-surface-hover: #f0f0f0;
-  --color-border: #eeeeee;
-  --color-border-light: #e0e0e0;
-  --color-border-focus: #667eea;
+  --color-bg-secondary: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f4f4f5;
+  --color-border: #e8e8ec;
+  --color-border-light: #eeeef2;
+  --color-border-focus: #6366f1;
 
-  --color-text: #333333;
-  --color-text-heading: #333333;
-  --color-text-secondary: #444444;
-  --color-text-muted: #888888;
-  --color-text-label: #444444;
+  --color-text: #18181b;
+  --color-text-heading: #18181b;
+  --color-text-secondary: #3f3f46;
+  --color-text-muted: #71717a;
+  --color-text-label: #3f3f46;
 
   --color-input-bg: #ffffff;
-  --color-input-border: #dddddd;
-  --color-input-text: #333333;
+  --color-input-border: #e4e4e7;
+  --color-input-text: #18181b;
 
-  --color-btn-secondary-bg: #f0f0f0;
-  --color-btn-secondary-text: #333333;
+  --color-btn-secondary-bg: #f4f4f5;
+  --color-btn-secondary-text: #3f3f46;
 
-  --color-toggle-bg: #f0f0f0;
-  --color-toggle-btn: #888888;
-  --color-toggle-btn-hover: #555555;
+  --color-toggle-bg: #f0f0f3;
+  --color-toggle-btn: #71717a;
+  --color-toggle-btn-hover: #3f3f46;
   --color-toggle-slider-bg: #ffffff;
-  --color-toggle-slider-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --color-toggle-slider-shadow: 0 1px 4px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
 
-  --color-switch-off: #cfd3df;
-  --color-shortcut-bg: #f8f9fc;
-  --color-shortcut-border: #e6e8f0;
+  --color-switch-off: #d4d4d8;
+  --color-shortcut-bg: #f8fafc;
+  --color-shortcut-border: #e8e8ec;
 
-  --color-drawer-overlay: rgba(17, 24, 39, 0.45);
+  --color-drawer-overlay: rgba(9, 9, 11, 0.4);
   --color-drawer-bg: #ffffff;
-  --color-drawer-shadow: -8px 0 28px rgba(0,0,0,0.14);
-  --color-drawer-close-bg: #f3f4f6;
+  --color-drawer-shadow: -12px 0 40px rgba(0,0,0,0.12);
+  --color-drawer-close-bg: #f4f4f5;
 
-  --color-rule-view-toggle-bg: #f0f0f0;
-  --color-rule-view-toggle-border: #e6e8f0;
+  --color-rule-view-toggle-bg: #f0f0f3;
+  --color-rule-view-toggle-border: #e8e8ec;
   --color-rule-view-btn-active-bg: #ffffff;
-  --color-rule-view-btn-active-text: #333333;
+  --color-rule-view-btn-active-text: #18181b;
 
-  --color-q-id-bg: #667eea;
+  --color-q-id-bg: #6366f1;
   --color-q-id-text: #ffffff;
 
-  --color-type-single-bg: #e3f2fd;
-  --color-type-single-text: #1565c0;
-  --color-type-multiple-bg: #f3e5f5;
-  --color-type-multiple-text: #6a1b9a;
-  --color-type-judge-bg: #e8f5e9;
-  --color-type-judge-text: #2e7d32;
-  --color-type-fill-bg: #fff3e0;
-  --color-type-fill-text: #e65100;
-  --color-type-unknown-bg: #f5f5f5;
-  --color-type-unknown-text: #616161;
+  --color-type-single-bg: #eef2ff;
+  --color-type-single-text: #4f46e5;
+  --color-type-multiple-bg: #faf5ff;
+  --color-type-multiple-text: #9333ea;
+  --color-type-judge-bg: #f0fdf4;
+  --color-type-judge-text: #16a34a;
+  --color-type-fill-bg: #fff7ed;
+  --color-type-fill-text: #ea580c;
+  --color-type-unknown-bg: #f4f4f5;
+  --color-type-unknown-text: #71717a;
 
   --color-panel-header-text: #ffffff;
 
-  /* ---- 操作按钮色（view/edit/export/delete 等小按钮） ---- */
-  --color-btn-action-bg: #e3f2fd;
-  --color-btn-action-text: #1565c0;
-  --color-btn-export-bg: #e8f5e9;
-  --color-btn-export-text: #2e7d32;
-  --color-btn-danger-bg: #ffebee;
-  --color-btn-danger-text: #c62828;
+  /* ---- 操作按钮色 ---- */
+  --color-btn-action-bg: #eef2ff;
+  --color-btn-action-text: #4f46e5;
+  --color-btn-export-bg: #f0fdf4;
+  --color-btn-export-text: #16a34a;
+  --color-btn-danger-bg: #fef2f2;
+  --color-btn-danger-text: #dc2626;
 
   /* ---- 圆角 ---- */
-  --radius-sm: 4px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
+  --radius-xl: 14px;
   --radius-full: 999px;
-  --radius-xs: 3px;
-  --radius-toggle: 6px;
+  --radius-toggle: 7px;
   --radius-drawer: 10px;
 
   /* ---- 字号 ---- */
   --font-xs: 11px;
   --font-sm: 12px;
   --font-md: 13px;
-  --font-lg: 16px;
-  --font-xl: 20px;
-  --font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-lg: 15px;
+  --font-xl: 18px;
+  --font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* ---- 阴影 ---- */
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.04);
-  --shadow-md: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.05);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.08);
+  --shadow-primary: 0 2px 8px rgba(99, 102, 241, 0.28);
   --shadow-toggle-active: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-drawer: -8px 0 28px rgba(0,0,0,0.14);
 
   /* ---- 过渡 ---- */
-  --transition-fast: 0.15s;
-  --transition-normal: 0.2s;
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
   --transition-toggle: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ===== 暗色模式 (popup + options 页面) ===== */
 body.dark {
-  --color-primary: #4f6ef7;
-  --color-primary-light: #8c9eff;
-  --color-primary-bg: rgba(79, 110, 247, 0.18);
+  --color-primary: #818cf8;
+  --color-primary-dark: #6366f1;
+  --color-primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --color-primary-bg: rgba(129, 140, 248, 0.14);
+  --color-primary-light: #a5b4fc;
 
-  --color-success: #81c784;
-  --color-success-bg: #1a3a1a;
-  --color-error: #ef5350;
+  --color-success: #4ade80;
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-error: #f87171;
   --color-error-text: #f87171;
-  --color-error-bg: #3a1a1a;
-  --color-info: #60a5fa;
-  --color-info-bg: #374151;
-  --color-warning: #ffb74d;
+  --color-error-bg: rgba(239, 68, 68, 0.12);
+  --color-info: #38bdf8;
+  --color-info-bg: rgba(56, 189, 248, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.12);
 
-  --color-bg: #1e1e1e;
-  --color-bg-secondary: #1a1a1a;
-  --color-surface: #2a2a2a;
-  --color-surface-hover: #333333;
-  --color-border: #3a3a3a;
-  --color-border-light: #3a3a3a;
-  --color-border-focus: #667eea;
+  --color-bg: #131419;
+  --color-bg-secondary: #0f1115;
+  --color-surface: #1a1c22;
+  --color-surface-hover: #22242c;
+  --color-border: #2a2d36;
+  --color-border-light: #262931;
+  --color-border-focus: #818cf8;
 
-  --color-text: #cccccc;
-  --color-text-heading: #e0e0e0;
-  --color-text-secondary: #bbbbbb;
-  --color-text-muted: #777777;
-  --color-text-label: #bbbbbb;
+  --color-text: #e4e4e7;
+  --color-text-heading: #f4f4f5;
+  --color-text-secondary: #c8c9cf;
+  --color-text-muted: #8b8e98;
+  --color-text-label: #c8c9cf;
 
-  --color-input-bg: #333333;
-  --color-input-border: #555555;
-  --color-input-text: #cccccc;
+  --color-input-bg: #1f222a;
+  --color-input-border: #34373f;
+  --color-input-text: #e4e4e7;
 
-  --color-btn-secondary-bg: #444444;
-  --color-btn-secondary-text: #cccccc;
+  --color-btn-secondary-bg: #2a2d36;
+  --color-btn-secondary-text: #d4d4d8;
 
-  --color-toggle-bg: #333333;
-  --color-toggle-btn: #888888;
-  --color-toggle-btn-hover: #bbbbbb;
-  --color-toggle-slider-bg: #444444;
-  --color-toggle-slider-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --color-toggle-bg: #22242c;
+  --color-toggle-btn: #8b8e98;
+  --color-toggle-btn-hover: #c8c9cf;
+  --color-toggle-slider-bg: #34373f;
+  --color-toggle-slider-shadow: 0 1px 3px rgba(0,0,0,0.4);
 
-  --color-switch-off: #555555;
-  --color-shortcut-bg: #2a2a2a;
-  --color-shortcut-border: #3a3a3a;
+  --color-switch-off: #3f424c;
+  --color-shortcut-bg: #1a1c22;
+  --color-shortcut-border: #2a2d36;
 
-  --color-drawer-overlay: rgba(17, 24, 39, 0.6);
-  --color-drawer-bg: #242424;
-  --color-drawer-shadow: -8px 0 28px rgba(0,0,0,0.4);
-  --color-drawer-close-bg: #444444;
+  --color-drawer-overlay: rgba(0, 0, 0, 0.55);
+  --color-drawer-bg: #1a1c22;
+  --color-drawer-shadow: -12px 0 40px rgba(0,0,0,0.5);
+  --color-drawer-close-bg: #2a2d36;
 
-  --color-rule-view-toggle-bg: #2a2a2a;
-  --color-rule-view-toggle-border: #3a3a3a;
-  --color-rule-view-btn-active-bg: #333333;
-  --color-rule-view-btn-active-text: #e0e0e0;
+  --color-rule-view-toggle-bg: #22242c;
+  --color-rule-view-toggle-border: #2a2d36;
+  --color-rule-view-btn-active-bg: #34373f;
+  --color-rule-view-btn-active-text: #f4f4f5;
 
-  --color-q-id-bg: #667eea;
+  --color-q-id-bg: #6366f1;
   --color-q-id-text: #ffffff;
 
-  --color-type-single-bg: #1a2a44;
-  --color-type-single-text: #64b5f6;
-  --color-type-multiple-bg: #2a1a3a;
-  --color-type-multiple-text: #ce93d8;
-  --color-type-judge-bg: #1a2e1a;
-  --color-type-judge-text: #81c784;
-  --color-type-fill-bg: #2e2210;
-  --color-type-fill-text: #ffb74d;
-  --color-type-unknown-bg: #333333;
-  --color-type-unknown-text: #999999;
+  --color-type-single-bg: rgba(99, 102, 241, 0.16);
+  --color-type-single-text: #a5b4fc;
+  --color-type-multiple-bg: rgba(147, 51, 234, 0.16);
+  --color-type-multiple-text: #d8b4fe;
+  --color-type-judge-bg: rgba(34, 197, 94, 0.14);
+  --color-type-judge-text: #4ade80;
+  --color-type-fill-bg: rgba(234, 88, 12, 0.16);
+  --color-type-fill-text: #fdba74;
+  --color-type-unknown-bg: #2a2d36;
+  --color-type-unknown-text: #8b8e98;
 
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.2);
-  --shadow-md: 0 2px 12px rgba(0,0,0,0.3);
-  --shadow-toggle-active: 0 1px 3px rgba(0,0,0,0.35);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.25);
+  --shadow-md: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.25);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,0.2), 0 12px 32px rgba(0,0,0,0.35);
+  --shadow-primary: 0 2px 8px rgba(99, 102, 241, 0.35);
+  --shadow-toggle-active: 0 1px 3px rgba(0,0,0,0.4);
 
-  /* ---- 操作按钮暗色（保持原配色） ---- */
-  --color-btn-action-bg: #374151;
-  --color-btn-action-text: #60a5fa;
-  --color-btn-export-bg: #374151;
+  /* ---- 操作按钮暗色 ---- */
+  --color-btn-action-bg: #2a2d36;
+  --color-btn-action-text: #a5b4fc;
+  --color-btn-export-bg: #2a2d36;
   --color-btn-export-text: #4ade80;
-  --color-btn-danger-bg: #374151;
+  --color-btn-danger-bg: #2a2d36;
   --color-btn-danger-text: #f87171;
 }
 
 /* ===== 暗色模式 (content panel Shadow DOM) ===== */
 :host(.dark) {
-  --color-primary: #4f6ef7;
-  --color-primary-light: #8c9eff;
-  --color-primary-bg: rgba(79, 110, 247, 0.18);
+  --color-primary: #818cf8;
+  --color-primary-dark: #6366f1;
+  --color-primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --color-primary-bg: rgba(129, 140, 248, 0.14);
+  --color-primary-light: #a5b4fc;
 
-  --color-success: #81c784;
-  --color-success-bg: #1a3a1a;
-  --color-error: #ef5350;
+  --color-success: #4ade80;
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-error: #f87171;
   --color-error-text: #f87171;
-  --color-error-bg: #3a1a1a;
-  --color-info: #60a5fa;
-  --color-info-bg: #374151;
-  --color-warning: #ffb74d;
-  --color-warning-bg: #2e2210;
+  --color-error-bg: rgba(239, 68, 68, 0.12);
+  --color-info: #38bdf8;
+  --color-info-bg: rgba(56, 189, 248, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.12);
 
-  --color-bg: #1e1e1e;
-  --color-bg-secondary: #252525;
-  --color-surface: #2a2a2a;
-  --color-surface-hover: #333333;
-  --color-border: #3a3a3a;
+  --color-bg: #131419;
+  --color-bg-secondary: #0f1115;
+  --color-surface: #1a1c22;
+  --color-surface-hover: #22242c;
+  --color-border: #2a2d36;
+  --color-border-light: #262931;
 
-  --color-text: #cccccc;
-  --color-text-heading: #cccccc;
-  --color-text-secondary: #bbbbbb;
-  --color-text-muted: #888888;
+  --color-text: #e4e4e7;
+  --color-text-heading: #f4f4f5;
+  --color-text-secondary: #c8c9cf;
+  --color-text-muted: #8b8e98;
 
-  --color-input-bg: #333333;
-  --color-input-border: #555555;
-  --color-input-text: #cccccc;
+  --color-input-bg: #1f222a;
+  --color-input-border: #34373f;
+  --color-input-text: #e4e4e7;
 
-  --color-btn-secondary-bg: #444444;
-  --color-btn-secondary-text: #cccccc;
+  --color-btn-secondary-bg: #2a2d36;
+  --color-btn-secondary-text: #d4d4d8;
 
-  --color-toggle-bg: #333333;
-  --color-toggle-btn: #888888;
-  --color-toggle-btn-hover: #bbbbbb;
-  --color-toggle-slider-bg: #444444;
-  --color-toggle-slider-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --color-toggle-bg: #22242c;
+  --color-toggle-btn: #8b8e98;
+  --color-toggle-btn-hover: #c8c9cf;
+  --color-toggle-slider-bg: #34373f;
+  --color-toggle-slider-shadow: 0 1px 3px rgba(0,0,0,0.4);
 
-  --color-type-single-bg: #1a2a44;
-  --color-type-single-text: #64b5f6;
-  --color-type-multiple-bg: #2a1a3a;
-  --color-type-multiple-text: #ce93d8;
-  --color-type-judge-bg: #1a2e1a;
-  --color-type-judge-text: #81c784;
-  --color-type-fill-bg: #2e2210;
-  --color-type-fill-text: #ffb74d;
-  --color-type-unknown-bg: #333333;
-  --color-type-unknown-text: #999999;
+  --color-type-single-bg: rgba(99, 102, 241, 0.16);
+  --color-type-single-text: #a5b4fc;
+  --color-type-multiple-bg: rgba(147, 51, 234, 0.16);
+  --color-type-multiple-text: #d8b4fe;
+  --color-type-judge-bg: rgba(34, 197, 94, 0.14);
+  --color-type-judge-text: #4ade80;
+  --color-type-fill-bg: rgba(234, 88, 12, 0.16);
+  --color-type-fill-text: #fdba74;
+  --color-type-unknown-bg: #2a2d36;
+  --color-type-unknown-text: #8b8e98;
 
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.2);
-  --shadow-md: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.25);
+  --shadow-md: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.25);
 }
