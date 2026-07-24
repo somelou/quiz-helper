@@ -58,10 +58,104 @@ jobs:
             zip -r "../${{ steps.version.outputs.zip_name }}" .
           )
 
+      - name: Generate release notes
+        shell: bash
+        env:
+          CURRENT_TAG: ${{ steps.version.outputs.tag_name }}
+        run: |
+          set -euo pipefail
+
+          PREVIOUS_TAG="$(git tag --merged HEAD --sort=-creatordate | grep -Fxv "${CURRENT_TAG}" | head -n 1 || true)"
+          export PREVIOUS_TAG
+
+          if [[ -n "${PREVIOUS_TAG}" ]]; then
+            LOG_RANGE="${PREVIOUS_TAG}..${CURRENT_TAG}"
+          else
+            LOG_RANGE="${CURRENT_TAG}"
+          fi
+
+          git log --reverse --pretty=format:'%H%x1f%s' "${LOG_RANGE}" > dist/commit-log.txt
+
+          python3 - <<'PY'
+          import os
+          import re
+          from collections import OrderedDict
+          from pathlib import Path
+
+          current_tag = os.environ["CURRENT_TAG"]
+          previous_tag = os.environ.get("PREVIOUS_TAG", "").strip()
+          repository = os.environ["GITHUB_REPOSITORY"]
+          log_path = Path("dist/commit-log.txt")
+          notes_path = Path("dist/release-notes.md")
+
+          type_titles = OrderedDict([
+              ("feat", "新功能"),
+              ("fix", "问题修复"),
+              ("refactor", "代码重构"),
+              ("perf", "性能优化"),
+          ])
+          ignored_types = {"to", "doc", "style", "test", "chore", "sync", "revert", "merge"}
+          grouped = OrderedDict((key, []) for key in type_titles)
+          grouped["other"] = []
+
+          pattern = re.compile(r"^(?P<type>[a-z]+)(?:\((?P<scope>[^)]+)\))?:\s*(?P<subject>.+)$")
+
+          for raw_line in log_path.read_text(encoding="utf-8").splitlines():
+              if not raw_line.strip():
+                  continue
+              commit_hash, subject_line = raw_line.split("\x1f", 1)
+              match = pattern.match(subject_line.strip())
+              if match:
+                  commit_type = match.group("type")
+                  scope = match.group("scope")
+                  subject = match.group("subject").strip()
+                  if commit_type in ignored_types:
+                      continue
+                  bullet = f"- {subject} (`{commit_hash[:7]}`)"
+                  if scope:
+                      bullet = f"- [{scope}] {subject} (`{commit_hash[:7]}`)"
+                  if commit_type in grouped:
+                      grouped[commit_type].append(bullet)
+                  else:
+                      grouped["other"].append(f"- {subject_line.strip()} (`{commit_hash[:7]}`)")
+              else:
+                  grouped["other"].append(f"- {subject_line.strip()} (`{commit_hash[:7]}`)")
+
+          lines = [f"## {current_tag} 更新内容", ""]
+          if previous_tag:
+              lines.append(f"- 对比范围：`{previous_tag}..{current_tag}`")
+              lines.append(f"- **完整变更日志**: https://github.com/{repository}/compare/{previous_tag}...{current_tag}")
+          else:
+              lines.append(f"- 对比范围：仓库历史起点..`{current_tag}`")
+          lines.append("")
+
+          has_content = False
+          for commit_type, title in type_titles.items():
+              items = grouped[commit_type]
+              if not items:
+                  continue
+              has_content = True
+              lines.append(f"### {title}")
+              lines.extend(items)
+              lines.append("")
+
+          if grouped["other"]:
+              has_content = True
+              lines.append("### 其他更新")
+              lines.extend(grouped["other"])
+              lines.append("")
+
+          if not has_content:
+              lines.append("- 本次发布没有识别到可汇总的提交记录")
+              lines.append("")
+
+          notes_path.write_text("\n".join(lines), encoding="utf-8")
+          PY
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag_name }}
           name: ${{ steps.version.outputs.tag_name }}
-          generate_release_notes: true
+          body_path: dist/release-notes.md
           files: dist/${{ steps.version.outputs.zip_name }}
