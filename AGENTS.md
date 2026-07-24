@@ -6,44 +6,45 @@
 - 插件类型：Manifest V3
 - 主要技术：JavaScript、HTML、CSS
 - 默认语言：`zh_CN`
+- 插件完整运行目录位于 `src/`
 
 ## 主要入口
 
-- `manifest.json`：插件清单与运行时入口
-- `popup/popup.html` + `popup/popup.js`：浏览器工具栏弹窗
-- `options/options.html` + `options/index.js`：设置页
-- `background.js` + `background/*.js`：后台 Service Worker 与业务模块
-- `content/index.js` + `content/*.js` + `content/panel.css`：页面注入面板
+- `src/manifest.json`：插件清单与运行时入口
+- `src/popup/popup.html` + `src/popup/popup.js`：浏览器工具栏弹窗
+- `src/options/options.html` + `src/options/index.js`：设置页
+- `src/background.js` + `src/background/*.js`：后台 Service Worker 与业务模块
+- `src/content/index.js` + `src/content/*.js` + `src/content/panel.css`：页面注入面板
 
 ## 目录结构
 
-- `background/`：后台消息路由、AI 请求、题库检索、联网搜索等逻辑
-- `content/`：页面题目解析、面板 UI、分析流程
-- `options/`：设置页各分区逻辑
-- `shared/`：共享常量、存储、主题、文本与快捷键工具
-- `data/`：默认解析规则、提示词模板等静态数据
-- `popup/`：弹窗页面
+- `src/background/`：后台消息路由、AI 请求、题库检索、联网搜索等逻辑
+- `src/content/`：页面题目解析、面板 UI、分析流程
+- `src/options/`：设置页各分区逻辑
+- `src/shared/`：共享常量、存储、主题、文本与快捷键工具
+- `src/data/`：默认解析规则、提示词模板等静态数据
+- `src/popup/`：弹窗页面
 - `docs/`：项目说明文档
-- `icons/`：图标资源
-- `lib/`：第三方库
+- `src/icons/`：图标资源
+- `src/lib/`：第三方库
 
 ## 运行结构
 
-- `background.js` 是 MV3 要求的薄入口，实际逻辑位于 `background/index.js` 及其模块中。
-- `content_scripts` 由 `manifest.json` 统一配置，并按顺序注入共享脚本与内容脚本。
-- 页面通用注入样式位于 `content-styles.css`。
+- `src/background.js` 是 MV3 要求的薄入口，实际逻辑位于 `src/background/index.js` 及其模块中。
+- `content_scripts` 由 `src/manifest.json` 统一配置，并按顺序注入共享脚本与内容脚本。
+- 页面通用注入样式位于 `src/content-styles.css`。
 
 ## 关键文件
 
 - `docs/structure.md`：当前页面结构、模块职责与维护说明
-- `data/default-parse-rule.json`：默认解析规则
-- `data/prompt-templates.json`：AI 提示词模板
-- `icons.js`：SVG 图标替换逻辑
-- `shared/storage-utils.js`：存储读写工具
+- `src/data/default-parse-rule.json`：默认解析规则
+- `src/data/prompt-templates.json`：AI 提示词模板
+- `src/icons.js`：SVG 图标替换逻辑
+- `src/shared/storage-utils.js`：存储读写工具
 
 ## 当前权限
 
-定义于 `manifest.json`：
+定义于 `src/manifest.json`：
 
 - `storage`
 - `activeTab`
@@ -53,19 +54,19 @@
 
 ## Content Script 注入顺序
 
-当前 `manifest.json` 中的 `content_scripts[0].js` 顺序为：
+当前 `src/manifest.json` 中的 `content_scripts[0].js` 顺序为：
 
-1. `icons.js`
-2. `shared/constants.js`
-3. `shared/shortcut-utils.js`
-4. `shared/theme-utils.js`
-5. `shared/storage-utils.js`
-6. `shared/text-utils.js`
-7. `content/state.js`
-8. `content/dom-parser.js`
-9. `content/panel-ui.js`
-10. `content/analyzer.js`
-11. `content/index.js`
+1. `src/icons.js`
+2. `src/shared/constants.js`
+3. `src/shared/shortcut-utils.js`
+4. `src/shared/theme-utils.js`
+5. `src/shared/storage-utils.js`
+6. `src/shared/text-utils.js`
+7. `src/content/state.js`
+8. `src/content/dom-parser.js`
+9. `src/content/panel-ui.js`
+10. `src/content/analyzer.js`
+11. `src/content/index.js`
 
 如果调整共享工具或内容脚本初始化逻辑，需要同步检查这里的依赖顺序。
 
@@ -91,7 +92,7 @@
 
 ## 后台消息动作
 
-当前主要由 `background/router.js` 路由：
+当前主要由 `src/background/router.js` 路由：
 
 - `fetchAnswer`
 - `verifyBankAnswer`
@@ -103,13 +104,37 @@
 
 ## 维护建议
 
-- `options/index.js` 和 `content/index.js` 仍然是主要维护入口。
+- `src/options/index.js` 和 `src/content/index.js` 仍然是主要维护入口。
 - 页面样式主要集中在：
-  - `options/options.css`
-  - `content/panel.css`
-  - `popup/popup.css`
-- 可复用逻辑优先放入 `shared/`。
-- 固定配置与模板数据优先放入 `data/`。
+  - `src/options/options.css`
+  - `src/content/panel.css`
+  - `src/popup/popup.css`
+- 可复用逻辑优先放入 `src/shared/`。
+- 固定配置与模板数据优先放入 `src/data/`。
+
+## 发布流程
+
+如需发布离线安装包，可使用仓库内置发版脚本：
+
+```bash
+bash scripts/release-tag.sh --push
+```
+
+发版脚本会执行以下操作：
+
+- 读取 `src/manifest.json` 中的版本号
+- 自动同步 `README.md` 中的“插件版本”
+- 如有需要，自动创建 `chore(release): 发布 x.y.z` 提交
+- 创建对应的 Git tag，例如 `v2.4.2`
+- 可选自动推送当前分支和 tag
+
+GitHub 在收到 `v*` tag 后，会自动创建 Release，并上传基于 `src/` 目录打包的插件 zip 包。
+
+如果只想先检查结果、不真正创建 tag，可先执行：
+
+```bash
+bash scripts/release-tag.sh --dry-run
+```
 
 ## 语言
 
