@@ -552,6 +552,33 @@ body {
   margin-bottom: 6px;
   letter-spacing: 0.02em;
 }
+.qh-question-section .qh-section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.qh-question-section .qh-section-title-row .qh-section-title {
+  margin-bottom: 0;
+}
+.qh-question-section .qh-copy-btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-toggle);
+  font-family: inherit;
+  padding: 2px 8px;
+  font-size: 11px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.qh-question-section .qh-copy-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
 .qh-question-text {
   user-select: text;
   background: var(--color-bg-secondary);
@@ -1115,14 +1142,22 @@ body {
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
 }
+.drawer-body .q-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
 .drawer-body .q-title {
   font-size: var(--font-md);
   font-weight: 600;
   color: var(--color-text);
-  margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
 }
 .drawer-body .q-id {
   display: inline-block;
@@ -1135,6 +1170,24 @@ body {
   border-radius: var(--radius-sm);
 }
 .drawer-body .q-type { display: inline-block; font-size: 11px; line-height: 1; padding: 4px 8px; border-radius: var(--radius-sm); }
+.drawer-body .q-copy-btn {
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-toggle);
+  font-family: inherit;
+  padding: 4px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.drawer-body .q-copy-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
 .drawer-body .q-label { font-size: 11px; font-weight: 600; color: var(--color-text-muted); margin-bottom: 4px; }
 .drawer-body .q-text {
   color: var(--color-text-secondary);
@@ -1384,7 +1437,10 @@ body {
             </div>
             <div class="qh-card-body open">
               <div class="qh-question-section">
-                <div class="qh-section-title">题目</div>
+                <div class="qh-section-title-row">
+                  <div class="qh-section-title">题目</div>
+                  <button class="qh-copy-btn" type="button">复制</button>
+                </div>
                 <div class="qh-question-text">以下关于 TCP 三次握手的说法，正确的是？<br>A. 第一次握手客户端发送 ACK 包<br>B. 第二次握手服务端发送 SYN+ACK 包<br>C. 三次握手用于释放连接<br>D. 第三次握手必须携带数据</div>
               </div>
               <div class="qh-answer-section">
@@ -1437,7 +1493,17 @@ body {
               <span class="qh-card-status qh-status-loading">作答中</span>
             </div>
             <div class="qh-card-body">
-              <div class="qh-loading-text">正在生成答案…</div>
+              <div class="qh-question-section">
+                <div class="qh-section-title-row">
+                  <div class="qh-section-title">题目</div>
+                  <button class="qh-copy-btn" type="button">复制</button>
+                </div>
+                <div class="qh-question-text">以下哪些属于常见的 HTTP 状态码分类？<br>A. 1xx<br>B. 2xx<br>C. 3xx<br>D. 5xx</div>
+              </div>
+              <div class="qh-answer-section">
+                <div class="qh-section-title">参考答案</div>
+                <div class="qh-answer-text"><span class="qh-loading-text">正在生成答案…</span></div>
+              </div>
             </div>
           </div>
 
@@ -1450,7 +1516,17 @@ body {
               <span class="qh-card-status qh-status-pending">待分析</span>
             </div>
             <div class="qh-card-body">
-              <div class="qh-loading-text">待分析</div>
+              <div class="qh-question-section">
+                <div class="qh-section-title-row">
+                  <div class="qh-section-title">题目</div>
+                  <button class="qh-copy-btn" type="button">复制</button>
+                </div>
+                <div class="qh-question-text">IPv6 地址长度为 128 位。<br>对<br>错</div>
+              </div>
+              <div class="qh-answer-section">
+                <div class="qh-section-title">参考答案</div>
+                <div class="qh-answer-text"><span class="qh-loading-text">待分析</span></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1469,7 +1545,7 @@ body {
 
       <div style="display:flex; flex-direction:column; gap:24px; align-items:center;">
         <div class="demo-frame-label" style="margin-bottom:-8px;">最小化悬浮球</div>
-        <div class="qh-mini-bar"><img src="icons/icon48.png" alt="题目助手"></div>
+        <div class="qh-mini-bar"><img src="../icons/icon48.png" alt="题目助手"></div>
         <div class="demo-frame-label" style="margin-bottom:-8px;">空状态</div>
         <div class="qh-panel" style="max-height:none;">
           <div class="qh-header">
@@ -2010,7 +2086,10 @@ body {
           </div>
           <div class="drawer-body">
             <div class="q-item">
-              <div class="q-title"><span class="q-id">1</span><span class="q-type qh-type-single">单选</span>以下关于 TCP 三次握手的说法，正确的是？</div>
+              <div class="q-title-row">
+                <div class="q-title"><span class="q-id">1</span><span class="q-type qh-type-single">单选</span>以下关于 TCP 三次握手的说法，正确的是？</div>
+                <button class="q-copy-btn" type="button">复制题目</button>
+              </div>
               <div class="q-label">题目</div>
               <div class="q-text">A. 第一次握手客户端发送 ACK 包
 B. 第二次握手服务端发送 SYN+ACK 包
@@ -2020,12 +2099,18 @@ D. 第三次握手必须携带数据</div>
               <div class="q-answer">B</div>
             </div>
             <div class="q-item">
-              <div class="q-title"><span class="q-id">2</span><span class="q-type qh-type-judge">判断</span>IPv6 地址长度为 128 位。</div>
+              <div class="q-title-row">
+                <div class="q-title"><span class="q-id">2</span><span class="q-type qh-type-judge">判断</span>IPv6 地址长度为 128 位。</div>
+                <button class="q-copy-btn" type="button">复制题目</button>
+              </div>
               <div class="q-label">答案</div>
               <div class="q-answer">正确</div>
             </div>
             <div class="q-item">
-              <div class="q-title"><span class="q-id">3</span><span class="q-type qh-type-fill">填空</span>HTTP 协议默认端口号是 ____。</div>
+              <div class="q-title-row">
+                <div class="q-title"><span class="q-id">3</span><span class="q-type qh-type-fill">填空</span>HTTP 协议默认端口号是 ____。</div>
+                <button class="q-copy-btn" type="button">复制题目</button>
+              </div>
               <div class="q-label">答案</div>
               <div class="q-answer">80</div>
             </div>

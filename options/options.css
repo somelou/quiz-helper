@@ -878,14 +878,22 @@ body.dark .json-punctuation {
 .drawer-body .q-item:last-child {
   margin-bottom: 0;
 }
+.drawer-body .q-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
 .drawer-body .q-title {
   font-size: var(--font-md);
   font-weight: 600;
   color: var(--color-text);
-  margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
 }
 .drawer-body .q-id {
   display: inline-block;
@@ -904,6 +912,38 @@ body.dark .json-punctuation {
   padding: 4px 8px;
   border-radius: var(--radius-sm);
   font-weight: 400;
+}
+.drawer-body .q-copy-btn {
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-toggle);
+  font-family: inherit;
+  padding: 4px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.drawer-body .q-copy-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+.drawer-body .q-copy-btn:disabled {
+  cursor: default;
+  opacity: 1;
+}
+.drawer-body .q-copy-btn.copied {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+.drawer-body .q-copy-btn.failed {
+  border-color: var(--color-error);
+  color: var(--color-error);
+  background: var(--color-error-bg);
 }
 .drawer-body .q-label {
   font-size: 11px;
@@ -1168,4 +1208,3 @@ body.dark .search-badge-active {
   .nav-list { display: flex; flex-wrap: wrap; gap: 4px; }
   .main-content { max-width: none; padding: 20px; }
 }
-

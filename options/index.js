@@ -2,6 +2,34 @@
 
 const { safeSet } = globalThis.QuizHelperStorageUtils;
 
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', 'readonly');
+  textarea.style.position = 'fixed';
+  textarea.style.top = '-9999px';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    if (!document.execCommand('copy')) {
+      throw new Error('copy failed');
+    }
+  } finally {
+    textarea.remove();
+  }
+}
+
+function buildDrawerQuestionCopyText(type, text) {
+  return `【${TYPE_LABELS[type] || '其他'}】${text || ''}`.trim();
+}
+
 // ===== 主题管理（提前执行，避免闪烁） =====
 const _darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 let _currentTheme = 'system';
@@ -265,9 +293,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           const typeClass = TYPE_CLASSES[q.type] || TYPE_CLASSES.unknown;
           html += `
             <div class="q-item">
-              <div class="q-title">
-                <span class="q-id">${idx + 1}</span>
-                <span class="q-type ${typeClass}">${typeLabel}</span>
+              <div class="q-title-row">
+                <div class="q-title">
+                  <span class="q-id">${idx + 1}</span>
+                  <span class="q-type ${typeClass}">${typeLabel}</span>
+                </div>
+                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q.type, q.text))}">复制题目</button>
               </div>
               <div class="q-label">题目</div>
               <div class="q-text">${escapeHtml(q.text)}</div>
@@ -299,9 +330,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             : `<div class="q-label">参考答案</div><div class="q-answer">${escapeHtml(q.answer || '未获取答案')}</div>`;
           html += `
             <div class="q-item">
-              <div class="q-title">
-                <span class="q-id">${idx + 1}</span>
-                <span class="q-type ${typeClass}">${typeLabel}</span>
+              <div class="q-title-row">
+                <div class="q-title">
+                  <span class="q-id">${idx + 1}</span>
+                  <span class="q-type ${typeClass}">${typeLabel}</span>
+                </div>
+                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q.type, q.text))}">复制题目</button>
               </div>
               <div class="q-label">题目</div>
               <div class="q-text">${escapeHtml(q.text)}</div>
@@ -372,6 +406,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   drawerOverlay.addEventListener('click', event => {
     if (drawerClickStartedOnOverlay && event.target === drawerOverlay) closeDrawer();
+  });
+
+  drawerBodyEl.addEventListener('click', async event => {
+    const copyBtn = event.target.closest('.q-copy-btn');
+    if (!copyBtn) return;
+    event.preventDefault();
+    const copyTextValue = copyBtn.dataset.copyQuestion || '';
+    const originalText = '复制题目';
+    copyBtn.disabled = true;
+    try {
+      await copyText(copyTextValue);
+      copyBtn.textContent = '已复制';
+      copyBtn.classList.add('copied');
+    } catch (error) {
+      copyBtn.textContent = '复制失败';
+      copyBtn.classList.add('failed');
+    } finally {
+      window.setTimeout(() => {
+        copyBtn.textContent = originalText;
+        copyBtn.disabled = false;
+        copyBtn.classList.remove('copied', 'failed');
+      }, 1200);
+    }
   });
 
   // 阻止抽屉打开时背景页面滚动

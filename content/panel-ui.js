@@ -40,6 +40,77 @@
   }
 
   /**
+   * 复制文本到剪贴板，优先使用 Clipboard API，失败时降级到 execCommand。
+   * @param {string} text
+   * @returns {Promise<void>}
+   */
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'readonly');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+      if (!document.execCommand('copy')) {
+        throw new Error('copy failed');
+      }
+    } finally {
+      textarea.remove();
+    }
+  }
+
+  /**
+   * 构造题目复制文案。
+   * @param {Object} question
+   * @returns {string}
+   */
+  function buildQuestionCopyText(question) {
+    return `【${getTypeLabel(question.type)}】${question.text || ''}`.trim();
+  }
+
+  /**
+   * 获取答案区显示内容。
+   * @param {Object} question
+   * @returns {{content: string, isError: boolean}}
+   */
+  function getAnswerSectionState(question) {
+    if (question.answer) {
+      return {
+        content: formatAnswer(question.answer),
+        isError: question.status === 'error'
+      };
+    }
+
+    if (question.status === 'loading') {
+      return {
+        content: '<span class="qh-loading-text">作答中...</span>',
+        isError: false
+      };
+    }
+
+    if (question.status === 'error') {
+      return {
+        content: '作答失败，请重试',
+        isError: true
+      };
+    }
+
+    return {
+      content: '<span class="qh-loading-text">待分析</span>',
+      isError: false
+    };
+  }
+
+  /**
    * 获取题目摘要（第一行前44字符）
    * @param {string} text
    * @returns {string}
@@ -110,7 +181,6 @@
       const answerPreview = (question.answer && question.status === 'done')
         ? `<span class="qh-card-answer">${escapeHtml(getAnswerResult(question.answer))}</span>`
         : '';
-      const showAnswerBtn = state.isPaused && question.status === 'pending';
       card.innerHTML = `
         <div class="qh-card-header">
           <span class="qh-card-num">${question.id}</span>
@@ -119,28 +189,16 @@
           ${answerPreview}
           <span class="qh-card-status ${getStatusClass(question.status)}">${getStatusLabel(question.status)}</span>
         </div>
-        <div class="qh-card-body" id="card-body-${index}">
-          <div class="qh-loading-text">${question.answer ? '已生成答案' : '待分析'}</div>
-          ${showAnswerBtn ? '<button class="qh-btn qh-btn-primary qh-answer-btn" data-index="' + index + '" style="margin-top:10px;">作答</button>' : ''}
-        </div>
+        <div class="qh-card-body" id="card-body-${index}"></div>
       `;
-
-      if (showAnswerBtn) {
-        card.querySelector('.qh-answer-btn').addEventListener('click', event => {
-          event.stopPropagation();
-          globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(index, { forceSearch: true });
-        });
-      }
 
       card.querySelector('.qh-card-header').addEventListener('click', () => {
         card.querySelector(`#card-body-${index}`).classList.toggle('open');
       });
 
       body.appendChild(card);
-
-      if (question.answer) {
-        updateCardBody(index, formatAnswer(question.answer), question.status === 'error');
-      }
+      const answerState = getAnswerSectionState(question);
+      updateCardBody(index, answerState.content, answerState.isError);
     });
 
     updateProgress();
@@ -176,7 +234,7 @@
     let bankRefsHtml = '';
     if (question.bankMatches && question.bankMatches.length > 0) {
       bankRefsHtml = '<div class="qh-bank-refs">';
-      question.bankMatches.forEach((m, i) => {
+      question.bankMatches.forEach(m => {
         bankRefsHtml += `
           <details class="qh-bank-ref">
             <summary>
@@ -222,7 +280,10 @@
 
     bodyEl.innerHTML = `
       <div class="qh-question-section">
-        <div class="qh-section-title">题目</div>
+        <div class="qh-section-title-row">
+          <div class="qh-section-title">题目</div>
+          <button class="qh-copy-btn" type="button" data-role="copy-question">复制</button>
+        </div>
         <div class="qh-question-text">${escapeHtml(question.text).replace(/\n/g, '<br>')}</div>
       </div>
       <div class="qh-answer-section">
@@ -243,6 +304,39 @@
         globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(index, { forceSearch: true });
       });
       bodyEl.appendChild(retryBtn);
+    } else if (state.isPaused && question.status === 'pending') {
+      const answerBtn = document.createElement('button');
+      answerBtn.className = 'qh-btn qh-btn-primary';
+      answerBtn.style.marginTop = '10px';
+      answerBtn.textContent = '作答';
+      answerBtn.addEventListener('click', event => {
+        event.stopPropagation();
+        globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(index, { forceSearch: true });
+      });
+      bodyEl.appendChild(answerBtn);
+    }
+
+    const copyBtn = bodyEl.querySelector('[data-role="copy-question"]');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async event => {
+        event.stopPropagation();
+        const originalText = '复制';
+        copyBtn.disabled = true;
+        try {
+          await copyText(buildQuestionCopyText(question));
+          copyBtn.textContent = '已复制';
+          copyBtn.classList.add('copied');
+        } catch (error) {
+          copyBtn.textContent = '复制失败';
+          copyBtn.classList.add('failed');
+        } finally {
+          window.setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.disabled = false;
+            copyBtn.classList.remove('copied', 'failed');
+          }, 1200);
+        }
+      });
     }
 
     window.QuizHelperIcons?.replaceIcons(bodyEl);
