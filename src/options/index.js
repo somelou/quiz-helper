@@ -123,6 +123,25 @@ function initSidebarNav() {
   sections.forEach(s => observer.observe(s));
 }
 
+function initAboutSection() {
+  const aboutVersionEl = document.getElementById('aboutVersion');
+  const version = chrome?.runtime?.getManifest?.()?.version || '--';
+  if (aboutVersionEl) {
+    aboutVersionEl.textContent = `v${version}`;
+  }
+
+  const repoBaseUrl = 'https://github.com/somelou/quiz-helper';
+  const linkMap = {
+    aboutVersionLink: `${repoBaseUrl}/releases/tag/v${version}`,
+    aboutRepoLink: repoBaseUrl,
+    aboutPrivacyLink: `${repoBaseUrl}/blob/main/PRIVACY.md`
+  };
+  Object.entries(linkMap).forEach(([id, href]) => {
+    const linkEl = document.getElementById(id);
+    if (linkEl) linkEl.href = href;
+  });
+}
+
 // ===== 分段滑块全局工具 =====
 function setSegValue(el, value) {
   // 预测量目标按钮在 font-weight:600 时的宽度，避免切换时指示器膨胀
@@ -171,6 +190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // --- 初始化侧边导航 ---
   initSidebarNav();
+  initAboutSection();
 
   // --- 主题切换器 ---
   const themeToggle = document.getElementById('themeToggle');

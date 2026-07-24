@@ -403,6 +403,68 @@ button:hover,
   word-break: break-all;
 }
 
+/* 关于 */
+.about-subtitle {
+  margin: 0 0 12px;
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+.about-strip-list {
+  display: grid;
+  gap: 8px;
+}
+.about-strip-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 46px;
+  padding: 11px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+.about-strip-label {
+  flex-shrink: 0;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.about-strip-value {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.5;
+  text-align: right;
+  word-break: break-all;
+}
+.about-strip-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.about-strip-link:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+.about-strip-link .about-strip-value {
+  color: var(--color-primary);
+}
+@media (max-width: 640px) {
+  .about-strip-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .about-strip-value {
+    width: 100%;
+    text-align: left;
+  }
+}
+
 /* 列表项统一样式 */
 .list-item {
   border: 1px solid var(--color-border);
@@ -1185,6 +1247,9 @@ body.dark .model-inactive-badge {
   font-size: var(--font-sm);
   cursor: pointer;
   padding: 2px 6px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
   transition: opacity var(--transition-fast);
 }
 .action-link:hover {
