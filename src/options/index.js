@@ -384,6 +384,56 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 补充配置模块的题库加载回调
   configMod.loadQuestionBanks = bankMod.loadQuestionBanks;
 
+  async function refreshShortcutFromStorage() {
+    const config = await chrome.storage.local.get(['panel_shortcut']);
+    shortcutMod.setShortcutFromConfig(config.panel_shortcut);
+  }
+
+  async function refreshImportModeUI() {
+    const importMode = document.getElementById('importMode');
+    const importModeHint = document.getElementById('importModeHint');
+    if (!importMode) return;
+
+    const MODE_MAP = {
+      eco: '并发 5 批 · 每批 100 题，速度较慢，适合 token 不足或 API 限流严格的场景',
+      balanced: '并发 10 批 · 每批 50 题，均衡速度与稳定性，推荐日常使用',
+      precise: '并发 10 批 · 每批 25 题，小批次高精度，适合题目格式复杂、容易解析出错的题库'
+    };
+
+    const result = await chrome.storage.local.get(['import_mode']);
+    const currentMode = result.import_mode || 'balanced';
+
+    importMode.querySelectorAll('button').forEach(btn => {
+      btn.classList.toggle('seg-active', btn.dataset.value === currentMode);
+    });
+    setSegValue(importMode, currentMode);
+    if (importModeHint) {
+      importModeHint.textContent = MODE_MAP[currentMode] || MODE_MAP.balanced;
+    }
+  }
+
+  async function reloadOptionModulesAfterImport() {
+    await configMod.loadSettings();
+    await refreshShortcutFromStorage();
+    await refreshImportModeUI();
+    await modelMod.loadModels();
+    await searchMod.loadSearchProviders();
+    await ruleMod.loadParseRules();
+    await bankMod.loadQuestionBanks();
+    await historyMod.loadHistory();
+  }
+
+  initBackup({
+    moduleListEl: document.getElementById('backupModuleList'),
+    exportBtn: document.getElementById('exportBackupBtn'),
+    exportStatusEl: document.getElementById('backupExportStatus'),
+    fileInputEl: document.getElementById('backupFileInput'),
+    fileNameEl: document.getElementById('backupFileName'),
+    importBtn: document.getElementById('importBackupBtn'),
+    importStatusEl: document.getElementById('backupImportStatus'),
+    onImportComplete: reloadOptionModulesAfterImport
+  });
+
   // --- 抽屉交互 ---
   drawerCloseBtn.addEventListener('click', closeDrawer);
 
@@ -553,8 +603,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   await configMod.loadSettings();
 
   // 从 storage 读取快捷键并同步到 shortcut 模块
-  const config = await chrome.storage.local.get(['panel_shortcut']);
-  shortcutMod.setShortcutFromConfig(config.panel_shortcut);
+  await refreshShortcutFromStorage();
+  await refreshImportModeUI();
 
   await historyMod.loadHistory();
   await bankMod.loadQuestionBanks();

@@ -297,6 +297,112 @@ button:hover,
   margin-top: 12px;
 }
 
+/* 备份与恢复 */
+.backup-section-block + .backup-section-block {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+.backup-section-title {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+.backup-module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.backup-module-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+.backup-module-item:hover {
+  box-shadow: var(--shadow-sm);
+}
+.backup-module-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+  border: 1.5px solid var(--color-input-border);
+  border-radius: 5px;
+  background: var(--color-bg);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.backup-module-item input[type="checkbox"]:hover {
+  border-color: var(--color-primary);
+}
+.backup-module-item input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+.backup-module-item input[type="checkbox"]:checked {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l2.5 2.5 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 10px;
+}
+.backup-action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.backup-import-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.backup-status {
+  min-height: 20px;
+  margin-top: 10px;
+  font-size: var(--font-sm);
+  color: #666;
+}
+.backup-status.is-error {
+  color: var(--color-error-text);
+}
+.backup-status.is-success {
+  color: var(--color-success);
+}
+.backup-file-trigger {
+  display: inline-flex;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+.backup-file-name {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-soft, var(--color-bg));
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  flex: 1 1 220px;
+  min-width: 0;
+  word-break: break-all;
+}
+
 /* 列表项统一样式 */
 .list-item {
   border: 1px solid var(--color-border);
