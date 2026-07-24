@@ -667,7 +667,7 @@
     // 当前域名已有规则时，提示用户正在进行合并优化
     const existingRule = state.currentRule;
     const loadingMsg = existingRule
-      ? `AI 优化规则中...（${location.hostname}）`
+      ? `AI 优化规则中...\n（${location.hostname}）`
       : `AI 解析选中区域...`;
     UI.ensurePanel(state.questionsData.length || 1);
     UI.showPanelMessage(loadingMsg);

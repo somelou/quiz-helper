@@ -509,6 +509,39 @@
   // ===== 面板生命周期 =====
 
   /**
+   * 清理页面中残留的面板宿主节点。
+   * 某些页面会触发重复初始化或残留旧宿主，这里统一做一次兜底去重。
+   */
+  function removeAllPanelHosts() {
+    document.querySelectorAll('#quiz-helper-host').forEach(host => host.remove());
+  }
+
+  /**
+   * 获取当前唯一的面板宿主节点，并清理多余重复节点。
+   * @returns {HTMLElement|null}
+   */
+  function getCurrentPanelHost() {
+    const hosts = Array.from(document.querySelectorAll('#quiz-helper-host'));
+    const currentHost = hosts[0] || null;
+    hosts.slice(1).forEach(host => host.remove());
+    return currentHost;
+  }
+
+  /**
+   * 判断本次渲染是否仍然是最新的一次。
+   * 通过 DOM 属性做跨执行上下文仲裁，避免并发创建时在同一 ShadowRoot 里追加两套内容。
+   * @param {HTMLElement|null} host
+   * @param {string} renderToken
+   * @returns {boolean}
+   */
+  function isActiveRender(host, renderToken) {
+    return !!host
+      && host.isConnected
+      && host.id === 'quiz-helper-host'
+      && host.dataset.renderToken === renderToken;
+  }
+
+  /**
    * 创建助手面板（Shadow DOM 隔离样式）
    * @param {number} totalQuestions
    */
@@ -521,21 +554,27 @@
     state._createPanelTask = new Promise(resolve => { taskDone = resolve; });
 
     try {
-      if (state.panelElement) {
-        destroyPanel(false);
+      let host = getCurrentPanelHost();
+      if (!host) {
+        host = document.createElement('div');
+        host.id = 'quiz-helper-host';
+        document.body.appendChild(host);
       }
 
-      const host = document.createElement('div');
-      host.id = 'quiz-helper-host';
-      document.body.appendChild(host);
+      const renderToken = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      host.dataset.renderToken = renderToken;
 
-      state.shadowRoot = host.attachShadow({ mode: 'open' });
+      state.shadowRoot = host.shadowRoot || host.attachShadow({ mode: 'open' });
+      state.shadowRoot.replaceChildren();
+      state.panelElement = null;
 
       try {
         const variablesUrl = chrome.runtime.getURL('shared/variables.css');
         const resp = await fetch(variablesUrl);
+        if (!isActiveRender(host, renderToken)) return;
         if (resp.ok) {
           const cssText = await resp.text();
+          if (!isActiveRender(host, renderToken)) return;
           const variablesStyle = document.createElement('style');
           variablesStyle.textContent = cssText;
           state.shadowRoot.appendChild(variablesStyle);
@@ -543,6 +582,8 @@
       } catch (e) {
         // 静默降级
       }
+
+      if (!isActiveRender(host, renderToken)) return;
 
       const styleLink = document.createElement('link');
       styleLink.rel = 'stylesheet';
@@ -557,6 +598,8 @@
       });
 
       applyTheme();
+
+      if (!isActiveRender(host, renderToken)) return;
 
       state.panelElement = document.createElement('div');
       state.panelElement.className = 'qh-panel';
@@ -585,6 +628,8 @@
         </div>
       `;
       state.shadowRoot.appendChild(state.panelElement);
+
+      if (!isActiveRender(host, renderToken)) return;
 
       const miniBar = document.createElement('div');
       miniBar.className = 'qh-mini-bar';
@@ -637,8 +682,7 @@
    */
   function destroyPanel(clearData = true) {
     globalThis.QuizHelperAnalyzer.stopElementPicker();
-    const host = document.getElementById('quiz-helper-host');
-    if (host) host.remove();
+    removeAllPanelHosts();
     state.shadowRoot = null;
     state.panelElement = null;
     state.isAnalyzing = false;

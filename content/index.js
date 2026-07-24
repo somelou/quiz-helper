@@ -2,8 +2,9 @@
   'use strict';
 
   // 防止重复注入
-  if (window.__quizHelperInjected) return;
+  if (window.__quizHelperInjected || document.documentElement.hasAttribute('data-quiz-helper-injected')) return;
   window.__quizHelperInjected = true;
+  document.documentElement.setAttribute('data-quiz-helper-injected', 'true');
 
   const state = globalThis.QuizHelperContentState;
   const { normalizeShortcutConfig, shortcutMatches, getDefaultShortcut } = globalThis.QuizHelperShortcutUtils;

@@ -726,12 +726,14 @@ body {
 .qh-footer {
   padding: 10px 12px;
   border-top: 1px solid var(--color-border);
+  box-sizing: border-box;
+  min-height: 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
   background: var(--color-bg);
-  overflow: hidden;
+  overflow: visible;
 }
 .qh-model-name {
   flex: 1;
@@ -746,7 +748,7 @@ body {
   mask-image: linear-gradient(to right, black 70%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, black 70%, transparent 100%);
 }
-.qh-footer-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.qh-footer-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; min-height: 30px; }
 .qh-seg {
   position: relative;
   display: inline-flex;
