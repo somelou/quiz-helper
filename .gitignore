@@ -1,0 +1,26 @@
+# Virtual environments
+.venv_paddleocr/
+.venv/
+venv/
+
+# AI
+.opencode/
+.claude/
+.zhanlu/
+.ruff_cache/
+.trae/documents/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
