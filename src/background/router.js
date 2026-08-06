@@ -1,4 +1,4 @@
-import { getApiConfig, postChatCompletion } from './api-client.js';
+import { getApiConfig, postChatCompletion, streamChatCompletion } from './api-client.js';
 import { parseExtractedQuestions, normalizeQuestionType } from './json-parser.js';
 import { buildExtractPrompt, buildSystemPrompt, buildVerifyPrompt, buildSearchAwarePrompt, buildSearchResultPrompt } from './prompt-builder.js';
 import { handleParseQuestionBank, handleParseQuestionBankBatched, handleSearchQuestionBank } from './question-bank.js';
@@ -63,10 +63,23 @@ function filterReferencedLinks(answer, referenceLinks) {
   return referenceLinks.filter((_, i) => citedIndices.has(i + 1));
 }
 
-async function handleFetchAnswer(questionText, questionType) {
-  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt } = await getApiConfig('answer');
+async function handleFetchAnswer(questionText, questionType, sendChunk) {
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt, enableThinking, thinkingEffort } = await getApiConfig('answer');
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
+  }
+
+  if (sendChunk) {
+    const answer = await streamChatCompletion({
+      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort,
+      messages: [
+        { role: 'system', content: await buildSystemPrompt(questionType, systemPrompt, extraContextPrompt) },
+        { role: 'user', content: questionText }
+      ],
+      onChunk: sendChunk
+    });
+    sendChunk({ type: 'done', answer: answer || '未获取到有效答案', referenceLinks: [] });
+    return;
   }
 
   const answer = await postChatCompletion({
@@ -78,14 +91,16 @@ async function handleFetchAnswer(questionText, questionType) {
       { role: 'user', content: questionText }
     ],
     model,
-    temperature: 0.3
+    temperature: 0.3,
+    enableThinking,
+    thinkingEffort
   });
 
   return { success: true, answer: answer || '未获取到有效答案' };
 }
 
 async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) {
-  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model } = await getApiConfig('answer');
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, enableThinking, thinkingEffort } = await getApiConfig('answer');
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
   }
@@ -100,16 +115,15 @@ async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) 
       { role: 'user', content: prompt.user }
     ],
     model,
-    temperature: 0.2
+    temperature: 0.2,
+    enableThinking,
+    thinkingEffort
   });
 
   return { success: true, answer: answer || '未获取到有效答案' };
 }
 
-async function handleFetchAnswerWithSearch(questionText, questionType, forceSearch = false) {
-  console.log('[fetchAnswerWithSearch] forceSearch:', forceSearch);
-
-  // 读取联网搜索配置
+async function handleFetchAnswerWithSearch(questionText, questionType, forceSearch = false, sendChunk) {
   const storage = await chrome.storage.local.get([
     'web_search_enabled',
     'active_search_provider_id',
@@ -122,65 +136,55 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
   const providers = storage.web_search_providers || [];
   const activeProvider = providers.find(p => p.id === activeId && p.apiKey);
 
-  console.log('[fetchAnswerWithSearch] 搜索状态:', { enabled, activeId, hasProvider: !!activeProvider });
-
-  // 搜索未启用或无激活服务商 → 降级到普通答题（forceSearch 也不跳过此检查）
   if (!enabled || !activeProvider) {
-    console.log('[fetchAnswerWithSearch] 搜索不可用，降级到普通 fetchAnswer');
-    return handleFetchAnswer(questionText, questionType);
+    return sendChunk
+      ? handleFetchAnswer(questionText, questionType, sendChunk)
+      : handleFetchAnswer(questionText, questionType);
   }
 
-  // 检查每月搜索次数限制
   const monthlyLimitOk = await checkMonthlySearchLimit(activeProvider.id);
   if (!monthlyLimitOk) {
-    console.log('[fetchAnswerWithSearch] 本月搜索次数已达上限，降级到普通 fetchAnswer');
-    return handleFetchAnswer(questionText, questionType);
+    return sendChunk
+      ? handleFetchAnswer(questionText, questionType, sendChunk)
+      : handleFetchAnswer(questionText, questionType);
   }
 
-  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt: customPrompt } = await getApiConfig('answer');
-  if (!apiKey) {
-    throw new Error('未配置 API Key，请先打开设置页面配置');
-  }
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt: customPrompt, enableThinking, thinkingEffort } = await getApiConfig('answer');
+  if (!apiKey) throw new Error('未配置 API Key，请先打开设置页面配置');
 
-  // 第一次 LLM 调用（搜索感知提示词）
   const searchAwareSystem = await buildSearchAwarePrompt(questionType, customPrompt, extraContextPrompt);
-  console.log('[fetchAnswerWithSearch] 第一次 LLM 调用（搜索感知）');
+  const messages = [
+    { role: 'system', content: searchAwareSystem },
+    { role: 'user', content: questionText }
+  ];
 
-  const firstAnswer = await postChatCompletion({
-    apiKey,
-    apiUrl,
-    apiFormat,
-    messages: [
-      { role: 'system', content: searchAwareSystem },
-      { role: 'user', content: questionText }
-    ],
-    model,
-    temperature: 0.3
-  });
+  // 第一次 LLM 调用
+  let firstFull;
+  if (sendChunk) {
+    firstFull = await streamChatCompletion({
+      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort,
+      messages,
+      onChunk: sendChunk
+    });
+  } else {
+    firstFull = await postChatCompletion({
+      apiKey, apiUrl, apiFormat, messages, model, temperature: 0.3, enableThinking, thinkingEffort
+    });
+  }
 
-  // 检查是否需要搜索
-  const needSearchMatch = firstAnswer.match(/\[NEED_SEARCH:\s*(.+?)\]/i);
-
+  const needSearchMatch = firstFull.match(/\[NEED_SEARCH:\s*(.+?)\]/i);
   if (!needSearchMatch && !forceSearch) {
-    console.log('[fetchAnswerWithSearch] 无需搜索，直接返回');
-    const cleanedAnswer = firstAnswer.replace(/\[NEED_SEARCH:\s*.+?\]\s*/gi, '').trim();
+    const cleanedAnswer = firstFull.replace(/\[NEED_SEARCH:\s*.+?\]\s*/gi, '').trim();
+    if (sendChunk) {
+      sendChunk({ type: 'done', answer: cleanedAnswer || '未获取到有效答案', referenceLinks: [] });
+      return;
+    }
     return { success: true, answer: cleanedAnswer || '未获取到有效答案', referenceLinks: [] };
   }
 
-  // 提取搜索词：标记优先，否则用题目文本
-  const searchQuery = needSearchMatch
-    ? (needSearchMatch[1] || '').trim()
-    : questionText.slice(0, 200);
-
-  if (forceSearch) {
-    console.log('[fetchAnswerWithSearch] 强制搜索，关键词:', searchQuery || '(使用题目文本)');
-  } else {
-    console.log('[fetchAnswerWithSearch] 需要搜索，关键词:', searchQuery);
-  }
-
+  const searchQuery = needSearchMatch ? (needSearchMatch[1] || '').trim() : questionText.slice(0, 200);
   const settings = storage.web_search_settings || { count: 10, timeRange: '', language: 'zh' };
 
-  // 执行联网搜索
   let referenceLinks = [];
   let searchResultsText = '';
   try {
@@ -188,37 +192,46 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
     const results = extractSearchResults(searchData, activeProvider.id);
     referenceLinks = extractReferenceLinks(searchData, activeProvider.id);
     searchResultsText = formatSearchResultsForLLM(results);
-    console.log('[fetchAnswerWithSearch] 搜索结果:', results.length, '条');
     incrementMonthlySearchCount(activeProvider.id);
   } catch (searchError) {
-    console.error('[fetchAnswerWithSearch] 搜索失败:', searchError.message);
-    // 搜索失败降级：返回首轮答案
-    const cleanedAnswer = firstAnswer.replace(/\[NEED_SEARCH:\s*.+?\]\s*/gi, '').trim();
+    const cleanedAnswer = firstFull.replace(/\[NEED_SEARCH:\s*.+?\]\s*/gi, '').trim();
+    if (sendChunk) {
+      sendChunk({ type: 'done', answer: cleanedAnswer || '未获取到有效答案', referenceLinks: [] });
+      return;
+    }
     return { success: true, answer: cleanedAnswer || '未获取到有效答案', referenceLinks: [] };
   }
 
-  // 第二次 LLM 调用（带搜索结果）
+  // 第二次 LLM 调用
   const searchResultPrompt = await buildSearchResultPrompt(questionText, questionType, searchResultsText, searchQuery, extraContextPrompt);
-  console.log('[fetchAnswerWithSearch] 第二次 LLM 调用（带搜索结果）');
+  const resultMessages = [
+    { role: 'system', content: searchResultPrompt.system },
+    { role: 'user', content: searchResultPrompt.user }
+  ];
 
-  const finalAnswer = await postChatCompletion({
-    apiKey,
-    apiUrl,
-    apiFormat,
-    messages: [
-      { role: 'system', content: searchResultPrompt.system },
-      { role: 'user', content: searchResultPrompt.user }
-    ],
-    model,
-    temperature: 0.3
-  });
+  let finalAnswer;
+  if (sendChunk) {
+    finalAnswer = await streamChatCompletion({
+      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort,
+      messages: resultMessages,
+      onChunk: sendChunk
+    });
+  } else {
+    finalAnswer = await postChatCompletion({
+      apiKey, apiUrl, apiFormat, messages: resultMessages, model, temperature: 0.3, enableThinking, thinkingEffort
+    });
+  }
 
   const filteredLinks = filterReferencedLinks(finalAnswer, referenceLinks);
+  if (sendChunk) {
+    sendChunk({ type: 'done', answer: finalAnswer || '未获取到有效答案', referenceLinks: filteredLinks, searchProviderName: activeProvider?.name || '' });
+    return;
+  }
   return { success: true, answer: finalAnswer || '未获取到有效答案', referenceLinks: filteredLinks, searchProviderName: activeProvider?.name || '' };
 }
 
 async function handleExtractQuestions(pageText, pageStructure, selectionText, elementHint, existingRule) {
-  const { apiUrl, apiKey, apiFormat, model } = await getApiConfig('extract');
+  const { apiUrl, apiKey, apiFormat, model, enableThinking, thinkingEffort } = await getApiConfig('extract');
   if (!apiKey) {
     throw new Error('未配置 API Key');
   }
@@ -233,7 +246,9 @@ async function handleExtractQuestions(pageText, pageStructure, selectionText, el
       { role: 'user', content: prompt.user }
     ],
     model,
-    temperature: 0.1
+    temperature: 0.1,
+    enableThinking,
+    thinkingEffort
   });
 
   try {
@@ -319,6 +334,15 @@ export function registerBackgroundRouter() {
         if (msg.text && msg.fileName) {
           handleParseQuestionBankBatched(msg.text, msg.fileName, port);
         }
+      });
+    }
+    if (port.name === 'streamAnswer') {
+      port.onMessage.addListener((msg) => {
+        const { data: questionText, questionType, forceSearch } = msg;
+        const send = (data) => { try { port.postMessage(data); } catch (_) {} };
+        send({ type: 'connected' });
+        handleFetchAnswerWithSearch(questionText, questionType, forceSearch, send)
+          .catch(err => send({ type: 'error', message: err.message }));
       });
     }
   });

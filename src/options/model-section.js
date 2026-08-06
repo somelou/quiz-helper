@@ -355,11 +355,40 @@ function initModels({
         <div class="hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</div>
       </div>
 
+      <div class="rule-form-section">思考模式</div>
+      <div class="rule-form-group">
+        <label>思考模式</label>
+        <label class="switch">
+          <input type="checkbox" id="model-enableThinking" ${model.enableThinking ? 'checked' : ''}>
+          <span class="switch-slider"></span>
+        </label>
+        <div class="hint">启用后强制开启思考模式，未启用则由模型自己判断</div>
+      </div>
+      <div class="rule-form-group" id="model-thinkingEffortGroup" style="display:${model.enableThinking ? '' : 'none'}">
+        <label>思考强度</label>
+        <div class="segmented-control" id="model-thinkingEffort" data-active="${model.thinkingEffort || 'high'}">
+          <button type="button" class="${(!model.thinkingEffort || model.thinkingEffort === 'high') ? 'seg-active' : ''}" data-value="high">High</button>
+          <button type="button" class="${model.thinkingEffort === 'max' ? 'seg-active' : ''}" data-value="max">Max</button>
+        </div>
+        <div class="hint">High 适合多数场景；Max 适合复杂推理任务</div>
+      </div>
+
       <div class="rule-form-section">测试连接</div>
       <div class="rule-form-group">
         <textarea id="model-testText" placeholder="输入测试文本" rows="3" style="width:100%;box-sizing:border-box;resize:vertical;">请回复 OK</textarea>
         <button type="button" class="btn-primary" id="model-testBtn" style="width:100%;margin-top:8px;">测试连接</button>
-        <div class="hint" id="model-testResult" style="margin-top:8px;white-space:pre-wrap;word-break:break-all;"></div>
+        <div id="model-testResult" style="display:none;">
+          <div class="test-status" id="model-testStatus"></div>
+          <div class="test-thinking" id="model-testThinking" style="display:none;">
+            <div class="test-thinking-header" id="model-testThinkingHeader">
+              <span class="test-thinking-dot"></span>
+              <span>深度思考</span>
+              <svg class="test-thinking-chevron" width="12" height="12" viewBox="0 0 12 12"><path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            </div>
+            <div class="test-thinking-body" id="model-testThinkingBody"></div>
+          </div>
+          <div class="test-response" id="model-testResponse"></div>
+        </div>
       </div>
     `;
 
@@ -401,81 +430,275 @@ function initModels({
       }
     });
 
+    // 思考模式开关 - 控制思考强度是否显示
+    const thinkingToggle = drawerBodyEl.querySelector('#model-enableThinking');
+    const thinkingEffortGroup = drawerBodyEl.querySelector('#model-thinkingEffortGroup');
+    thinkingToggle.addEventListener('change', () => {
+      thinkingEffortGroup.style.display = thinkingToggle.checked ? '' : 'none';
+    });
+
+    // 初始化思考强度分段控件
+    const thinkingEffortSeg = drawerBodyEl.querySelector('#model-thinkingEffort');
+    if (thinkingEffortSeg) {
+      const activeBtn = thinkingEffortSeg.querySelector('.seg-active');
+      if (activeBtn) setSegValue(thinkingEffortSeg, activeBtn.dataset.value);
+    }
+
+    // 思考过程折叠/展开
+    const thinkingHeader = drawerBodyEl.querySelector('#model-testThinkingHeader');
+    const thinkingBody = drawerBodyEl.querySelector('#model-testThinkingBody');
+    thinkingHeader.addEventListener('click', () => {
+      const expanded = thinkingBody.style.display !== 'none';
+      thinkingBody.style.display = expanded ? 'none' : '';
+      thinkingHeader.classList.toggle('test-thinking-collapsed', expanded);
+    });
+
     const testBtn = drawerBodyEl.querySelector('#model-testBtn');
     testBtn.addEventListener('click', testModelConnection);
   }
 
   async function testModelConnection() {
     const resultEl = drawerBodyEl.querySelector('#model-testResult');
-    const name = drawerBodyEl.querySelector('#model-name').value.trim();
+    const statusEl = drawerBodyEl.querySelector('#model-testStatus');
+    const thinkingEl = drawerBodyEl.querySelector('#model-testThinking');
+    const thinkingBodyEl = drawerBodyEl.querySelector('#model-testThinkingBody');
+    const thinkingHeaderEl = drawerBodyEl.querySelector('#model-testThinkingHeader');
+    const responseEl = drawerBodyEl.querySelector('#model-testResponse');
+
     const apiUrl = drawerBodyEl.querySelector('#model-apiUrl').value.trim().replace(/\/+$/, '');
     const apiKey = drawerBodyEl.querySelector('#model-apiKey').value.trim();
     const modelId = drawerBodyEl.querySelector('#model-modelId').value.trim();
     const testText = drawerBodyEl.querySelector('#model-testText').value.trim();
     const apiFormat = drawerBodyEl.querySelector('#model-apiFormat')?.dataset?.active || 'openai';
+    const enableThinking = drawerBodyEl.querySelector('#model-enableThinking')?.checked || false;
+    const thinkingEffort = drawerBodyEl.querySelector('#model-thinkingEffort')?.dataset?.active || 'high';
 
     if (!apiUrl || !apiKey || !modelId) {
-      resultEl.textContent = '请先填写 API URL、API Key 和模型 ID';
-      resultEl.style.color = 'var(--color-error-text)';
+      statusEl.innerHTML = '<span class="test-status-error">请先填写 API URL、API Key 和模型 ID</span>';
+      resultEl.style.display = '';
+      thinkingEl.style.display = 'none';
+      responseEl.innerHTML = '';
       return;
     }
 
-    resultEl.textContent = '测试中...';
-    resultEl.style.color = 'var(--color-text-muted)';
+    // 重置界面
+    resultEl.style.display = '';
+    thinkingEl.style.display = 'none';
+    thinkingBodyEl.textContent = '';
+    thinkingHeaderEl.classList.remove('test-thinking-collapsed');
+    thinkingBodyEl.style.display = '';
+    responseEl.textContent = '';
+    statusEl.innerHTML = '<span class="test-status-loading"><span class="test-spinner"></span>请求中...</span>';
 
     const userContent = testText || '请回复 OK';
 
     try {
-      let response, data;
-
       if (apiFormat === 'anthropic') {
-        response = await fetch(`${apiUrl}/messages`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01'
-          },
-          body: JSON.stringify({
-            model: modelId,
-            messages: [{ role: 'user', content: userContent }],
-            max_tokens: 256,
-            temperature: 0
-          })
+        await streamAnthropicTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, {
+          statusEl, thinkingEl, thinkingBodyEl, thinkingHeaderEl, responseEl
         });
-        if (!response.ok) {
-          const errText = await response.text();
-          throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
-        }
-        data = await response.json();
-        const text = data.content?.[0]?.text || '';
-        resultEl.innerHTML = `<span style="color:var(--color-success)">连接成功！</span><br><span style="color:var(--color-text-muted)">模型回复：</span><span style="color:var(--color-text-primary)">${escapeHtml(text)}</span>`;
       } else {
-        response = await fetch(`${apiUrl}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: modelId,
-            messages: [{ role: 'user', content: userContent }],
-            temperature: 0
-          })
+        await streamOpenAITest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, {
+          statusEl, thinkingEl, thinkingBodyEl, thinkingHeaderEl, responseEl
         });
-
-        if (!response.ok) {
-          const errText = await response.text();
-          throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
-        }
-
-        data = await response.json();
-        const content = data.choices?.[0]?.message?.content || '';
-        resultEl.innerHTML = `<span style="color:var(--color-success)">连接成功！</span><br><span style="color:var(--color-text-muted)">模型回复：</span><span style="color:var(--color-text-primary)">${escapeHtml(content)}</span>`;
       }
     } catch (err) {
-      resultEl.textContent = `连接失败: ${err.message}`;
-      resultEl.style.color = 'var(--color-error-text)';
+      statusEl.innerHTML = `<span class="test-status-error">连接失败: ${escapeHtml(err.message)}</span>`;
+      thinkingEl.style.display = 'none';
+    }
+  }
+
+  async function streamOpenAITest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, els) {
+    const body = { model: modelId, messages: [{ role: 'user', content: userContent }], stream: true };
+    if (enableThinking) {
+      body.thinking = { type: 'enabled' };
+      body.reasoning_effort = thinkingEffort;
+    } else {
+      body.temperature = 0;
+    }
+
+    const response = await fetch(`${apiUrl}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
+    }
+
+    await parseOpenAISSE(response.body.getReader(), els);
+  }
+
+  /**
+   * KaTeX 渲染 LaTeX 数学公式
+   */
+  function preprocessLatex(text) {
+    // 块级公式 \[ ... \]
+    text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_, math) => {
+      try {
+        return katex.renderToString(math.trim(), { displayMode: true, throwOnError: false });
+      } catch (_) {
+        return `<code>${math.trim()}</code>`;
+      }
+    });
+    // 行内公式 \( ... \)
+    text = text.replace(/\\\(([\s\S]*?)\\\)/g, (_, math) => {
+      try {
+        return katex.renderToString(math.trim(), { displayMode: false, throwOnError: false });
+      } catch (_) {
+        return `<code>${math.trim()}</code>`;
+      }
+    });
+    return text;
+  }
+
+  async function parseOpenAISSE(reader, els) {
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let hasThinking = false;
+    let fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+
+        try {
+          const json = JSON.parse(data);
+          const delta = json.choices?.[0]?.delta;
+          if (!delta) continue;
+
+          if (delta.reasoning_content) {
+            if (!hasThinking) {
+              hasThinking = true;
+              els.thinkingEl.style.display = '';
+              els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
+            }
+            els.thinkingBodyEl.textContent += delta.reasoning_content;
+            els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
+          }
+
+          if (delta.content) {
+            if (hasThinking && els.thinkingBodyEl.style.display !== 'none') {
+              els.statusEl.innerHTML = '';
+            }
+            fullText += delta.content;
+            els.responseEl.textContent = fullText;
+            els.responseEl.scrollTop = els.responseEl.scrollHeight;
+          }
+        } catch (_) { /* 忽略解析错误 */ }
+      }
+    }
+
+    // 流式结束后用 marked 渲染 Markdown
+    if (fullText) {
+      els.responseEl.innerHTML = marked.parse(preprocessLatex(fullText), { breaks: true, gfm: true });
+    }
+    els.statusEl.innerHTML = '<span class="test-status-success">连接成功</span>';
+    if (hasThinking) {
+      els.thinkingHeaderEl.classList.add('test-thinking-collapsed');
+      els.thinkingBodyEl.style.display = 'none';
+    }
+  }
+
+  async function streamAnthropicTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, els) {
+    const body = { model: modelId, messages: [{ role: 'user', content: userContent }], max_tokens: 4096, stream: true };
+    if (enableThinking) {
+      body.thinking = { type: 'enabled' };
+      body.output_config = { effort: thinkingEffort };
+    } else {
+      body.temperature = 0;
+    }
+
+    const response = await fetch(`${apiUrl}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
+    }
+
+    await parseAnthropicSSE(response.body.getReader(), els);
+  }
+
+  async function parseAnthropicSSE(reader, els) {
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let hasThinking = false;
+    let currentEvent = '';
+    let fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line.startsWith('event: ')) {
+          currentEvent = line.slice(7).trim();
+          continue;
+        }
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+
+        try {
+          const json = JSON.parse(data);
+
+          if (currentEvent === 'content_block_start' || currentEvent === 'content_block_delta') {
+            const text = json.delta?.text || json.content_block?.text || '';
+            const thinking = json.delta?.thinking || json.content_block?.thinking || '';
+
+            if (thinking) {
+              if (!hasThinking) {
+                hasThinking = true;
+                els.thinkingEl.style.display = '';
+                els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
+              }
+              els.thinkingBodyEl.textContent += thinking;
+              els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
+            }
+
+            if (text) {
+              if (hasThinking && els.thinkingBodyEl.style.display !== 'none') {
+                els.statusEl.innerHTML = '';
+              }
+              fullText += text;
+              els.responseEl.textContent = fullText;
+              els.responseEl.scrollTop = els.responseEl.scrollHeight;
+            }
+          }
+        } catch (_) { /* 忽略解析错误 */ }
+      }
+    }
+
+    // 流式结束后用 marked 渲染 Markdown
+    if (fullText) {
+      els.responseEl.innerHTML = marked.parse(preprocessLatex(fullText), { breaks: true, gfm: true });
+    }
+    els.statusEl.innerHTML = '<span class="test-status-success">连接成功</span>';
+    if (hasThinking) {
+      els.thinkingHeaderEl.classList.add('test-thinking-collapsed');
+      els.thinkingBodyEl.style.display = 'none';
     }
   }
 
@@ -485,13 +708,15 @@ function initModels({
     const apiKey = drawerBodyEl.querySelector('#model-apiKey')?.value?.trim() || '';
     const modelId = drawerBodyEl.querySelector('#model-modelId')?.value?.trim() || '';
     const apiFormat = drawerBodyEl.querySelector('#model-apiFormat')?.dataset?.active || 'openai';
+    const enableThinking = drawerBodyEl.querySelector('#model-enableThinking')?.checked || false;
+    const thinkingEffort = drawerBodyEl.querySelector('#model-thinkingEffort')?.dataset?.active || 'high';
 
     if (!name) { showModelStatus('模型展示名称不能为空'); return null; }
     if (!apiUrl) { showModelStatus('API URL 不能为空'); return null; }
     if (!apiKey) { showModelStatus('API Key 不能为空'); return null; }
     if (!modelId) { showModelStatus('模型 ID 不能为空'); return null; }
 
-    return { name, apiUrl, apiKey, modelId, apiFormat };
+    return { name, apiUrl, apiKey, modelId, apiFormat, enableThinking, thinkingEffort };
   }
 
   async function saveModelFromDrawer() {

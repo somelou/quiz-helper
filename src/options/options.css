@@ -1379,3 +1379,245 @@ body.dark .search-badge-active {
   .nav-list { display: flex; flex-wrap: wrap; gap: 4px; }
   .main-content { max-width: none; padding: 20px; }
 }
+
+/* ===== 测试连接聊天风格 ===== */
+#model-testResult {
+  margin-top: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-secondary);
+  overflow: hidden;
+}
+
+.test-status {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.test-status-success {
+  color: var(--color-success);
+}
+
+.test-status-error {
+  color: var(--color-error-text);
+}
+
+.test-status-loading {
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.test-status-thinking {
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.test-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: test-spin 0.6s linear infinite;
+}
+
+@keyframes test-spin {
+  to { transform: rotate(360deg); }
+}
+
+.test-thinking {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.test-thinking-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  user-select: none;
+  background: var(--color-bg);
+}
+
+.test-thinking-header:hover {
+  background: var(--color-bg-hover, rgba(0,0,0,0.03));
+}
+
+.test-thinking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.test-thinking-chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.test-thinking-collapsed .test-thinking-chevron {
+  transform: rotate(-90deg);
+}
+
+.test-thinking-body {
+  padding: 8px 12px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--color-bg-secondary);
+}
+
+.test-response {
+   padding: 12px;
+   font-size: 13px;
+   line-height: 1.2;
+   color: var(--color-text);
+   white-space: pre-wrap;
+   word-break: break-word;
+   min-height: 20px;
+   max-height: 320px;
+   overflow-y: auto;
+   background: var(--color-bg);
+ }
+
+ .test-response:empty::after {
+   content: '';
+ }
+
+ /* marked 渲染样式 */
+  .test-response h1,
+   .test-response h2,
+   .test-response h3,
+   .test-response h4,
+   .test-response h5,
+   .test-response h6 {
+     margin: 6px 0 3px;
+     font-weight: 600;
+     white-space: normal;
+     line-height: 1.4;
+   }
+
+  .test-response h1 { font-size: 16px; }
+  .test-response h2 { font-size: 15px; }
+  .test-response h3 { font-size: 14px; }
+  .test-response h4 { font-size: 13px; }
+  .test-response h5 { font-size: 13px; }
+  .test-response h6 { font-size: 12px; }
+
+  .test-response p {
+     margin: 2px 0;
+     white-space: normal;
+   }
+
+  .test-response pre {
+    margin: 8px 0;
+    padding: 10px 12px;
+    background: var(--color-bg-secondary);
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .test-response pre code {
+    font-size: 12px;
+    line-height: 1.5;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    color: var(--color-text);
+    background: none;
+    padding: 0;
+  }
+
+  .test-response code {
+    padding: 1px 4px;
+    background: var(--color-bg-secondary);
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    white-space: normal;
+  }
+
+  .test-response ul,
+  .test-response ol {
+    margin: 4px 0;
+    padding-left: 20px;
+    white-space: normal;
+  }
+
+  .test-response li {
+    margin: 2px 0;
+    white-space: normal;
+  }
+
+  .test-response blockquote {
+    margin: 8px 0;
+    padding: 4px 12px;
+    border-left: 3px solid var(--color-primary);
+    background: var(--color-bg-secondary);
+    border-radius: 0 6px 6px 0;
+    white-space: normal;
+    color: var(--color-text-muted);
+  }
+
+  .test-response table {
+    margin: 8px 0;
+    border-collapse: collapse;
+    font-size: 12px;
+    white-space: normal;
+    width: 100%;
+  }
+
+  .test-response th,
+  .test-response td {
+    padding: 6px 10px;
+    border: 1px solid var(--color-border);
+    text-align: left;
+  }
+
+  .test-response th {
+    background: var(--color-bg-secondary);
+    font-weight: 600;
+  }
+
+  .test-response hr {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: 10px 0;
+  }
+
+  .test-response strong {
+    font-weight: 600;
+  }
+
+  .test-response a {
+    color: var(--color-primary);
+    word-break: break-all;
+  }
+
+  .test-response img {
+    max-width: 100%;
+    border-radius: 6px;
+  }
+
+  .test-response input[type="checkbox"] {
+    margin-right: 6px;
+    pointer-events: none;
+  }

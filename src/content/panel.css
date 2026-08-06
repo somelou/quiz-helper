@@ -267,6 +267,69 @@
   max-height: 200px;
   overflow-y: auto;
 }
+
+/* 思考过程 */
+.qh-thinking-section {
+  margin-top: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.qh-thinking-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  user-select: none;
+  background: var(--color-bg-secondary);
+}
+.qh-thinking-header:hover {
+  background: var(--color-bg-hover, rgba(0,0,0,0.03));
+}
+.qh-thinking-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+}
+.qh-thinking-spinner {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: qh-spin 0.6s linear infinite;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+@keyframes qh-spin {
+  to { transform: rotate(360deg); }
+}
+.qh-thinking-chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.qh-thinking-collapsed .qh-thinking-chevron {
+  transform: rotate(-90deg);
+}
+.qh-thinking-body {
+  padding: 6px 10px 10px;
+  font-size: var(--font-xs);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 160px;
+  overflow-y: auto;
+  background: var(--color-bg);
+}
+
 .qh-answer-section {
   margin-top: 10px;
 }

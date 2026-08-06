@@ -91,6 +91,58 @@
   }
 
   /**
+   * 单题流式答题（port 通道），返回 Promise 在完成/出错时 resolve
+   */
+  function streamQuestion(question, index, runId, forceSearch = false) {
+    return new Promise((resolve) => {
+      const port = chrome.runtime.connect({ name: 'streamAnswer' });
+      let thinkingText = '';
+      let answerText = '';
+
+      port.onMessage.addListener((msg) => {
+        if (!msg || !msg.type) return;
+        if (runId !== state.analysisRunId) { port.disconnect(); resolve(); return; }
+
+        if (msg.type === 'connected') return;
+        if (msg.type === 'thinking') {
+          thinkingText += msg.content;
+          UI.updateAnswerStream(index, thinkingText, answerText, !answerText);
+        } else if (msg.type === 'text') {
+          answerText += msg.content;
+          UI.updateAnswerStream(index, thinkingText, answerText, false);
+        } else if (msg.type === 'done') {
+          question.status = 'done';
+          question.answer = msg.answer;
+          question.webSearchRefs = msg.referenceLinks || [];
+          question.searchProviderName = msg.searchProviderName || '';
+          UI.updateCardBody(index, UI.formatAnswer(msg.answer));
+          port.disconnect();
+          resolve();
+        } else if (msg.type === 'error') {
+          question.status = 'error';
+          UI.updateCardBody(index, `请求失败：${UI.escapeHtml(msg.message)}`, true);
+          port.disconnect();
+          resolve();
+        }
+      });
+
+      port.onDisconnect.addListener(() => {
+        if (runId === state.analysisRunId && question.status === 'loading') {
+          question.status = 'error';
+          UI.updateCardBody(index, '连接中断', true);
+        }
+        resolve();
+      });
+
+      port.postMessage({
+        data: question.text,
+        questionType: question.type,
+        forceSearch
+      });
+    });
+  }
+
+  /**
    * 分析单道题目（优先搜索题库，题库无匹配时调用 AI）
    * @param {number} index
    * @param {Object} [options]
@@ -112,6 +164,16 @@
     UI.updateCardBody(index, '<div class="qh-loading-text">正在分析...</div>');
 
     let bankMatched = false;
+
+    // 流式与非流式路径共用的收尾逻辑
+    function finalizeQuestion(idx, wasPausedLocal, runIdLocal) {
+      if (runIdLocal !== state.analysisRunId) return;
+      state.isAnalyzing = false;
+      state.isPaused = wasPausedLocal;
+      UI.updateControls();
+      UI.updateProgress();
+      if (wasPausedLocal) UI.renderCards();
+    }
 
     try {
       const bankResponse = await chrome.runtime.sendMessage({
@@ -158,39 +220,17 @@
       }
 
       if (!bankMatched) {
-        UI.updateCardBody(index, '<div class="qh-loading-text">正在请求 AI 分析...</div>');
-
-        const aiResponse = await chrome.runtime.sendMessage({
-          action: 'fetchAnswerWithSearch',
-          data: question.text,
-          questionType: question.type,
-          forceSearch: options.forceSearch || false
-        });
-
-        if (runId !== state.analysisRunId) return;
-
-        if (aiResponse.success) {
-          question.status = 'done';
-          question.answer = aiResponse.answer;
-          question.webSearchRefs = aiResponse.referenceLinks || [];
-          question.searchProviderName = aiResponse.searchProviderName || '';
-          UI.updateCardBody(index, UI.formatAnswer(aiResponse.answer));
-        } else {
-          question.status = 'error';
-          UI.updateCardBody(index, `请求失败：${UI.escapeHtml(aiResponse.error)}`, true);
-        }
+        await streamQuestion(question, index, runId, options.forceSearch || false);
+        finalizeQuestion(index, wasPaused, runId);
+        return;
       }
     } catch (error) {
       if (runId !== state.analysisRunId) return;
       question.status = 'error';
       UI.updateCardBody(index, `通信错误：${UI.escapeHtml(error.message)}`, true);
     } finally {
-      if (runId === state.analysisRunId) {
-        state.isAnalyzing = false;
-        state.isPaused = wasPaused;
-        UI.updateControls();
-        UI.updateProgress();
-        if (wasPaused) UI.renderCards();
+      if (runId === state.analysisRunId && question.status !== 'loading') {
+        finalizeQuestion(index, wasPaused, runId);
       }
     }
   }
@@ -275,27 +315,9 @@
           continue;
         }
 
-        UI.updateCardBody(index, '<div class="qh-loading-text">正在请求 AI 分析...</div>');
+        await streamQuestion(question, index, runId);
 
-        const aiResponse = await chrome.runtime.sendMessage({
-            action: 'fetchAnswerWithSearch',
-            data: question.text,
-            questionType: question.type,
-            forceSearch: false
-          });
-
-          if (runId !== state.analysisRunId) return;
-
-          if (aiResponse.success) {
-            question.status = 'done';
-            question.answer = aiResponse.answer;
-            question.webSearchRefs = aiResponse.referenceLinks || [];
-            question.searchProviderName = aiResponse.searchProviderName || '';
-            UI.updateCardBody(index, UI.formatAnswer(aiResponse.answer));
-          } else {
-            question.status = 'error';
-            UI.updateCardBody(index, `请求失败：${UI.escapeHtml(aiResponse.error)}`, true);
-          }
+        if (runId !== state.analysisRunId) return;
         } catch (error) {
           if (runId !== state.analysisRunId) return;
         question.status = 'error';

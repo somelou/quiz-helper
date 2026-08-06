@@ -21,6 +21,91 @@
     return html;
   }
 
+  /**
+   * 流式更新答案（思考区默认折叠、加载动画、限制高度、自动滚动）
+   * @param {number} index
+   * @param {string} thinkingText - 思考完整文本
+   * @param {string} answerText - 答案正文完整文本
+   * @param {boolean} thinkingActive - 是否仍在思考中（显示 loading）
+   */
+  function updateAnswerStream(index, thinkingText, answerText, thinkingActive = false) {
+    if (!state.shadowRoot) return;
+    const bodyEl = state.shadowRoot.getElementById(`card-body-${index}`);
+    if (!bodyEl) return;
+
+    const hasThinking = thinkingText && thinkingText.length > 0;
+    let answerEl = bodyEl.querySelector('.qh-answer-text');
+
+    // answerEl 存在但思考区未创建（被 updateCardBody 预创建了）时也需要重建布局
+    if (!answerEl || !bodyEl.querySelector('.qh-thinking-section')) {
+      // 首次调用，创建完整布局（思考区默认折叠隐藏）
+      const question = state.questionsData[index];
+      if (!question) return;
+      bodyEl.innerHTML = `
+        <div class="qh-question-section">
+          <div class="qh-section-title-row">
+            <div class="qh-section-title">题目</div>
+            <button class="qh-copy-btn">复制</button>
+          </div>
+          <div class="qh-question-text">${escapeHtml(question.text)}</div>
+        </div>
+        <div class="qh-thinking-section" style="display:none">
+          <div class="qh-thinking-header qh-thinking-collapsed">
+            <span class="qh-thinking-dot"></span>
+            <span>深度思考<span class="qh-thinking-spinner" style="display:${thinkingActive ? '' : 'none'}"></span></span>
+            <svg class="qh-thinking-chevron" width="12" height="12" viewBox="0 0 12 12"><path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          </div>
+          <div class="qh-thinking-body" style="display:none">${hasThinking ? escapeHtml(thinkingText) : ''}</div>
+        </div>
+        <div class="qh-answer-section">
+          <div class="qh-section-title">参考答案</div>
+          <div class="qh-answer-text">${escapeHtml(answerText) || '<span class="qh-loading-text">正在请求 AI 分析...</span>'}</div>
+        </div>`;
+
+      // 绑定复制按钮
+      const copyBtn = bodyEl.querySelector('.qh-copy-btn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(question.text).catch(() => {});
+        });
+      }
+
+      // 绑定思考折叠
+      const thinkingHeader = bodyEl.querySelector('.qh-thinking-header');
+      if (thinkingHeader) {
+        thinkingHeader.addEventListener('click', () => {
+          const thinkingBody = bodyEl.querySelector('.qh-thinking-body');
+          const collapsed = thinkingBody.style.display === 'none';
+          thinkingBody.style.display = collapsed ? '' : 'none';
+          thinkingHeader.classList.toggle('qh-thinking-collapsed', !collapsed);
+        });
+      }
+    } else {
+      // 后续增量更新
+      const thinkingSection = bodyEl.querySelector('.qh-thinking-section');
+      const thinkingBody = bodyEl.querySelector('.qh-thinking-body');
+      const thinkingHeader = bodyEl.querySelector('.qh-thinking-header');
+
+      if (hasThinking && thinkingSection && thinkingBody && thinkingHeader) {
+        thinkingSection.style.display = '';
+        thinkingBody.style.display = '';
+        thinkingHeader.classList.remove('qh-thinking-collapsed');
+        thinkingBody.textContent = thinkingText;
+        thinkingBody.scrollTop = thinkingBody.scrollHeight;
+        // spinner 用 class 控制，避免重置动画
+        const spinnerEl = thinkingHeader.querySelector('.qh-thinking-spinner');
+        if (spinnerEl) spinnerEl.style.display = thinkingActive ? '' : 'none';
+      }
+      if (answerEl) answerEl.textContent = answerText;
+    }
+
+    // 自动滚到底部
+    if (answerEl) {
+      const answerSection = answerEl.closest('.qh-answer-section');
+      if (answerSection) answerSection.scrollTop = answerSection.scrollHeight;
+    }
+  }
+
   // ===== 渲染辅助 =====
 
   function getTypeLabel(type) {
@@ -791,6 +876,7 @@
     removePanel,
     renderCards,
     showPanelMessage,
+    updateAnswerStream,
     updateCardBody,
     updateProgress,
     updateControls,

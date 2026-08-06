@@ -61,6 +61,7 @@
         "icons/*.png",
         "icons/*.svg",
         "lib/*.js",
+        "lib/*.css",
         "data/*.json",
         "content/*.css",
         "shared/*.css"

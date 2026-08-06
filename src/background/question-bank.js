@@ -6,7 +6,7 @@ import { splitTextByQuestions } from '../shared/text-splitter.js';
 export async function handleParseQuestionBank(text, fileName) {
   try {
     const fallbackQuestions = parseQuestionBankByRules(text);
-    const { apiUrl, apiKey, apiFormat, model } = await getApiConfig('bank');
+    const { apiUrl, apiKey, apiFormat, model, enableThinking, thinkingEffort } = await getApiConfig('bank');
     if (!apiKey) {
       if (fallbackQuestions.length > 0) {
         return { success: true, questions: fallbackQuestions };
@@ -25,7 +25,9 @@ export async function handleParseQuestionBank(text, fileName) {
           { role: 'user', content: prompt.user }
         ],
         model,
-        temperature: 0.1
+        temperature: 0.1,
+        enableThinking,
+        thinkingEffort
       });
       const questions = normalizeParsedQuestions(parseQuestionBankResult(raw));
       if (questions.length > 0) {
@@ -88,7 +90,7 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
     // 本地规则全量解析作为全局 fallback
     const allFallbackQuestions = parseQuestionBankByRules(text);
 
-    const { apiUrl, apiKey, apiFormat, model } = await getApiConfig('bank');
+    const { apiUrl, apiKey, apiFormat, model, enableThinking, thinkingEffort } = await getApiConfig('bank');
 
     if (!apiKey) {
       if (allFallbackQuestions.length > 0) {
@@ -146,7 +148,9 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
                 ],
                 model,
                 temperature: 0.1,
-                signal: abortController.signal
+                signal: abortController.signal,
+                enableThinking,
+                thinkingEffort
               });
               const questions = normalizeParsedQuestions(parseQuestionBankResult(raw));
               if (questions.length > 0) {
