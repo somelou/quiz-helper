@@ -5,7 +5,7 @@ const DEFAULT_WEB_SEARCH_PROVIDERS = [
   {
     id: 'brave-search',
     name: 'Brave Search',
-    desc: 'Brave LLM Context API，返回提纯后的网页内容',
+    desc: 'Brave LLM Context API，西文Agent场景友好',
     endpoint: 'https://api.search.brave.com/res/v1/llm/context',
     apiKey: '',
     authHeader: 'X-Subscription-Token',
@@ -17,7 +17,7 @@ const DEFAULT_WEB_SEARCH_PROVIDERS = [
   {
     id: 'volcengine-search',
     name: '豆包搜索',
-    desc: '火山引擎豆包搜索 Custom 版，专为Agent场景开发',
+    desc: '火山引擎豆包搜索 Custom 版，中文Agent场景友好',
     endpoint: 'https://open.feedcoopapi.com/search_api/web_search',
     apiKey: '',
     authHeader: 'Authorization',
@@ -26,6 +26,19 @@ const DEFAULT_WEB_SEARCH_PROVIDERS = [
     monthlyLimit: 500,
     authInfoLevel: '0',
     blockHosts: ''
+  },
+  {
+    id: 'tavily-search',
+    name: 'Tavily Search',
+    desc: 'Tavily 实时搜索 API，注册即可免费使用',
+    endpoint: 'https://api.tavily.com/search',
+    apiKey: '',
+    authHeader: 'Authorization',
+    paramMapping: { q: 'query', count: 'max_results', timeRange: 'time_range' },
+    defaultParams: { search_depth: 'basic', topic: 'general', include_answer: false, chunks_per_source: 3 },
+    monthlyLimit: 1000,
+    searchDepth: 'basic',
+    includeAnswer: false
   }
 ];
 
@@ -59,6 +72,79 @@ function initSearch({
 
   // ===== 加载 =====
 
+  /**
+   * 将已存储的服务商配置与默认定义对齐（迁移 + 规范化）
+   * @param {Array} providers 已存储的服务商列表
+   * @param {Array} defaults  默认服务商定义
+   * @returns {boolean} 是否有变更需要保存
+   */
+  function normalizeProviders(providers, defaults) {
+    let changed = false;
+
+    // 1. 补全缺失的默认服务商
+    for (const def of defaults) {
+      if (!providers.find(p => p.id === def.id)) {
+        providers.push(JSON.parse(JSON.stringify(def)));
+        changed = true;
+      }
+    }
+
+    // 2. 逐个规范化（以默认定义为 schema，合并已存储的值）
+    const CORE_KEYS = ['id', 'name', 'desc', 'endpoint', 'apiKey', 'authHeader', 'paramMapping', 'defaultParams', 'monthlyLimit'];
+    const OBSOLETE_PARAMS = ['NeedSummary', 'IncludeRandomSummary', 'summary', 'NeedContentDetail'];
+
+    for (const p of providers) {
+      const def = defaults.find(d => d.id === p.id);
+      if (!def) continue; // 用户自定义服务商跳过
+
+      // 基础字段同步（endpoint 用户可编辑，不同步）
+      for (const key of ['name', 'desc', 'authHeader']) {
+        if (p[key] !== def[key]) { p[key] = def[key]; changed = true; }
+      }
+
+      // paramMapping 合并（def 打底，已有配置优先但又以 def 最新为准）
+      const fixedMapping = {};
+      for (const k of Object.keys(def.paramMapping || {})) {
+        fixedMapping[k] = def.paramMapping[k];
+      }
+      // 保留用户自定义的映射项（def 中不存在的）
+      for (const k of Object.keys(p.paramMapping || {})) {
+        if (!(k in (def.paramMapping || {}))) {
+          fixedMapping[k] = p.paramMapping[k];
+        }
+      }
+      if (JSON.stringify(fixedMapping) !== JSON.stringify(p.paramMapping)) {
+        p.paramMapping = fixedMapping;
+        changed = true;
+      }
+
+      // defaultParams 合并（def 打底，用户值覆盖，清理废弃字段）
+      const mergedParams = { ...def.defaultParams, ...p.defaultParams };
+      for (const key of OBSOLETE_PARAMS) {
+        if (key in mergedParams) { delete mergedParams[key]; }
+      }
+      if (JSON.stringify(mergedParams) !== JSON.stringify(p.defaultParams)) {
+        p.defaultParams = mergedParams;
+        changed = true;
+      }
+
+      // 独立参数（非核心字段）补全 / 清理
+      for (const key of Object.keys(def)) {
+        if (CORE_KEYS.includes(key)) continue;
+        if (p[key] === undefined) { p[key] = def[key]; changed = true; }
+      }
+      for (const key of Object.keys(p)) {
+        if (CORE_KEYS.includes(key) || key === 'apiKey') continue;
+        if (!(key in def)) { delete p[key]; changed = true; }
+      }
+
+      // monthlyLimit 补全
+      if (p.monthlyLimit === undefined) { p.monthlyLimit = def.monthlyLimit ?? 0; changed = true; }
+    }
+
+    return changed;
+  }
+
   async function loadSearchProviders() {
     const result = await chrome.storage.local.get([
       'web_search_providers', 'active_search_provider_id',
@@ -67,75 +153,16 @@ function initSearch({
     ]);
 
     let providers = result.web_search_providers || [];
-    let needSave = false;
 
     // 首次加载：写入种子数据
     if (!providers.length) {
       providers = JSON.parse(JSON.stringify(DEFAULT_WEB_SEARCH_PROVIDERS));
-      needSave = true;
-    }
-
-    // 迁移旧端点和旧名称
-    for (const p of providers) {
-      if (p.id === 'volcengine-search') {
-        if (p.endpoint && p.endpoint.includes('torchlight.byteintlapi.com')) {
-          p.endpoint = DEFAULT_WEB_SEARCH_PROVIDERS[1].endpoint;
-          needSave = true;
-        }
-        if (p.name === '火山/豆包搜索' || p.name === '豆包搜索/火山Agent Plan') {
-          p.name = DEFAULT_WEB_SEARCH_PROVIDERS[1].name;
-          needSave = true;
-        }
-        if (p.desc !== DEFAULT_WEB_SEARCH_PROVIDERS[1].desc) {
-          p.desc = DEFAULT_WEB_SEARCH_PROVIDERS[1].desc;
-          needSave = true;
-        }
-        // 补全缺失的 paramMapping 和 defaultParams
-        if (!p.paramMapping?.q || !p.defaultParams) {
-          p.paramMapping = { ...DEFAULT_WEB_SEARCH_PROVIDERS[1].paramMapping, ...p.paramMapping };
-          p.defaultParams = { ...DEFAULT_WEB_SEARCH_PROVIDERS[1].defaultParams, ...p.defaultParams };
-          needSave = true;
-        }
-        // 迁移：去掉过时的 NeedSummary
-        if (p.defaultParams?.NeedSummary !== undefined) {
-          delete p.defaultParams.NeedSummary;
-          needSave = true;
-        }
-        // 补全独立参数
-        if (p.authInfoLevel === undefined) {
-          p.authInfoLevel = '0';
-          needSave = true;
-        }
-        if (p.blockHosts === undefined) {
-          p.blockHosts = '';
-          needSave = true;
-        }
-      }
-      if (p.id === 'brave-search') {
-        // 补全 safesearch 默认值
-        if (!p.defaultParams?.safesearch) {
-          p.defaultParams = { ...p.defaultParams, safesearch: 'strict' };
-          needSave = true;
-        }
-        // 迁移：language 从旧公共参数移到 provider 字段
-        if (p.language === undefined) {
-          p.language = '';
-          needSave = true;
-        }
-      }
-    }
-
-    // 补全缺失的 monthlyLimit
-    for (const p of providers) {
-      if (p.monthlyLimit === undefined) {
-        const def = DEFAULT_WEB_SEARCH_PROVIDERS.find(d => d.id === p.id);
-        p.monthlyLimit = def ? def.monthlyLimit : 0;
-        needSave = true;
-      }
-    }
-
-    if (needSave) {
       await safeSet({ web_search_providers: providers });
+    } else {
+      // 规范化已有配置
+      if (normalizeProviders(providers, DEFAULT_WEB_SEARCH_PROVIDERS)) {
+        await safeSet({ web_search_providers: providers });
+      }
     }
 
     const activeId = result.active_search_provider_id || '';
@@ -306,6 +333,7 @@ function initSearch({
   function renderSearchDrawerForm(provider) {
     const isBrave = provider.id === 'brave-search';
     const isVolc = provider.id === 'volcengine-search';
+    const isTavily = provider.id === 'tavily-search';
 
     let extraFields = '';
 
@@ -343,6 +371,29 @@ function initSearch({
           <label>屏蔽站点</label>
           <input type="text" id="drawer-volc-blockHosts" value="${escapeHtml(bhVal)}" placeholder="多个域名用 | 分隔，如 example.com|spam.net">
           <div class="hint">指定要屏蔽的搜索域名，最多 5 个</div>
+        </div>`;
+    } else if (isTavily) {
+      const depthVal = provider.searchDepth || 'basic';
+      const answerVal = provider.includeAnswer === true;
+      extraFields = `
+        <div class="rule-form-section">Tavily 搜索参数</div>
+        <div class="rule-form-group">
+          <label>搜索深度</label>
+          <div class="segmented-control" id="drawer-tavily-depth">
+            <button data-value="basic"${depthVal === 'basic' ? ' class="seg-active"' : ''}>Basic</button>
+            <button data-value="advanced"${depthVal === 'advanced' ? ' class="seg-active"' : ''}>Advanced</button>
+            <button data-value="fast"${depthVal === 'fast' ? ' class="seg-active"' : ''}>Fast</button>
+            <button data-value="ultra-fast"${depthVal === 'ultra-fast' ? ' class="seg-active"' : ''}>Ultra-Fast</button>
+          </div>
+          <div class="hint">Basic 平衡相关性与延迟，Advanced 高精度深度搜索（2 积分），Fast 低延迟，Ultra-Fast 极速返回（仅返回一条摘要）</div>
+        </div>
+        <div class="rule-form-group">
+          <label>AI 答案摘要</label>
+          <label class="switch">
+            <input type="checkbox" id="drawer-tavily-answer" ${answerVal ? 'checked' : ''}>
+            <span class="switch-slider"></span>
+          </label>
+          <div class="hint">启用后 Tavily 将返回一个 LLM 生成的查询摘要答案</div>
         </div>`;
     }
 
@@ -524,6 +575,16 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
       }));
     }
 
+    // tavily-search
+    if (providerId === 'tavily-search') {
+      const results = data?.results || [];
+      return results.map(item => ({
+        title: item.title || '',
+        url: item.url || '',
+        snippet: item.content || ''
+      }));
+    }
+
     // volcengine-search / 默认 WebResults
     const webResults = data?.Result?.WebResults || data?.WebResults || [];
     return webResults.map(item => ({
@@ -560,6 +621,16 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
       extra.blockHosts = blockHostsEl.value.trim();
     }
 
+    // Tavily：搜索深度 + 答案摘要
+    const tavilyDepthEl = drawerBodyEl.querySelector('#drawer-tavily-depth');
+    if (tavilyDepthEl) {
+      extra.searchDepth = getSegValue(tavilyDepthEl);
+    }
+    const tavilyAnswerEl = drawerBodyEl.querySelector('#drawer-tavily-answer');
+    if (tavilyAnswerEl) {
+      extra.includeAnswer = tavilyAnswerEl.checked;
+    }
+
     return { endpoint, apiKey, monthlyLimit, ...extra };
   }
 
@@ -586,6 +657,8 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
     if (formData.language !== undefined) providers[idx].language = formData.language;
     if (formData.authInfoLevel !== undefined) providers[idx].authInfoLevel = formData.authInfoLevel;
     if (formData.blockHosts !== undefined) providers[idx].blockHosts = formData.blockHosts;
+    if (formData.searchDepth !== undefined) providers[idx].searchDepth = formData.searchDepth;
+    if (formData.includeAnswer !== undefined) providers[idx].includeAnswer = formData.includeAnswer;
 
     await safeSet({ web_search_providers: providers });
 

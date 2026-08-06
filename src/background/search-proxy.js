@@ -57,6 +57,12 @@ export function buildSearchRequest(provider, settings, query) {
     setNestedParam(params, mapping.blockHosts, provider.blockHosts);
   }
 
+  // Tavily 独立参数：depth / include_answer 覆盖 defaultParams
+  if (provider.id === 'tavily-search') {
+    if (provider.searchDepth) params.search_depth = provider.searchDepth;
+    if (provider.includeAnswer !== undefined) params.include_answer = provider.includeAnswer;
+  }
+
   return params;
 }
 
@@ -66,6 +72,10 @@ export function buildSearchRequest(provider, settings, query) {
 function convertTimeRange(unifiedValue, providerId) {
   if (providerId === 'brave-search') {
     const map = { OneDay: 'pd', OneWeek: 'pw', OneMonth: 'pm', OneYear: 'py' };
+    return map[unifiedValue] || unifiedValue;
+  }
+  if (providerId === 'tavily-search') {
+    const map = { OneDay: 'day', OneWeek: 'week', OneMonth: 'month', OneYear: 'year' };
     return map[unifiedValue] || unifiedValue;
   }
   return unifiedValue;
@@ -122,6 +132,16 @@ export function extractSearchResults(data, providerId) {
       title: item.title || '',
       url: item.url || '',
       snippet: (item.snippets || []).join(' ')
+    }));
+  }
+
+  // tavily-search
+  if (providerId === 'tavily-search') {
+    const results = data?.results || [];
+    return results.map(item => ({
+      title: item.title || '',
+      url: item.url || '',
+      snippet: item.content || ''
     }));
   }
 
