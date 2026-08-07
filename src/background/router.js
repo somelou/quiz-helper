@@ -51,7 +51,7 @@ async function incrementMonthlySearchCount(providerId) {
  * @returns {Array} 只保留被引用的链接
  */
 function filterReferencedLinks(answer, referenceLinks) {
-  if (!answer || referenceLinks.length === 0) return referenceLinks;
+  if (!answer || referenceLinks.length === 0) return referenceLinks.map((ref, i) => ({ ...ref, originalIndex: i + 1 }));
   const citedIndices = new Set();
   const re = /\[(\d+)\]/g;
   let m;
@@ -59,8 +59,10 @@ function filterReferencedLinks(answer, referenceLinks) {
     const idx = parseInt(m[1], 10);
     if (idx >= 1 && idx <= referenceLinks.length) citedIndices.add(idx);
   }
-  if (citedIndices.size === 0) return referenceLinks;
-  return referenceLinks.filter((_, i) => citedIndices.has(i + 1));
+  if (citedIndices.size === 0) return referenceLinks.map((ref, i) => ({ ...ref, originalIndex: i + 1 }));
+  return referenceLinks
+    .map((ref, i) => ({ ...ref, originalIndex: i + 1 }))
+    .filter(ref => citedIndices.has(ref.originalIndex));
 }
 
 async function handleFetchAnswer(questionText, questionType, sendChunk) {

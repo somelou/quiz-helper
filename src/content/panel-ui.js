@@ -349,13 +349,14 @@
           <span class="qh-bank-ref-score">${webSearchRefs.length} 条</span>
         </summary>
         <div class="qh-search-ref-detail">`;
-      webSearchRefs.forEach((ref, i) => {
+      webSearchRefs.forEach((ref) => {
         const domain = (() => {
           try { return new URL(ref.url).hostname; } catch { return ''; }
         })();
+        const displayIndex = ref.originalIndex || 0;
         searchRefsHtml += `
           <div class="qh-search-ref-item">
-            <a class="qh-search-ref-title" href="${escapeHtml(ref.url)}" target="_blank" rel="noopener">${i + 1}. ${escapeHtml(ref.title || '无标题')}</a>
+            <a class="qh-search-ref-title" href="${escapeHtml(ref.url)}" target="_blank" rel="noopener">${displayIndex}. ${escapeHtml(ref.title || '无标题')}</a>
             <div class="qh-search-ref-url">${escapeHtml(domain)}</div>
             ${ref.snippet ? `<div class="qh-search-ref-snippet">${escapeHtml(ref.snippet)}</div>` : ''}
           </div>`;
