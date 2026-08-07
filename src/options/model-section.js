@@ -278,6 +278,19 @@ function initModels({
     await loadModels();
   }
 
+  /**
+   * 渲染工具标签列表
+   */
+  function renderToolsTags(tools) {
+    if (!tools || tools.length === 0) return '';
+    return tools.map((t, i) => `
+      <span class="tools-tag" data-tool-idx="${i}" data-tool-name="${escapeHtml(t.type || '')}">
+        ${escapeHtml(t.type || '')}
+        <button type="button" class="tools-tag-close">&times;</button>
+      </span>
+    `).join('');
+  }
+
   function generateModelName(apiUrl, modelId) {
     if (!apiUrl || !modelId) return '';
     try {
@@ -327,9 +340,10 @@ function initModels({
 
       <div class="rule-form-group">
         <label>API 格式</label>
-        <div class="segmented-control" id="model-apiFormat" data-active="${!model.apiFormat || model.apiFormat === 'openai' ? 'openai' : 'anthropic'}">
+        <div class="segmented-control" id="model-apiFormat" data-active="${(!model.apiFormat || model.apiFormat === 'openai') ? 'openai' : (model.apiFormat === 'anthropic' ? 'anthropic' : 'responses')}">
           <button type="button" class="${!model.apiFormat || model.apiFormat === 'openai' ? 'seg-active' : ''}" data-value="openai">OpenAI</button>
           <button type="button" class="${model.apiFormat === 'anthropic' ? 'seg-active' : ''}" data-value="anthropic">Anthropic</button>
+          <button type="button" class="${model.apiFormat === 'responses' ? 'seg-active' : ''}" data-value="responses">Responses</button>
         </div>
         <div class="hint">根据 API 服务商提供的请求格式设置</div>
       </div>
@@ -353,6 +367,19 @@ function initModels({
         <label>模型 ID <span style="color:var(--color-error-text);">*</span></label>
         <input type="text" id="model-modelId" value="${escapeHtml(model.modelId || '')}" placeholder="deepseek-v4-pro">
         <div class="hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</div>
+      </div>
+
+      <div class="rule-form-group" id="model-toolsGroup" style="display:${model.apiFormat === 'responses' ? '' : 'none'}">
+        <label>内置工具</label>
+        <div class="tools-select" id="model-toolsSelect">
+          <div class="tools-select-inner" id="model-toolsSelectInner">
+            ${renderToolsTags(model.tools || [])}
+            <input type="text" class="tools-select-input" id="model-toolsField"
+                   placeholder="${(model.tools || []).length === 0 ? '输入内置工具名称后按回车添加' : ''}"
+                   autocomplete="off">
+          </div>
+        </div>
+        <div class="hint">例如 web_search；输入后按回车添加，点击 × 移除</div>
       </div>
 
       <div class="rule-form-section">思考模式</div>
@@ -455,6 +482,91 @@ function initModels({
 
     const testBtn = drawerBodyEl.querySelector('#model-testBtn');
     testBtn.addEventListener('click', testModelConnection);
+
+    // 工具选择器（antdv Select 多选风格）
+    initToolsSelect(drawerBodyEl);
+
+    // API 格式切换时显示/隐藏工具区域
+    const apiFormatSeg = drawerBodyEl.querySelector('#model-apiFormat');
+    const toolsGroup = drawerBodyEl.querySelector('#model-toolsGroup');
+    if (apiFormatSeg && toolsGroup) {
+      const observer = new MutationObserver(() => {
+        toolsGroup.style.display = apiFormatSeg.dataset.active === 'responses' ? '' : 'none';
+      });
+      observer.observe(apiFormatSeg, { attributes: true, attributeFilter: ['data-active'] });
+    }
+  }
+
+  /**
+   * 从 DOM 中收集当前表单的所有工具标签
+   */
+  function collectTools() {
+    const container = document.querySelector('#model-toolsSelectInner');
+    if (!container) return [];
+    return [...container.querySelectorAll('.tools-tag')]
+      .map(tag => tag.dataset.toolName)
+      .filter(Boolean)
+      .map(name => ({ type: name }));
+  }
+
+  function initToolsSelect(drawerBodyEl) {
+    const field = drawerBodyEl.querySelector('#model-toolsField');
+    const inner = drawerBodyEl.querySelector('#model-toolsSelectInner');
+    const select = drawerBodyEl.querySelector('#model-toolsSelect');
+    if (!field || !inner) return;
+
+    function getToolNames() {
+      return [...inner.querySelectorAll('.tools-tag')].map(t => t.dataset.toolName);
+    }
+
+    function commitTool(name) {
+      if (!name) return;
+      const existing = getToolNames();
+      if (existing.includes(name)) return;
+      const tag = document.createElement('span');
+      tag.className = 'tools-tag';
+      tag.dataset.toolName = name;
+      tag.innerHTML = `${escapeHtml(name)} <button type="button" class="tools-tag-close">&times;</button>`;
+      inner.insertBefore(tag, field);
+      field.value = '';
+      field.placeholder = '';
+    }
+
+    function removeTag(idx) {
+      const tags = [...inner.querySelectorAll('.tools-tag')];
+      if (tags[idx]) tags[idx].remove();
+      if (getToolNames().length === 0) {
+        field.placeholder = '输入内置工具名称后按回车添加';
+      }
+    }
+
+    // 点击容器聚焦输入框
+    select.addEventListener('click', (e) => {
+      if (e.target === select || e.target === inner || e.target === field) {
+        field.focus();
+      }
+    });
+
+    // 标签关闭按钮
+    inner.addEventListener('click', (e) => {
+      if (e.target.classList.contains('tools-tag-close')) {
+        e.stopPropagation();
+        const tag = e.target.closest('.tools-tag');
+        const tags = [...inner.querySelectorAll('.tools-tag')];
+        removeTag(tags.indexOf(tag));
+      }
+    });
+
+    // 输入框键盘事件
+    field.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        commitTool(field.value.trim());
+      } else if (e.key === 'Backspace' && field.value === '' && field.selectionStart === 0) {
+        const tags = [...inner.querySelectorAll('.tools-tag')];
+        if (tags.length > 0) removeTag(tags.length - 1);
+      }
+    });
   }
 
   async function testModelConnection() {
@@ -492,9 +604,16 @@ function initModels({
 
     const userContent = testText || '请回复 OK';
 
+    // 收集当前表单中的 tools 用于测试
+    const testTools = collectTools();
+
     try {
       if (apiFormat === 'anthropic') {
         await streamAnthropicTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, {
+          statusEl, thinkingEl, thinkingBodyEl, thinkingHeaderEl, responseEl
+        });
+      } else if (apiFormat === 'responses') {
+        await streamResponsesTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, testTools, {
           statusEl, thinkingEl, thinkingBodyEl, thinkingHeaderEl, responseEl
         });
       } else {
@@ -702,6 +821,88 @@ function initModels({
     }
   }
 
+  async function streamResponsesTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, tools, els) {
+    const body = { model: modelId, input: [{ role: 'user', content: userContent }], stream: true };
+    if (tools && tools.length > 0) body.tools = tools;
+    if (enableThinking) {
+      body.reasoning = { effort: thinkingEffort };
+    } else {
+      body.temperature = 0;
+    }
+
+    const response = await fetch(`${apiUrl}/responses`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
+    }
+
+    await parseResponsesSSE(response.body.getReader(), els);
+  }
+
+  async function parseResponsesSSE(reader, els) {
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let hasThinking = false;
+    let currentEvent = '';
+    let fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line.startsWith('event: ')) {
+          currentEvent = line.slice(7).trim();
+          continue;
+        }
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+
+        try {
+          const json = JSON.parse(data);
+
+          if (currentEvent === 'response.reasoning_text.delta') {
+            if (!hasThinking) {
+              hasThinking = true;
+              els.thinkingEl.style.display = '';
+              els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
+            }
+            els.thinkingBodyEl.textContent += (json.delta || '');
+            els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
+          }
+
+          if (currentEvent === 'response.output_text.delta') {
+            if (hasThinking && els.thinkingBodyEl.style.display !== 'none') {
+              els.statusEl.innerHTML = '';
+            }
+            fullText += (json.delta || '');
+            els.responseEl.textContent = fullText;
+            els.responseEl.scrollTop = els.responseEl.scrollHeight;
+          }
+        } catch (_) { /* 忽略解析错误 */ }
+      }
+    }
+
+    if (fullText) {
+      els.responseEl.innerHTML = marked.parse(preprocessLatex(fullText), { breaks: true, gfm: true });
+    }
+    els.statusEl.innerHTML = '<span class="test-status-success">连接成功</span>';
+    if (hasThinking) {
+      els.thinkingHeaderEl.classList.add('test-thinking-collapsed');
+      els.thinkingBodyEl.style.display = 'none';
+    }
+  }
+
   function getModelFromForm() {
     const name = drawerBodyEl.querySelector('#model-name')?.value?.trim() || '';
     const apiUrl = drawerBodyEl.querySelector('#model-apiUrl')?.value?.trim().replace(/\/+$/, '') || '';
@@ -711,12 +912,15 @@ function initModels({
     const enableThinking = drawerBodyEl.querySelector('#model-enableThinking')?.checked || false;
     const thinkingEffort = drawerBodyEl.querySelector('#model-thinkingEffort')?.dataset?.active || 'high';
 
+    // 收集工具标签
+    const tools = collectTools();
+
     if (!name) { showModelStatus('模型展示名称不能为空'); return null; }
     if (!apiUrl) { showModelStatus('API URL 不能为空'); return null; }
     if (!apiKey) { showModelStatus('API Key 不能为空'); return null; }
     if (!modelId) { showModelStatus('模型 ID 不能为空'); return null; }
 
-    return { name, apiUrl, apiKey, modelId, apiFormat, enableThinking, thinkingEffort };
+    return { name, apiUrl, apiKey, modelId, apiFormat, enableThinking, thinkingEffort, tools };
   }
 
   async function saveModelFromDrawer() {

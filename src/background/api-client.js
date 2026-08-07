@@ -27,6 +27,7 @@ export async function getApiConfig(taskType) {
   let apiFormat = 'openai';
   let enableThinking = false;
   let thinkingEffort = 'high';
+  let tools = [];
   let systemPrompt = '';
   let extraContextPrompt = config.extra_context_prompt || '';
 
@@ -51,6 +52,7 @@ export async function getApiConfig(taskType) {
       apiFormat = activeModel.apiFormat || 'openai';
       enableThinking = activeModel.enableThinking || false;
       thinkingEffort = activeModel.thinkingEffort || 'high';
+      tools = activeModel.tools || [];
     }
   }
 
@@ -71,6 +73,7 @@ export async function getApiConfig(taskType) {
     apiUrl: apiUrl || DEFAULT_API_URL,
     apiKey,
     apiFormat,
+    tools,
     enableThinking,
     thinkingEffort,
     extraContextPrompt,
@@ -110,10 +113,15 @@ export async function postChatCompletion({
   timeoutMs = DEFAULT_TIMEOUT_MS,
   signal,
   enableThinking = false,
-  thinkingEffort = 'high'
+  thinkingEffort = 'high',
+  tools = []
 }) {
   if (apiFormat === 'anthropic') {
     return postAnthropicMessage({ apiKey, apiUrl, messages, model, temperature, timeoutMs, signal, enableThinking, thinkingEffort });
+  }
+  if (apiFormat === 'responses') {
+    const result = await callResponses({ apiKey, apiUrl, messages, model, temperature, timeoutMs, signal, enableThinking, thinkingEffort, tools });
+    return result.text;
   }
 
   // OpenAI Chat Completions 格式
@@ -224,10 +232,15 @@ export async function streamChatCompletion({
   signal,
   enableThinking = false,
   thinkingEffort = 'high',
+  tools = [],
   onChunk
 }) {
   if (apiFormat === 'anthropic') {
     return streamAnthropicMessage({ apiKey, apiUrl, messages, model, temperature, timeoutMs, signal, enableThinking, thinkingEffort, onChunk });
+  }
+  if (apiFormat === 'responses') {
+    const result = await callResponses({ apiKey, apiUrl, messages, model, temperature, timeoutMs, signal, enableThinking, thinkingEffort, tools, stream: true, onChunk });
+    return result.text;
   }
 
   // OpenAI Chat Completions 流式
@@ -379,4 +392,156 @@ async function parseAnthropicSSEStream(reader, onChunk) {
   }
 
   return fullText;
+}
+
+// ==================== OpenAI Responses API ====================
+
+/**
+ * Responses API 统一调用入口
+ * @param {Object} params
+ * @param {boolean} [params.stream=false] - 是否流式
+ * @param {Function} [params.onChunk] - 流式回调
+ * @returns {Promise<{text: string, annotations: Array}>}
+ */
+async function callResponses({
+  apiKey, apiUrl, messages, model, temperature, timeoutMs, signal, enableThinking, thinkingEffort, tools,
+  stream = false, onChunk
+}) {
+  const { instructions, input } = convertToResponsesFormat(messages);
+
+  const body = { model, input };
+  if (stream) body.stream = true;
+  if (instructions) body.instructions = instructions;
+  if (tools && tools.length > 0) body.tools = tools;
+  if (enableThinking) {
+    body.reasoning = { effort: thinkingEffort };
+  } else {
+    body.temperature = temperature;
+  }
+
+  const response = await fetchWithTimeout(`${apiUrl}/responses`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify(body)
+  }, timeoutMs, signal);
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`API 请求失败 (${response.status}): ${errText}`);
+  }
+
+  if (stream) {
+    const result = await parseResponsesSSEStream(response.body.getReader(), onChunk);
+    if (result.annotations.length > 0) {
+      onChunk({ type: 'referenceLinks', links: result.annotations });
+    }
+    return result;
+  }
+
+  // 非流式：从 JSON 响应中提取 text 和 annotations
+  const data = await response.json();
+  const output = data.output?.find(o => o.type === 'message');
+  let text = '';
+  const annotations = [];
+  if (output) {
+    const textContent = output.content?.find(c => c.type === 'output_text');
+    if (textContent) {
+      text = textContent.text || '';
+      if (textContent.annotations) {
+        for (const ann of textContent.annotations) {
+          if (ann.type === 'url_citation' && ann.url) {
+            annotations.push({ title: ann.title || ann.url, url: ann.url });
+          }
+        }
+      }
+    }
+  }
+  return { text, annotations };
+}
+
+/**
+ * 将 Chat Completions 格式的 messages 转为 Responses API 格式
+ * - system 角色 → instructions 字段
+ * - 其余 → input 数组
+ */
+function convertToResponsesFormat(messages) {
+  let instructions = '';
+  const input = [];
+  for (const msg of messages) {
+    if (msg.role === 'system') {
+      instructions += (instructions ? '\n' : '') + msg.content;
+    } else {
+      input.push(msg);
+    }
+  }
+  return { instructions, input };
+}
+
+/**
+ * 解析 Responses API SSE 流式响应
+ * 事件类型: response.reasoning_text.delta / response.output_text.delta / response.output_text.done
+ */
+async function parseResponsesSSEStream(reader, onChunk) {
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let fullText = '';
+  let currentEvent = '';
+  const annotations = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      if (line.startsWith('event: ')) {
+        currentEvent = line.slice(7).trim();
+        continue;
+      }
+      if (!line.startsWith('data: ')) continue;
+      const data = line.slice(6).trim();
+      if (data === '[DONE]') continue;
+
+      try {
+        const json = JSON.parse(data);
+
+        if (currentEvent === 'response.reasoning_text.delta') {
+          onChunk({ type: 'thinking', content: json.delta || '' });
+        }
+        if (currentEvent === 'response.output_text.delta') {
+          fullText += json.delta || '';
+          onChunk({ type: 'text', content: json.delta || '' });
+        }
+
+        // 联网搜索状态事件
+        if (currentEvent === 'response.web_search_call.in_progress' ||
+            currentEvent === 'response.web_search_call.searching') {
+          onChunk({ type: 'searchStatus', status: 'searching' });
+        }
+        if (currentEvent === 'response.web_search_call.completed') {
+          onChunk({ type: 'searchStatus', status: 'completed' });
+        }
+        if (currentEvent === 'response.output_item.done' && json.item?.type === 'web_search_call') {
+          const action = json.item.action;
+          if (action?.type === 'open_page' && action.url) {
+            onChunk({ type: 'searchStatus', status: 'completed', url: action.url });
+          }
+        }
+
+        // response.output_text.done 携带 annotations（引用标注）
+        if (currentEvent === 'response.output_text.done' && json.annotations) {
+          for (const ann of json.annotations) {
+            if (ann.type === 'url_citation' && ann.url) {
+              annotations.push({ title: ann.title || ann.url, url: ann.url });
+            }
+          }
+        }
+      } catch (_) { /* ignore */ }
+    }
+  }
+
+  return { text: fullText, annotations };
 }

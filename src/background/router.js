@@ -64,21 +64,29 @@ function filterReferencedLinks(answer, referenceLinks) {
 }
 
 async function handleFetchAnswer(questionText, questionType, sendChunk) {
-  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt, enableThinking, thinkingEffort } = await getApiConfig('answer');
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt, enableThinking, thinkingEffort, tools } = await getApiConfig('answer');
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
   }
 
   if (sendChunk) {
+    const collectedLinks = [];
+    const collectChunk = (data) => {
+      if (data.type === 'referenceLinks') {
+        collectedLinks.push(...data.links);
+      } else {
+        sendChunk(data);
+      }
+    };
     const answer = await streamChatCompletion({
-      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort,
+      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
       messages: [
         { role: 'system', content: await buildSystemPrompt(questionType, systemPrompt, extraContextPrompt) },
         { role: 'user', content: questionText }
       ],
-      onChunk: sendChunk
+      onChunk: collectChunk
     });
-    sendChunk({ type: 'done', answer: answer || '未获取到有效答案', referenceLinks: [] });
+    sendChunk({ type: 'done', answer: answer || '未获取到有效答案', referenceLinks: collectedLinks });
     return;
   }
 
@@ -93,14 +101,15 @@ async function handleFetchAnswer(questionText, questionType, sendChunk) {
     model,
     temperature: 0.3,
     enableThinking,
-    thinkingEffort
+    thinkingEffort,
+    tools
   });
 
   return { success: true, answer: answer || '未获取到有效答案' };
 }
 
 async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) {
-  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, enableThinking, thinkingEffort } = await getApiConfig('answer');
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, enableThinking, thinkingEffort, tools } = await getApiConfig('answer');
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
   }
@@ -117,7 +126,8 @@ async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) 
     model,
     temperature: 0.2,
     enableThinking,
-    thinkingEffort
+    thinkingEffort,
+    tools
   });
 
   return { success: true, answer: answer || '未获取到有效答案' };
@@ -149,7 +159,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
       : handleFetchAnswer(questionText, questionType);
   }
 
-  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt: customPrompt, enableThinking, thinkingEffort } = await getApiConfig('answer');
+  const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt: customPrompt, enableThinking, thinkingEffort, tools } = await getApiConfig('answer');
   if (!apiKey) throw new Error('未配置 API Key，请先打开设置页面配置');
 
   const searchAwareSystem = await buildSearchAwarePrompt(questionType, customPrompt, extraContextPrompt);
@@ -162,13 +172,13 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
   let firstFull;
   if (sendChunk) {
     firstFull = await streamChatCompletion({
-      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort,
+      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
       messages,
       onChunk: sendChunk
     });
   } else {
     firstFull = await postChatCompletion({
-      apiKey, apiUrl, apiFormat, messages, model, temperature: 0.3, enableThinking, thinkingEffort
+      apiKey, apiUrl, apiFormat, messages, model, temperature: 0.3, enableThinking, thinkingEffort, tools
     });
   }
 
@@ -212,13 +222,13 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
   let finalAnswer;
   if (sendChunk) {
     finalAnswer = await streamChatCompletion({
-      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort,
+      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
       messages: resultMessages,
       onChunk: sendChunk
     });
   } else {
     finalAnswer = await postChatCompletion({
-      apiKey, apiUrl, apiFormat, messages: resultMessages, model, temperature: 0.3, enableThinking, thinkingEffort
+      apiKey, apiUrl, apiFormat, messages: resultMessages, model, temperature: 0.3, enableThinking, thinkingEffort, tools
     });
   }
 
@@ -231,7 +241,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
 }
 
 async function handleExtractQuestions(pageText, pageStructure, selectionText, elementHint, existingRule) {
-  const { apiUrl, apiKey, apiFormat, model, enableThinking, thinkingEffort } = await getApiConfig('extract');
+  const { apiUrl, apiKey, apiFormat, model, enableThinking, thinkingEffort, tools } = await getApiConfig('extract');
   if (!apiKey) {
     throw new Error('未配置 API Key');
   }
@@ -248,7 +258,8 @@ async function handleExtractQuestions(pageText, pageStructure, selectionText, el
     model,
     temperature: 0.1,
     enableThinking,
-    thinkingEffort
+    thinkingEffort,
+    tools
   });
 
   try {
