@@ -36,7 +36,7 @@ function initModels({
 
   function renderModels(models, activeModelId, bankModelId, extractModelId) {
     if (!models || models.length === 0) {
-      modelListEl.innerHTML = '<div class="list-empty">暂无大模型配置，点击右上角「添加」创建。</div>';
+      modelListEl.innerHTML = '<div class="list-empty">' + getMessage('optionsModelsEmpty') + '</div>';
       return;
     }
 
@@ -55,9 +55,9 @@ function initModels({
 
       // 构建 badge 列表
       const badges = [];
-      if (isAnswerModel) badges.push('<span class="model-badge model-preferred">答题</span>');
-      if (isExtract) badges.push('<span class="model-badge model-task-extract">页面解析</span>');
-      if (isBank) badges.push('<span class="model-badge model-task-bank">题库解析</span>');
+      if (isAnswerModel) badges.push('<span class="model-badge model-preferred">' + getMessage('optionsModelBadgeAnswer') + '</span>');
+      if (isExtract) badges.push('<span class="model-badge model-task-extract">' + getMessage('optionsModelBadgeExtract') + '</span>');
+      if (isBank) badges.push('<span class="model-badge model-task-bank">' + getMessage('optionsModelBadgeBank') + '</span>');
 
       const badgeHtml = badges.join('');
 
@@ -67,13 +67,13 @@ function initModels({
       // 构建 footer 按钮
       const footerButtons = [];
       if (!isAnswerModel && model.isActive) {
-        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">用于答题</button>');
+        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">' + getMessage('optionsModelUseForAnswer') + '</button>');
       }
       if (!isExtract && model.isActive) {
-        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">用于页面解析</button>');
+        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">' + getMessage('optionsModelUseForExtract') + '</button>');
       }
       if (!isBank && model.isActive) {
-        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">用于题库解析</button>');
+        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">' + getMessage('optionsModelUseForBank') + '</button>');
       }
 
       const footerHtml = footerButtons.length > 0
@@ -84,18 +84,18 @@ function initModels({
         <div class="list-item-header">
           <div class="list-item-info">
             <div class="list-item-title">
-              ${escapeHtml(model.name || '未命名')}
+              ${escapeHtml(model.name || getMessage('optionsUnnamed'))}
               ${badgeHtml}
             </div>
-            <div class="list-item-meta">模型 ID: ${escapeHtml(model.modelId || '')} · ${escapeHtml(model.apiUrl || '')}</div>
+            <div class="list-item-meta">${getMessage('optionsModelMetaFormat', [escapeHtml(model.modelId || ''), escapeHtml(model.apiUrl || '')])}</div>
           </div>
           <div class="list-item-actions">
             <label class="switch">
               <input type="checkbox" data-action="toggle" data-idx="${idx}" ${model.isActive ? 'checked' : ''}>
               <span class="switch-slider"></span>
             </label>
-            <button class="action-btn action-edit" data-idx="${idx}">编辑</button>
-            <button class="action-btn action-delete" data-idx="${idx}">删除</button>
+            <button class="action-btn action-edit" data-idx="${idx}">${getMessage('optionsEdit')}</button>
+            <button class="action-btn action-delete" data-idx="${idx}">${getMessage('commonDelete')}</button>
           </div>
         </div>
         ${footerHtml}
@@ -113,11 +113,11 @@ function initModels({
       }
       const extractBtn = item.querySelector('[data-action="set-extract"]');
       if (extractBtn) {
-        extractBtn.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', '页面解析'));
+        extractBtn.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', getMessage('optionsModelBadgeExtract')));
       }
       const bankBtn = item.querySelector('[data-action="set-bank"]');
       if (bankBtn) {
-        bankBtn.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', '题库解析'));
+        bankBtn.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', getMessage('optionsModelBadgeBank')));
       }
 
       modelListEl.appendChild(item);
@@ -136,16 +136,16 @@ function initModels({
     const result = await chrome.storage.local.get(['llm_models']);
     const models = result.llm_models || [];
     if (!models[idx] || !models[idx].isActive) {
-      showModelStatus('请先激活该模型');
+      showModelStatus(getMessage('optionsModelActivateFirst'));
       return;
     }
     await safeSet({ [storageKey]: models[idx].id });
-    showModelStatus(`已设为${label}模型`);
+    showModelStatus(getMessage('optionsModelSetAsFormat', [label]));
     await loadModels();
   }
 
   async function deleteModel(idx) {
-    if (!confirm('确定要删除这个大模型配置吗？')) return;
+    if (!confirm(getMessage('optionsModelDeleteConfirm'))) return;
     const result = await chrome.storage.local.get([
       'llm_models', 'active_model_id',
       'model_bank_id', 'model_extract_id'
@@ -167,7 +167,7 @@ function initModels({
     }
 
     await safeSet(updates);
-    showModelStatus('模型已删除');
+    showModelStatus(getMessage('optionsModelDeleted'));
     await loadModels();
   }
 
@@ -204,7 +204,7 @@ function initModels({
     }
 
     await safeSet(updates);
-    showModelStatus(checked ? '模型已激活' : '模型已停用');
+    showModelStatus(checked ? getMessage('optionsModelActivated') : getMessage('optionsModelDeactivated'));
     const activeModelId = updates.active_model_id !== undefined ? updates.active_model_id : result.active_model_id;
     if (answerChanged) {
       // 答题模型变化了，需要更新整个列表
@@ -228,24 +228,24 @@ function initModels({
     // 更新 badge
     const titleEl = item.querySelector('.list-item-title');
     if (titleEl) {
-      const nameText = escapeHtml(model.name || '未命名');
+      const nameText = escapeHtml(model.name || getMessage('optionsUnnamed'));
       let badgeHtml = '';
-      if (isAnswerModel) badgeHtml += '<span class="model-badge model-preferred">答题</span>';
-      if (isExtract) badgeHtml += '<span class="model-badge model-task-extract">页面解析</span>';
-      if (isBank) badgeHtml += '<span class="model-badge model-task-bank">题库解析</span>';
+      if (isAnswerModel) badgeHtml += '<span class="model-badge model-preferred">' + getMessage('optionsModelBadgeAnswer') + '</span>';
+      if (isExtract) badgeHtml += '<span class="model-badge model-task-extract">' + getMessage('optionsModelBadgeExtract') + '</span>';
+      if (isBank) badgeHtml += '<span class="model-badge model-task-bank">' + getMessage('optionsModelBadgeBank') + '</span>';
       titleEl.innerHTML = nameText + badgeHtml;
     }
     // 重建 footer（包含全部三个操作链接）
     const existingFooter = item.querySelector('.list-item-footer');
     const footerButtons = [];
     if (!isAnswerModel && model.isActive) {
-      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">用于答题</button>');
+      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">' + getMessage('optionsModelUseForAnswer') + '</button>');
     }
     if (!isExtract && model.isActive) {
-      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">用于页面解析</button>');
+      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">' + getMessage('optionsModelUseForExtract') + '</button>');
     }
     if (!isBank && model.isActive) {
-      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">用于题库解析</button>');
+      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">' + getMessage('optionsModelUseForBank') + '</button>');
     }
     if (existingFooter && footerButtons.length > 0) {
       existingFooter.innerHTML = footerButtons.join('');
@@ -264,11 +264,11 @@ function initModels({
     }
     const extractBtn = item.querySelector('[data-action="set-extract"]');
     if (extractBtn) {
-      extractBtn.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', '页面解析'));
+      extractBtn.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', getMessage('optionsModelBadgeExtract')));
     }
     const bankBtn = item.querySelector('[data-action="set-bank"]');
     if (bankBtn) {
-      bankBtn.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', '题库解析'));
+      bankBtn.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', getMessage('optionsModelBadgeBank')));
     }
   }
 
@@ -276,11 +276,11 @@ function initModels({
     const result = await chrome.storage.local.get(['llm_models']);
     const models = result.llm_models || [];
     if (!models[idx].isActive) {
-      showModelStatus('请先激活该模型');
+      showModelStatus(getMessage('optionsModelActivateFirst'));
       return;
     }
     await safeSet({ active_model_id: models[idx].id });
-    showModelStatus('已设为答题模型');
+    showModelStatus(getMessage('optionsModelSetAsAnswer'));
     await loadModels();
   }
 
@@ -312,7 +312,7 @@ function initModels({
 
   function openModelDrawer(model) {
     const isEdit = !!model;
-    drawerTitleEl.textContent = isEdit ? '编辑大模型' : '添加大模型';
+    drawerTitleEl.textContent = isEdit ? getMessage('optionsDrawerTitleEditModel') : getMessage('optionsDrawerTitleAddModel');
     drawerMetaEl.textContent = '';
     currentModelEditingBase = model ? JSON.parse(JSON.stringify(model)) : null;
     renderModelForm(model || {});
@@ -333,85 +333,85 @@ function initModels({
 
     drawerBodyEl.innerHTML = `
       <div class="rule-form-group">
-        <label>模型展示名称 <span style="color:var(--color-error-text);">*</span></label>
-        <input type="text" id="model-name" value="${escapeHtml(model.name || '')}" placeholder="自动生成：主站名/模型ID">
-        <div class="hint">用于区分不同模型配置，需全局唯一</div>
+        <label>${getMessage('optionsModelFormNameLabel')} <span style="color:var(--color-error-text);">*</span></label>
+        <input type="text" id="model-name" value="${escapeHtml(model.name || '')}" placeholder="${getMessage('optionsModelFormNamePlaceholder')}">
+        <div class="hint">${getMessage('optionsModelFormNameHint')}</div>
       </div>
 
-      <div class="rule-form-section">API 配置</div>
+      <div class="rule-form-section">${getMessage('optionsApiSection')}</div>
 
       <div class="rule-form-group">
-        <label>API 格式</label>
+        <label>${getMessage('optionsModelFormApiFormatLabel')}</label>
         <div class="segmented-control" id="model-apiFormat" data-active="${(!model.apiFormat || model.apiFormat === 'openai') ? 'openai' : (model.apiFormat === 'anthropic' ? 'anthropic' : 'responses')}">
           <button type="button" class="${!model.apiFormat || model.apiFormat === 'openai' ? 'seg-active' : ''}" data-value="openai">OpenAI</button>
           <button type="button" class="${model.apiFormat === 'anthropic' ? 'seg-active' : ''}" data-value="anthropic">Anthropic</button>
           <button type="button" class="${model.apiFormat === 'responses' ? 'seg-active' : ''}" data-value="responses">Responses</button>
         </div>
-        <div class="hint">根据 API 服务商提供的请求格式设置</div>
+        <div class="hint">${getMessage('optionsModelFormApiFormatHint')}</div>
       </div>
 
       <div class="rule-form-group">
-        <label>API 基础 URL <span style="color:var(--color-error-text);">*</span></label>
+        <label>${getMessage('optionsModelFormApiUrlLabel')} <span style="color:var(--color-error-text);">*</span></label>
         <input type="text" id="model-apiUrl" value="${escapeHtml(model.apiUrl || 'https://api.deepseek.com/v1')}" placeholder="https://api.deepseek.com/v1">
-        <div class="hint">例如：https://api.deepseek.com/v1、https://api.openai.com/v1</div>
+        <div class="hint">${getMessage('optionsModelFormApiUrlHint')}</div>
       </div>
 
       <div class="rule-form-group">
         <label>API Key <span style="color:var(--color-error-text);">*</span></label>
         <div class="input-wrapper">
           <input type="password" id="model-apiKey" value="${escapeHtml(model.apiKey || '')}" placeholder="sk-...">
-          <button type="button" class="toggle-visible" id="model-toggleKey">显示</button>
+          <button type="button" class="toggle-visible" id="model-toggleKey">${getMessage('optionsShow')}</button>
         </div>
-        <div class="hint">您的 API 密钥仅存储在本地浏览器中</div>
+        <div class="hint">${getMessage('optionsModelFormApiKeyHint')}</div>
       </div>
 
       <div class="rule-form-group">
-        <label>模型 ID <span style="color:var(--color-error-text);">*</span></label>
+        <label>${getMessage('optionsModelFormModelIdLabel')} <span style="color:var(--color-error-text);">*</span></label>
         <input type="text" id="model-modelId" value="${escapeHtml(model.modelId || '')}" placeholder="deepseek-v4-pro">
-        <div class="hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</div>
+        <div class="hint">${getMessage('optionsModelFormModelIdHint')}</div>
       </div>
 
       <div class="rule-form-group" id="model-toolsGroup" style="display:${model.apiFormat === 'responses' ? '' : 'none'}">
-        <label>内置工具</label>
+        <label>${getMessage('optionsModelFormToolsLabel')}</label>
         <div class="tools-select" id="model-toolsSelect">
           <div class="tools-select-inner" id="model-toolsSelectInner">
             ${renderToolsTags(model.tools || [])}
             <input type="text" class="tools-select-input" id="model-toolsField"
-                   placeholder="${(model.tools || []).length === 0 ? '输入内置工具名称后按回车添加' : ''}"
+                   placeholder="${(model.tools || []).length === 0 ? getMessage('optionsModelFormToolsPlaceholder') : ''}"
                    autocomplete="off">
           </div>
         </div>
-        <div class="hint">例如 web_search；输入后按回车添加，点击 × 移除</div>
+        <div class="hint">${getMessage('optionsModelFormToolsHint')}</div>
       </div>
 
-      <div class="rule-form-section">思考模式</div>
+      <div class="rule-form-section">${getMessage('optionsModelFormThinking')}</div>
       <div class="rule-form-group">
-        <label>思考模式</label>
+        <label>${getMessage('optionsModelFormThinking')}</label>
         <label class="switch">
           <input type="checkbox" id="model-enableThinking" ${model.enableThinking ? 'checked' : ''}>
           <span class="switch-slider"></span>
         </label>
-        <div class="hint">启用后强制开启思考模式，未启用则由模型自己判断</div>
+        <div class="hint">${getMessage('optionsModelFormThinkingHint')}</div>
       </div>
       <div class="rule-form-group" id="model-thinkingEffortGroup" style="display:${model.enableThinking ? '' : 'none'}">
-        <label>思考强度</label>
+        <label>${getMessage('optionsModelFormEffortLabel')}</label>
         <div class="segmented-control" id="model-thinkingEffort" data-active="${model.thinkingEffort || 'high'}">
           <button type="button" class="${(!model.thinkingEffort || model.thinkingEffort === 'high') ? 'seg-active' : ''}" data-value="high">High</button>
           <button type="button" class="${model.thinkingEffort === 'max' ? 'seg-active' : ''}" data-value="max">Max</button>
         </div>
-        <div class="hint">High 适合多数场景；Max 适合复杂推理任务</div>
+        <div class="hint">${getMessage('optionsModelFormEffortHint')}</div>
       </div>
 
-      <div class="rule-form-section">测试连接</div>
+      <div class="rule-form-section">${getMessage('optionsModelTestConnection')}</div>
       <div class="rule-form-group">
-        <textarea id="model-testText" placeholder="输入测试文本" rows="3" style="width:100%;box-sizing:border-box;resize:vertical;">请回复 OK</textarea>
-        <button type="button" class="btn-primary" id="model-testBtn" style="width:100%;margin-top:8px;">测试连接</button>
+        <textarea id="model-testText" placeholder="${getMessage('optionsModelFormTestTextPlaceholder')}" rows="3" style="width:100%;box-sizing:border-box;resize:vertical;">${getMessage('optionsModelFormTestTextValue')}</textarea>
+        <button type="button" class="btn-primary" id="model-testBtn" style="width:100%;margin-top:8px;">${getMessage('optionsModelTestConnection')}</button>
         <div id="model-testResult" style="display:none;">
           <div class="test-status" id="model-testStatus"></div>
           <div class="test-thinking" id="model-testThinking" style="display:none;">
             <div class="test-thinking-header" id="model-testThinkingHeader">
               <span class="test-thinking-dot"></span>
-              <span>深度思考</span>
+              <span>${getMessage('optionsModelFormDeepThinking')}</span>
               <svg class="test-thinking-chevron" width="12" height="12" viewBox="0 0 12 12"><path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
             </div>
             <div class="test-thinking-body" id="model-testThinkingBody"></div>
@@ -452,10 +452,10 @@ function initModels({
     toggleKeyBtn.addEventListener('click', () => {
       if (apiKeyInput.type === 'password') {
         apiKeyInput.type = 'text';
-        toggleKeyBtn.textContent = '隐藏';
+        toggleKeyBtn.textContent = getMessage('optionsHide');
       } else {
         apiKeyInput.type = 'password';
-        toggleKeyBtn.textContent = '显示';
+        toggleKeyBtn.textContent = getMessage('optionsShow');
       }
     });
 
@@ -538,7 +538,7 @@ function initModels({
       const tags = [...inner.querySelectorAll('.tools-tag')];
       if (tags[idx]) tags[idx].remove();
       if (getToolNames().length === 0) {
-        field.placeholder = '输入内置工具名称后按回车添加';
+        field.placeholder = getMessage('optionsModelFormToolsPlaceholder');
       }
     }
 
@@ -588,7 +588,7 @@ function initModels({
     const thinkingEffort = drawerBodyEl.querySelector('#model-thinkingEffort')?.dataset?.active || 'high';
 
     if (!apiUrl || !apiKey || !modelId) {
-      statusEl.innerHTML = '<span class="test-status-error">请先填写 API URL、API Key 和模型 ID</span>';
+      statusEl.innerHTML = '<span class="test-status-error">' + getMessage('optionsModelFormTestErrorNoApi') + '</span>';
       resultEl.style.display = '';
       thinkingEl.style.display = 'none';
       responseEl.innerHTML = '';
@@ -602,9 +602,9 @@ function initModels({
     thinkingHeaderEl.classList.remove('test-thinking-collapsed');
     thinkingBodyEl.style.display = '';
     responseEl.textContent = '';
-    statusEl.innerHTML = '<span class="test-status-loading"><span class="test-spinner"></span>请求中...</span>';
+    statusEl.innerHTML = '<span class="test-status-loading"><span class="test-spinner"></span>' + getMessage('optionsModelFormTestRequesting') + '</span>';
 
-    const userContent = testText || '请回复 OK';
+    const userContent = testText || getMessage('optionsModelFormTestTextValue');
 
     // 收集当前表单中的 tools 用于测试
     const testTools = collectTools();
@@ -628,7 +628,7 @@ function initModels({
         }, streamEnabled);
       }
     } catch (err) {
-      statusEl.innerHTML = `<span class="test-status-error">连接失败: ${escapeHtml(err.message)}</span>`;
+      statusEl.innerHTML = `<span class="test-status-error">${getMessage('optionsModelFormTestConnFail', [escapeHtml(err.message)])}</span>`;
       thinkingEl.style.display = 'none';
     }
   }
@@ -642,7 +642,7 @@ function initModels({
     if (text) {
       els.responseEl.innerHTML = marked.parse(preprocessLatex(text), { breaks: true, gfm: true });
     }
-    els.statusEl.innerHTML = '<span class="test-status-success">连接成功</span>';
+    els.statusEl.innerHTML = '<span class="test-status-success">' + getMessage('optionsModelFormTestConnSuccess') + '</span>';
   }
 
   async function streamOpenAITest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, els, stream = true) {
@@ -707,7 +707,7 @@ function initModels({
         if (!hasThinking) {
           hasThinking = true;
           els.thinkingEl.style.display = '';
-          els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
+          els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>' + getMessage('optionsModelFormTestThinking') + '</span>';
         }
         els.thinkingBodyEl.textContent += event.content;
         els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
@@ -724,7 +724,7 @@ function initModels({
     if (fullText) {
       els.responseEl.innerHTML = marked.parse(preprocessLatex(fullText), { breaks: true, gfm: true });
     }
-    els.statusEl.innerHTML = '<span class="test-status-success">连接成功</span>';
+    els.statusEl.innerHTML = '<span class="test-status-success">' + getMessage('optionsModelFormTestConnSuccess') + '</span>';
     if (hasThinking) {
       els.thinkingHeaderEl.classList.add('test-thinking-collapsed');
       els.thinkingBodyEl.style.display = 'none';
@@ -775,7 +775,7 @@ function initModels({
         if (!hasThinking) {
           hasThinking = true;
           els.thinkingEl.style.display = '';
-          els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
+          els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>' + getMessage('optionsModelFormTestThinking') + '</span>';
         }
         els.thinkingBodyEl.textContent += event.content;
         els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
@@ -792,7 +792,7 @@ function initModels({
     if (fullText) {
       els.responseEl.innerHTML = marked.parse(preprocessLatex(fullText), { breaks: true, gfm: true });
     }
-    els.statusEl.innerHTML = '<span class="test-status-success">连接成功</span>';
+    els.statusEl.innerHTML = '<span class="test-status-success">' + getMessage('optionsModelFormTestConnSuccess') + '</span>';
     if (hasThinking) {
       els.thinkingHeaderEl.classList.add('test-thinking-collapsed');
       els.thinkingBodyEl.style.display = 'none';
@@ -842,7 +842,7 @@ function initModels({
         if (!hasThinking) {
           hasThinking = true;
           els.thinkingEl.style.display = '';
-          els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
+          els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>' + getMessage('optionsModelFormTestThinking') + '</span>';
         }
         els.thinkingBodyEl.textContent += event.content;
         els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
@@ -859,7 +859,7 @@ function initModels({
     if (fullText) {
       els.responseEl.innerHTML = marked.parse(preprocessLatex(fullText), { breaks: true, gfm: true });
     }
-    els.statusEl.innerHTML = '<span class="test-status-success">连接成功</span>';
+    els.statusEl.innerHTML = '<span class="test-status-success">' + getMessage('optionsModelFormTestConnSuccess') + '</span>';
     if (hasThinking) {
       els.thinkingHeaderEl.classList.add('test-thinking-collapsed');
       els.thinkingBodyEl.style.display = 'none';
@@ -878,10 +878,10 @@ function initModels({
     // 收集工具标签
     const tools = collectTools();
 
-    if (!name) { showModelStatus('模型展示名称不能为空'); return null; }
-    if (!apiUrl) { showModelStatus('API URL 不能为空'); return null; }
-    if (!apiKey) { showModelStatus('API Key 不能为空'); return null; }
-    if (!modelId) { showModelStatus('模型 ID 不能为空'); return null; }
+    if (!name) { showModelStatus(getMessage('optionsModelFormNameRequired')); return null; }
+    if (!apiUrl) { showModelStatus(getMessage('optionsModelFormApiUrlRequired')); return null; }
+    if (!apiKey) { showModelStatus(getMessage('optionsModelFormApiKeyRequired')); return null; }
+    if (!modelId) { showModelStatus(getMessage('optionsModelFormModelIdRequired')); return null; }
 
     return { name, apiUrl, apiKey, modelId, apiFormat, enableThinking, thinkingEffort, tools };
   }
@@ -899,7 +899,7 @@ function initModels({
       return m.name === updated.name;
     });
     if (nameConflict) {
-      showModelStatus(`模型展示名称「${updated.name}」已存在，请使用其他名称`);
+      showModelStatus(getMessage('optionsModelFormNameConflict', [updated.name]));
       return;
     }
 
@@ -925,7 +925,7 @@ function initModels({
     }
 
     await safeSet({ llm_models: models, active_model_id: newActiveId });
-    showModelStatus('模型已保存');
+    showModelStatus(getMessage('optionsModelSaved'));
     onCloseDrawer();
     await loadModels();
   }

@@ -41,11 +41,11 @@ function initBank({
     const bankCountHint = document.getElementById('bankCountHint');
     if (bankCountHint) {
       const totalQuestions = banks.reduce((sum, bank) => sum + (bank.questions ? bank.questions.length : 0), 0);
-      bankCountHint.textContent = `共 ${banks.length} 个题库 · ${totalQuestions.toLocaleString('zh-CN')} 题`;
+      bankCountHint.textContent = getMessage('optionsBankCountHint', [banks.length, totalQuestions.toLocaleString()]);
     }
 
     if (banks.length === 0) {
-      bankListEl.innerHTML = '<div class="list-empty">暂无题库。点击上方"+ 导入题库"按钮上传 Excel(.xlsx/.xls) 或 Word(.docx) 文件。</div>';
+      bankListEl.innerHTML = '<div class="list-empty">' + getMessage('optionsBankEmpty') + '</div>';
       if (bankCountHint) bankCountHint.textContent = '';
       return;
     }
@@ -64,28 +64,28 @@ function initBank({
       item.className = 'list-item' + (enabled ? '' : ' model-inactive');
       item.dataset.id = bank.id;
 
-      const date = new Date(bank.timestamp).toLocaleString('zh-CN');
+      const date = new Date(bank.timestamp).toLocaleString();
 
       const enabledBadge = enabled
-        ? '<span class="model-badge model-preferred">已启用</span>'
-        : '<span class="model-badge model-inactive-badge">未启用</span>';
+        ? '<span class="model-badge model-preferred">' + getMessage('optionsBankEnabledBadge') + '</span>'
+        : '<span class="model-badge model-inactive-badge">' + getMessage('optionsBankDisabledBadge') + '</span>';
 
       item.innerHTML = `
         <div class="list-item-header">
           <div class="list-item-info">
             <div class="list-item-title">
-              ${escapeHtml(bank.name || '未命名题库')}
+              ${escapeHtml(bank.name || getMessage('optionsBankUnnamed'))}
               ${enabledBadge}
             </div>
-            <div class="list-item-meta">${date} · ${bank.questions.length} 题</div>
+            <div class="list-item-meta">${getMessage('optionsBankMetaFormat', [date, bank.questions.length])}</div>
           </div>
           <div class="list-item-actions">
             <label class="switch">
               <input type="checkbox" data-action="toggle-enabled" data-idx="${idx}" ${enabled ? 'checked' : ''}>
               <span class="switch-slider"></span>
             </label>
-            <button class="action-btn action-view" data-action="view" data-idx="${idx}">查看</button>
-            <button class="action-btn action-delete" data-action="delete" data-idx="${idx}">删除</button>
+            <button class="action-btn action-view" data-action="view" data-idx="${idx}">${getMessage('optionsView')}</button>
+            <button class="action-btn action-delete" data-action="delete" data-idx="${idx}">${getMessage('commonDelete')}</button>
           </div>
         </div>
       `;
@@ -124,20 +124,20 @@ function initBank({
       }
       activeBankIds = [...new Set(activeBankIds)];
       await safeSet({ active_bank_ids: activeBankIds });
-      showBankStatus(`${checked ? '已启用' : '已停用'}题库：${bank.name}`);
+      showBankStatus(getMessage(checked ? 'optionsBankEnabledMsg' : 'optionsBankDisabledMsg', [bank.name]));
       // 直接更新当前 item DOM，保留 switch 动画
       updateBankItemDom(index, bank, checked);
       // 更新计数提示
       const hintEl = document.getElementById('bankCountHint');
       if (hintEl) {
         const totalQuestions = banks.reduce((sum, b) => sum + (b.questions ? b.questions.length : 0), 0);
-        hintEl.textContent = `共 ${banks.length} 个题库 · ${totalQuestions.toLocaleString('zh-CN')} 题`;
+        hintEl.textContent = getMessage('optionsBankCountHint', [banks.length, totalQuestions.toLocaleString()]);
       }
       return;
     }
 
     if (action === 'delete') {
-      if (!confirm('确定要删除这个题库吗？此操作不可恢复。')) return;
+      if (!confirm(getMessage('optionsBankDeleteConfirm'))) return;
       banks.splice(index, 1);
       activeBankIds = activeBankIds.filter(id => id !== bank.id);
       await chrome.storage.local.set({
@@ -146,7 +146,7 @@ function initBank({
         active_bank_id: activeBankIds[0] || null
       });
       // Use the drawer reference from the outer scope to close if relevant
-      showBankStatus('题库已删除');
+      showBankStatus(getMessage('optionsBankDeleted'));
       await loadQuestionBanks();
       return;
     }
@@ -165,15 +165,15 @@ function initBank({
     const titleEl = item.querySelector('.list-item-title');
     if (titleEl) {
       const badge = enabled
-        ? '<span class="model-badge model-preferred">已启用</span>'
-        : '<span class="model-badge model-inactive-badge">未启用</span>';
-      titleEl.innerHTML = escapeHtml(bank.name || '未命名题库') + badge;
+        ? '<span class="model-badge model-preferred">' + getMessage('optionsBankEnabledBadge') + '</span>'
+        : '<span class="model-badge model-inactive-badge">' + getMessage('optionsBankDisabledBadge') + '</span>';
+      titleEl.innerHTML = escapeHtml(bank.name || getMessage('optionsBankUnnamed')) + badge;
     }
   }
 
   questionBankEnabledInput.addEventListener('change', async () => {
     await safeSet({ question_bank_enabled: questionBankEnabledInput.checked });
-    showBankStatus(questionBankEnabledInput.checked ? '已启用题库优先回答' : '已关闭题库优先回答');
+    showBankStatus(questionBankEnabledInput.checked ? getMessage('optionsBankPreferEnabled') : getMessage('optionsBankPreferDisabled'));
     await loadQuestionBanks();
   });
 
@@ -200,13 +200,13 @@ function initBank({
       if (currentPort) {
         currentPort.disconnect();
         currentPort = null;
-        updateProgress(0, '正在取消...');
+        updateProgress(0, getMessage('optionsBankCancelling'));
         cancelBtn.disabled = true;
       }
     };
     cancelBtn.addEventListener('click', onCancel);
 
-    showBankStatus('正在读取文件...');
+    showBankStatus(getMessage('optionsBankReadingFile'));
 
     try {
       let text = '';
@@ -217,18 +217,18 @@ function initBank({
       } else if (fileName.endsWith('.docx')) {
         text = await readWordFile(file);
       } else {
-        alert('不支持的文件格式，请上传 Excel(.xlsx/.xls) 或 Word(.docx) 文件');
+        alert(getMessage('optionsBankFileFormatError'));
         return;
       }
 
       if (!text || text.length < 10) {
-        alert('文件内容为空或过少');
+        alert(getMessage('optionsBankFileEmpty'));
         return;
       }
 
       showBankStatus('');
       showProgress(true);
-      updateProgress(0, '正在连接 AI 解析服务...');
+      updateProgress(0, getMessage('optionsBankConnectingAi'));
       cancelBtn.disabled = false;
       cancelBtn.style.display = '';
 
@@ -250,7 +250,7 @@ function initBank({
         port.onMessage.addListener((msg) => {
           if (msg.type === 'progress') {
             const pct = msg.total > 0 ? Math.round((msg.current / msg.total) * 100) : 0;
-            updateProgress(pct, msg.message || `正在解析...`);
+            updateProgress(pct, msg.message || getMessage('optionsBankParsing'));
           } else if (msg.type === 'result') {
             finish(msg);
           }
@@ -260,7 +260,7 @@ function initBank({
           if (!settled) {
             settled = true;
             currentPort = null;
-            reject(new Error('解析服务连接已断开'));
+            reject(new Error(getMessage('optionsBankParseDisconnected')));
           }
         });
 
@@ -273,12 +273,12 @@ function initBank({
 
       // 取消且无结果
       if (parseResult.cancelled && !parseResult.success) {
-        showBankStatus('解析已取消');
+        showBankStatus(getMessage('optionsBankParseCancelled'));
         return;
       }
 
       if (!parseResult.success) {
-        alert('解析失败：' + (parseResult.error || '未知错误'));
+        alert(getMessage('optionsBankParseFailedFormat', [parseResult.error || getMessage('commonUnknownError')]));
         return;
       }
 
@@ -298,7 +298,7 @@ function initBank({
       };
 
       if (!newBank.questions.length) {
-        alert('解析失败：未提取到有效题目');
+        alert(getMessage('optionsBankNoQuestions'));
         return;
       }
 
@@ -310,14 +310,14 @@ function initBank({
       const warnMsg = parseResult.warnings && parseResult.warnings.length > 0
         ? `（${parseResult.warnings[0]}）`
         : '';
-      showBankStatus(`题库导入成功，共 ${newBank.questions.length} 道题目${warnMsg}`);
+      showBankStatus(getMessage('optionsBankImportedFormat', [newBank.questions.length, warnMsg]));
       await loadQuestionBanks();
     } catch (err) {
       console.error('导入失败:', err);
       showProgress(false);
       cancelBtn.style.display = 'none';
       updateProgress(0, '');
-      alert('导入失败：' + (err.message || '未知错误'));
+      alert(getMessage('optionsBankImportFailedFormat', [err.message || getMessage('commonUnknownError')]));
       showBankStatus('');
     }
 

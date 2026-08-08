@@ -17,7 +17,7 @@ function initConfig({
 
   async function loadDefaultPrompts() {
     try {
-      const res = await fetch(chrome.runtime.getURL('data/prompt-templates.json'));
+      const res = await fetch(chrome.runtime.getURL(globalThis.QuizHelperI18n.getPromptTemplatesUrl()));
       const data = await res.json();
       defaultPrompts = data.answerSystemPrompts || {};
     } catch (e) {
@@ -83,7 +83,7 @@ function initConfig({
         const type = btn.dataset.type || currentPromptType;
         if (systemPromptTextareas[type]) {
           systemPromptTextareas[type].value = '';
-          showStatus(`已清空${TYPE_LABELS[type] || type}自定义提示词`);
+          showStatus(getMessage('optionsPromptCleared', [TYPE_LABELS[type] || type]));
         }
       });
     });
@@ -110,11 +110,11 @@ function initConfig({
       panel_shortcut: getCurrentShortcut()
     });
 
-    showStatus('设置已保存');
+    showStatus(getMessage('optionsSettingsSaved'));
   });
 
   resetBtn.addEventListener('click', async () => {
-    if (!confirm('确定要恢复默认设置吗？这将清空自定义提示词、白名单等配置。')) return;
+    if (!confirm(getMessage('optionsResetConfirm'))) return;
 
     Object.keys(systemPromptTextareas).forEach(type => {
       if (systemPromptTextareas[type]) {
@@ -131,7 +131,7 @@ function initConfig({
       'panel_shortcut', 'question_bank_enabled', 'theme_mode'
     ]);
 
-    showStatus('已恢复默认设置');
+    showStatus(getMessage('optionsSettingsReset'));
     await loadQuestionBanks();
     switchPromptType('single');
   });

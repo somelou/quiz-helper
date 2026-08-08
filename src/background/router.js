@@ -5,6 +5,8 @@ import { handleParseQuestionBank, handleParseQuestionBankBatched, handleSearchQu
 import { executeWebSearch, extractSearchResults, formatSearchResultsForLLM } from './search-proxy.js';
 import { checkMonthlySearchLimit, incrementMonthlySearchCount } from './search-usage.js';
 
+const { getMessage } = globalThis.QuizHelperI18n;
+
 /**
  * 从答案中提取引用的来源编号，过滤参考链接
  * @param {string} answer - 大模型答案
@@ -39,7 +41,7 @@ async function isStreamOutputEnabled() {
 async function handleFetchAnswer(questionText, questionType, sendChunk) {
   const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt, enableThinking, thinkingEffort, tools } = await getApiConfig('answer');
   if (!apiKey) {
-    throw new Error('未配置 API Key，请先打开设置页面配置');
+    throw new Error(getMessage('bgNoApiKeyConfig'));
   }
 
   const system = await buildSystemPrompt(questionType, systemPrompt, extraContextPrompt);
@@ -61,7 +63,7 @@ async function handleFetchAnswer(questionText, questionType, sendChunk) {
       apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
       sendChunk: collectChunk
     });
-    sendChunk({ type: 'done', answer: answer || '未获取到有效答案', referenceLinks: collectedLinks });
+    sendChunk({ type: 'done', answer: answer || getMessage('bgNoValidAnswer'), referenceLinks: collectedLinks });
     return;
   }
 
@@ -72,10 +74,10 @@ async function handleFetchAnswer(questionText, questionType, sendChunk) {
 
   if (sendChunk) {
     // 关闭流式输出：通过流式通道一次性回传完整结果
-    sendChunk({ type: 'done', answer: answer || '未获取到有效答案', referenceLinks: [] });
+    sendChunk({ type: 'done', answer: answer || getMessage('bgNoValidAnswer'), referenceLinks: [] });
     return;
   }
-  return { success: true, answer: answer || '未获取到有效答案' };
+  return { success: true, answer: answer || getMessage('bgNoValidAnswer') };
 }
 
 /**
@@ -97,7 +99,7 @@ async function callLLM(messages, { sendChunk, temperature, ...rest }) {
 async function handleVerifyBankAnswer(questionText, bankMatches) {
   const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, enableThinking, thinkingEffort, tools } = await getApiConfig('answer');
   if (!apiKey) {
-    throw new Error('未配置 API Key，请先打开设置页面配置');
+    throw new Error(getMessage('bgNoApiKeyConfig'));
   }
 
   const prompt = await buildVerifyPrompt(questionText, bankMatches, extraContextPrompt);
@@ -116,7 +118,7 @@ async function handleVerifyBankAnswer(questionText, bankMatches) {
     tools
   });
 
-  return { success: true, answer: answer || '未获取到有效答案' };
+  return { success: true, answer: answer || getMessage('bgNoValidAnswer') };
 }
 
 /**
@@ -128,7 +130,7 @@ async function handleVerifyBankAnswer(questionText, bankMatches) {
  */
 function fallbackToCleanedAnswer(firstFull, sendChunk) {
   const cleanedAnswer = String(firstFull || '').replace(/\[NEED_SEARCH:\s*.+?\]\s*/gi, '').trim();
-  const answer = cleanedAnswer || '未获取到有效答案';
+  const answer = cleanedAnswer || getMessage('bgNoValidAnswer');
   if (sendChunk) {
     sendChunk({ type: 'done', answer, referenceLinks: [] });
     return undefined;
@@ -168,7 +170,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
   const effectiveSendChunk = streamingEnabled ? sendChunk : undefined;
 
   const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt: customPrompt, enableThinking, thinkingEffort, tools } = await getApiConfig('answer');
-  if (!apiKey) throw new Error('未配置 API Key，请先打开设置页面配置');
+  if (!apiKey) throw new Error(getMessage('bgNoApiKeyConfig'));
 
   const searchAwareSystem = await buildSearchAwarePrompt(questionType, customPrompt, extraContextPrompt);
   const messages = [
@@ -216,16 +218,16 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
 
   const filteredLinks = filterReferencedLinks(finalAnswer, referenceLinks);
   if (sendChunk) {
-    sendChunk({ type: 'done', answer: finalAnswer || '未获取到有效答案', referenceLinks: filteredLinks, searchProviderName: activeProvider?.name || '' });
+    sendChunk({ type: 'done', answer: finalAnswer || getMessage('bgNoValidAnswer'), referenceLinks: filteredLinks, searchProviderName: activeProvider?.name || '' });
     return;
   }
-  return { success: true, answer: finalAnswer || '未获取到有效答案', referenceLinks: filteredLinks, searchProviderName: activeProvider?.name || '' };
+  return { success: true, answer: finalAnswer || getMessage('bgNoValidAnswer'), referenceLinks: filteredLinks, searchProviderName: activeProvider?.name || '' };
 }
 
 async function handleExtractQuestions(pageText, pageStructure, selectionText, elementHint, existingRule) {
   const { apiUrl, apiKey, apiFormat, model, enableThinking, thinkingEffort, tools } = await getApiConfig('extract');
   if (!apiKey) {
-    throw new Error('未配置 API Key');
+    throw new Error(getMessage('bgNoApiKey'));
   }
 
   const prompt = await buildExtractPrompt(pageText, pageStructure, selectionText, elementHint, existingRule);
@@ -248,7 +250,7 @@ async function handleExtractQuestions(pageText, pageStructure, selectionText, el
     const parsed = parseExtractedQuestions(raw);
     const questions = parsed.questions;
     if (!Array.isArray(questions) || questions.length === 0) {
-      return { success: false, error: 'AI 未提取到有效题目' };
+      return { success: false, error: getMessage('bgNoExtractedQuestions') };
     }
 
     return {
@@ -263,7 +265,7 @@ async function handleExtractQuestions(pageText, pageStructure, selectionText, el
       selectors: parsed.selectors || null
     };
   } catch (_error) {
-    return { success: false, error: 'AI 返回的数据格式无法解析: ' + raw.slice(0, 300) };
+    return { success: false, error: getMessage('bgExtractParseError', [raw.slice(0, 300)]) };
   }
 }
 

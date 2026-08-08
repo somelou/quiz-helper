@@ -5,6 +5,7 @@
   const { safeSet } = globalThis.QuizHelperStorageUtils;
   const D = globalThis.QuizHelperDomParser;
   const UI = globalThis.QuizHelperPanelUI;
+  const { getMessage } = globalThis.QuizHelperI18n;
 
   /**
    * 校验 CSS 选择器是否有效
@@ -112,7 +113,7 @@
           resolve();
         } else if (msg.type === 'error') {
           question.status = 'error';
-          UI.updateCardBody(index, `请求失败：${UI.escapeHtml(msg.message)}`, true);
+          UI.updateCardBody(index, getMessage('panelRequestFailed', [UI.escapeHtml(msg.message)]), true);
           port.disconnect();
           resolve();
         }
@@ -121,7 +122,7 @@
       port.onDisconnect.addListener(() => {
         if (runId === state.analysisRunId && question.status === 'loading') {
           question.status = 'error';
-          UI.updateCardBody(index, '连接中断', true);
+          UI.updateCardBody(index, getMessage('panelConnectionLost'), true);
         }
         resolve();
       });
@@ -154,7 +155,7 @@
       return false;
     }
 
-    UI.updateCardBody(index, '<div class="qh-loading-text">匹配到题库，正在校验选项顺序...</div>');
+    UI.updateCardBody(index, getMessage('panelBankMatching'));
 
     const verifyResponse = await chrome.runtime.sendMessage({
       action: 'verifyBankAnswer',
@@ -173,13 +174,13 @@
     } else {
       question.status = 'done';
       const firstMatch = bankResponse.matches[0];
-      let fallbackAnswer = `⚠️ 校验失败，以下为原始题库答案（选项顺序可能与当前考试不同）\n答案：${firstMatch.answer}`;
+      let fallbackAnswer = getMessage('panelBankVerifyFailed', [firstMatch.answer]);
       if (firstMatch.analysis) {
-        fallbackAnswer += `\n解析：${firstMatch.analysis}`;
+        fallbackAnswer += getMessage('panelBankAnalysisLine', [firstMatch.analysis]);
       }
-      fallbackAnswer += `\n来源：题库「${firstMatch.source}」`;
+      fallbackAnswer += getMessage('panelBankSourceLine', [firstMatch.source]);
       if (firstMatch.questionText) {
-        fallbackAnswer += `\n题库原题：${firstMatch.questionText}`;
+        fallbackAnswer += getMessage('panelBankOriginalQuestion', [firstMatch.questionText]);
       }
       question.answer = fallbackAnswer;
       question.bankMatches = bankResponse.matches;
@@ -208,7 +209,7 @@
     question.status = 'loading';
     question.answer = null;
     question.webSearchRefs = null;
-    UI.updateCardBody(index, '<div class="qh-loading-text">正在分析...</div>');
+    UI.updateCardBody(index, getMessage('panelAnalyzing'));
 
     // 流式与非流式路径共用的收尾逻辑
     function finalizeQuestion(idx, wasPausedLocal, runIdLocal) {
@@ -231,7 +232,7 @@
     } catch (error) {
       if (runId !== state.analysisRunId) return;
       question.status = 'error';
-      UI.updateCardBody(index, `通信错误：${UI.escapeHtml(error.message)}`, true);
+      UI.updateCardBody(index, getMessage('panelCommError', [UI.escapeHtml(error.message)]), true);
     } finally {
       if (runId === state.analysisRunId && question.status !== 'loading') {
         finalizeQuestion(index, wasPaused, runId);
@@ -273,7 +274,7 @@
       if (!question || question.status === 'done') continue;
 
       question.status = 'loading';
-      UI.updateCardBody(index, '<div class="qh-loading-text">正在分析...</div>');
+      UI.updateCardBody(index, getMessage('panelAnalyzing'));
 
       try {
         const bankMatched = await resolveQuestionFromBank(question, index, runId);
@@ -287,7 +288,7 @@
       } catch (error) {
         if (runId !== state.analysisRunId) return;
         question.status = 'error';
-        UI.updateCardBody(index, `通信错误：${UI.escapeHtml(error.message)}`, true);
+        UI.updateCardBody(index, getMessage('panelCommError', [UI.escapeHtml(error.message)]), true);
       }
     }
 
@@ -330,7 +331,7 @@
     if (!success) {
       state.questionsData = [];
       UI.createPanel(0);
-      UI.showPanelMessage('规则解析未提取到题目。点击"AI 选区解析"后，在页面中点选包含题目的区域，再由 AI 做局部解析。');
+      UI.showPanelMessage(getMessage('panelRuleParseEmpty'));
       return;
     }
 
@@ -463,7 +464,7 @@
     const onKeyDown = event => {
       if (event.key !== 'Escape') return;
       stopElementPicker();
-      UI.showPanelMessage('已取消 AI 选区解析。可继续规则解析，或再次点击"AI 选区解析"后选择页面区域。');
+      UI.showPanelMessage(getMessage('panelPickerCancelled'));
     };
 
     state.pickerState = {
@@ -477,13 +478,13 @@
     document.addEventListener('mousemove', onMouseMove, true);
     document.addEventListener('click', onClick, true);
     document.addEventListener('keydown', onKeyDown, true);
-    UI.showPanelMessage('请选择页面中的题目区域。按 Esc 可取消。');
+    UI.showPanelMessage(getMessage('panelPickerHint'));
   }
 
   function toggleAiPicker() {
     if (state.pickerState) {
       stopElementPicker();
-      UI.showPanelMessage('已取消 AI 选区解析。');
+      UI.showPanelMessage(getMessage('panelPickerCancelledShort'));
       return;
     }
     startElementPicker();
@@ -657,15 +658,15 @@
 
     const selectedText = D.getCleanText(element);
     if (!selectedText || selectedText.length < 10) {
-      UI.showPanelMessage('所选区域文本过少，请重新选择包含完整题目的区域。');
+      UI.showPanelMessage(getMessage('panelSelectionTooShort'));
       return false;
     }
 
     // 当前域名已有规则时，提示用户正在进行合并优化
     const existingRule = state.currentRule;
     const loadingMsg = existingRule
-      ? `AI 优化规则中...\n（${location.hostname}）`
-      : `AI 解析选中区域...`;
+      ? getMessage('panelAiOptimizingRule', [location.hostname])
+      : getMessage('panelAiParsingSelection');
     UI.ensurePanel(state.questionsData.length || 1);
     UI.showPanelMessage(loadingMsg);
 
@@ -744,17 +745,17 @@
     const target = findMainContentElement();
     if (!target) {
       UI.createPanel(0);
-      UI.showPanelMessage('未找到页面主内容区域，请点击"AI 选区解析"手动选择题目区域。');
+      UI.showPanelMessage(getMessage('panelNoMainContent'));
       return;
     }
 
-    UI.showPanelMessage('AI 解析页面中...');
+    UI.showPanelMessage(getMessage('panelAiParsingPage'));
 
     const success = await aiParseQuestionsFromElement(target);
     if (!success) {
       state.questionsData = [];
       UI.createPanel(0);
-      UI.showPanelMessage('AI 未能自动解析出题目。请点击"AI 选区解析"后，在页面中手动点选一块题目区域。');
+      UI.showPanelMessage(getMessage('panelAiParseFailedAuto'));
       return;
     }
 
@@ -770,7 +771,7 @@
     if (!success) {
       state.questionsData = [];
       UI.createPanel(0);
-      UI.showPanelMessage('AI 未能从该区域解析出题目，请换一块更完整的题目区域再试。');
+      UI.showPanelMessage(getMessage('panelAiParseFailedRegion'));
       return;
     }
 

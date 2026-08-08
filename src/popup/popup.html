@@ -7,30 +7,31 @@
 </head>
 <body>
   <div class="header">
-    <h2>题目助手</h2>
+    <h2 data-i18n="appName">题目助手</h2>
     <div class="theme-toggle" id="themeToggle">
-      <button class="theme-btn" data-theme="light" title="浅色模式">
+      <button class="theme-btn" data-theme="light" title="浅色模式" data-i18n-title="themeLight">
         <span data-icon="sun"></span>
       </button>
-      <button class="theme-btn" data-theme="dark" title="深色模式">
+      <button class="theme-btn" data-theme="dark" title="深色模式" data-i18n-title="themeDark">
         <span data-icon="moon"></span>
       </button>
-      <button class="theme-btn" data-theme="system" title="跟随系统">
+      <button class="theme-btn" data-theme="system" title="跟随系统" data-i18n-title="themeSystem">
         <span data-icon="system"></span>
       </button>
     </div>
   </div>
-  <button class="btn btn-primary" id="analyzeBtn">分析当前页面题目</button>
-  <button class="btn btn-secondary" id="optionsBtn">打开设置</button>
+  <button class="btn btn-primary" id="analyzeBtn" data-i18n="popupAnalyzeBtn">分析当前页面题目</button>
+  <button class="btn btn-secondary" id="optionsBtn" data-i18n="popupOptionsBtn">打开设置</button>
   <div class="model-dropdown" id="modelDropdown">
     <button class="btn btn-secondary model-dropdown-btn" id="modelDropdownBtn">
-      <span class="model-dropdown-label">无可用模型</span>
+      <span class="model-dropdown-label" data-i18n="commonNoModels">无可用模型</span>
       <span class="model-dropdown-arrow"></span>
     </button>
     <div class="model-dropdown-menu" id="modelDropdownMenu"></div>
   </div>
-  <div class="hint" id="popupHint">提示：选中题目文本后分析效果更佳</div>
+  <div class="hint" id="popupHint" data-i18n="popupInitialHint">提示：选中题目文本后分析效果更佳</div>
   <script src="../icons.js"></script>
+  <script src="../shared/i18n-utils.js"></script>
   <script src="../shared/constants.js"></script>
   <script src="../shared/shortcut-utils.js"></script>
   <script src="../shared/theme-utils.js"></script>

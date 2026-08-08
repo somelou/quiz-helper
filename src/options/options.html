@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>题目助手 - 设置</title>
+  <title data-i18n="optionsPageTitle">题目助手 - 设置</title>
   <link rel="stylesheet" href="../shared/variables.css">
   <link rel="stylesheet" href="../shared/toggle.css">
   <link rel="stylesheet" href="options.css">
@@ -12,71 +12,71 @@
   <div class="page-layout">
     <nav class="sidebar" id="sidebar">
       <ul class="nav-list">
-        <li><a class="nav-item active" href="#section-settings">基本设置</a></li>
-        <li><a class="nav-item" href="#section-models">大模型管理</a></li>
-        <li><a class="nav-item" href="#section-search">联网搜索设置</a></li>
-        <li><a class="nav-item" href="#section-rules">解析规则管理</a></li>
-        <li><a class="nav-item" href="#section-bank">题库管理</a></li>
-        <li><a class="nav-item" href="#section-history">历史记录</a></li>
-        <li><a class="nav-item" href="#section-backup">备份与恢复</a></li>
-        <li><a class="nav-item" href="#section-about">关于</a></li>
+        <li><a class="nav-item active" href="#section-settings" data-i18n="optionsSettings">基本设置</a></li>
+        <li><a class="nav-item" href="#section-models" data-i18n="optionsModels">大模型管理</a></li>
+        <li><a class="nav-item" href="#section-search" data-i18n="optionsSearch">联网搜索设置</a></li>
+        <li><a class="nav-item" href="#section-rules" data-i18n="optionsRules">解析规则管理</a></li>
+        <li><a class="nav-item" href="#section-bank" data-i18n="optionsBank">题库管理</a></li>
+        <li><a class="nav-item" href="#section-history" data-i18n="optionsHistory">历史记录</a></li>
+        <li><a class="nav-item" href="#section-backup" data-i18n="optionsBackup">备份与恢复</a></li>
+        <li><a class="nav-item" href="#section-about" data-i18n="optionsAbout">关于</a></li>
       </ul>
     </nav>
 
     <main class="main-content">
       <div class="card" id="section-settings">
         <div class="section-header">
-          <h2 style="margin:0;">基本设置</h2>
+          <h2 style="margin:0;" data-i18n="optionsSettings">基本设置</h2>
           <div class="theme-toggle" id="themeToggle">
-            <button class="theme-btn" data-theme="light" title="浅色模式">
+            <button class="theme-btn" data-theme="light" title="浅色模式" data-i18n-title="themeLight">
               <span data-icon="sun"></span>
             </button>
-            <button class="theme-btn" data-theme="dark" title="深色模式">
+            <button class="theme-btn" data-theme="dark" title="深色模式" data-i18n-title="themeDark">
               <span data-icon="moon"></span>
             </button>
-            <button class="theme-btn" data-theme="system" title="跟随系统">
+            <button class="theme-btn" data-theme="system" title="跟随系统" data-i18n-title="themeSystem">
               <span data-icon="system"></span>
             </button>
           </div>
         </div>
 
         <div class="form-group">
-          <label>系统提示词</label>
+          <label data-i18n="optionsSystemPrompt">系统提示词</label>
           <div class="prompt-toolbar">
             <div class="segmented-control prompt-type-tabs" data-active="single">
-            <button type="button" class="seg-active" data-value="single">单选</button>
-            <button type="button" data-value="multiple">多选</button>
-            <button type="button" data-value="judge">判断</button>
-            <button type="button" data-value="fill">填空</button>
-            <button type="button" data-value="unknown">其他</button>
+            <button type="button" class="seg-active" data-value="single" data-i18n="typeSingle">单选</button>
+            <button type="button" data-value="multiple" data-i18n="typeMultiple">多选</button>
+            <button type="button" data-value="judge" data-i18n="typeJudge">判断</button>
+            <button type="button" data-value="fill" data-i18n="typeFill">填空</button>
+            <button type="button" data-value="unknown" data-i18n="typeUnknown">其他</button>
             </div>
-            <button type="button" class="prompt-clear-btn" data-type="single">清空</button>
+            <button type="button" class="prompt-clear-btn" data-type="single" data-i18n="commonClear">清空</button>
           </div>
           <textarea id="systemPrompt-single" class="system-prompt-textarea" rows="6"></textarea>
           <textarea id="systemPrompt-multiple" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
           <textarea id="systemPrompt-judge" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
           <textarea id="systemPrompt-fill" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
           <textarea id="systemPrompt-unknown" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
-          <div class="hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。灰色占位符即为当前题型的默认提示词。</div>
+          <div class="hint" data-i18n="optionsPromptHint">每种题型可单独设置自定义提示词，留空则使用默认提示词。灰色占位符即为当前题型的默认提示词。</div>
         </div>
 
         <div class="form-group">
-          <label for="extraContextPrompt">补充提示词 / 领域背景</label>
+          <label for="extraContextPrompt" data-i18n="optionsExtraContext">补充提示词 / 领域背景</label>
           <textarea id="extraContextPrompt" placeholder="例如：
 你是一名通信领域与 AI 大模型方向的专业助手。
-回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
-          <div class="hint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</div>
+回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。" data-i18n-placeholder="optionsExtraContextPlaceholder"></textarea>
+          <div class="hint" data-i18n="optionsExtraContextHint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</div>
         </div>
 
         <div class="form-group">
-          <label>面板快捷键</label>
+          <label data-i18n="optionsShortcut">面板快捷键</label>
           <div class="shortcut-box">
             <div class="setting-row">
               <div class="shortcut-value" id="shortcutDisplay">--</div>
               <div class="shortcut-actions" style="margin-top:0;">
-                <button type="button" class="action-btn action-view" id="recordShortcutBtn">录制</button>
-                <button type="button" class="action-btn action-secondary action-clear" id="clearShortcutBtn">清空</button>
-                <button type="button" class="action-btn action-secondary" id="resetShortcutBtn">默认</button>
+                <button type="button" class="action-btn action-view" id="recordShortcutBtn" data-i18n="optionsRecordShortcut">录制</button>
+                <button type="button" class="action-btn action-secondary action-clear" id="clearShortcutBtn" data-i18n="commonClear">清空</button>
+                <button type="button" class="action-btn action-secondary" id="resetShortcutBtn" data-i18n="optionsResetShortcut">默认</button>
               </div>
             </div>
             <div class="hint" id="shortcutHint" style="margin-top:8px;">--</div>
@@ -84,96 +84,96 @@
         </div>
 
         <div class="form-group">
-          <label for="allowedDomains">生效域名白名单</label>
+          <label for="allowedDomains" data-i18n="optionsAllowedDomains">生效域名白名单</label>
           <textarea id="allowedDomains" placeholder="example.com
 exam.example.com"></textarea>
-          <div class="hint">插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效</div>
+          <div class="hint" data-i18n="optionsAllowedDomainsHint">插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效</div>
         </div>
 
         <div class="actions">
-          <button class="btn-primary" id="saveBtn">保存设置</button>
-          <button class="btn-secondary" id="resetBtn">恢复默认</button>
+          <button class="btn-primary" id="saveBtn" data-i18n="optionsSaveSettings">保存设置</button>
+          <button class="btn-secondary" id="resetBtn" data-i18n="optionsRestoreDefaults">恢复默认</button>
         </div>
       </div>
 
       <div class="card" id="section-models">
         <div class="switch-row" style="margin-bottom: 12px;">
-          <h2 style="margin:0;">大模型管理</h2>
-          <button class="action-btn action-edit" id="addModelBtn">+ 添加</button>
+          <h2 style="margin:0;" data-i18n="optionsModels">大模型管理</h2>
+          <button class="action-btn action-edit" id="addModelBtn" data-i18n="optionsAddModel">+ 添加</button>
         </div>
-        <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。点击下方按钮可为各任务指定专用模型。</div>
+        <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsModelsHint">管理多个大模型配置，可激活/停用，设置首选模型。点击下方按钮可为各任务指定专用模型。</div>
         <div class="rule-form-group">
-          <label for="streamOutputEnabled">流式输出</label>
+          <label for="streamOutputEnabled" data-i18n="optionsStreamOutput">流式输出</label>
           <label class="switch">
             <input type="checkbox" id="streamOutputEnabled">
             <span class="switch-slider"></span>
           </label>
-          <div class="hint">开启后，大模型测试与答题时逐字返回结果；关闭后一次性返回完整结果。</div>
+          <div class="hint" data-i18n="optionsStreamOutputHint">开启后，大模型测试与答题时逐字返回结果；关闭后一次性返回完整结果。</div>
         </div>
         <div id="modelList"></div>
       </div>
 
       <div class="card" id="section-search">
         <div class="switch-row" style="margin-bottom: 12px;">
-          <h2 style="margin:0;">联网搜索设置</h2>
+          <h2 style="margin:0;" data-i18n="optionsSearch">联网搜索设置</h2>
           <label class="switch">
             <input type="checkbox" id="webSearchEnabled">
             <span class="switch-slider"></span>
           </label>
         </div>
-        <div class="hint" style="margin-bottom: 12px;">开启后，大模型答题时将检索联网信息作为辅助参考（仅一种搜索服务同时生效）。</div>
+        <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsSearchHint">开启后，大模型答题时将检索联网信息作为辅助参考（仅一种搜索服务同时生效）。</div>
 
-        <div class="rule-form-section">公共参数</div>
+        <div class="rule-form-section" data-i18n="optionsSearchCommonParams">公共参数</div>
         <div class="rule-form-group">
-          <label for="searchCount">结果数量</label>
+          <label for="searchCount" data-i18n="optionsSearchResultCount">结果数量</label>
           <input type="number" id="searchCount" min="1" max="50" value="10">
-          <div class="hint">单次搜索返回的最大结果数 (1-50)</div>
+          <div class="hint" data-i18n="optionsSearchCountHint">单次搜索返回的最大结果数 (1-50)</div>
         </div>
         <div class="rule-form-group">
-          <label for="searchTimeRange">时间范围</label>
+          <label for="searchTimeRange" data-i18n="optionsSearchTimeRange">时间范围</label>
           <div class="segmented-control" id="searchTimeRange">
-            <button data-value="" class="seg-active">不限制</button>
-            <button data-value="OneDay">一天</button>
-            <button data-value="OneWeek">一周</button>
-            <button data-value="OneMonth">一月</button>
-            <button data-value="OneYear">一年</button>
+            <button data-value="" class="seg-active" data-i18n="optionsTimeRangeNone">不限制</button>
+            <button data-value="OneDay" data-i18n="optionsTimeRangeDay">一天</button>
+            <button data-value="OneWeek" data-i18n="optionsTimeRangeWeek">一周</button>
+            <button data-value="OneMonth" data-i18n="optionsTimeRangeMonth">一月</button>
+            <button data-value="OneYear" data-i18n="optionsTimeRangeYear">一年</button>
           </div>
-          <div class="hint">过滤搜索结果的时间范围</div>
+          <div class="hint" data-i18n="optionsTimeRangeHint">过滤搜索结果的时间范围</div>
         </div>
 
-        <div class="rule-form-section">搜索服务商</div>
+        <div class="rule-form-section" data-i18n="optionsSearchProviders">搜索服务商</div>
         <div id="searchList"></div>
       </div>
 
       <div class="card" id="section-rules">
-        <h2 style="margin:0 0 12px 0;">解析规则管理</h2>
-        <div class="hint" style="margin-bottom: 12px;">管理各站点的题目解析规则。有规则的站点优先使用规则解析，无规则的站点首次解析时由 AI 自动生成规则。</div>
+        <h2 style="margin:0 0 12px 0;" data-i18n="optionsRules">解析规则管理</h2>
+        <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsRulesHint">管理各站点的题目解析规则。有规则的站点优先使用规则解析，无规则的站点首次解析时由 AI 自动生成规则。</div>
         <div id="parseRuleList"></div>
       </div>
 
       <div class="card" id="section-bank">
         <div class="switch-row" style="margin-bottom: 12px;">
-          <h2 style="margin:0;">题库管理</h2>
+          <h2 style="margin:0;" data-i18n="optionsBank">题库管理</h2>
           <label class="switch">
             <input type="checkbox" id="questionBankEnabled">
             <span class="switch-slider"></span>
           </label>
         </div>
-        <div class="hint" style="margin-bottom: 12px;">开启后优先从题库匹配答案。导入 Excel(.xlsx/.xls) 或 Word(.docx) 文件，AI 将自动解析题目和答案。</div>
+        <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsBankHint">开启后优先从题库匹配答案。导入 Excel(.xlsx/.xls) 或 Word(.docx) 文件，AI 将自动解析题目和答案。</div>
         <div class="rule-form-group">
-          <label for="importMode">导入解析模式</label>
+          <label for="importMode" data-i18n="optionsImportMode">导入解析模式</label>
           <div class="segmented-control" id="importMode">
-            <button data-value="eco">节能</button>
-            <button data-value="balanced" class="seg-active">平衡</button>
-            <button data-value="precise">精细</button>
+            <button data-value="eco" data-i18n="optionsImportModeEco">节能</button>
+            <button data-value="balanced" class="seg-active" data-i18n="optionsImportModeBalanced">平衡</button>
+            <button data-value="precise" data-i18n="optionsImportModePrecise">精细</button>
           </div>
-          <div class="hint" id="importModeHint">并发 10 批 · 每批 50 题</div>
+          <div class="hint" id="importModeHint" data-i18n="optionsImportModeHint">并发 10 批 · 每批 50 题</div>
         </div>
         <div class="bank-toolbar">
           <div class="bank-toolbar-left">
             <label class="btn btn-secondary">
               <input type="file" id="questionBankFile" accept=".xlsx,.xls,.docx" style="display: none;">
-              + 导入题库
+              <span data-i18n="optionsImportBank">+ 导入题库</span>
             </label>
           </div>
           <div class="bank-toolbar-right">
@@ -187,89 +187,89 @@ exam.example.com"></textarea>
           </div>
           <div class="bank-progress-text">
             <span id="bankProgressText"></span>
-            <button class="bank-progress-cancel" id="bankProgressCancel" title="取消解析">取消</button>
+            <button class="bank-progress-cancel" id="bankProgressCancel" title="取消解析" data-i18n="optionsCancel" data-i18n-title="optionsCancelParseTitle">取消</button>
           </div>
         </div>
       </div>
 
       <div class="card" id="section-history">
         <div class="switch-row" style="margin-bottom: 12px;">
-          <h2 style="margin:0;">历史记录</h2>
+          <h2 style="margin:0;" data-i18n="optionsHistory">历史记录</h2>
           <div class="history-toolbar-right">
             <button class="action-btn action-export" id="exportAllHistory">
               <span data-icon="export"></span>
-              导出
+              <span data-i18n="optionsExport">导出</span>
             </button>
             <button class="action-btn action-delete" id="clearHistory">
               <span data-icon="trash"></span>
-              清空
+              <span data-i18n="commonClear">清空</span>
             </button>
           </div>
         </div>
-        <div class="hint" style="margin-bottom: 12px;">每次分析完成后自动保存，最多保留 50 条</div>
+        <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsHistoryHint">每次分析完成后自动保存，最多保留 50 条</div>
         <div id="historyList"></div>
       </div>
 
       <div class="card" id="section-backup">
-        <h2 style="margin:0 0 12px 0;">备份与恢复</h2>
+        <h2 style="margin:0 0 12px 0;" data-i18n="optionsBackup">备份与恢复</h2>
 
         <div class="backup-section-block">
-          <div class="backup-section-title">导出本地数据</div>
-          <div class="hint" style="margin-bottom: 12px;">可按模块导出当前本地数据，默认全选。</div>
+          <div class="backup-section-title" data-i18n="optionsBackupExportTitle">导出本地数据</div>
+          <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsBackupExportHint">可按模块导出当前本地数据，默认全选。</div>
           <div class="backup-module-grid" id="backupModuleList">
             <label class="backup-module-item">
               <input type="checkbox" value="settings" checked>
-              <span>基本设置</span>
+              <span data-i18n="optionsModuleSettings">基本设置</span>
             </label>
             <label class="backup-module-item">
               <input type="checkbox" value="models" checked>
-              <span>大模型</span>
+              <span data-i18n="optionsModuleModels">大模型</span>
             </label>
             <label class="backup-module-item">
               <input type="checkbox" value="search" checked>
-              <span>联网搜索</span>
+              <span data-i18n="optionsModuleSearch">联网搜索</span>
             </label>
             <label class="backup-module-item">
               <input type="checkbox" value="rules" checked>
-              <span>解析规则</span>
+              <span data-i18n="optionsModuleRules">解析规则</span>
             </label>
             <label class="backup-module-item">
               <input type="checkbox" value="banks" checked>
-              <span>题库</span>
+              <span data-i18n="optionsModuleBanks">题库</span>
             </label>
             <label class="backup-module-item">
               <input type="checkbox" value="history" checked>
-              <span>历史记录</span>
+              <span data-i18n="optionsModuleHistory">历史记录</span>
             </label>
           </div>
           <div class="backup-action-row">
             <button type="button" class="action-btn action-export" id="exportBackupBtn">
               <span data-icon="export"></span>
-              导出备份
+              <span data-i18n="optionsExportBackup">导出备份</span>
             </button>
           </div>
         </div>
 
         <div class="backup-section-block">
-          <div class="backup-section-title">导入备份数据</div>
-          <div class="hint" style="margin-bottom: 12px;">导入会覆盖备份文件中包含的模块，未包含的本地数据保持不变。</div>
+          <div class="backup-section-title" data-i18n="optionsBackupImportTitle">导入备份数据</div>
+          <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsBackupImportHint">导入会覆盖备份文件中包含的模块，未包含的本地数据保持不变。</div>
           <div class="backup-import-row">
             <label class="action-btn action-secondary backup-file-trigger">
               <input type="file" id="backupFileInput" accept=".json" style="display: none;">
-              选择备份文件
+              <span data-i18n="optionsChooseBackupFile">选择备份文件</span>
             </label>
-            <span id="backupFileName" class="backup-file-name">未选择文件</span>
+            <span id="backupFileName" class="backup-file-name" data-i18n="optionsNoFileSelected">未选择文件</span>
             <button type="button" class="action-btn action-edit" id="importBackupBtn">
               <span data-icon="import"></span>
-              导入备份
+              <span data-i18n="optionsImportBackup">导入备份</span>
             </button>
           </div>
         </div>
       </div>
 
       <div class="card" id="section-about">
-        <h2 style="margin:0 0 12px 0;">关于</h2>
-        <div class="about-subtitle">本地优先的题目辅助扩展</div>
+        <h2 style="margin:0 0 12px 0;" data-i18n="optionsAbout">关于</h2>
+        <div class="about-subtitle" data-i18n="optionsAboutSubtitle">本地优先的题目辅助扩展</div>
 
         <div class="about-strip-list">
           <a
@@ -279,7 +279,7 @@ exam.example.com"></textarea>
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span class="about-strip-label">版本</span>
+            <span class="about-strip-label" data-i18n="optionsAboutVersion">版本</span>
             <span class="about-strip-value" id="aboutVersion">--</span>
           </a>
           <a
@@ -289,7 +289,7 @@ exam.example.com"></textarea>
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span class="about-strip-label">仓库</span>
+            <span class="about-strip-label" data-i18n="optionsAboutRepo">仓库</span>
             <span class="about-strip-value"><span class="about-strip-github" data-icon="github" aria-hidden="true"></span>somelou/quiz-helper</span>
           </a>
           <a
@@ -299,8 +299,8 @@ exam.example.com"></textarea>
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span class="about-strip-label">隐私</span>
-            <span class="about-strip-value">隐私政策</span>
+            <span class="about-strip-label" data-i18n="optionsAboutPrivacy">隐私</span>
+            <span class="about-strip-value" data-i18n="optionsAboutPrivacyValue">隐私政策</span>
           </a>
         </div>
       </div>
@@ -311,12 +311,12 @@ exam.example.com"></textarea>
     <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
       <div class="drawer-header">
         <div>
-          <div class="drawer-title" id="drawerTitle">详情</div>
+          <div class="drawer-title" id="drawerTitle" data-i18n="optionsDrawerTitle">详情</div>
           <div class="drawer-meta" id="drawerMeta"></div>
         </div>
         <div class="drawer-header-actions">
-          <button type="button" class="btn-primary" id="drawerSaveBtn" style="display:none;">保存</button>
-          <button type="button" class="btn-secondary" id="drawerCloseBtn">关闭</button>
+          <button type="button" class="btn-primary" id="drawerSaveBtn" style="display:none;" data-i18n="optionsSave">保存</button>
+          <button type="button" class="btn-secondary" id="drawerCloseBtn" data-i18n="optionsClose">关闭</button>
         </div>
       </div>
       <div class="drawer-body" id="drawerBody"></div>
@@ -328,6 +328,7 @@ exam.example.com"></textarea>
   <script src="../lib/marked.min.js"></script>
   <script src="../lib/katex.min.js"></script>
   <script src="../icons.js"></script>
+  <script src="../shared/i18n-utils.js"></script>
   <script src="../shared/constants.js"></script>
   <script src="../shared/shortcut-utils.js"></script>
   <script src="../shared/theme-utils.js"></script>

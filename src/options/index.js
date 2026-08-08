@@ -2,6 +2,9 @@
 
 const { safeSet } = globalThis.QuizHelperStorageUtils;
 
+// 兜底本地化：处理浏览器未自动替换的 __MSG_xxx__ 静态文案（popup/options 页面脚本）
+globalThis.QuizHelperI18n.localizePage(document);
+
 async function copyText(text) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
@@ -27,7 +30,7 @@ async function copyText(text) {
 }
 
 function buildDrawerQuestionCopyText(type, text) {
-  return `【${TYPE_LABELS[type] || '其他'}】${text || ''}`.trim();
+  return getMessage('optionsQuestionCopyFormat', [TYPE_LABELS[type] || getMessage('typeUnknown'), text || '']).trim();
 }
 
 // ===== 主题管理（提前执行，避免闪烁） =====
@@ -254,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.style.overflow = '';
     document.documentElement.style.overflow = '';
     drawerBodyEl.innerHTML = '';
-    drawerTitleEl.textContent = '详情';
+    drawerTitleEl.textContent = getMessage('optionsDrawerTitleDetail');
     drawerMetaEl.textContent = '';
     drawerSaveBtn.style.display = 'none';
     drawerSaveBtn.dataset.action = '';
@@ -291,16 +294,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentDrawerId = data.id || data.timestamp;
 
     if (type === 'bank') {
-      drawerTitleEl.textContent = data.name || '未命名题库';
-      drawerMetaEl.textContent = `${new Date(data.timestamp).toLocaleString('zh-CN')} · ${data.questions.length} 题`;
+      drawerTitleEl.textContent = data.name || getMessage('optionsBankUnnamed');
+      drawerMetaEl.textContent = getMessage('optionsBankMetaFormat', [new Date(data.timestamp).toLocaleString(), data.questions.length]);
       drawerSaveBtn.style.display = 'none';
 
       if (!Array.isArray(data.questions) || data.questions.length === 0) {
-        drawerBodyEl.innerHTML = '<div class="drawer-empty">该题库暂无可展示的题目。</div>';
+        drawerBodyEl.innerHTML = '<div class="drawer-empty">' + getMessage('optionsBankDrawerEmpty') + '</div>';
       } else {
         let html = '';
         data.questions.forEach((q, idx) => {
-          const typeLabel = TYPE_LABELS[q.type] || '其他';
+          const typeLabel = TYPE_LABELS[q.type] || getMessage('typeUnknown');
           const typeClass = TYPE_CLASSES[q.type] || TYPE_CLASSES.unknown;
           html += `
             <div class="q-item">
@@ -309,13 +312,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                   <span class="q-id">${idx + 1}</span>
                   <span class="q-type ${typeClass}">${typeLabel}</span>
                 </div>
-                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q.type, q.text))}">复制题目</button>
+                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q.type, q.text))}">${getMessage('optionsCopyQuestion')}</button>
               </div>
-              <div class="q-label">题目</div>
+              <div class="q-label">${getMessage('optionsQuestionLabel')}</div>
               <div class="q-text">${escapeHtml(q.text)}</div>
-              <div class="q-label">答案</div>
-              <div class="q-answer">${escapeHtml(q.answer || '无')}</div>
-              ${q.analysis ? `<div class="q-label" style="margin-top:8px;">解析</div><div class="q-answer">${escapeHtml(q.analysis)}</div>` : ''}
+              <div class="q-label">${getMessage('optionsAnswerLabel')}</div>
+              <div class="q-answer">${escapeHtml(q.answer || getMessage('optionsNone'))}</div>
+              ${q.analysis ? `<div class="q-label" style="margin-top:8px;">${getMessage('optionsAnalysisLabel')}</div><div class="q-answer">${escapeHtml(q.analysis)}</div>` : ''}
             </div>
           `;
         });
@@ -323,22 +326,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } else if (type === 'history') {
       drawerSaveBtn.style.display = 'none';
-      const date = new Date(data.timestamp).toLocaleString('zh-CN');
+      const date = new Date(data.timestamp).toLocaleString();
       const doneCount = data.questions.filter(q => q.status === 'done').length;
       const errorCount = data.questions.filter(q => q.status === 'error').length;
-      drawerTitleEl.textContent = data.title || '未命名试卷';
-      drawerMetaEl.textContent = `${date} · ${data.questions.length} 题 · 已完成 ${doneCount} 题${errorCount > 0 ? ` · ${errorCount} 题出错` : ''}`;
+      drawerTitleEl.textContent = data.title || getMessage('optionsHistoryUnnamed');
+      drawerMetaEl.textContent = getMessage('optionsHistoryMetaFormat', [date, data.questions.length, doneCount]) + (errorCount > 0 ? getMessage('optionsHistoryErrorSuffix', [errorCount]) : '');
 
       if (!data.questions || data.questions.length === 0) {
-        drawerBodyEl.innerHTML = '<div class="drawer-empty">暂无题目数据。</div>';
+        drawerBodyEl.innerHTML = '<div class="drawer-empty">' + getMessage('optionsHistoryDrawerEmpty') + '</div>';
       } else {
         let html = '';
         data.questions.forEach((q, idx) => {
-          const typeLabel = TYPE_LABELS[q.type] || '其他';
+          const typeLabel = TYPE_LABELS[q.type] || getMessage('typeUnknown');
           const typeClass = TYPE_CLASSES[q.type] || TYPE_CLASSES.unknown;
           const answerHtml = q.status === 'error'
-            ? `<div class="q-label">解析结果</div><div class="q-error">分析出错</div>`
-            : `<div class="q-label">参考答案</div><div class="q-answer">${escapeHtml(q.answer || '未获取答案')}</div>`;
+            ? `<div class="q-label">${getMessage('optionsHistoryAnalysisResultLabel')}</div><div class="q-error">${getMessage('optionsHistoryAnalysisError')}</div>`
+            : `<div class="q-label">${getMessage('optionsHistoryReferenceAnswerLabel')}</div><div class="q-answer">${escapeHtml(q.answer || getMessage('optionsHistoryNoAnswer'))}</div>`;
           html += `
             <div class="q-item">
               <div class="q-title-row">
@@ -346,9 +349,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                   <span class="q-id">${idx + 1}</span>
                   <span class="q-type ${typeClass}">${typeLabel}</span>
                 </div>
-                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q.type, q.text))}">复制题目</button>
+                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q.type, q.text))}">${getMessage('optionsCopyQuestion')}</button>
               </div>
-              <div class="q-label">题目</div>
+              <div class="q-label">${getMessage('optionsQuestionLabel')}</div>
               <div class="q-text">${escapeHtml(q.text)}</div>
               ${answerHtml}
             </div>
@@ -463,14 +466,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!copyBtn) return;
     event.preventDefault();
     const copyTextValue = copyBtn.dataset.copyQuestion || '';
-    const originalText = '复制题目';
+    const originalText = getMessage('optionsCopyQuestion');
     copyBtn.disabled = true;
     try {
       await copyText(copyTextValue);
-      copyBtn.textContent = '已复制';
+      copyBtn.textContent = getMessage('optionsCopied');
       copyBtn.classList.add('copied');
     } catch (error) {
-      copyBtn.textContent = '复制失败';
+      copyBtn.textContent = getMessage('optionsCopyFailed');
       copyBtn.classList.add('failed');
     } finally {
       window.setTimeout(() => {
@@ -493,7 +496,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const result = await chrome.storage.local.get(['exam_history']);
     const history = result.exam_history || [];
     if (history.length === 0) {
-      alert('暂无历史记录可导出');
+      alert(getMessage('optionsHistoryExportEmpty'));
       return;
     }
     const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
@@ -506,7 +509,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('clearHistory').addEventListener('click', async () => {
-    if (!confirm('确定要清空所有历史记录吗？此操作不可恢复。')) return;
+    if (!confirm(getMessage('optionsHistoryClearConfirm'))) return;
     await chrome.storage.local.remove(['exam_history']);
     historyMod.renderHistory([]);
   });
@@ -524,7 +527,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const updates = { [markerKey]: true };
     if (!defaultRuleSeedPromise) {
       defaultRuleSeedPromise = fetch(chrome.runtime.getURL('data/default-parse-rule.json')).then(async res => {
-        if (!res.ok) throw new Error(`加载默认解析规则失败: ${res.status}`);
+        if (!res.ok) throw new Error(getMessage('optionsLoadDefaultRuleFailed', [res.status]));
         return res.json();
       });
     }

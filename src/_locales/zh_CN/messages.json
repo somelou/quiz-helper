@@ -1,8 +1,1328 @@
 {
+  "commonNoModels": {
+    "message": "无可用模型"
+  },
+  "commonClear": {
+    "message": "清空"
+  },
+  "commonSave": {
+    "message": "保存"
+  },
+  "commonClose": {
+    "message": "关闭"
+  },
+  "commonCancel": {
+    "message": "取消"
+  },
+  "commonExport": {
+    "message": "导出"
+  },
+  "commonDelete": {
+    "message": "删除"
+  },
+  "commonConfirm": {
+    "message": "确定"
+  },
+  "typeSingle": {
+    "message": "单选"
+  },
+  "typeMultiple": {
+    "message": "多选"
+  },
+  "typeJudge": {
+    "message": "判断"
+  },
+  "typeFill": {
+    "message": "填空"
+  },
+  "typeUnknown": {
+    "message": "其他"
+  },
+  "statusPending": {
+    "message": "待分析"
+  },
+  "statusLoading": {
+    "message": "作答中"
+  },
+  "statusDone": {
+    "message": "已完成"
+  },
+  "statusError": {
+    "message": "出错"
+  },
+  "importModeEcoLabel": {
+    "message": "并发 5 批 · 每批 100 题，速度较慢，适合 token 不足或 API 限流严格的场景"
+  },
+  "importModeBalancedLabel": {
+    "message": "并发 10 批 · 每批 50 题，均衡速度与稳定性，推荐日常使用"
+  },
+  "importModePreciseLabel": {
+    "message": "并发 10 批 · 每批 25 题，小批次高精度，适合题目格式复杂、容易解析出错的题库"
+  },
+  "themeLight": {
+    "message": "浅色模式"
+  },
+  "themeDark": {
+    "message": "深色模式"
+  },
+  "themeSystem": {
+    "message": "跟随系统"
+  },
   "appName": {
     "message": "题目助手"
   },
   "appDescription": {
     "message": "自动提取页面题目，逐题调用大模型 API 获取参考答案"
+  },
+  "popupAnalyzeBtn": {
+    "message": "分析当前页面题目"
+  },
+  "popupOptionsBtn": {
+    "message": "打开设置"
+  },
+  "popupInitialHint": {
+    "message": "提示：选中题目文本后分析效果更佳"
+  },
+  "popupNoShortcut": {
+    "message": "未设置"
+  },
+  "popupShortcutHint": {
+    "message": "唤起助手快捷键：<strong>$1</strong>"
+  },
+  "popupSelectModel": {
+    "message": "选择模型"
+  },
+  "optionsPageTitle": {
+    "message": "题目助手 - 设置"
+  },
+  "optionsSettings": {
+    "message": "基本设置"
+  },
+  "optionsModels": {
+    "message": "大模型管理"
+  },
+  "optionsSearch": {
+    "message": "联网搜索设置"
+  },
+  "optionsRules": {
+    "message": "解析规则管理"
+  },
+  "optionsBank": {
+    "message": "题库管理"
+  },
+  "optionsHistory": {
+    "message": "历史记录"
+  },
+  "optionsBackup": {
+    "message": "备份与恢复"
+  },
+  "optionsAbout": {
+    "message": "关于"
+  },
+  "optionsSystemPrompt": {
+    "message": "系统提示词"
+  },
+  "optionsPromptHint": {
+    "message": "每种题型可单独设置自定义提示词，留空则使用默认提示词。灰色占位符即为当前题型的默认提示词。"
+  },
+  "optionsExtraContext": {
+    "message": "补充提示词 / 领域背景"
+  },
+  "optionsExtraContextPlaceholder": {
+    "message": "例如：\n你是一名通信领域与 AI 大模型方向的专业助手。\n回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"
+  },
+  "optionsExtraContextHint": {
+    "message": "用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。"
+  },
+  "optionsShortcut": {
+    "message": "面板快捷键"
+  },
+  "optionsRecordShortcut": {
+    "message": "录制"
+  },
+  "optionsResetShortcut": {
+    "message": "默认"
+  },
+  "optionsAllowedDomains": {
+    "message": "生效域名白名单"
+  },
+  "optionsAllowedDomainsHint": {
+    "message": "插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效"
+  },
+  "optionsSaveSettings": {
+    "message": "保存设置"
+  },
+  "optionsRestoreDefaults": {
+    "message": "恢复默认"
+  },
+  "optionsAddModel": {
+    "message": "+ 添加"
+  },
+  "optionsModelsHint": {
+    "message": "管理多个大模型配置，可激活/停用，设置首选模型。点击下方按钮可为各任务指定专用模型。"
+  },
+  "optionsStreamOutput": {
+    "message": "流式输出"
+  },
+  "optionsStreamOutputHint": {
+    "message": "开启后，大模型测试与答题时逐字返回结果；关闭后一次性返回完整结果。"
+  },
+  "optionsSearchHint": {
+    "message": "开启后，大模型答题时将检索联网信息作为辅助参考（仅一种搜索服务同时生效）。"
+  },
+  "optionsSearchCommonParams": {
+    "message": "公共参数"
+  },
+  "optionsSearchResultCount": {
+    "message": "结果数量"
+  },
+  "optionsSearchCountHint": {
+    "message": "单次搜索返回的最大结果数 (1-50)"
+  },
+  "optionsSearchTimeRange": {
+    "message": "时间范围"
+  },
+  "optionsTimeRangeNone": {
+    "message": "不限制"
+  },
+  "optionsTimeRangeDay": {
+    "message": "一天"
+  },
+  "optionsTimeRangeWeek": {
+    "message": "一周"
+  },
+  "optionsTimeRangeMonth": {
+    "message": "一月"
+  },
+  "optionsTimeRangeYear": {
+    "message": "一年"
+  },
+  "optionsTimeRangeHint": {
+    "message": "过滤搜索结果的时间范围"
+  },
+  "optionsSearchProviders": {
+    "message": "搜索服务商"
+  },
+  "optionsSearchConfigure": {
+    "message": "配置"
+  },
+  "optionsRulesHint": {
+    "message": "管理各站点的题目解析规则。有规则的站点优先使用规则解析，无规则的站点首次解析时由 AI 自动生成规则。"
+  },
+  "optionsBankHint": {
+    "message": "开启后优先从题库匹配答案。导入 Excel(.xlsx/.xls) 或 Word(.docx) 文件，AI 将自动解析题目和答案。"
+  },
+  "optionsImportMode": {
+    "message": "导入解析模式"
+  },
+  "optionsImportModeEco": {
+    "message": "节能"
+  },
+  "optionsImportModeBalanced": {
+    "message": "平衡"
+  },
+  "optionsImportModePrecise": {
+    "message": "精细"
+  },
+  "optionsImportModeHint": {
+    "message": "并发 10 批 · 每批 50 题"
+  },
+  "optionsImportBank": {
+    "message": "+ 导入题库"
+  },
+  "optionsCancelParseTitle": {
+    "message": "取消解析"
+  },
+  "optionsCancel": {
+    "message": "取消"
+  },
+  "optionsExport": {
+    "message": "导出"
+  },
+  "optionsHistoryHint": {
+    "message": "每次分析完成后自动保存，最多保留 50 条"
+  },
+  "optionsBackupExportTitle": {
+    "message": "导出本地数据"
+  },
+  "optionsBackupExportHint": {
+    "message": "可按模块导出当前本地数据，默认全选。"
+  },
+  "optionsModuleSettings": {
+    "message": "基本设置"
+  },
+  "optionsModuleModels": {
+    "message": "大模型"
+  },
+  "optionsModuleSearch": {
+    "message": "联网搜索"
+  },
+  "optionsModuleRules": {
+    "message": "解析规则"
+  },
+  "optionsModuleBanks": {
+    "message": "题库"
+  },
+  "optionsModuleHistory": {
+    "message": "历史记录"
+  },
+  "optionsExportBackup": {
+    "message": "导出备份"
+  },
+  "optionsBackupImportTitle": {
+    "message": "导入备份数据"
+  },
+  "optionsBackupImportHint": {
+    "message": "导入会覆盖备份文件中包含的模块，未包含的本地数据保持不变。"
+  },
+  "optionsChooseBackupFile": {
+    "message": "选择备份文件"
+  },
+  "optionsNoFileSelected": {
+    "message": "未选择文件"
+  },
+  "optionsImportBackup": {
+    "message": "导入备份"
+  },
+  "optionsAboutSubtitle": {
+    "message": "本地优先的题目辅助扩展"
+  },
+  "optionsAboutVersion": {
+    "message": "版本"
+  },
+  "optionsAboutRepo": {
+    "message": "仓库"
+  },
+  "optionsAboutPrivacy": {
+    "message": "隐私"
+  },
+  "optionsAboutPrivacyValue": {
+    "message": "隐私政策"
+  },
+  "optionsDrawerTitle": {
+    "message": "详情"
+  },
+  "optionsSave": {
+    "message": "保存"
+  },
+  "optionsClose": {
+    "message": "关闭"
+  },
+  "commonUnknownError": {
+    "message": "未知错误"
+  },
+  "optionsAnalysisLabel": {
+    "message": "解析"
+  },
+  "optionsAnswerLabel": {
+    "message": "答案"
+  },
+  "optionsApiSection": {
+    "message": "API 配置"
+  },
+  "optionsBackupConfirm": {
+    "message": "将覆盖备份文件中包含的模块数据，未包含的本地数据不会变更，是否继续？"
+  },
+  "optionsBackupExportFailedFormat": {
+    "message": "导出失败：$1"
+  },
+  "optionsBackupExportSuccess": {
+    "message": "备份导出成功"
+  },
+  "optionsBackupImportedFormat": {
+    "message": "备份导入成功，已恢复 $1 个模块"
+  },
+  "optionsBackupImportFailedFormat": {
+    "message": "导入失败：$1"
+  },
+  "optionsBackupInvalidFormat": {
+    "message": "导入失败：备份文件格式无效"
+  },
+  "optionsBackupInvalidJson": {
+    "message": "导入失败：备份文件不是有效的 JSON"
+  },
+  "optionsBackupNoFile": {
+    "message": "未选择文件"
+  },
+  "optionsBackupSelectFile": {
+    "message": "请先选择备份文件"
+  },
+  "optionsBackupSelectModule": {
+    "message": "请至少选择一个导出模块"
+  },
+  "optionsBankCancelling": {
+    "message": "正在取消..."
+  },
+  "optionsBankConnectingAi": {
+    "message": "正在连接 AI 解析服务..."
+  },
+  "optionsBankCountHint": {
+    "message": "共 $1 个题库 · $2 题"
+  },
+  "optionsBankDeleteConfirm": {
+    "message": "确定要删除这个题库吗？此操作不可恢复。"
+  },
+  "optionsBankDeleted": {
+    "message": "题库已删除"
+  },
+  "optionsBankDisabledBadge": {
+    "message": "未启用"
+  },
+  "optionsBankDisabledMsg": {
+    "message": "已停用题库：$1"
+  },
+  "optionsBankDrawerEmpty": {
+    "message": "该题库暂无可展示的题目。"
+  },
+  "optionsBankEmpty": {
+    "message": "暂无题库。点击上方\"+ 导入题库\"按钮上传 Excel(.xlsx/.xls) 或 Word(.docx) 文件。"
+  },
+  "optionsBankEnabledBadge": {
+    "message": "已启用"
+  },
+  "optionsBankEnabledMsg": {
+    "message": "已启用题库：$1"
+  },
+  "optionsBankFileEmpty": {
+    "message": "文件内容为空或过少"
+  },
+  "optionsBankFileFormatError": {
+    "message": "不支持的文件格式，请上传 Excel(.xlsx/.xls) 或 Word(.docx) 文件"
+  },
+  "optionsBankImportedFormat": {
+    "message": "题库导入成功，共 $1 道题目$2"
+  },
+  "optionsBankImportFailedFormat": {
+    "message": "导入失败：$1"
+  },
+  "optionsBankMetaFormat": {
+    "message": "$1 · $2 题"
+  },
+  "optionsBankNoQuestions": {
+    "message": "解析失败：未提取到有效题目"
+  },
+  "optionsBankParseCancelled": {
+    "message": "解析已取消"
+  },
+  "optionsBankParseDisconnected": {
+    "message": "解析服务连接已断开"
+  },
+  "optionsBankParseFailedFormat": {
+    "message": "解析失败：$1"
+  },
+  "optionsBankParsing": {
+    "message": "正在解析..."
+  },
+  "optionsBankPreferDisabled": {
+    "message": "已关闭题库优先回答"
+  },
+  "optionsBankPreferEnabled": {
+    "message": "已启用题库优先回答"
+  },
+  "optionsBankReadingFile": {
+    "message": "正在读取文件..."
+  },
+  "optionsBankUnnamed": {
+    "message": "未命名题库"
+  },
+  "optionsCopied": {
+    "message": "已复制"
+  },
+  "optionsCopyFailed": {
+    "message": "复制失败"
+  },
+  "optionsCopyQuestion": {
+    "message": "复制题目"
+  },
+  "optionsDrawerTitleAddModel": {
+    "message": "添加大模型"
+  },
+  "optionsDrawerTitleDetail": {
+    "message": "详情"
+  },
+  "optionsDrawerTitleEditModel": {
+    "message": "编辑大模型"
+  },
+  "optionsEdit": {
+    "message": "编辑"
+  },
+  "optionsHide": {
+    "message": "隐藏"
+  },
+  "optionsHistoryAnalysisError": {
+    "message": "分析出错"
+  },
+  "optionsHistoryAnalysisResultLabel": {
+    "message": "解析结果"
+  },
+  "optionsHistoryClearConfirm": {
+    "message": "确定要清空所有历史记录吗？此操作不可恢复。"
+  },
+  "optionsHistoryDeleteConfirm": {
+    "message": "确定要删除这条历史记录吗？"
+  },
+  "optionsHistoryDrawerEmpty": {
+    "message": "暂无题目数据。"
+  },
+  "optionsHistoryEmpty": {
+    "message": "暂无历史记录"
+  },
+  "optionsHistoryErrorSuffix": {
+    "message": " · $1 题出错"
+  },
+  "optionsHistoryExportEmpty": {
+    "message": "暂无历史记录可导出"
+  },
+  "optionsHistoryMetaFormat": {
+    "message": "$1 · $2 题 · 已完成 $3 题"
+  },
+  "optionsHistoryNoAnswer": {
+    "message": "未获取答案"
+  },
+  "optionsHistoryReferenceAnswerLabel": {
+    "message": "参考答案"
+  },
+  "optionsHistoryUnnamed": {
+    "message": "未命名试卷"
+  },
+  "optionsLoadDefaultRuleFailed": {
+    "message": "加载默认解析规则失败: $1"
+  },
+  "optionsModelActivateFirst": {
+    "message": "请先激活该模型"
+  },
+  "optionsModelActivated": {
+    "message": "模型已激活"
+  },
+  "optionsModelBadgeAnswer": {
+    "message": "答题"
+  },
+  "optionsModelBadgeBank": {
+    "message": "题库解析"
+  },
+  "optionsModelBadgeExtract": {
+    "message": "页面解析"
+  },
+  "optionsModelDeactivated": {
+    "message": "模型已停用"
+  },
+  "optionsModelDeleteConfirm": {
+    "message": "确定要删除这个大模型配置吗？"
+  },
+  "optionsModelDeleted": {
+    "message": "模型已删除"
+  },
+  "optionsModelFormApiFormatHint": {
+    "message": "根据 API 服务商提供的请求格式设置"
+  },
+  "optionsModelFormApiFormatLabel": {
+    "message": "API 格式"
+  },
+  "optionsModelFormApiKeyHint": {
+    "message": "您的 API 密钥仅存储在本地浏览器中"
+  },
+  "optionsModelFormApiKeyRequired": {
+    "message": "API Key 不能为空"
+  },
+  "optionsModelFormApiUrlHint": {
+    "message": "例如：https://api.deepseek.com/v1、https://api.openai.com/v1"
+  },
+  "optionsModelFormApiUrlLabel": {
+    "message": "API 基础 URL"
+  },
+  "optionsModelFormApiUrlRequired": {
+    "message": "API URL 不能为空"
+  },
+  "optionsModelFormDeepThinking": {
+    "message": "深度思考"
+  },
+  "optionsModelFormEffortHint": {
+    "message": "High 适合多数场景；Max 适合复杂推理任务"
+  },
+  "optionsModelFormEffortLabel": {
+    "message": "思考强度"
+  },
+  "optionsModelFormModelIdHint": {
+    "message": "例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash"
+  },
+  "optionsModelFormModelIdLabel": {
+    "message": "模型 ID"
+  },
+  "optionsModelFormModelIdRequired": {
+    "message": "模型 ID 不能为空"
+  },
+  "optionsModelFormNameConflict": {
+    "message": "模型展示名称「$1」已存在，请使用其他名称"
+  },
+  "optionsModelFormNameHint": {
+    "message": "用于区分不同模型配置，需全局唯一"
+  },
+  "optionsModelFormNameLabel": {
+    "message": "模型展示名称"
+  },
+  "optionsModelFormNamePlaceholder": {
+    "message": "自动生成：主站名/模型ID"
+  },
+  "optionsModelFormNameRequired": {
+    "message": "模型展示名称不能为空"
+  },
+  "optionsModelFormTestConnFail": {
+    "message": "连接失败: $1"
+  },
+  "optionsModelFormTestConnSuccess": {
+    "message": "连接成功"
+  },
+  "optionsModelFormTestErrorNoApi": {
+    "message": "请先填写 API URL、API Key 和模型 ID"
+  },
+  "optionsModelFormTestRequesting": {
+    "message": "请求中..."
+  },
+  "optionsModelFormTestTextPlaceholder": {
+    "message": "输入测试文本"
+  },
+  "optionsModelFormTestTextValue": {
+    "message": "请回复 OK"
+  },
+  "optionsModelFormTestThinking": {
+    "message": "深度思考中..."
+  },
+  "optionsModelFormThinking": {
+    "message": "思考模式"
+  },
+  "optionsModelFormThinkingHint": {
+    "message": "启用后强制开启思考模式，未启用则由模型自己判断"
+  },
+  "optionsModelFormToolsHint": {
+    "message": "例如 web_search；输入后按回车添加，点击 × 移除"
+  },
+  "optionsModelFormToolsLabel": {
+    "message": "内置工具"
+  },
+  "optionsModelFormToolsPlaceholder": {
+    "message": "输入内置工具名称后按回车添加"
+  },
+  "optionsModelMetaFormat": {
+    "message": "模型 ID: $1 · $2"
+  },
+  "optionsModelSaved": {
+    "message": "模型已保存"
+  },
+  "optionsModelSetAsAnswer": {
+    "message": "已设为答题模型"
+  },
+  "optionsModelSetAsFormat": {
+    "message": "已设为$1模型"
+  },
+  "optionsModelTestConnection": {
+    "message": "测试连接"
+  },
+  "optionsModelUseForAnswer": {
+    "message": "用于答题"
+  },
+  "optionsModelUseForBank": {
+    "message": "用于题库解析"
+  },
+  "optionsModelUseForExtract": {
+    "message": "用于页面解析"
+  },
+  "optionsModelsEmpty": {
+    "message": "暂无大模型配置，点击右上角「添加」创建。"
+  },
+  "optionsNone": {
+    "message": "无"
+  },
+  "optionsPaginationFormat": {
+    "message": "$1/$2 页 · 共 $3 条"
+  },
+  "optionsPromptCleared": {
+    "message": "已清空$1自定义提示词"
+  },
+  "optionsQuestionCopyFormat": {
+    "message": "【$1】$2"
+  },
+  "optionsQuestionLabel": {
+    "message": "题目"
+  },
+  "optionsResetConfirm": {
+    "message": "确定要恢复默认设置吗？这将清空自定义提示词、白名单等配置。"
+  },
+  "optionsRuleCopy": {
+    "message": "复制"
+  },
+  "optionsRuleCssSection": {
+    "message": "CSS 选择器配置"
+  },
+  "optionsRuleDeleteConfirm": {
+    "message": "确定要删除这条解析规则吗？删除后该站点将回退到 AI 解析模式。"
+  },
+  "optionsRuleDeleted": {
+    "message": "解析规则已删除"
+  },
+  "optionsRuleDomainConflictFormat": {
+    "message": "域名 $1 已存在规则，无法重复"
+  },
+  "optionsRuleDomainLabel": {
+    "message": "生效域名"
+  },
+  "optionsRuleDomainRequired": {
+    "message": "域名不能为空"
+  },
+  "optionsRuleEditTitle": {
+    "message": "编辑解析规则"
+  },
+  "optionsRuleEmpty": {
+    "message": "暂无解析规则。访问新站点时 AI 会自动生成规则。"
+  },
+  "optionsRuleFallbackLabel": {
+    "message": "降级文本选择器（每行一个）"
+  },
+  "optionsRuleFallbackSection": {
+    "message": "文本降级选择器"
+  },
+  "optionsRuleFormView": {
+    "message": "表单"
+  },
+  "optionsRuleJsonHint": {
+    "message": "可直接编辑 JSON；切回表单或保存时会校验格式。"
+  },
+  "optionsRuleJsonInvalidBack": {
+    "message": "JSON 格式错误，无法切回表单"
+  },
+  "optionsRuleJsonInvalidSave": {
+    "message": "JSON 格式错误，无法保存"
+  },
+  "optionsRuleJsonInvalidStructure": {
+    "message": "JSON 缺少 domain 或结构不正确"
+  },
+  "optionsRuleJsonLabel": {
+    "message": "规则 JSON"
+  },
+  "optionsRuleJudgeIndicatorLabel": {
+    "message": "判断指示器"
+  },
+  "optionsRuleKeywordSection": {
+    "message": "题型检测关键词"
+  },
+  "optionsRuleKwFillLabel": {
+    "message": "填空题关键词（逗号分隔）"
+  },
+  "optionsRuleKwFillPlaceholder": {
+    "message": "___, 【, 填空"
+  },
+  "optionsRuleKwJudgeLabel": {
+    "message": "判断题关键词（逗号分隔）"
+  },
+  "optionsRuleKwJudgePlaceholder": {
+    "message": "正确, 错误, 对, 错"
+  },
+  "optionsRuleKwMultipleLabel": {
+    "message": "多选题关键词（逗号分隔）"
+  },
+  "optionsRuleKwMultiplePlaceholder": {
+    "message": "多选, 以下哪些, 至少选"
+  },
+  "optionsRuleKwSingleLabel": {
+    "message": "单选题关键词（逗号分隔）"
+  },
+  "optionsRuleKwSinglePlaceholder": {
+    "message": "单选, 单项选择"
+  },
+  "optionsRuleMetaFormat": {
+    "message": "创建: $1 · 最后使用: $2 · 使用次数: $3"
+  },
+  "optionsRuleMultipleIndicatorLabel": {
+    "message": "多选指示器"
+  },
+  "optionsRuleNeverUsed": {
+    "message": "未使用"
+  },
+  "optionsRuleOptionContainerLabel": {
+    "message": "选项容器选择器（每行一个，按优先级排序）"
+  },
+  "optionsRuleOptionItemLabel": {
+    "message": "选项元素选择器"
+  },
+  "optionsRuleOptionNumberLabel": {
+    "message": "选项编号选择器（可选）"
+  },
+  "optionsRuleQuestionItemLabel": {
+    "message": "题目项选择器"
+  },
+  "optionsRuleQuestionTextLabel": {
+    "message": "题干选择器（每行一个，按优先级排序）"
+  },
+  "optionsRuleRootSelectorsLabel": {
+    "message": "根容器选择器（每行一个，按优先级排序）"
+  },
+  "optionsRuleSaved": {
+    "message": "规则已保存"
+  },
+  "optionsRuleSingleIndicatorLabel": {
+    "message": "单选指示器"
+  },
+  "optionsRuleTypeHeadingLabel": {
+    "message": "题型标题选择器（可选）"
+  },
+  "optionsRuleTypeIndicatorHint": {
+    "message": "题目元素或其父元素的 class 包含这些关键词时，优先据此判断题型（适用于用 checkbox 模拟单选等场景）"
+  },
+  "optionsRuleTypeIndicatorSection": {
+    "message": "题型指示器（class 名关键词，逗号分隔）"
+  },
+  "optionsSearchActivatedFormat": {
+    "message": "已激活「$1」"
+  },
+  "optionsSearchActiveBadge": {
+    "message": "当前使用"
+  },
+  "optionsSearchAnswerHint": {
+    "message": "启用后 Tavily 将返回一个 LLM 生成的查询摘要答案"
+  },
+  "optionsSearchAnswerLabel": {
+    "message": "AI 答案摘要"
+  },
+  "optionsSearchApiKeyPlaceholder": {
+    "message": "请输入 API Key"
+  },
+  "optionsSearchApiKeyRequired": {
+    "message": "请先填写 API Key"
+  },
+  "optionsSearchApiUrlRequired": {
+    "message": "请先填写搜索 API URL"
+  },
+  "optionsSearchAuthHigh": {
+    "message": "非常权威"
+  },
+  "optionsSearchAuthLevelLabel": {
+    "message": "权威度限制"
+  },
+  "optionsSearchBlockHostsHint": {
+    "message": "指定要屏蔽的搜索域名，最多 5 个"
+  },
+  "optionsSearchBlockHostsLabel": {
+    "message": "屏蔽站点"
+  },
+  "optionsSearchBlockHostsPlaceholder": {
+    "message": "多个域名用 | 分隔，如 example.com|spam.net"
+  },
+  "optionsSearchBraveLangHint": {
+    "message": "仅对 Brave 生效，选择「不限制」由 Brave 自行判断"
+  },
+  "optionsSearchBraveSection": {
+    "message": "Brave 搜索参数"
+  },
+  "optionsSearchDeactivated": {
+    "message": "已取消激活"
+  },
+  "optionsSearchDepthLabel": {
+    "message": "搜索深度"
+  },
+  "optionsSearchDetailFormat": {
+    "message": "细节：$1"
+  },
+  "optionsSearchDrawerTitleFormat": {
+    "message": "配置 - $1"
+  },
+  "optionsSearchFailFormat": {
+    "message": "搜索失败：$1"
+  },
+  "optionsSearchInactiveBadge": {
+    "message": "未激活"
+  },
+  "optionsSearchLangDe": {
+    "message": "德文"
+  },
+  "optionsSearchLangEn": {
+    "message": "英文"
+  },
+  "optionsSearchLangFr": {
+    "message": "法文"
+  },
+  "optionsSearchLangJa": {
+    "message": "日文"
+  },
+  "optionsSearchLangKo": {
+    "message": "韩文"
+  },
+  "optionsSearchLangLabel": {
+    "message": "搜索语言"
+  },
+  "optionsSearchLangZh": {
+    "message": "中文"
+  },
+  "optionsSearchMonthlyLimitHint": {
+    "message": "达到上限后使用将不再进行搜索服务。设为 0 表示不限制"
+  },
+  "optionsSearchMonthlyLimitLabel": {
+    "message": "每月可执行次数"
+  },
+  "optionsSearchMoreFormat": {
+    "message": "... 还有 $1 条"
+  },
+  "optionsSearchNoLimit": {
+    "message": "不限制"
+  },
+  "optionsSearchNoResults": {
+    "message": "未找到相关结果"
+  },
+  "optionsSearchNoTitle": {
+    "message": "无标题"
+  },
+  "optionsSearchProviderDescBrave": {
+    "message": "Brave LLM Context API，西文Agent场景友好"
+  },
+  "optionsSearchProviderDescTavily": {
+    "message": "Tavily 实时搜索 API，注册即可免费使用"
+  },
+  "optionsSearchProviderDescVolc": {
+    "message": "火山引擎豆包搜索 Custom 版，中文Agent场景友好"
+  },
+  "optionsSearchProviderNameLabel": {
+    "message": "服务商名称"
+  },
+  "optionsSearchProviderNameVolc": {
+    "message": "豆包搜索"
+  },
+  "optionsSearchProviderSection": {
+    "message": "服务商信息"
+  },
+  "optionsSearchResultsCountFormat": {
+    "message": "共 $1 条结果："
+  },
+  "optionsSearchSavedFormat": {
+    "message": "「$1」配置已保存"
+  },
+  "optionsSearchSearching": {
+    "message": "搜索中..."
+  },
+  "optionsSearchSuccess": {
+    "message": "搜索成功！"
+  },
+  "optionsSearchSwNoResponse": {
+    "message": "后台服务未响应"
+  },
+  "optionsSearchTavilyDepthHint": {
+    "message": "Basic 平衡相关性与延迟，Advanced 高精度深度搜索（2 积分），Fast 低延迟，Ultra-Fast 极速返回（仅返回一条摘要）"
+  },
+  "optionsSearchTavilySection": {
+    "message": "Tavily 搜索参数"
+  },
+  "optionsSearchTest": {
+    "message": "测试搜索"
+  },
+  "optionsSearchTestErrorNoResponse": {
+    "message": "<span style=\"color:var(--color-error-text);font-weight:600;\">错误：$1</span>\n<div style=\"margin-top:6px;font-size:11px;color:var(--color-text-muted);\">\n  可能原因：扩展未重新加载，或 Service Worker 已崩溃。<br>\n  请前往 chrome://extensions 点击扩展的刷新按钮后重试。\n</div>"
+  },
+  "optionsSearchTestQueryPlaceholder": {
+    "message": "输入测试搜索词"
+  },
+  "optionsSearchTestQueryRequired": {
+    "message": "请输入测试搜索词"
+  },
+  "optionsSearchTestQueryValue": {
+    "message": "人工智能最新进展"
+  },
+  "optionsSearchUsageFormat": {
+    "message": "本月 $1/$2 · "
+  },
+  "optionsSearchUrlLabel": {
+    "message": "搜索 API URL"
+  },
+  "optionsSearchUrlPlaceholder": {
+    "message": "搜索 API 的请求地址"
+  },
+  "optionsSearchUrlRequired": {
+    "message": "搜索 API URL不能为空"
+  },
+  "optionsSearchVolcAuthHint": {
+    "message": "可指定仅在非常权威内容范围内搜索（详情请参考：<a href=\"https://docs.volcengine.com/docs/87772/2518319?lang=zh\" target=\"_blank\" rel=\"noreferrer\">豆包权威度说明</a>）"
+  },
+  "optionsSearchVolcSection": {
+    "message": "豆包搜索参数"
+  },
+  "optionsSettingsReset": {
+    "message": "已恢复默认设置"
+  },
+  "optionsSettingsSaved": {
+    "message": "设置已保存"
+  },
+  "optionsShortcutCleared": {
+    "message": "已清空快捷键，保存后生效"
+  },
+  "optionsShortcutDefaultFormat": {
+    "message": "默认快捷键为 $1"
+  },
+  "optionsShortcutModifierHintFormat": {
+    "message": "请至少包含一个修饰键，如 $1。按 Esc 可取消。"
+  },
+  "optionsShortcutModsMac": {
+    "message": "Option、Ctrl、Shift 或 Cmd"
+  },
+  "optionsShortcutModsWin": {
+    "message": "Alt、Ctrl、Shift 或 Meta"
+  },
+  "optionsShortcutNeedModifier": {
+    "message": "快捷键至少需要一个修饰键，请重新录制。"
+  },
+  "optionsShortcutNoneHint": {
+    "message": "当前未设置快捷键，保存后将关闭快捷键功能。"
+  },
+  "optionsShortcutNotSet": {
+    "message": "未设置"
+  },
+  "optionsShortcutRecorded": {
+    "message": "快捷键已录制，点击\"保存设置\"后生效"
+  },
+  "optionsShortcutRecording": {
+    "message": "请按下新的快捷键组合..."
+  },
+  "optionsShortcutRecordingCancelled": {
+    "message": "已取消快捷键录制"
+  },
+  "optionsShortcutReset": {
+    "message": "已恢复默认快捷键，保存后生效"
+  },
+  "optionsShow": {
+    "message": "显示"
+  },
+  "optionsUnnamed": {
+    "message": "未命名"
+  },
+  "optionsView": {
+    "message": "查看"
+  },
+  "panelAiOptimizingRule": {
+    "message": "AI 优化规则中...\n（$1）"
+  },
+  "panelAiParseFailedAuto": {
+    "message": "AI 未能自动解析出题目。请点击“AI 选区解析”后，在页面中手动点选一块题目区域。"
+  },
+  "panelAiParseFailedRegion": {
+    "message": "AI 未能从该区域解析出题目，请换一块更完整的题目区域再试。"
+  },
+  "panelAiParsingPage": {
+    "message": "AI 解析页面中..."
+  },
+  "panelAiParsingSelection": {
+    "message": "AI 解析选中区域..."
+  },
+  "panelAiSelection": {
+    "message": "AI 选区"
+  },
+  "panelAnalysisLabel": {
+    "message": "解析：$1"
+  },
+  "panelAnalyzing": {
+    "message": "<div class=\"qh-loading-text\">正在分析...</div>"
+  },
+  "panelAnalyzingSuffix": {
+    "message": "，作答中"
+  },
+  "panelAnswer": {
+    "message": "作答"
+  },
+  "panelAnswerCorrect": {
+    "message": "对"
+  },
+  "panelAnswerFailed": {
+    "message": "作答失败，请重试"
+  },
+  "panelAnswerLabel": {
+    "message": "答案：$1"
+  },
+  "panelAnswerLoading": {
+    "message": "<span class=\"qh-loading-text\">作答中...</span>"
+  },
+  "panelAnswerRequesting": {
+    "message": "<span class=\"qh-loading-text\">正在请求 AI 分析...</span>"
+  },
+  "panelAnswerWrong": {
+    "message": "错"
+  },
+  "panelBankAnalysisLine": {
+    "message": "\n解析：$1"
+  },
+  "panelBankMatching": {
+    "message": "<div class=\"qh-loading-text\">匹配到题库，正在校验选项顺序...</div>"
+  },
+  "panelBankOriginalQuestion": {
+    "message": "\n题库原题：$1"
+  },
+  "panelBankSource": {
+    "message": "题库$1"
+  },
+  "panelBankSourceLine": {
+    "message": "\n来源：题库「$1」"
+  },
+  "panelBankVerifyFailed": {
+    "message": "⚠️ 校验失败，以下为原始题库答案（选项顺序可能与当前考试不同）\n答案：$1"
+  },
+  "panelCancelSelection": {
+    "message": "取消选区"
+  },
+  "panelCommError": {
+    "message": "通信错误：$1"
+  },
+  "panelConnectionLost": {
+    "message": "连接中断"
+  },
+  "panelCopy": {
+    "message": "复制"
+  },
+  "panelCopied": {
+    "message": "已复制"
+  },
+  "panelCopyFailed": {
+    "message": "复制失败"
+  },
+  "panelDeepThinking": {
+    "message": "深度思考"
+  },
+  "panelDomainNotAllowed": {
+    "message": "当前域名不在白名单中，请在设置页面添加生效域名。"
+  },
+  "panelEmptyNoQuestions": {
+    "message": "<div class=\"qh-empty\">未提取到题目。可先尝试规则解析，或点击“AI 选区解析”后在页面中点选一块题目区域。</div>"
+  },
+  "panelMinimize": {
+    "message": "最小化"
+  },
+  "panelNoMainContent": {
+    "message": "未找到页面主内容区域，请点击“AI 选区解析”手动选择题目区域。"
+  },
+  "panelNoTitle": {
+    "message": "无标题"
+  },
+  "panelPause": {
+    "message": "暂停"
+  },
+  "panelPausedSuffix": {
+    "message": "，已暂停"
+  },
+  "panelPickerCancelled": {
+    "message": "已取消 AI 选区解析。可继续规则解析，或再次点击“AI 选区解析”后选择页面区域。"
+  },
+  "panelPickerCancelledShort": {
+    "message": "已取消 AI 选区解析。"
+  },
+  "panelPickerHint": {
+    "message": "请选择页面中的题目区域。按 Esc 可取消。"
+  },
+  "panelProgressText": {
+    "message": "- 共 $1 题，已完成 $2/$3"
+  },
+  "panelProgressTotal": {
+    "message": "- 共 $1 题"
+  },
+  "panelQuestionLabel": {
+    "message": "题目"
+  },
+  "panelReAnswer": {
+    "message": "重新作答"
+  },
+  "panelReferenceAnswer": {
+    "message": "参考答案"
+  },
+  "panelRefCount": {
+    "message": "$1 条"
+  },
+  "panelRefLinks": {
+    "message": "参考链接"
+  },
+  "panelRequestFailed": {
+    "message": "请求失败：$1"
+  },
+  "panelResume": {
+    "message": "继续"
+  },
+  "panelRuleParse": {
+    "message": "规则解析"
+  },
+  "panelRuleParseEmpty": {
+    "message": "规则解析未提取到题目。点击“AI 选区解析”后，在页面中点选包含题目的区域，再由 AI 做局部解析。"
+  },
+  "panelRuleParseFailUpdate": {
+    "message": "规则解析未能提取到题目。可点击“AI 选区解析”重新选取区域，AI 将自动更新规则。"
+  },
+  "panelSelectRegion": {
+    "message": "，请选择区域"
+  },
+  "panelSelectionTooShort": {
+    "message": "所选区域文本过少，请重新选择包含完整题目的区域。"
+  },
+  "panelSimilarity": {
+    "message": "相似度 $1"
+  },
+  "panelTitle": {
+    "message": "题目助手"
+  },
+  "bgNoApiKeyConfig": {
+    "message": "未配置 API Key，请先打开设置页面配置"
+  },
+  "bgNoApiKey": {
+    "message": "未配置 API Key"
+  },
+  "bgNoValidAnswer": {
+    "message": "未获取到有效答案"
+  },
+  "bgNoExtractedQuestions": {
+    "message": "AI 未提取到有效题目"
+  },
+  "bgExtractParseError": {
+    "message": "AI 返回的数据格式无法解析: $1"
+  },
+  "bgApiRequestFailed": {
+    "message": "API 请求失败 ($1): $2"
+  },
+  "bgNoApiKeySettings": {
+    "message": "未配置 API Key，请先在设置页面配置"
+  },
+  "bgNoParsedQuestions": {
+    "message": "AI 未解析到有效题目"
+  },
+  "bgParseProcessError": {
+    "message": "解析过程出错：$1"
+  },
+  "bgTotalQuestionsLabel": {
+    "message": "共 $1 题"
+  },
+  "bgTotalBatchesLabel": {
+    "message": "分 $1 批"
+  },
+  "bgConcurrencyLabel": {
+    "message": "并发 $1"
+  },
+  "bgParsingBank": {
+    "message": "正在解析题库..."
+  },
+  "bgParsingBankDetailed": {
+    "message": "正在解析题库（$1）..."
+  },
+  "bgAiParsingBatchProgress": {
+    "message": "正在 AI 解析第 $1/$2 批$3"
+  },
+  "bgInFlightCount": {
+    "message": "（进行中 $1）"
+  },
+  "bgParseCancelledWithPartial": {
+    "message": "解析已取消，已获取 $1 道题目（共 $2/$3 批）"
+  },
+  "bgParseCancelled": {
+    "message": "解析已取消"
+  },
+  "bgSomeBatchesFailedFallback": {
+    "message": "部分批次 AI 解析失败，已使用本地规则解析"
+  },
+  "bgBatchesFailedFallbackCount": {
+    "message": "共 $1 批 AI 解析失败，已用本地规则解析兜底"
+  },
+  "bgListSeparator": {
+    "message": "，"
+  },
+  "bgJsonNotFound": {
+    "message": "未找到可解析的 JSON"
+  },
+  "bgNoSearchResults": {
+    "message": "（未找到相关搜索结果）"
+  },
+  "bgNoTitle": {
+    "message": "无标题"
+  },
+  "bgNoUrl": {
+    "message": "无"
+  },
+  "bgSearchResultBlock": {
+    "message": "[$1] $2\n   摘要：$3\n   链接：$4"
+  },
+  "bgMonthlySearchLimitReached": {
+    "message": "本月搜索次数已达上限"
+  },
+  "bgPromptTemplatesLoadFailed": {
+    "message": "加载提示词模板失败: $1"
+  },
+  "bgSupplementBackgroundInfo": {
+    "message": "补充背景信息："
+  },
+  "bgBankRefItem": {
+    "message": "题库参考$1（相似度$2）[$3]：\n$4\n题库答案：$5"
+  },
+  "bgBankRefAnalysis": {
+    "message": "\n题库解析：$1"
+  },
+  "bgSupplementBackground": {
+    "message": "补充背景：$1"
+  },
+  "bgVerifyUserPrompt": {
+    "message": "当前考试题目：\n$1\n\n$2\n\n请根据当前题目的选项内容，综合参考上述题库信息，输出正确答案字母和解析。"
+  },
+  "bgExistingRuleHeading": {
+    "message": "## 已有解析规则（请在此基础上优化合并）"
+  },
+  "bgExistingRuleDomain": {
+    "message": "该域名「$1」已有以下解析规则。请对比当前页面结构，判断已有选择器是否仍然有效："
+  },
+  "bgRuleRootSelector": {
+    "message": "- 根容器选择器：$1"
+  },
+  "bgRuleItemSelector": {
+    "message": "- 单题容器选择器：$1"
+  },
+  "bgRuleTypeHeadingSelector": {
+    "message": "- 题型标题选择器：$1"
+  },
+  "bgRuleTextSelectors": {
+    "message": "- 题干文本选择器：$1"
+  },
+  "bgRuleOptionContainerSelectors": {
+    "message": "- 选项容器选择器：$1"
+  },
+  "bgRuleOptionItemSelector": {
+    "message": "- 选项元素选择器：$1"
+  },
+  "bgRuleOptionNumberSelector": {
+    "message": "- 选项编号选择器：$1"
+  },
+  "bgTypeIndicatorKeywords": {
+    "message": "- 题型指示器 class 关键词：$1"
+  },
+  "bgTypeTextKeywords": {
+    "message": "- 题型文本关键词：$1"
+  },
+  "bgMergeOptimizationPrinciple": {
+    "message": "合并优化原则："
+  },
+  "bgMergePrinciple1": {
+    "message": "1. 如果已有选择器在当前页面中仍然有效且命中稳定，保留它们"
+  },
+  "bgMergePrinciple2": {
+    "message": "2. 如果当前页面结构有变化（class 名不同、DOM 层级不同），请用新的选择器替换"
+  },
+  "bgMergePrinciple3": {
+    "message": "3. 如果已有选择器过于宽泛（如只用了 \"div\"），请用更精确的选择器优化"
+  },
+  "bgMergePrinciple4": {
+    "message": "4. 题型指示器关键词和题型文本关键词应与已有值合并去重，保留有效的并补充新发现的"
+  },
+  "bgMergePrinciple5": {
+    "message": "5. 返回的 selectors 应该是合并优化后的完整结果，而非增量"
+  },
+  "bgUserCustomRequirement": {
+    "message": "用户自定义要求："
+  },
+  "bgNoSearchResultsFetched": {
+    "message": "（未获取到搜索结果）"
+  },
+  "bgSearchResultUserPrompt": {
+    "message": "用户题目：\n$1\n\n搜索关键词：$2\n\n联网搜索结果：\n$3\n\n请基于以上搜索结果作答。"
+  },
+  "bgAutoGenerated": {
+    "message": "（自动生成）"
+  },
+  "commonNotSet": {
+    "message": "未设置"
+  },
+  "commonQuotaExceededHint": {
+    "message": "本地存储空间已满，无法保存数据。请前往设置页清理题库或历史记录后重试。"
   }
 }

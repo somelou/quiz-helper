@@ -34,26 +34,26 @@ function initShortcut({
 
   function updateShortcutDisplay() {
     shortcutDisplayEl.classList.remove('recording');
-    shortcutDisplayEl.textContent = currentShortcut ? currentShortcut.display : '未设置';
+    shortcutDisplayEl.textContent = currentShortcut ? currentShortcut.display : getMessage('optionsShortcutNotSet');
     const defaultLabel = sharedIsMacOS() ? '⌥ Q' : 'Alt+Q';
     shortcutHintEl.textContent = currentShortcut
-      ? `默认快捷键为 ${defaultLabel}`
-      : '当前未设置快捷键，保存后将关闭快捷键功能。';
+      ? getMessage('optionsShortcutDefaultFormat', [defaultLabel])
+      : getMessage('optionsShortcutNoneHint');
   }
 
   recordBtn.addEventListener('click', () => {
     isRecordingShortcut = true;
-    shortcutDisplayEl.textContent = '请按下新的快捷键组合...';
+    shortcutDisplayEl.textContent = getMessage('optionsShortcutRecording');
     shortcutDisplayEl.classList.add('recording');
-    const mods = sharedIsMacOS() ? 'Option、Ctrl、Shift 或 Cmd' : 'Alt、Ctrl、Shift 或 Meta';
-    shortcutHintEl.textContent = `请至少包含一个修饰键，如 ${mods}。按 Esc 可取消。`;
+    const mods = sharedIsMacOS() ? getMessage('optionsShortcutModsMac') : getMessage('optionsShortcutModsWin');
+    shortcutHintEl.textContent = getMessage('optionsShortcutModifierHintFormat', [mods]);
   });
 
   clearBtn.addEventListener('click', () => {
     isRecordingShortcut = false;
     currentShortcut = null;
     updateShortcutDisplay();
-    showStatus('已清空快捷键，保存后生效');
+    showStatus(getMessage('optionsShortcutCleared'));
   });
 
   resetBtn.addEventListener('click', resetShortcut);
@@ -64,7 +64,7 @@ function initShortcut({
         event.preventDefault();
         isRecordingShortcut = false;
         updateShortcutDisplay();
-        showStatus('已取消快捷键录制');
+        showStatus(getMessage('optionsShortcutRecordingCancelled'));
       }
       return;
     }
@@ -76,7 +76,7 @@ function initShortcut({
 
     if (sharedIsModifierKey(event.key)) return;
     if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
-      shortcutHintEl.textContent = '快捷键至少需要一个修饰键，请重新录制。';
+      shortcutHintEl.textContent = getMessage('optionsShortcutNeedModifier');
       return;
     }
 
@@ -93,7 +93,7 @@ function initShortcut({
 
     isRecordingShortcut = false;
     updateShortcutDisplay();
-    showStatus('快捷键已录制，点击"保存设置"后生效');
+    showStatus(getMessage('optionsShortcutRecorded'));
   }, true);
 
   function setShortcutFromConfig(panelShortcut) {
@@ -111,7 +111,7 @@ function initShortcut({
     isRecordingShortcut = false;
     currentShortcut = getDefaultShortcut();
     updateShortcutDisplay();
-    showStatus('已恢复默认快捷键，保存后生效');
+    showStatus(getMessage('optionsShortcutReset'));
   }
 
   return { setShortcutFromConfig, getCurrentShortcut, resetShortcut, updateShortcutDisplay };

@@ -57,6 +57,22 @@ function initSearch({
 
   let currentEditingProvider = null;
 
+  // 默认服务商名称/描述本地化（用户自定义服务商直接使用其原始值）
+  function getProviderDisplayName(provider) {
+    if (provider.id === 'volcengine-search') return getMessage('optionsSearchProviderNameVolc');
+    return provider.name;
+  }
+
+  function getProviderDisplayDesc(provider) {
+    const descKeys = {
+      'brave-search': 'optionsSearchProviderDescBrave',
+      'volcengine-search': 'optionsSearchProviderDescVolc',
+      'tavily-search': 'optionsSearchProviderDescTavily'
+    };
+    const key = descKeys[provider.id];
+    return key ? getMessage(key) : provider.desc;
+  }
+
   function showStatus(msg, isError) {
     globalThis.QuizHelperMessage[isError ? 'error' : 'info'](msg);
   }
@@ -190,26 +206,26 @@ function initSearch({
       if (limit > 0) {
         const remaining = Math.max(0, limit - usageCount);
         const usageColor = usageCount >= limit ? 'var(--color-error-text)' : 'var(--color-text-muted)';
-        usageHtml = `<span class="search-usage-badge" style="color:${usageColor};font-size:11px;">本月 ${usageCount}/${limit} · </span>`;
+        usageHtml = `<span class="search-usage-badge" style="color:${usageColor};font-size:11px;">${getMessage('optionsSearchUsageFormat', [usageCount, limit])}</span>`;
       }
 
       item.innerHTML = `
         <div class="list-item-header">
           <div class="list-item-info">
             <div class="list-item-title">
-              ${escapeHtml(provider.name)}
+              ${escapeHtml(getProviderDisplayName(provider))}
               ${isActive
-                ? '<span class="search-provider-badge search-badge-active">当前使用</span>'
-                : '<span class="search-provider-badge search-badge-inactive">未激活</span>'}
+                ? '<span class="search-provider-badge search-badge-active">' + getMessage('optionsSearchActiveBadge') + '</span>'
+                : '<span class="search-provider-badge search-badge-inactive">' + getMessage('optionsSearchInactiveBadge') + '</span>'}
             </div>
-            <div class="list-item-meta">${usageHtml}${escapeHtml(provider.desc)}</div>
+            <div class="list-item-meta">${usageHtml}${escapeHtml(getProviderDisplayDesc(provider))}</div>
           </div>
           <div class="list-item-actions">
             <label class="switch">
               <input type="checkbox" data-action="toggle-search" data-id="${provider.id}" ${isActive ? 'checked' : ''}>
               <span class="switch-slider"></span>
             </label>
-            <button class="action-btn action-edit" data-id="${provider.id}">配置</button>
+            <button class="action-btn action-edit" data-id="${provider.id}">${getMessage('optionsSearchConfigure')}</button>
           </div>
         </div>
       `;
@@ -226,7 +242,7 @@ function initSearch({
             if (prevCheckbox) prevCheckbox.checked = false;
             const prevBadge = prevActive.querySelector('.search-provider-badge');
             if (prevBadge) {
-              prevBadge.textContent = '未激活';
+              prevBadge.textContent = getMessage('optionsSearchInactiveBadge');
               prevBadge.className = 'search-provider-badge search-badge-inactive';
             }
             prevActive.classList.remove('search-item-active');
@@ -235,21 +251,21 @@ function initSearch({
           item.classList.add('search-item-active');
           const badge = item.querySelector('.search-provider-badge');
           if (badge) {
-            badge.textContent = '当前使用';
+            badge.textContent = getMessage('optionsSearchActiveBadge');
             badge.className = 'search-provider-badge search-badge-active';
           }
           await safeSet({ active_search_provider_id: provider.id });
-          showStatus(`已激活「${provider.name}」`);
+          showStatus(getMessage('optionsSearchActivatedFormat', [getProviderDisplayName(provider)]));
         } else {
           // 取消激活
           item.classList.remove('search-item-active');
           const badge = item.querySelector('.search-provider-badge');
           if (badge) {
-            badge.textContent = '未激活';
+            badge.textContent = getMessage('optionsSearchInactiveBadge');
             badge.className = 'search-provider-badge search-badge-inactive';
           }
           await safeSet({ active_search_provider_id: '' });
-          showStatus('已取消激活');
+          showStatus(getMessage('optionsSearchDeactivated'));
         }
       });
 
@@ -280,7 +296,7 @@ function initSearch({
       web_search_enabled: enabled
     });
 
-    showStatus('设置已保存');
+    showStatus(getMessage('optionsSettingsSaved'));
   }
 
   // 监听公共参数变更自动保存
@@ -303,8 +319,8 @@ function initSearch({
 
   function openSearchDrawer(provider) {
     currentEditingProvider = provider;
-    drawerTitleEl.textContent = `配置 - ${provider.name}`;
-    drawerMetaEl.textContent = provider.desc;
+    drawerTitleEl.textContent = getMessage('optionsSearchDrawerTitleFormat', [getProviderDisplayName(provider)]);
+    drawerMetaEl.textContent = getProviderDisplayDesc(provider);
     renderSearchDrawerForm(provider);
     drawerSaveBtn.style.display = '';
     drawerSaveBtn.dataset.action = 'save-search';
@@ -327,98 +343,98 @@ function initSearch({
     if (isBrave) {
       const langVal = provider.language || '';
       extraFields = `
-        <div class="rule-form-section">Brave 搜索参数</div>
+        <div class="rule-form-section">${getMessage('optionsSearchBraveSection')}</div>
         <div class="rule-form-group">
-          <label>搜索语言</label>
+          <label>${getMessage('optionsSearchLangLabel')}</label>
           <div class="segmented-control" id="drawer-brave-lang">
-            <button data-value=""${langVal === '' ? ' class="seg-active"' : ''}>不限制</button>
-            <button data-value="zh"${langVal === 'zh' ? ' class="seg-active"' : ''}>中文</button>
-            <button data-value="en"${langVal === 'en' ? ' class="seg-active"' : ''}>英文</button>
-            <button data-value="ja"${langVal === 'ja' ? ' class="seg-active"' : ''}>日文</button>
-            <button data-value="ko"${langVal === 'ko' ? ' class="seg-active"' : ''}>韩文</button>
-            <button data-value="fr"${langVal === 'fr' ? ' class="seg-active"' : ''}>法文</button>
-            <button data-value="de"${langVal === 'de' ? ' class="seg-active"' : ''}>德文</button>
+            <button data-value=""${langVal === '' ? ' class="seg-active"' : ''}>${getMessage('optionsSearchNoLimit')}</button>
+            <button data-value="zh"${langVal === 'zh' ? ' class="seg-active"' : ''}>${getMessage('optionsSearchLangZh')}</button>
+            <button data-value="en"${langVal === 'en' ? ' class="seg-active"' : ''}>${getMessage('optionsSearchLangEn')}</button>
+            <button data-value="ja"${langVal === 'ja' ? ' class="seg-active"' : ''}>${getMessage('optionsSearchLangJa')}</button>
+            <button data-value="ko"${langVal === 'ko' ? ' class="seg-active"' : ''}>${getMessage('optionsSearchLangKo')}</button>
+            <button data-value="fr"${langVal === 'fr' ? ' class="seg-active"' : ''}>${getMessage('optionsSearchLangFr')}</button>
+            <button data-value="de"${langVal === 'de' ? ' class="seg-active"' : ''}>${getMessage('optionsSearchLangDe')}</button>
           </div>
-          <div class="hint">仅对 Brave 生效，选择「不限制」由 Brave 自行判断</div>
+          <div class="hint">${getMessage('optionsSearchBraveLangHint')}</div>
         </div>`;
     } else if (isVolc) {
       const aVal = provider.authInfoLevel || '0';
       const bhVal = provider.blockHosts || '';
       extraFields = `
-        <div class="rule-form-section">豆包搜索参数</div>
+        <div class="rule-form-section">${getMessage('optionsSearchVolcSection')}</div>
         <div class="rule-form-group">
-          <label>权威度限制</label>
+          <label>${getMessage('optionsSearchAuthLevelLabel')}</label>
           <div class="segmented-control" id="drawer-volc-auth">
-            <button data-value="0"${aVal === '0' ? ' class="seg-active"' : ''}>不限制</button>
-            <button data-value="1"${aVal === '1' ? ' class="seg-active"' : ''}>非常权威</button>
+            <button data-value="0"${aVal === '0' ? ' class="seg-active"' : ''}>${getMessage('optionsSearchNoLimit')}</button>
+            <button data-value="1"${aVal === '1' ? ' class="seg-active"' : ''}>${getMessage('optionsSearchAuthHigh')}</button>
           </div>
-          <div class="hint">可指定仅在非常权威内容范围内搜索（详情请参考：<a href="https://docs.volcengine.com/docs/87772/2518319?lang=zh" target="_blank" rel="noreferrer">豆包权威度说明</a>）</div>
+          <div class="hint">${getMessage('optionsSearchVolcAuthHint')}</div>
         </div>
         <div class="rule-form-group">
-          <label>屏蔽站点</label>
-          <input type="text" id="drawer-volc-blockHosts" value="${escapeHtml(bhVal)}" placeholder="多个域名用 | 分隔，如 example.com|spam.net">
-          <div class="hint">指定要屏蔽的搜索域名，最多 5 个</div>
+          <label>${getMessage('optionsSearchBlockHostsLabel')}</label>
+          <input type="text" id="drawer-volc-blockHosts" value="${escapeHtml(bhVal)}" placeholder="${getMessage('optionsSearchBlockHostsPlaceholder')}">
+          <div class="hint">${getMessage('optionsSearchBlockHostsHint')}</div>
         </div>`;
     } else if (isTavily) {
       const depthVal = provider.searchDepth || 'basic';
       const answerVal = provider.includeAnswer === true;
       extraFields = `
-        <div class="rule-form-section">Tavily 搜索参数</div>
+        <div class="rule-form-section">${getMessage('optionsSearchTavilySection')}</div>
         <div class="rule-form-group">
-          <label>搜索深度</label>
+          <label>${getMessage('optionsSearchDepthLabel')}</label>
           <div class="segmented-control" id="drawer-tavily-depth">
             <button data-value="basic"${depthVal === 'basic' ? ' class="seg-active"' : ''}>Basic</button>
             <button data-value="advanced"${depthVal === 'advanced' ? ' class="seg-active"' : ''}>Advanced</button>
             <button data-value="fast"${depthVal === 'fast' ? ' class="seg-active"' : ''}>Fast</button>
             <button data-value="ultra-fast"${depthVal === 'ultra-fast' ? ' class="seg-active"' : ''}>Ultra-Fast</button>
           </div>
-          <div class="hint">Basic 平衡相关性与延迟，Advanced 高精度深度搜索（2 积分），Fast 低延迟，Ultra-Fast 极速返回（仅返回一条摘要）</div>
+          <div class="hint">${getMessage('optionsSearchTavilyDepthHint')}</div>
         </div>
         <div class="rule-form-group">
-          <label>AI 答案摘要</label>
+          <label>${getMessage('optionsSearchAnswerLabel')}</label>
           <label class="switch">
             <input type="checkbox" id="drawer-tavily-answer" ${answerVal ? 'checked' : ''}>
             <span class="switch-slider"></span>
           </label>
-          <div class="hint">启用后 Tavily 将返回一个 LLM 生成的查询摘要答案</div>
+          <div class="hint">${getMessage('optionsSearchAnswerHint')}</div>
         </div>`;
     }
 
     drawerBodyEl.innerHTML = `
-      <div class="rule-form-section">服务商信息</div>
+      <div class="rule-form-section">${getMessage('optionsSearchProviderSection')}</div>
       <div class="rule-form-group">
-        <label>服务商名称</label>
-        <input type="text" disabled value="${escapeHtml(provider.name)}">
+        <label>${getMessage('optionsSearchProviderNameLabel')}</label>
+        <input type="text" disabled value="${escapeHtml(getProviderDisplayName(provider))}">
       </div>
 
-      <div class="rule-form-section">API 配置</div>
+      <div class="rule-form-section">${getMessage('optionsApiSection')}</div>
 
       <div class="rule-form-group">
-        <label>搜索 API URL<span style="color:var(--color-error-text);">*</span></label>
-        <input type="text" id="search-endpoint" value="${escapeHtml(provider.endpoint || '')}" placeholder="搜索 API 的请求地址">
+        <label>${getMessage('optionsSearchUrlLabel')}<span style="color:var(--color-error-text);">*</span></label>
+        <input type="text" id="search-endpoint" value="${escapeHtml(provider.endpoint || '')}" placeholder="${getMessage('optionsSearchUrlPlaceholder')}">
       </div>
 
       <div class="rule-form-group">
         <label>API Key <span style="color:var(--color-error-text);">*</span></label>
         <div class="input-wrapper">
-          <input type="password" id="search-apiKey" value="${escapeHtml(provider.apiKey || '')}" placeholder="请输入 API Key">
-          <button type="button" class="toggle-visible" id="search-toggleKey">显示</button>
+          <input type="password" id="search-apiKey" value="${escapeHtml(provider.apiKey || '')}" placeholder="${getMessage('optionsSearchApiKeyPlaceholder')}">
+          <button type="button" class="toggle-visible" id="search-toggleKey">${getMessage('optionsShow')}</button>
         </div>
-        <div class="hint">您的 API 密钥仅存储在本地浏览器中</div>
+        <div class="hint">${getMessage('optionsModelFormApiKeyHint')}</div>
       </div>
 
       <div class="rule-form-group">
-        <label for="search-monthlyLimit">每月可执行次数</label>
+        <label for="search-monthlyLimit">${getMessage('optionsSearchMonthlyLimitLabel')}</label>
         <input type="number" id="search-monthlyLimit" min="0" max="9999" value="${provider.monthlyLimit || 0}">
-        <div class="hint">达到上限后使用将不再进行搜索服务。设为 0 表示不限制</div>
+        <div class="hint">${getMessage('optionsSearchMonthlyLimitHint')}</div>
       </div>
 
       ${extraFields}
 
-      <div class="rule-form-section">测试搜索</div>
+      <div class="rule-form-section">${getMessage('optionsSearchTest')}</div>
       <div class="rule-form-group">
-        <textarea id="search-testQuery" placeholder="输入测试搜索词" rows="2" style="width:100%;box-sizing:border-box;resize:vertical;">人工智能最新进展</textarea>
-        <button type="button" class="btn-primary" id="search-testBtn" style="width:100%;margin-top:8px;">测试搜索</button>
+        <textarea id="search-testQuery" placeholder="${getMessage('optionsSearchTestQueryPlaceholder')}" rows="2" style="width:100%;box-sizing:border-box;resize:vertical;">${getMessage('optionsSearchTestQueryValue')}</textarea>
+        <button type="button" class="btn-primary" id="search-testBtn" style="width:100%;margin-top:8px;">${getMessage('optionsSearchTest')}</button>
         <div class="hint" id="search-testResult" style="margin-top:8px;white-space:pre-wrap;word-break:break-all;"></div>
       </div>
     `;
@@ -429,10 +445,10 @@ function initSearch({
     toggleKeyBtn.addEventListener('click', () => {
       if (apiKeyInput.type === 'password') {
         apiKeyInput.type = 'text';
-        toggleKeyBtn.textContent = '隐藏';
+        toggleKeyBtn.textContent = getMessage('optionsHide');
       } else {
         apiKeyInput.type = 'password';
-        toggleKeyBtn.textContent = '显示';
+        toggleKeyBtn.textContent = getMessage('optionsShow');
       }
     });
 
@@ -448,22 +464,22 @@ function initSearch({
     const testQuery = drawerBodyEl.querySelector('#search-testQuery').value.trim();
 
     if (!endpoint) {
-      resultEl.textContent = '请先填写搜索 API URL';
+      resultEl.textContent = getMessage('optionsSearchApiUrlRequired');
       resultEl.style.color = 'var(--color-error-text)';
       return;
     }
     if (!apiKey) {
-      resultEl.textContent = '请先填写 API Key';
+      resultEl.textContent = getMessage('optionsSearchApiKeyRequired');
       resultEl.style.color = 'var(--color-error-text)';
       return;
     }
     if (!testQuery) {
-      resultEl.textContent = '请输入测试搜索词';
+      resultEl.textContent = getMessage('optionsSearchTestQueryRequired');
       resultEl.style.color = 'var(--color-error-text)';
       return;
     }
 
-    resultEl.textContent = '搜索中...';
+    resultEl.textContent = getMessage('optionsSearchSearching');
     resultEl.style.color = 'var(--color-text-muted)';
 
     // 读取当前公共参数
@@ -496,22 +512,18 @@ function initSearch({
 
       if (!response) {
         const lastError = chrome.runtime.lastError;
-        const errMsg = lastError?.message || '后台服务未响应';
-        resultEl.innerHTML = `<span style="color:var(--color-error-text);font-weight:600;">错误：${escapeHtml(errMsg)}</span>
-<div style="margin-top:6px;font-size:11px;color:var(--color-text-muted);">
-  可能原因：扩展未重新加载，或 Service Worker 已崩溃。<br>
-  请前往 chrome://extensions 点击扩展的刷新按钮后重试。
-</div>`;
+        const errMsg = lastError?.message || getMessage('optionsSearchSwNoResponse');
+        resultEl.innerHTML = getMessage('optionsSearchTestErrorNoResponse', [escapeHtml(errMsg)]);
         return;
       }
 
       if (!response.success) {
-        const errorMsg = response.error || '未知错误';
+        const errorMsg = response.error || getMessage('commonUnknownError');
         const stack = response.stack || '';
         const details = response.details ? JSON.stringify(response.details, null, 2) : '';
-        resultEl.innerHTML = `<span style="color:var(--color-error-text);font-weight:600;">搜索失败：${escapeHtml(errorMsg)}</span>
+        resultEl.innerHTML = `<span style="color:var(--color-error-text);font-weight:600;">${getMessage('optionsSearchFailFormat', [escapeHtml(errorMsg)])}</span>
 ${stack ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-muted);white-space:pre-wrap;">${escapeHtml(stack.slice(0, 500))}</div>` : ''}
-${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-muted);white-space:pre-wrap;">细节：${escapeHtml(details.slice(0, 300))}</div>` : ''}`;
+${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-muted);white-space:pre-wrap;">${getMessage('optionsSearchDetailFormat', [escapeHtml(details.slice(0, 300))])}</div>` : ''}`;
         resultEl.style.color = 'var(--color-error-text)';
         return;
       }
@@ -519,19 +531,19 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
       const data = response.data;
 
       // 提取搜索结果摘要
-      let summaryHtml = `<span style="color:var(--color-success)">搜索成功！</span>\n`;
+      let summaryHtml = `<span style="color:var(--color-success)">${getMessage('optionsSearchSuccess')}</span>\n`;
       try {
         const results = globalThis.QuizHelperSearchUtils.extractSearchResults(data, currentEditingProvider.id);
         if (results.length === 0) {
-          summaryHtml += `<span style="color:var(--color-text-muted)">未找到相关结果</span>`;
+          summaryHtml += `<span style="color:var(--color-text-muted)">${getMessage('optionsSearchNoResults')}</span>`;
         } else {
-          summaryHtml += `<span style="color:var(--color-text-muted)">共 ${results.length} 条结果：</span>\n`;
+          summaryHtml += `<span style="color:var(--color-text-muted)">${getMessage('optionsSearchResultsCountFormat', [results.length])}</span>\n`;
           results.slice(0, 5).forEach((r, i) => {
-            summaryHtml += `\n<span style="color:var(--color-primary);font-weight:600;">${i + 1}. ${escapeHtml(r.title || '无标题')}</span>`;
+            summaryHtml += `\n<span style="color:var(--color-primary);font-weight:600;">${i + 1}. ${escapeHtml(r.title || getMessage('optionsSearchNoTitle'))}</span>`;
             summaryHtml += `\n<span style="color:var(--color-text-secondary);">   ${escapeHtml((r.snippet || '').slice(0, 150))}</span>`;
           });
           if (results.length > 5) {
-            summaryHtml += `\n<span style="color:var(--color-text-muted);">... 还有 ${results.length - 5} 条</span>`;
+            summaryHtml += `\n<span style="color:var(--color-text-muted);">${getMessage('optionsSearchMoreFormat', [results.length - 5])}</span>`;
           }
         }
       } catch {
@@ -540,7 +552,7 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
 
       resultEl.innerHTML = summaryHtml;
     } catch (err) {
-      resultEl.textContent = `搜索失败: ${err.message}`;
+      resultEl.textContent = getMessage('optionsSearchFailFormat', [err.message]);
       resultEl.style.color = 'var(--color-error-text)';
     }
 
@@ -556,7 +568,7 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
     const apiKey = drawerBodyEl.querySelector('#search-apiKey')?.value?.trim() || '';
     const monthlyLimit = Math.max(0, parseInt(drawerBodyEl.querySelector('#search-monthlyLimit')?.value, 10) || 0);
 
-    if (!endpoint) { showStatus('搜索 API URL不能为空', true); return null; }
+    if (!endpoint) { showStatus(getMessage('optionsSearchUrlRequired'), true); return null; }
 
     const extra = {};
 
@@ -617,7 +629,7 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
 
     await safeSet({ web_search_providers: providers });
 
-    showStatus(`「${providers[idx].name}」配置已保存`);
+    showStatus(getMessage('optionsSearchSavedFormat', [getProviderDisplayName(providers[idx])]));
     onCloseDrawer();
 
     // 刷新列表

@@ -48,7 +48,7 @@ function initRules({
 
   function renderParseRules(rules) {
     if (!rules || rules.length === 0) {
-      ruleListEl.innerHTML = '<div class="list-empty">暂无解析规则。访问新站点时 AI 会自动生成规则。</div>';
+      ruleListEl.innerHTML = '<div class="list-empty">' + getMessage('optionsRuleEmpty') + '</div>';
       return;
     }
 
@@ -64,19 +64,19 @@ function initRules({
       const item = document.createElement('div');
       item.className = 'list-item';
 
-      const lastUsed = rule.lastUsed ? new Date(rule.lastUsed).toLocaleString('zh-CN') : '未使用';
-      const created = rule.timestamp ? new Date(rule.timestamp).toLocaleString('zh-CN') : '';
+      const lastUsed = rule.lastUsed ? new Date(rule.lastUsed).toLocaleString() : getMessage('optionsRuleNeverUsed');
+      const created = rule.timestamp ? new Date(rule.timestamp).toLocaleString() : '';
       const useCount = rule.useCount || 0;
 
       item.innerHTML = `
         <div class="list-item-header">
           <div class="list-item-info">
-            <div class="list-item-title">${escapeHtml(rule.domain || '未命名')}</div>
-            <div class="list-item-meta">创建: ${created} · 最后使用: ${lastUsed} · 使用次数: ${useCount}</div>
+            <div class="list-item-title">${escapeHtml(rule.domain || getMessage('optionsUnnamed'))}</div>
+            <div class="list-item-meta">${getMessage('optionsRuleMetaFormat', [created, lastUsed, useCount])}</div>
           </div>
           <div class="list-item-actions">
-            <button class="action-btn action-edit" data-idx="${idx}">编辑</button>
-            <button class="action-btn action-delete" data-idx="${idx}">删除</button>
+            <button class="action-btn action-edit" data-idx="${idx}">${getMessage('optionsEdit')}</button>
+            <button class="action-btn action-delete" data-idx="${idx}">${getMessage('commonDelete')}</button>
           </div>
         </div>
       `;
@@ -97,19 +97,19 @@ function initRules({
   }
 
   async function deleteParseRule(idx) {
-    if (!confirm('确定要删除这条解析规则吗？删除后该站点将回退到 AI 解析模式。')) return;
+    if (!confirm(getMessage('optionsRuleDeleteConfirm'))) return;
     const result = await chrome.storage.local.get(['parse_rules']);
     const rules = result.parse_rules || [];
     rules.splice(idx, 1);
     await chrome.storage.local.set({ parse_rules: rules });
-    showRuleStatus('解析规则已删除');
+    showRuleStatus(getMessage('optionsRuleDeleted'));
     await loadParseRules();
   }
 
   // ---- 规则编辑器 ----
 
   function openRuleDrawer(rule) {
-    drawerTitleEl.textContent = '编辑解析规则';
+    drawerTitleEl.textContent = getMessage('optionsRuleEditTitle');
     drawerMetaEl.textContent = rule.domain || '';
     currentRuleEditingBase = JSON.parse(JSON.stringify(rule || {}));
     ruleEditorView = 'form';
@@ -144,97 +144,97 @@ function initRules({
     drawerBodyEl.innerHTML = `
       <div class="rule-view-header">
         <div class="segmented-control rule-view-seg" data-active="form">
-          <button type="button" class="seg-active" data-value="form">表单</button>
+          <button type="button" class="seg-active" data-value="form">${getMessage('optionsRuleFormView')}</button>
           <button type="button" data-value="json">JSON</button>
         </div>
-        <button type="button" class="rule-copy-btn" id="ruleCopyJsonBtn" style="display:none;">复制</button>
+        <button type="button" class="rule-copy-btn" id="ruleCopyJsonBtn" style="display:none;">${getMessage('optionsRuleCopy')}</button>
       </div>
 
       <div id="ruleViewForm">
         <div class="rule-form-group">
-          <label>生效域名</label>
+          <label>${getMessage('optionsRuleDomainLabel')}</label>
           <input type="text" id="rule-domain" value="${escapeHtml(rule.domain || '')}" placeholder="example.com">
         </div>
 
-        <div class="rule-form-section">CSS 选择器配置</div>
+        <div class="rule-form-section">${getMessage('optionsRuleCssSection')}</div>
 
         <div class="rule-form-group">
-          <label>根容器选择器（每行一个，按优先级排序）</label>
+          <label>${getMessage('optionsRuleRootSelectorsLabel')}</label>
           <textarea id="rule-rootSelectors" rows="3">${escapeHtml(rootSelectors)}</textarea>
         </div>
         <div class="rule-form-group">
-          <label>题目项选择器</label>
+          <label>${getMessage('optionsRuleQuestionItemLabel')}</label>
           <input type="text" id="rule-questionItemSelector" value="${escapeHtml(selectors.questionItemSelector || '')}" placeholder=".question-type-item">
         </div>
         <div class="rule-form-group">
-          <label>题型标题选择器（可选）</label>
+          <label>${getMessage('optionsRuleTypeHeadingLabel')}</label>
           <input type="text" id="rule-typeHeadingSelector" value="${escapeHtml(selectors.typeHeadingSelector || '')}" placeholder=".h3.m-bottom">
         </div>
         <div class="rule-form-group">
-          <label>题干选择器（每行一个，按优先级排序）</label>
+          <label>${getMessage('optionsRuleQuestionTextLabel')}</label>
           <textarea id="rule-questionTextSelectors" rows="2">${escapeHtml(questionTextSelectors)}</textarea>
         </div>
         <div class="rule-form-group">
-          <label>选项容器选择器（每行一个，按优先级排序）</label>
+          <label>${getMessage('optionsRuleOptionContainerLabel')}</label>
           <textarea id="rule-optionContainerSelectors" rows="2">${escapeHtml(optionContainerSelectors)}</textarea>
         </div>
         <div class="rule-form-group">
-          <label>选项元素选择器</label>
+          <label>${getMessage('optionsRuleOptionItemLabel')}</label>
           <input type="text" id="rule-optionItemSelector" value="${escapeHtml(selectors.optionItemSelector || '')}" placeholder="dd">
         </div>
         <div class="rule-form-group">
-          <label>选项编号选择器（可选）</label>
+          <label>${getMessage('optionsRuleOptionNumberLabel')}</label>
           <input type="text" id="rule-optionNumberSelector" value="${escapeHtml(selectors.optionNumberSelector || '')}" placeholder=".option-num">
         </div>
 
-        <div class="rule-form-section">题型指示器（class 名关键词，逗号分隔）</div>
-        <div class="hint" style="margin-bottom: 8px; font-size: 12px;">题目元素或其父元素的 class 包含这些关键词时，优先据此判断题型（适用于用 checkbox 模拟单选等场景）</div>
+        <div class="rule-form-section">${getMessage('optionsRuleTypeIndicatorSection')}</div>
+        <div class="hint" style="margin-bottom: 8px; font-size: 12px;">${getMessage('optionsRuleTypeIndicatorHint')}</div>
         <div class="rule-form-group">
-          <label>单选指示器</label>
+          <label>${getMessage('optionsRuleSingleIndicatorLabel')}</label>
           <input type="text" id="rule-singleIndicators" value="${escapeHtml(singleIndicators)}" placeholder="singleContainer, singleChoice">
         </div>
         <div class="rule-form-group">
-          <label>多选指示器</label>
+          <label>${getMessage('optionsRuleMultipleIndicatorLabel')}</label>
           <input type="text" id="rule-multipleIndicators" value="${escapeHtml(multipleIndicators)}" placeholder="multipleContainer, multipleChoice">
         </div>
         <div class="rule-form-group">
-          <label>判断指示器</label>
+          <label>${getMessage('optionsRuleJudgeIndicatorLabel')}</label>
           <input type="text" id="rule-judgeIndicators" value="${escapeHtml(judgeIndicators)}" placeholder="judgeContainer, true-false">
         </div>
 
-        <div class="rule-form-section">文本降级选择器</div>
+        <div class="rule-form-section">${getMessage('optionsRuleFallbackSection')}</div>
         <div class="rule-form-group">
-          <label>降级文本选择器（每行一个）</label>
+          <label>${getMessage('optionsRuleFallbackLabel')}</label>
           <textarea id="rule-fallbackTextSelectors" rows="4">${escapeHtml(fallbackTextSelectors)}</textarea>
         </div>
 
-        <div class="rule-form-section">题型检测关键词</div>
+        <div class="rule-form-section">${getMessage('optionsRuleKeywordSection')}</div>
         <div class="rule-form-group">
-          <label>单选题关键词（逗号分隔）</label>
-          <input type="text" id="rule-kwSingle" value="${escapeHtml(singleKw)}" placeholder="单选, 单项选择">
+          <label>${getMessage('optionsRuleKwSingleLabel')}</label>
+          <input type="text" id="rule-kwSingle" value="${escapeHtml(singleKw)}" placeholder="${getMessage('optionsRuleKwSinglePlaceholder')}">
         </div>
         <div class="rule-form-group">
-          <label>多选题关键词（逗号分隔）</label>
-          <input type="text" id="rule-kwMultiple" value="${escapeHtml(multipleKw)}" placeholder="多选, 以下哪些, 至少选">
+          <label>${getMessage('optionsRuleKwMultipleLabel')}</label>
+          <input type="text" id="rule-kwMultiple" value="${escapeHtml(multipleKw)}" placeholder="${getMessage('optionsRuleKwMultiplePlaceholder')}">
         </div>
         <div class="rule-form-group">
-          <label>判断题关键词（逗号分隔）</label>
-          <input type="text" id="rule-kwJudge" value="${escapeHtml(judgeKw)}" placeholder="正确, 错误, 对, 错">
+          <label>${getMessage('optionsRuleKwJudgeLabel')}</label>
+          <input type="text" id="rule-kwJudge" value="${escapeHtml(judgeKw)}" placeholder="${getMessage('optionsRuleKwJudgePlaceholder')}">
         </div>
         <div class="rule-form-group">
-          <label>填空题关键词（逗号分隔）</label>
-          <input type="text" id="rule-kwFill" value="${escapeHtml(fillKw)}" placeholder="___, 【, 填空">
+          <label>${getMessage('optionsRuleKwFillLabel')}</label>
+          <input type="text" id="rule-kwFill" value="${escapeHtml(fillKw)}" placeholder="${getMessage('optionsRuleKwFillPlaceholder')}">
         </div>
       </div>
 
       <div id="ruleViewJson" class="rule-json" style="display:none;">
         <div class="rule-form-group">
-          <label>规则 JSON</label>
+          <label>${getMessage('optionsRuleJsonLabel')}</label>
           <div class="rule-json-editor">
             <pre id="rule-json-highlight"><code></code></pre>
             <textarea id="rule-json" spellcheck="false"></textarea>
           </div>
-          <div class="hint" style="margin-top: 6px;">可直接编辑 JSON；切回表单或保存时会校验格式。</div>
+          <div class="hint" style="margin-top: 6px;">${getMessage('optionsRuleJsonHint')}</div>
         </div>
       </div>
     `;
@@ -277,13 +277,13 @@ function initRules({
         try {
           await navigator.clipboard.writeText(textarea.value);
           const originalText = copyBtn.textContent;
-          copyBtn.textContent = '已复制';
+          copyBtn.textContent = getMessage('optionsCopied');
           setTimeout(() => { copyBtn.textContent = originalText; }, 1500);
         } catch (e) {
           textarea.select();
           document.execCommand('copy');
           const originalText = copyBtn.textContent;
-          copyBtn.textContent = '已复制';
+          copyBtn.textContent = getMessage('optionsCopied');
           setTimeout(() => { copyBtn.textContent = originalText; }, 1500);
         }
       });
@@ -429,7 +429,7 @@ function initRules({
     if (targetView === 'json') {
       const updatedFields = getRuleUpdatedFieldsFromForm();
       if (!updatedFields) {
-        showRuleStatus('域名不能为空');
+        showRuleStatus(getMessage('optionsRuleDomainRequired'));
         return;
       }
       const fullRule = buildRuleObjectForJson(currentRuleEditingBase, updatedFields);
@@ -445,12 +445,12 @@ function initRules({
       try {
         parsed = JSON.parse(jsonTextarea.value || '');
       } catch (e) {
-        showRuleStatus('JSON 格式错误，无法切回表单');
+        showRuleStatus(getMessage('optionsRuleJsonInvalidBack'));
         return;
       }
       const updatedFields = normalizeRuleUpdatedFieldsFromJson(parsed);
       if (!updatedFields) {
-        showRuleStatus('JSON 缺少 domain 或结构不正确');
+        showRuleStatus(getMessage('optionsRuleJsonInvalidStructure'));
         return;
       }
       const fullRule = buildRuleObjectForJson(currentRuleEditingBase, updatedFields);
@@ -476,18 +476,18 @@ function initRules({
       const jsonText = drawerBodyEl.querySelector('#rule-json')?.value || '';
       let parsed;
       try { parsed = JSON.parse(jsonText); } catch (e) {
-        showRuleStatus('JSON 格式错误，无法保存');
+        showRuleStatus(getMessage('optionsRuleJsonInvalidSave'));
         return;
       }
       updatedFields = normalizeRuleUpdatedFieldsFromJson(parsed);
       if (!updatedFields) {
-        showRuleStatus('JSON 缺少 domain 或结构不正确');
+        showRuleStatus(getMessage('optionsRuleJsonInvalidStructure'));
         return;
       }
     } else {
       updatedFields = getRuleUpdatedFieldsFromForm();
       if (!updatedFields) {
-        showRuleStatus('域名不能为空');
+        showRuleStatus(getMessage('optionsRuleDomainRequired'));
         return;
       }
     }
@@ -498,7 +498,7 @@ function initRules({
     if (updatedFields.domain !== originalDomain) {
       const conflict = rules.find(r => r.domain === updatedFields.domain);
       if (conflict) {
-        showRuleStatus(`域名 ${updatedFields.domain} 已存在规则，无法重复`);
+        showRuleStatus(getMessage('optionsRuleDomainConflictFormat', [updatedFields.domain]));
         return;
       }
     }
@@ -516,7 +516,7 @@ function initRules({
     }
 
     await safeSet({ parse_rules: rules });
-    showRuleStatus('规则已保存');
+    showRuleStatus(getMessage('optionsRuleSaved'));
     onCloseDrawer();
     await loadParseRules();
   }

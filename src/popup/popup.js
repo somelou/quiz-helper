@@ -2,8 +2,12 @@
 
 window.QuizHelperIcons?.replaceIcons(document);
 const { DEFAULT_SHORTCUT, STORAGE_KEYS } = globalThis.QuizHelperConstants;
+const { getMessage } = globalThis.QuizHelperI18n;
 const { normalizeShortcutConfig, formatShortcutDisplay } = globalThis.QuizHelperShortcutUtils;
 const { applyBodyTheme, loadThemeMode, saveThemeMode, updateThemeToggleUI } = globalThis.QuizHelperThemeUtils;
+
+// 兜底本地化：处理 Chrome 未自动替换的 __MSG_xxx__ 静态文案
+globalThis.QuizHelperI18n.localizePage(document);
 
 const popupHint = document.getElementById('popupHint');
 const themeToggle = document.getElementById('themeToggle');
@@ -89,7 +93,7 @@ document.getElementById('optionsBtn').addEventListener('click', () => {
 
 async function loadShortcutDisplay() {
   const config = await chrome.storage.local.get([STORAGE_KEYS.PANEL_SHORTCUT]);
-  let shortcutText = '未设置';
+  let shortcutText = getMessage('popupNoShortcut');
   // 注意：这里不能改成 `!= null`。存储中从未设置该键时值为 undefined，此时插件实际
   // 使用默认快捷键（见 content 侧 resolvePanelShortcut），应显示默认值；
   // 仅当用户显式清空（值为 null）时才显示"未设置"。
@@ -98,7 +102,7 @@ async function loadShortcutDisplay() {
     shortcutText = formatShortcutDisplay(shortcut);
   }
 
-  popupHint.innerHTML = `唤起助手快捷键：<strong>${shortcutText}</strong>`;
+  popupHint.innerHTML = getMessage('popupShortcutHint', [shortcutText]);
 }
 
 // ===== 模型选择 =====
@@ -113,7 +117,7 @@ async function loadModelSelector() {
   const activeModels = models.filter(m => m.isActive);
 
   if (activeModels.length === 0) {
-    modelDropdownLabel.textContent = '无可用模型';
+    modelDropdownLabel.textContent = getMessage('commonNoModels');
     modelDropdownBtn.disabled = true;
     modelDropdownMenu.innerHTML = '';
     return;
@@ -121,7 +125,7 @@ async function loadModelSelector() {
 
   modelDropdownBtn.disabled = false;
   const currentModel = activeModels.find(m => m.id === activeModelId);
-  modelDropdownLabel.textContent = currentModel ? (currentModel.name || currentModel.modelId) : '选择模型';
+  modelDropdownLabel.textContent = currentModel ? (currentModel.name || currentModel.modelId) : getMessage('popupSelectModel');
 
   modelDropdownMenu.innerHTML = '';
   activeModels.forEach(m => {

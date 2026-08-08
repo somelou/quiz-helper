@@ -1,6 +1,8 @@
 (() => {
+  const { getMessage } = globalThis.QuizHelperI18n;
+
   // 配额超限提示语
-  const QUOTA_EXCEEDED_HINT = '本地存储空间已满，无法保存数据。请前往设置页清理题库或历史记录后重试。';
+  const QUOTA_EXCEEDED_HINT = getMessage('commonQuotaExceededHint');
 
   // 统一的写入封装：捕获配额超限错误并提示用户
   async function safeSet(items) {

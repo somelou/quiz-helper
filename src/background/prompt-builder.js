@@ -1,10 +1,13 @@
 let templatesPromise = null;
 
+const { getMessage } = globalThis.QuizHelperI18n;
+
 async function loadPromptTemplates() {
   if (!templatesPromise) {
-    templatesPromise = fetch(chrome.runtime.getURL('data/prompt-templates.json')).then(async res => {
+    const url = globalThis.QuizHelperI18n.getPromptTemplatesUrl();
+    templatesPromise = fetch(chrome.runtime.getURL(url)).then(async res => {
       if (!res.ok) {
-        throw new Error(`加载提示词模板失败: ${res.status}`);
+        throw new Error(getMessage('bgPromptTemplatesLoadFailed', [res.status]));
       }
       return res.json();
     });
@@ -44,7 +47,7 @@ export async function buildSystemPrompt(questionType, customPrompt, extraContext
   }
 
   const extraPrompt = String(extraContextPrompt || '').trim();
-  return extraPrompt ? `${basePrompt}\n\n补充背景信息：\n${extraPrompt}` : basePrompt;
+  return extraPrompt ? `${basePrompt}\n\n${getMessage('bgSupplementBackgroundInfo')}\n${extraPrompt}` : basePrompt;
 }
 
 export async function buildVerifyPrompt(questionText, bankMatches, extraContextPrompt) {
@@ -52,19 +55,14 @@ export async function buildVerifyPrompt(questionText, bankMatches, extraContextP
   const systemPrompt = templates.verifyBankAnswerSystemPrompt || '';
   const extraPrompt = String(extraContextPrompt || '').trim();
   const refText = bankMatches.map((item, index) => {
-    let text = `题库参考${index + 1}（相似度${item.score}）[${item.source}]：\n${item.questionText}\n题库答案：${item.answer}`;
-    if (item.analysis) text += `\n题库解析：${item.analysis}`;
+    let text = getMessage('bgBankRefItem', [index + 1, item.score, item.source, item.questionText, item.answer]);
+    if (item.analysis) text += getMessage('bgBankRefAnalysis', [item.analysis]);
     return text;
   }).join('\n\n');
 
   return {
-    system: extraPrompt ? `${systemPrompt}\n\n补充背景：${extraPrompt}` : systemPrompt,
-    user: `当前考试题目：
-${questionText}
-
-${refText}
-
-请根据当前题目的选项内容，综合参考上述题库信息，输出正确答案字母和解析。`
+    system: extraPrompt ? `${systemPrompt}\n\n${getMessage('bgSupplementBackground', [extraPrompt])}` : systemPrompt,
+    user: getMessage('bgVerifyUserPrompt', [questionText, refText])
   };
 }
 
@@ -72,55 +70,55 @@ function buildExistingRuleInfo(existingRule) {
   if (!existingRule || !existingRule.selectors) return '';
 
   const s = existingRule.selectors;
-  const parts = ['## 已有解析规则（请在此基础上优化合并）'];
-  parts.push(`该域名「${existingRule.domain || ''}」已有以下解析规则。请对比当前页面结构，判断已有选择器是否仍然有效：`);
+  const parts = [getMessage('bgExistingRuleHeading')];
+  parts.push(getMessage('bgExistingRuleDomain', [existingRule.domain || '']));
   parts.push('');
 
   if (s.rootSelectors && s.rootSelectors.length) {
-    parts.push(`- 根容器选择器：${s.rootSelectors.join(', ')}`);
+    parts.push(getMessage('bgRuleRootSelector', [s.rootSelectors.join(', ')]));
   }
   if (s.questionItemSelector) {
-    parts.push(`- 单题容器选择器：${s.questionItemSelector}`);
+    parts.push(getMessage('bgRuleItemSelector', [s.questionItemSelector]));
   }
   if (s.typeHeadingSelector) {
-    parts.push(`- 题型标题选择器：${s.typeHeadingSelector}`);
+    parts.push(getMessage('bgRuleTypeHeadingSelector', [s.typeHeadingSelector]));
   }
   if (s.questionTextSelectors && s.questionTextSelectors.length) {
-    parts.push(`- 题干文本选择器：${s.questionTextSelectors.join(', ')}`);
+    parts.push(getMessage('bgRuleTextSelectors', [s.questionTextSelectors.join(', ')]));
   }
   if (s.optionContainerSelectors && s.optionContainerSelectors.length) {
-    parts.push(`- 选项容器选择器：${s.optionContainerSelectors.join(', ')}`);
+    parts.push(getMessage('bgRuleOptionContainerSelectors', [s.optionContainerSelectors.join(', ')]));
   }
   if (s.optionItemSelector) {
-    parts.push(`- 选项元素选择器：${s.optionItemSelector}`);
+    parts.push(getMessage('bgRuleOptionItemSelector', [s.optionItemSelector]));
   }
   if (s.optionNumberSelector) {
-    parts.push(`- 选项编号选择器：${s.optionNumberSelector}`);
+    parts.push(getMessage('bgRuleOptionNumberSelector', [s.optionNumberSelector]));
   }
   if (s.typeIndicators) {
     const ti = s.typeIndicators;
     const tiParts = [];
-    if (ti.single && ti.single.length) tiParts.push(`单选: [${ti.single.join(', ')}]`);
-    if (ti.multiple && ti.multiple.length) tiParts.push(`多选: [${ti.multiple.join(', ')}]`);
-    if (ti.judge && ti.judge.length) tiParts.push(`判断: [${ti.judge.join(', ')}]`);
-    if (tiParts.length) parts.push(`- 题型指示器 class 关键词：${tiParts.join('，')}`);
+    if (ti.single && ti.single.length) tiParts.push(`${getMessage('typeSingle')}: [${ti.single.join(', ')}]`);
+    if (ti.multiple && ti.multiple.length) tiParts.push(`${getMessage('typeMultiple')}: [${ti.multiple.join(', ')}]`);
+    if (ti.judge && ti.judge.length) tiParts.push(`${getMessage('typeJudge')}: [${ti.judge.join(', ')}]`);
+    if (tiParts.length) parts.push(getMessage('bgTypeIndicatorKeywords', [tiParts.join(getMessage('bgListSeparator'))]));
   }
   if (existingRule.typeKeywords) {
     const tk = existingRule.typeKeywords;
     const tkParts = [];
-    if (tk.multiple && tk.multiple.length) tkParts.push(`多选: [${tk.multiple.join(', ')}]`);
-    if (tk.judge && tk.judge.length) tkParts.push(`判断: [${tk.judge.join(', ')}]`);
-    if (tk.fill && tk.fill.length) tkParts.push(`填空: [${tk.fill.join(', ')}]`);
-    if (tkParts.length) parts.push(`- 题型文本关键词：${tkParts.join('，')}`);
+    if (tk.multiple && tk.multiple.length) tkParts.push(`${getMessage('typeMultiple')}: [${tk.multiple.join(', ')}]`);
+    if (tk.judge && tk.judge.length) tkParts.push(`${getMessage('typeJudge')}: [${tk.judge.join(', ')}]`);
+    if (tk.fill && tk.fill.length) tkParts.push(`${getMessage('typeFill')}: [${tk.fill.join(', ')}]`);
+    if (tkParts.length) parts.push(getMessage('bgTypeTextKeywords', [tkParts.join(getMessage('bgListSeparator'))]));
   }
 
   parts.push('');
-  parts.push('合并优化原则：');
-  parts.push('1. 如果已有选择器在当前页面中仍然有效且命中稳定，保留它们');
-  parts.push('2. 如果当前页面结构有变化（class 名不同、DOM 层级不同），请用新的选择器替换');
-  parts.push('3. 如果已有选择器过于宽泛（如只用了 "div"），请用更精确的选择器优化');
-  parts.push('4. 题型指示器关键词和题型文本关键词应与已有值合并去重，保留有效的并补充新发现的');
-  parts.push('5. 返回的 selectors 应该是合并优化后的完整结果，而非增量');
+  parts.push(getMessage('bgMergeOptimizationPrinciple'));
+  parts.push(getMessage('bgMergePrinciple1'));
+  parts.push(getMessage('bgMergePrinciple2'));
+  parts.push(getMessage('bgMergePrinciple3'));
+  parts.push(getMessage('bgMergePrinciple4'));
+  parts.push(getMessage('bgMergePrinciple5'));
 
   return parts.join('\n');
 }
@@ -161,10 +159,10 @@ export async function buildSearchAwarePrompt(questionType, customPrompt, extraCo
 
   let systemPrompt = basePrompt;
   if (customPart) {
-    systemPrompt = systemPrompt + '\n\n用户自定义要求：\n' + customPart;
+    systemPrompt = systemPrompt + '\n\n' + getMessage('bgUserCustomRequirement') + '\n' + customPart;
   }
   if (extraPrompt) {
-    systemPrompt = systemPrompt + '\n\n补充背景信息：\n' + extraPrompt;
+    systemPrompt = systemPrompt + '\n\n' + getMessage('bgSupplementBackgroundInfo') + '\n' + extraPrompt;
   }
 
   return systemPrompt;
@@ -178,29 +176,21 @@ export async function buildSearchResultPrompt(questionText, questionType, search
   let formatHint = '';
   if (questionType) {
     const typePrompt = prompts[questionType] || prompts.unknown || '';
-    // 从题型提示中提取格式要求部分
-    const fmtMatch = typePrompt.match(/请按以下格式输出[：:][\s\S]+/);
+    // 从题型提示中提取格式要求部分（兼容中英文提示词的开头句式）
+    const fmtMatch = typePrompt.match(/(?:请按以下格式输出[：:]|Please answer in the following format\s*[:：])[\s\S]+/);
     if (fmtMatch) {
       formatHint = '\n\n' + fmtMatch[0];
     }
   }
 
   const extraPrompt = String(extraContextPrompt || '').trim();
-  const finalSystem = [systemPrompt, formatHint, extraPrompt ? `补充背景：${extraPrompt}` : '']
+  const finalSystem = [systemPrompt, formatHint, extraPrompt ? getMessage('bgSupplementBackground', [extraPrompt]) : '']
     .filter(Boolean).join('\n\n');
 
-  const searchText = searchResults || '（未获取到搜索结果）';
+  const searchText = searchResults || getMessage('bgNoSearchResultsFetched');
 
   return {
     system: finalSystem,
-    user: `用户题目：
-${questionText}
-
-搜索关键词：${searchQuery || '（自动生成）'}
-
-联网搜索结果：
-${searchText}
-
-请基于以上搜索结果作答。`
+    user: getMessage('bgSearchResultUserPrompt', [questionText, searchQuery || getMessage('bgAutoGenerated'), searchText])
   };
 }

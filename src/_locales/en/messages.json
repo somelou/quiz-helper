@@ -1,0 +1,1328 @@
+{
+  "commonNoModels": {
+    "message": "No models available"
+  },
+  "commonClear": {
+    "message": "Clear"
+  },
+  "commonSave": {
+    "message": "Save"
+  },
+  "commonClose": {
+    "message": "Close"
+  },
+  "commonCancel": {
+    "message": "Cancel"
+  },
+  "commonExport": {
+    "message": "Export"
+  },
+  "commonDelete": {
+    "message": "Delete"
+  },
+  "commonConfirm": {
+    "message": "Confirm"
+  },
+  "typeSingle": {
+    "message": "Single Choice"
+  },
+  "typeMultiple": {
+    "message": "Multiple Choice"
+  },
+  "typeJudge": {
+    "message": "True/False"
+  },
+  "typeFill": {
+    "message": "Fill in the Blank"
+  },
+  "typeUnknown": {
+    "message": "Other"
+  },
+  "statusPending": {
+    "message": "Pending"
+  },
+  "statusLoading": {
+    "message": "Answering"
+  },
+  "statusDone": {
+    "message": "Done"
+  },
+  "statusError": {
+    "message": "Error"
+  },
+  "importModeEcoLabel": {
+    "message": "5 concurrent batches of 100 questions each, slower but suitable when tokens are limited or API rate limits are strict"
+  },
+  "importModeBalancedLabel": {
+    "message": "10 concurrent batches of 50 questions each, balanced speed and stability, recommended for daily use"
+  },
+  "importModePreciseLabel": {
+    "message": "10 concurrent batches of 25 questions each, small batches with higher precision for banks with complex or error-prone formats"
+  },
+  "themeLight": {
+    "message": "Light mode"
+  },
+  "themeDark": {
+    "message": "Dark mode"
+  },
+  "themeSystem": {
+    "message": "Follow system"
+  },
+  "appName": {
+    "message": "Quiz Helper"
+  },
+  "appDescription": {
+    "message": "Automatically extract questions from the page and get reference answers via the LLM API, question by question"
+  },
+  "popupAnalyzeBtn": {
+    "message": "Analyze questions on this page"
+  },
+  "popupOptionsBtn": {
+    "message": "Open Settings"
+  },
+  "popupInitialHint": {
+    "message": "Tip: selecting question text before analyzing gives better results"
+  },
+  "popupNoShortcut": {
+    "message": "Not set"
+  },
+  "popupShortcutHint": {
+    "message": "Assistant shortcut: <strong>$1</strong>"
+  },
+  "popupSelectModel": {
+    "message": "Select model"
+  },
+  "optionsPageTitle": {
+    "message": "Quiz Helper - Settings"
+  },
+  "optionsSettings": {
+    "message": "Basic Settings"
+  },
+  "optionsModels": {
+    "message": "Model Management"
+  },
+  "optionsSearch": {
+    "message": "Web Search Settings"
+  },
+  "optionsRules": {
+    "message": "Parse Rule Management"
+  },
+  "optionsBank": {
+    "message": "Question Bank"
+  },
+  "optionsHistory": {
+    "message": "History"
+  },
+  "optionsBackup": {
+    "message": "Backup & Restore"
+  },
+  "optionsAbout": {
+    "message": "About"
+  },
+  "optionsSystemPrompt": {
+    "message": "System Prompt"
+  },
+  "optionsPromptHint": {
+    "message": "Each question type can have its own custom prompt; leave blank to use the default. The gray placeholder is the default prompt for the current type."
+  },
+  "optionsExtraContext": {
+    "message": "Extra Prompt / Domain Context"
+  },
+  "optionsExtraContextPlaceholder": {
+    "message": "e.g.\nYou are a professional assistant specialized in communications and large language models.\nWhen answering, prioritize background knowledge of telecom operations, network security, and model applications, and give concise conclusions with necessary explanations."
+  },
+  "optionsExtraContextHint": {
+    "message": "Adds domain knowledge, persona, or answer preferences. It does not affect bank import or web question extraction."
+  },
+  "optionsShortcut": {
+    "message": "Panel Shortcut"
+  },
+  "optionsRecordShortcut": {
+    "message": "Record"
+  },
+  "optionsResetShortcut": {
+    "message": "Reset"
+  },
+  "optionsAllowedDomains": {
+    "message": "Allowed Domains"
+  },
+  "optionsAllowedDomainsHint": {
+    "message": "The extension only works on the listed domains, one per line; leave blank to work on all sites"
+  },
+  "optionsSaveSettings": {
+    "message": "Save Settings"
+  },
+  "optionsRestoreDefaults": {
+    "message": "Restore Defaults"
+  },
+  "optionsAddModel": {
+    "message": "+ Add"
+  },
+  "optionsModelsHint": {
+    "message": "Manage multiple model configs; enable or disable them and set a preferred model. Use the buttons below to assign a dedicated model to each task."
+  },
+  "optionsStreamOutput": {
+    "message": "Stream Output"
+  },
+  "optionsStreamOutputHint": {
+    "message": "When enabled, results stream word by word during model tests and answering; when disabled, the full result is returned at once."
+  },
+  "optionsSearchHint": {
+    "message": "When enabled, the model retrieves web information as a reference while answering (only one search service is active at a time)."
+  },
+  "optionsSearchCommonParams": {
+    "message": "Common Parameters"
+  },
+  "optionsSearchResultCount": {
+    "message": "Result Count"
+  },
+  "optionsSearchCountHint": {
+    "message": "Max results returned per search (1-50)"
+  },
+  "optionsSearchTimeRange": {
+    "message": "Time Range"
+  },
+  "optionsTimeRangeNone": {
+    "message": "No limit"
+  },
+  "optionsTimeRangeDay": {
+    "message": "Past day"
+  },
+  "optionsTimeRangeWeek": {
+    "message": "Past week"
+  },
+  "optionsTimeRangeMonth": {
+    "message": "Past month"
+  },
+  "optionsTimeRangeYear": {
+    "message": "Past year"
+  },
+  "optionsTimeRangeHint": {
+    "message": "Filter search results by time range"
+  },
+  "optionsSearchProviders": {
+    "message": "Search Providers"
+  },
+  "optionsSearchConfigure": {
+    "message": "Configure"
+  },
+  "optionsRulesHint": {
+    "message": "Manage per-site question parse rules. Sites with rules use them first; for sites without rules, the AI generates a rule on first parse."
+  },
+  "optionsBankHint": {
+    "message": "When enabled, answers are matched from the bank first. Import Excel (.xlsx/.xls) or Word (.docx) files and the AI parses the questions and answers automatically."
+  },
+  "optionsImportMode": {
+    "message": "Import Parsing Mode"
+  },
+  "optionsImportModeEco": {
+    "message": "Eco"
+  },
+  "optionsImportModeBalanced": {
+    "message": "Balanced"
+  },
+  "optionsImportModePrecise": {
+    "message": "Precise"
+  },
+  "optionsImportModeHint": {
+    "message": "10 concurrent batches - 50 questions each"
+  },
+  "optionsImportBank": {
+    "message": "+ Import Bank"
+  },
+  "optionsCancelParseTitle": {
+    "message": "Cancel parsing"
+  },
+  "optionsCancel": {
+    "message": "Cancel"
+  },
+  "optionsExport": {
+    "message": "Export"
+  },
+  "optionsHistoryHint": {
+    "message": "Auto-saved after each analysis, up to 50 entries"
+  },
+  "optionsBackupExportTitle": {
+    "message": "Export Local Data"
+  },
+  "optionsBackupExportHint": {
+    "message": "Export current local data by module; all modules are selected by default."
+  },
+  "optionsModuleSettings": {
+    "message": "Basic Settings"
+  },
+  "optionsModuleModels": {
+    "message": "Models"
+  },
+  "optionsModuleSearch": {
+    "message": "Web Search"
+  },
+  "optionsModuleRules": {
+    "message": "Parse Rules"
+  },
+  "optionsModuleBanks": {
+    "message": "Question Banks"
+  },
+  "optionsModuleHistory": {
+    "message": "History"
+  },
+  "optionsExportBackup": {
+    "message": "Export Backup"
+  },
+  "optionsBackupImportTitle": {
+    "message": "Import Backup Data"
+  },
+  "optionsBackupImportHint": {
+    "message": "Importing overwrites the modules included in the backup file; local data not included remains unchanged."
+  },
+  "optionsChooseBackupFile": {
+    "message": "Choose Backup File"
+  },
+  "optionsNoFileSelected": {
+    "message": "No file selected"
+  },
+  "optionsImportBackup": {
+    "message": "Import Backup"
+  },
+  "optionsAboutSubtitle": {
+    "message": "A local-first question assistant extension"
+  },
+  "optionsAboutVersion": {
+    "message": "Version"
+  },
+  "optionsAboutRepo": {
+    "message": "Repository"
+  },
+  "optionsAboutPrivacy": {
+    "message": "Privacy"
+  },
+  "optionsAboutPrivacyValue": {
+    "message": "Privacy Policy"
+  },
+  "optionsDrawerTitle": {
+    "message": "Details"
+  },
+  "optionsSave": {
+    "message": "Save"
+  },
+  "optionsClose": {
+    "message": "Close"
+  },
+  "commonUnknownError": {
+    "message": "Unknown error"
+  },
+  "optionsAnalysisLabel": {
+    "message": "Analysis"
+  },
+  "optionsAnswerLabel": {
+    "message": "Answer"
+  },
+  "optionsApiSection": {
+    "message": "API Configuration"
+  },
+  "optionsBackupConfirm": {
+    "message": "The data of the modules included in the backup file will be overwritten; local data not included will remain unchanged. Continue?"
+  },
+  "optionsBackupExportFailedFormat": {
+    "message": "Export failed: $1"
+  },
+  "optionsBackupExportSuccess": {
+    "message": "Backup exported successfully"
+  },
+  "optionsBackupImportedFormat": {
+    "message": "Backup imported successfully, $1 module(s) restored"
+  },
+  "optionsBackupImportFailedFormat": {
+    "message": "Import failed: $1"
+  },
+  "optionsBackupInvalidFormat": {
+    "message": "Import failed: the backup file format is invalid"
+  },
+  "optionsBackupInvalidJson": {
+    "message": "Import failed: the backup file is not valid JSON"
+  },
+  "optionsBackupNoFile": {
+    "message": "No file selected"
+  },
+  "optionsBackupSelectFile": {
+    "message": "Please select a backup file first"
+  },
+  "optionsBackupSelectModule": {
+    "message": "Select at least one module to export"
+  },
+  "optionsBankCancelling": {
+    "message": "Cancelling..."
+  },
+  "optionsBankConnectingAi": {
+    "message": "Connecting to the AI parsing service..."
+  },
+  "optionsBankCountHint": {
+    "message": "$1 banks · $2 questions"
+  },
+  "optionsBankDeleteConfirm": {
+    "message": "Delete this question bank? This cannot be undone."
+  },
+  "optionsBankDeleted": {
+    "message": "Question bank deleted"
+  },
+  "optionsBankDisabledBadge": {
+    "message": "Disabled"
+  },
+  "optionsBankDisabledMsg": {
+    "message": "Question bank disabled: $1"
+  },
+  "optionsBankDrawerEmpty": {
+    "message": "No questions to display in this bank yet."
+  },
+  "optionsBankEmpty": {
+    "message": "No question banks yet. Click the \"+ Import Bank\" button above to upload an Excel (.xlsx/.xls) or Word (.docx) file."
+  },
+  "optionsBankEnabledBadge": {
+    "message": "Enabled"
+  },
+  "optionsBankEnabledMsg": {
+    "message": "Question bank enabled: $1"
+  },
+  "optionsBankFileEmpty": {
+    "message": "The file is empty or contains too little content"
+  },
+  "optionsBankFileFormatError": {
+    "message": "Unsupported file format. Please upload an Excel (.xlsx/.xls) or Word (.docx) file"
+  },
+  "optionsBankImportedFormat": {
+    "message": "Question bank imported successfully, $1 questions in total$2"
+  },
+  "optionsBankImportFailedFormat": {
+    "message": "Import failed: $1"
+  },
+  "optionsBankMetaFormat": {
+    "message": "$1 · $2 questions"
+  },
+  "optionsBankNoQuestions": {
+    "message": "Parsing failed: no valid questions were extracted"
+  },
+  "optionsBankParseCancelled": {
+    "message": "Parsing cancelled"
+  },
+  "optionsBankParseDisconnected": {
+    "message": "The parsing service connection was closed"
+  },
+  "optionsBankParseFailedFormat": {
+    "message": "Parsing failed: $1"
+  },
+  "optionsBankParsing": {
+    "message": "Parsing..."
+  },
+  "optionsBankPreferDisabled": {
+    "message": "Question bank priority disabled"
+  },
+  "optionsBankPreferEnabled": {
+    "message": "Question bank priority enabled"
+  },
+  "optionsBankReadingFile": {
+    "message": "Reading file..."
+  },
+  "optionsBankUnnamed": {
+    "message": "Untitled Bank"
+  },
+  "optionsCopied": {
+    "message": "Copied"
+  },
+  "optionsCopyFailed": {
+    "message": "Copy failed"
+  },
+  "optionsCopyQuestion": {
+    "message": "Copy"
+  },
+  "optionsDrawerTitleAddModel": {
+    "message": "Add Model"
+  },
+  "optionsDrawerTitleDetail": {
+    "message": "Details"
+  },
+  "optionsDrawerTitleEditModel": {
+    "message": "Edit Model"
+  },
+  "optionsEdit": {
+    "message": "Edit"
+  },
+  "optionsHide": {
+    "message": "Hide"
+  },
+  "optionsHistoryAnalysisError": {
+    "message": "Analysis failed"
+  },
+  "optionsHistoryAnalysisResultLabel": {
+    "message": "Analysis Result"
+  },
+  "optionsHistoryClearConfirm": {
+    "message": "Clear all history? This cannot be undone."
+  },
+  "optionsHistoryDeleteConfirm": {
+    "message": "Delete this history record?"
+  },
+  "optionsHistoryDrawerEmpty": {
+    "message": "No question data."
+  },
+  "optionsHistoryEmpty": {
+    "message": "No history yet"
+  },
+  "optionsHistoryErrorSuffix": {
+    "message": " · $1 failed"
+  },
+  "optionsHistoryExportEmpty": {
+    "message": "No history to export"
+  },
+  "optionsHistoryMetaFormat": {
+    "message": "$1 · $2 questions · $3 completed"
+  },
+  "optionsHistoryNoAnswer": {
+    "message": "No answer retrieved"
+  },
+  "optionsHistoryReferenceAnswerLabel": {
+    "message": "Reference Answer"
+  },
+  "optionsHistoryUnnamed": {
+    "message": "Untitled Exam"
+  },
+  "optionsLoadDefaultRuleFailed": {
+    "message": "Failed to load the default parse rule: $1"
+  },
+  "optionsModelActivateFirst": {
+    "message": "Please activate this model first"
+  },
+  "optionsModelActivated": {
+    "message": "Model activated"
+  },
+  "optionsModelBadgeAnswer": {
+    "message": "Answering"
+  },
+  "optionsModelBadgeBank": {
+    "message": "Bank Parsing"
+  },
+  "optionsModelBadgeExtract": {
+    "message": "Page Parsing"
+  },
+  "optionsModelDeactivated": {
+    "message": "Model deactivated"
+  },
+  "optionsModelDeleteConfirm": {
+    "message": "Delete this model configuration?"
+  },
+  "optionsModelDeleted": {
+    "message": "Model deleted"
+  },
+  "optionsModelFormApiFormatHint": {
+    "message": "Set according to the request format supported by the API provider"
+  },
+  "optionsModelFormApiFormatLabel": {
+    "message": "API Format"
+  },
+  "optionsModelFormApiKeyHint": {
+    "message": "Your API key is stored only in your local browser"
+  },
+  "optionsModelFormApiKeyRequired": {
+    "message": "API Key cannot be empty"
+  },
+  "optionsModelFormApiUrlHint": {
+    "message": "For example: https://api.deepseek.com/v1, https://api.openai.com/v1"
+  },
+  "optionsModelFormApiUrlLabel": {
+    "message": "API Base URL"
+  },
+  "optionsModelFormApiUrlRequired": {
+    "message": "API URL cannot be empty"
+  },
+  "optionsModelFormDeepThinking": {
+    "message": "Deep Thinking"
+  },
+  "optionsModelFormEffortHint": {
+    "message": "High works for most use cases; Max is for complex reasoning tasks"
+  },
+  "optionsModelFormEffortLabel": {
+    "message": "Thinking Effort"
+  },
+  "optionsModelFormModelIdHint": {
+    "message": "For example: gpt-5, deepseek-v4-pro, deepseek-v4-flash"
+  },
+  "optionsModelFormModelIdLabel": {
+    "message": "Model ID"
+  },
+  "optionsModelFormModelIdRequired": {
+    "message": "Model ID cannot be empty"
+  },
+  "optionsModelFormNameConflict": {
+    "message": "The display name “$1” already exists. Please use another name."
+  },
+  "optionsModelFormNameHint": {
+    "message": "Used to distinguish model configurations; must be unique"
+  },
+  "optionsModelFormNameLabel": {
+    "message": "Display Name"
+  },
+  "optionsModelFormNamePlaceholder": {
+    "message": "Auto-generated: host/Model ID"
+  },
+  "optionsModelFormNameRequired": {
+    "message": "Display name cannot be empty"
+  },
+  "optionsModelFormTestConnFail": {
+    "message": "Connection failed: $1"
+  },
+  "optionsModelFormTestConnSuccess": {
+    "message": "Connection successful"
+  },
+  "optionsModelFormTestErrorNoApi": {
+    "message": "Please fill in the API URL, API Key, and Model ID first"
+  },
+  "optionsModelFormTestRequesting": {
+    "message": "Requesting..."
+  },
+  "optionsModelFormTestTextPlaceholder": {
+    "message": "Enter test text"
+  },
+  "optionsModelFormTestTextValue": {
+    "message": "Please reply OK"
+  },
+  "optionsModelFormTestThinking": {
+    "message": "Deep thinking..."
+  },
+  "optionsModelFormThinking": {
+    "message": "Thinking Mode"
+  },
+  "optionsModelFormThinkingHint": {
+    "message": "When enabled, thinking mode is forced on; otherwise the model decides on its own"
+  },
+  "optionsModelFormToolsHint": {
+    "message": "For example: web_search; type and press Enter to add, click × to remove"
+  },
+  "optionsModelFormToolsLabel": {
+    "message": "Built-in Tools"
+  },
+  "optionsModelFormToolsPlaceholder": {
+    "message": "Type a tool name and press Enter to add"
+  },
+  "optionsModelMetaFormat": {
+    "message": "Model ID: $1 · $2"
+  },
+  "optionsModelSaved": {
+    "message": "Model saved"
+  },
+  "optionsModelSetAsAnswer": {
+    "message": "Set as the answering model"
+  },
+  "optionsModelSetAsFormat": {
+    "message": "Set as $1 model"
+  },
+  "optionsModelTestConnection": {
+    "message": "Test Connection"
+  },
+  "optionsModelUseForAnswer": {
+    "message": "Use for answering"
+  },
+  "optionsModelUseForBank": {
+    "message": "Use for bank parsing"
+  },
+  "optionsModelUseForExtract": {
+    "message": "Use for page parsing"
+  },
+  "optionsModelsEmpty": {
+    "message": "No model configurations yet. Click “Add” in the top-right corner to create one."
+  },
+  "optionsNone": {
+    "message": "None"
+  },
+  "optionsPaginationFormat": {
+    "message": "Page $1/$2 · $3 total"
+  },
+  "optionsPromptCleared": {
+    "message": "Cleared the custom prompt for $1"
+  },
+  "optionsQuestionCopyFormat": {
+    "message": "[$1] $2"
+  },
+  "optionsQuestionLabel": {
+    "message": "Question"
+  },
+  "optionsResetConfirm": {
+    "message": "Restore default settings? This will clear custom prompts, domain allowlists, and other configurations."
+  },
+  "optionsRuleCopy": {
+    "message": "Copy"
+  },
+  "optionsRuleCssSection": {
+    "message": "CSS Selectors"
+  },
+  "optionsRuleDeleteConfirm": {
+    "message": "Delete this parse rule? The site will fall back to AI parsing after deletion."
+  },
+  "optionsRuleDeleted": {
+    "message": "Parse rule deleted"
+  },
+  "optionsRuleDomainConflictFormat": {
+    "message": "A rule for the domain $1 already exists; it cannot be duplicated"
+  },
+  "optionsRuleDomainLabel": {
+    "message": "Domain"
+  },
+  "optionsRuleDomainRequired": {
+    "message": "Domain cannot be empty"
+  },
+  "optionsRuleEditTitle": {
+    "message": "Edit Parse Rule"
+  },
+  "optionsRuleEmpty": {
+    "message": "No parse rules yet. AI will generate a rule automatically when you visit a new site."
+  },
+  "optionsRuleFallbackLabel": {
+    "message": "Fallback text selectors (one per line)"
+  },
+  "optionsRuleFallbackSection": {
+    "message": "Text Fallback Selectors"
+  },
+  "optionsRuleFormView": {
+    "message": "Form"
+  },
+  "optionsRuleJsonHint": {
+    "message": "You can edit the JSON directly; the format is validated when switching back to the form or saving."
+  },
+  "optionsRuleJsonInvalidBack": {
+    "message": "Invalid JSON format; cannot switch back to the form"
+  },
+  "optionsRuleJsonInvalidSave": {
+    "message": "Invalid JSON format; cannot save"
+  },
+  "optionsRuleJsonInvalidStructure": {
+    "message": "JSON is missing the domain field or has an invalid structure"
+  },
+  "optionsRuleJsonLabel": {
+    "message": "Rule JSON"
+  },
+  "optionsRuleJudgeIndicatorLabel": {
+    "message": "True/False indicators"
+  },
+  "optionsRuleKeywordSection": {
+    "message": "Type Detection Keywords"
+  },
+  "optionsRuleKwFillLabel": {
+    "message": "Fill-in-the-blank keywords (comma-separated)"
+  },
+  "optionsRuleKwFillPlaceholder": {
+    "message": "___, [, fill in the blank"
+  },
+  "optionsRuleKwJudgeLabel": {
+    "message": "True/False keywords (comma-separated)"
+  },
+  "optionsRuleKwJudgePlaceholder": {
+    "message": "true, false, correct, incorrect"
+  },
+  "optionsRuleKwMultipleLabel": {
+    "message": "Multiple-choice keywords (comma-separated)"
+  },
+  "optionsRuleKwMultiplePlaceholder": {
+    "message": "multiple, which of the following, select at least"
+  },
+  "optionsRuleKwSingleLabel": {
+    "message": "Single-choice keywords (comma-separated)"
+  },
+  "optionsRuleKwSinglePlaceholder": {
+    "message": "single, single-choice"
+  },
+  "optionsRuleMetaFormat": {
+    "message": "Created: $1 · Last used: $2 · Uses: $3"
+  },
+  "optionsRuleMultipleIndicatorLabel": {
+    "message": "Multiple-choice indicators"
+  },
+  "optionsRuleNeverUsed": {
+    "message": "Never used"
+  },
+  "optionsRuleOptionContainerLabel": {
+    "message": "Option container selectors (one per line, in priority order)"
+  },
+  "optionsRuleOptionItemLabel": {
+    "message": "Option item selector"
+  },
+  "optionsRuleOptionNumberLabel": {
+    "message": "Option number selector (optional)"
+  },
+  "optionsRuleQuestionItemLabel": {
+    "message": "Question item selector"
+  },
+  "optionsRuleQuestionTextLabel": {
+    "message": "Question text selectors (one per line, in priority order)"
+  },
+  "optionsRuleRootSelectorsLabel": {
+    "message": "Root container selectors (one per line, in priority order)"
+  },
+  "optionsRuleSaved": {
+    "message": "Rule saved"
+  },
+  "optionsRuleSingleIndicatorLabel": {
+    "message": "Single-choice indicators"
+  },
+  "optionsRuleTypeHeadingLabel": {
+    "message": "Type heading selector (optional)"
+  },
+  "optionsRuleTypeIndicatorHint": {
+    "message": "When the question element or its parent has these keywords in its class, they are used to determine the question type first (useful when checkboxes are used to emulate single choice, etc.)"
+  },
+  "optionsRuleTypeIndicatorSection": {
+    "message": "Type indicators (class-name keywords, comma-separated)"
+  },
+  "optionsSearchActivatedFormat": {
+    "message": "Activated “$1”"
+  },
+  "optionsSearchActiveBadge": {
+    "message": "Active"
+  },
+  "optionsSearchAnswerHint": {
+    "message": "When enabled, Tavily returns an LLM-generated summary answer for the query"
+  },
+  "optionsSearchAnswerLabel": {
+    "message": "AI Answer Summary"
+  },
+  "optionsSearchApiKeyPlaceholder": {
+    "message": "Enter your API Key"
+  },
+  "optionsSearchApiKeyRequired": {
+    "message": "Please fill in the API Key first"
+  },
+  "optionsSearchApiUrlRequired": {
+    "message": "Please fill in the search API URL first"
+  },
+  "optionsSearchAuthHigh": {
+    "message": "Highly authoritative"
+  },
+  "optionsSearchAuthLevelLabel": {
+    "message": "Authority Level"
+  },
+  "optionsSearchBlockHostsHint": {
+    "message": "Domains to block from search results, up to 5"
+  },
+  "optionsSearchBlockHostsLabel": {
+    "message": "Blocked Sites"
+  },
+  "optionsSearchBlockHostsPlaceholder": {
+    "message": "Separate multiple domains with |, e.g. example.com|spam.net"
+  },
+  "optionsSearchBraveLangHint": {
+    "message": "Only applies to Brave. Choose “No limit” to let Brave decide."
+  },
+  "optionsSearchBraveSection": {
+    "message": "Brave Search Parameters"
+  },
+  "optionsSearchDeactivated": {
+    "message": "Deactivated"
+  },
+  "optionsSearchDepthLabel": {
+    "message": "Search Depth"
+  },
+  "optionsSearchDetailFormat": {
+    "message": "Details: $1"
+  },
+  "optionsSearchDrawerTitleFormat": {
+    "message": "Configure - $1"
+  },
+  "optionsSearchFailFormat": {
+    "message": "Search failed: $1"
+  },
+  "optionsSearchInactiveBadge": {
+    "message": "Inactive"
+  },
+  "optionsSearchLangDe": {
+    "message": "German"
+  },
+  "optionsSearchLangEn": {
+    "message": "English"
+  },
+  "optionsSearchLangFr": {
+    "message": "French"
+  },
+  "optionsSearchLangJa": {
+    "message": "Japanese"
+  },
+  "optionsSearchLangKo": {
+    "message": "Korean"
+  },
+  "optionsSearchLangLabel": {
+    "message": "Search Language"
+  },
+  "optionsSearchLangZh": {
+    "message": "Chinese"
+  },
+  "optionsSearchMonthlyLimitHint": {
+    "message": "Searching stops once the limit is reached. Set to 0 for no limit"
+  },
+  "optionsSearchMonthlyLimitLabel": {
+    "message": "Monthly Search Limit"
+  },
+  "optionsSearchMoreFormat": {
+    "message": "... $1 more"
+  },
+  "optionsSearchNoLimit": {
+    "message": "No limit"
+  },
+  "optionsSearchNoResults": {
+    "message": "No relevant results found"
+  },
+  "optionsSearchNoTitle": {
+    "message": "No title"
+  },
+  "optionsSearchProviderDescBrave": {
+    "message": "Brave LLM Context API, friendly for Western-language agent scenarios"
+  },
+  "optionsSearchProviderDescTavily": {
+    "message": "Tavily real-time search API, free to use after signup"
+  },
+  "optionsSearchProviderDescVolc": {
+    "message": "Volcano Engine Doubao Search Custom edition, friendly for Chinese agent scenarios"
+  },
+  "optionsSearchProviderNameLabel": {
+    "message": "Provider Name"
+  },
+  "optionsSearchProviderNameVolc": {
+    "message": "Doubao Search"
+  },
+  "optionsSearchProviderSection": {
+    "message": "Provider Information"
+  },
+  "optionsSearchResultsCountFormat": {
+    "message": "$1 results:"
+  },
+  "optionsSearchSavedFormat": {
+    "message": "Configuration for “$1” saved"
+  },
+  "optionsSearchSearching": {
+    "message": "Searching..."
+  },
+  "optionsSearchSuccess": {
+    "message": "Search successful!"
+  },
+  "optionsSearchSwNoResponse": {
+    "message": "The background service did not respond"
+  },
+  "optionsSearchTavilyDepthHint": {
+    "message": "Basic balances relevance and latency; Advanced is high-precision deep search (2 credits); Fast is low latency; Ultra-Fast returns instantly (summary only)"
+  },
+  "optionsSearchTavilySection": {
+    "message": "Tavily Search Parameters"
+  },
+  "optionsSearchTest": {
+    "message": "Test Search"
+  },
+  "optionsSearchTestErrorNoResponse": {
+    "message": "<span style=\"color:var(--color-error-text);font-weight:600;\">Error: $1</span>\n<div style=\"margin-top:6px;font-size:11px;color:var(--color-text-muted);\">\n  Possible causes: the extension has not been reloaded, or the Service Worker has crashed.<br>\n  Please go to chrome://extensions and click the refresh button for this extension, then try again.\n</div>"
+  },
+  "optionsSearchTestQueryPlaceholder": {
+    "message": "Enter a test search query"
+  },
+  "optionsSearchTestQueryRequired": {
+    "message": "Please enter a test search query"
+  },
+  "optionsSearchTestQueryValue": {
+    "message": "Latest AI developments"
+  },
+  "optionsSearchUsageFormat": {
+    "message": "This month $1/$2 · "
+  },
+  "optionsSearchUrlLabel": {
+    "message": "Search API URL"
+  },
+  "optionsSearchUrlPlaceholder": {
+    "message": "The request URL of the search API"
+  },
+  "optionsSearchUrlRequired": {
+    "message": "Search API URL cannot be empty"
+  },
+  "optionsSearchVolcAuthHint": {
+    "message": "Restrict results to highly authoritative content only (details: <a href=\"https://docs.volcengine.com/docs/87772/2518319?lang=zh\" target=\"_blank\" rel=\"noreferrer\">Doubao authority docs</a>)"
+  },
+  "optionsSearchVolcSection": {
+    "message": "Doubao Search Parameters"
+  },
+  "optionsSettingsReset": {
+    "message": "Default settings restored"
+  },
+  "optionsSettingsSaved": {
+    "message": "Settings saved"
+  },
+  "optionsShortcutCleared": {
+    "message": "Shortcut cleared; it takes effect after saving"
+  },
+  "optionsShortcutDefaultFormat": {
+    "message": "Default shortcut: $1"
+  },
+  "optionsShortcutModifierHintFormat": {
+    "message": "Include at least one modifier key, such as $1. Press Esc to cancel."
+  },
+  "optionsShortcutModsMac": {
+    "message": "Option, Ctrl, Shift, or Cmd"
+  },
+  "optionsShortcutModsWin": {
+    "message": "Alt, Ctrl, Shift, or Meta"
+  },
+  "optionsShortcutNeedModifier": {
+    "message": "The shortcut needs at least one modifier key. Please record it again."
+  },
+  "optionsShortcutNoneHint": {
+    "message": "No shortcut is currently set. The shortcut feature will be disabled after saving."
+  },
+  "optionsShortcutNotSet": {
+    "message": "Not set"
+  },
+  "optionsShortcutRecorded": {
+    "message": "Shortcut recorded; it takes effect after clicking “Save Settings”"
+  },
+  "optionsShortcutRecording": {
+    "message": "Press a new shortcut combination..."
+  },
+  "optionsShortcutRecordingCancelled": {
+    "message": "Shortcut recording cancelled"
+  },
+  "optionsShortcutReset": {
+    "message": "Default shortcut restored; it takes effect after saving"
+  },
+  "optionsShow": {
+    "message": "Show"
+  },
+  "optionsUnnamed": {
+    "message": "Unnamed"
+  },
+  "optionsView": {
+    "message": "View"
+  },
+  "panelAiOptimizingRule": {
+    "message": "Optimizing AI rule...\n($1)"
+  },
+  "panelAiParseFailedAuto": {
+    "message": "AI could not parse the questions automatically. Click “AI Select Area” and then manually pick a question region on the page."
+  },
+  "panelAiParseFailedRegion": {
+    "message": "AI could not parse questions from this region. Try selecting a more complete question region."
+  },
+  "panelAiParsingPage": {
+    "message": "AI is parsing the page..."
+  },
+  "panelAiParsingSelection": {
+    "message": "AI is parsing the selected region..."
+  },
+  "panelAiSelection": {
+    "message": "AI Select Area"
+  },
+  "panelAnalysisLabel": {
+    "message": "Analysis: $1"
+  },
+  "panelAnalyzing": {
+    "message": "<div class=\"qh-loading-text\">Analyzing...</div>"
+  },
+  "panelAnalyzingSuffix": {
+    "message": ", answering"
+  },
+  "panelAnswer": {
+    "message": "Answer"
+  },
+  "panelAnswerCorrect": {
+    "message": "Correct"
+  },
+  "panelAnswerFailed": {
+    "message": "Failed to answer. Please try again."
+  },
+  "panelAnswerLabel": {
+    "message": "Answer: $1"
+  },
+  "panelAnswerLoading": {
+    "message": "<span class=\"qh-loading-text\">Answering...</span>"
+  },
+  "panelAnswerRequesting": {
+    "message": "<span class=\"qh-loading-text\">Requesting AI analysis...</span>"
+  },
+  "panelAnswerWrong": {
+    "message": "Wrong"
+  },
+  "panelBankAnalysisLine": {
+    "message": "\nAnalysis: $1"
+  },
+  "panelBankMatching": {
+    "message": "<div class=\"qh-loading-text\">Matched in the question bank, verifying option order...</div>"
+  },
+  "panelBankOriginalQuestion": {
+    "message": "\nOriginal bank question: $1"
+  },
+  "panelBankSource": {
+    "message": "Question bank: $1"
+  },
+  "panelBankSourceLine": {
+    "message": "\nSource: question bank “$1”"
+  },
+  "panelBankVerifyFailed": {
+    "message": "⚠️ Verification failed. The original question bank answer is shown below (option order may differ from the current exam)\nAnswer: $1"
+  },
+  "panelCancelSelection": {
+    "message": "Cancel selection"
+  },
+  "panelCommError": {
+    "message": "Communication error: $1"
+  },
+  "panelConnectionLost": {
+    "message": "Connection lost"
+  },
+  "panelCopy": {
+    "message": "Copy"
+  },
+  "panelCopied": {
+    "message": "Copied"
+  },
+  "panelCopyFailed": {
+    "message": "Copy failed"
+  },
+  "panelDeepThinking": {
+    "message": "Deep thinking"
+  },
+  "panelDomainNotAllowed": {
+    "message": "The current domain is not on the allowlist. Add it in the settings page to enable it."
+  },
+  "panelEmptyNoQuestions": {
+    "message": "<div class=\"qh-empty\">No questions extracted. Try rule-based parsing first, or click “AI Select Area” and then pick a question region on the page.</div>"
+  },
+  "panelMinimize": {
+    "message": "Minimize"
+  },
+  "panelNoMainContent": {
+    "message": "No main content region found on the page. Click “AI Select Area” to manually select the question region."
+  },
+  "panelNoTitle": {
+    "message": "No title"
+  },
+  "panelPause": {
+    "message": "Pause"
+  },
+  "panelPausedSuffix": {
+    "message": ", paused"
+  },
+  "panelPickerCancelled": {
+    "message": "AI selection parse cancelled. You can continue with rule parsing, or click “AI Select Area” again to select a region on the page."
+  },
+  "panelPickerCancelledShort": {
+    "message": "AI selection parse cancelled."
+  },
+  "panelPickerHint": {
+    "message": "Select the question region on the page. Press Esc to cancel."
+  },
+  "panelProgressText": {
+    "message": "- $1 questions, $2/$3 completed"
+  },
+  "panelProgressTotal": {
+    "message": "- $1 questions total"
+  },
+  "panelQuestionLabel": {
+    "message": "Question"
+  },
+  "panelReAnswer": {
+    "message": "Re-answer"
+  },
+  "panelReferenceAnswer": {
+    "message": "Reference answer"
+  },
+  "panelRefCount": {
+    "message": "$1 results"
+  },
+  "panelRefLinks": {
+    "message": "Reference links"
+  },
+  "panelRequestFailed": {
+    "message": "Request failed: $1"
+  },
+  "panelResume": {
+    "message": "Resume"
+  },
+  "panelRuleParse": {
+    "message": "Rule Parsing"
+  },
+  "panelRuleParseEmpty": {
+    "message": "Rule parsing found no questions. Click “AI Select Area” and pick a region containing questions on the page; AI will then parse it locally."
+  },
+  "panelRuleParseFailUpdate": {
+    "message": "Rule parsing failed to extract questions. Click “AI Select Area” to re-select a region, and AI will automatically update the rule."
+  },
+  "panelSelectRegion": {
+    "message": ", please select a region"
+  },
+  "panelSelectionTooShort": {
+    "message": "The selected region contains too little text. Please select a region that contains complete questions."
+  },
+  "panelSimilarity": {
+    "message": "Similarity: $1"
+  },
+  "panelTitle": {
+    "message": "Quiz Helper"
+  },
+  "bgNoApiKeyConfig": {
+    "message": "No API Key configured. Please open the settings page to configure one."
+  },
+  "bgNoApiKey": {
+    "message": "API Key not configured"
+  },
+  "bgNoValidAnswer": {
+    "message": "No valid answer was obtained"
+  },
+  "bgNoExtractedQuestions": {
+    "message": "The AI did not extract any valid questions"
+  },
+  "bgExtractParseError": {
+    "message": "Unable to parse the data returned by the AI: $1"
+  },
+  "bgApiRequestFailed": {
+    "message": "API request failed ($1): $2"
+  },
+  "bgNoApiKeySettings": {
+    "message": "No API Key configured. Please configure it on the settings page."
+  },
+  "bgNoParsedQuestions": {
+    "message": "The AI did not parse any valid questions"
+  },
+  "bgParseProcessError": {
+    "message": "Error during parsing: $1"
+  },
+  "bgTotalQuestionsLabel": {
+    "message": "$1 questions in total"
+  },
+  "bgTotalBatchesLabel": {
+    "message": "$1 batches"
+  },
+  "bgConcurrencyLabel": {
+    "message": "Concurrency: $1"
+  },
+  "bgParsingBank": {
+    "message": "Parsing question bank..."
+  },
+  "bgParsingBankDetailed": {
+    "message": "Parsing question bank ($1)..."
+  },
+  "bgAiParsingBatchProgress": {
+    "message": "Parsing batch $1/$2 with AI$3"
+  },
+  "bgInFlightCount": {
+    "message": " ($1 in progress)"
+  },
+  "bgParseCancelledWithPartial": {
+    "message": "Parsing cancelled. $1 questions were retrieved ($2/$3 batches completed)"
+  },
+  "bgParseCancelled": {
+    "message": "Parsing cancelled"
+  },
+  "bgSomeBatchesFailedFallback": {
+    "message": "Some batches failed AI parsing and were parsed using local rules instead"
+  },
+  "bgBatchesFailedFallbackCount": {
+    "message": "$1 batches failed AI parsing and were parsed using local rules as fallback"
+  },
+  "bgListSeparator": {
+    "message": ", "
+  },
+  "bgJsonNotFound": {
+    "message": "No parseable JSON found"
+  },
+  "bgNoSearchResults": {
+    "message": "(No relevant search results found)"
+  },
+  "bgNoTitle": {
+    "message": "No title"
+  },
+  "bgNoUrl": {
+    "message": "None"
+  },
+  "bgSearchResultBlock": {
+    "message": "[$1] $2\n   Summary: $3\n   Link: $4"
+  },
+  "bgMonthlySearchLimitReached": {
+    "message": "The monthly search limit has been reached"
+  },
+  "bgPromptTemplatesLoadFailed": {
+    "message": "Failed to load prompt templates: $1"
+  },
+  "bgSupplementBackgroundInfo": {
+    "message": "Supplemental background information:"
+  },
+  "bgBankRefItem": {
+    "message": "Bank reference $1 (similarity $2) [$3]:\n$4\nBank answer: $5"
+  },
+  "bgBankRefAnalysis": {
+    "message": "\nBank analysis: $1"
+  },
+  "bgSupplementBackground": {
+    "message": "Supplemental background: $1"
+  },
+  "bgVerifyUserPrompt": {
+    "message": "Current exam question:\n$1\n\n$2\n\nBased on the options of the current question and the bank information above, output the correct answer letter(s) and analysis."
+  },
+  "bgExistingRuleHeading": {
+    "message": "## Existing parsing rules (please optimize and merge based on these)"
+  },
+  "bgExistingRuleDomain": {
+    "message": "The domain \"$1\" already has the following parsing rules. Compare them against the current page structure and determine whether the existing selectors are still valid:"
+  },
+  "bgRuleRootSelector": {
+    "message": "- Root container selector: $1"
+  },
+  "bgRuleItemSelector": {
+    "message": "- Question item selector: $1"
+  },
+  "bgRuleTypeHeadingSelector": {
+    "message": "- Type heading selector: $1"
+  },
+  "bgRuleTextSelectors": {
+    "message": "- Question text selectors: $1"
+  },
+  "bgRuleOptionContainerSelectors": {
+    "message": "- Option container selectors: $1"
+  },
+  "bgRuleOptionItemSelector": {
+    "message": "- Option item selector: $1"
+  },
+  "bgRuleOptionNumberSelector": {
+    "message": "- Option number selector: $1"
+  },
+  "bgTypeIndicatorKeywords": {
+    "message": "- Type indicator class keywords: $1"
+  },
+  "bgTypeTextKeywords": {
+    "message": "- Type text keywords: $1"
+  },
+  "bgMergeOptimizationPrinciple": {
+    "message": "Merge and optimization principles:"
+  },
+  "bgMergePrinciple1": {
+    "message": "1. If the existing selectors are still valid and match stably on the current page, keep them"
+  },
+  "bgMergePrinciple2": {
+    "message": "2. If the current page structure has changed (different class names or DOM levels), replace them with new selectors"
+  },
+  "bgMergePrinciple3": {
+    "message": "3. If the existing selectors are too broad (e.g. only using \"div\"), optimize them with more precise selectors"
+  },
+  "bgMergePrinciple4": {
+    "message": "4. Type indicator keywords and type text keywords should be merged and deduplicated with the existing values, keeping the valid ones and adding newly discovered ones"
+  },
+  "bgMergePrinciple5": {
+    "message": "5. The returned selectors should be the complete merged and optimized result, not an incremental change"
+  },
+  "bgUserCustomRequirement": {
+    "message": "User custom requirements:"
+  },
+  "bgNoSearchResultsFetched": {
+    "message": "(No search results were obtained)"
+  },
+  "bgSearchResultUserPrompt": {
+    "message": "User question:\n$1\n\nSearch keyword: $2\n\nWeb search results:\n$3\n\nPlease answer based on the search results above."
+  },
+  "bgAutoGenerated": {
+    "message": "(auto-generated)"
+  },
+  "commonNotSet": {
+    "message": "Not set"
+  },
+  "commonQuotaExceededHint": {
+    "message": "Local storage is full and data cannot be saved. Please go to the settings page to clear question banks or history and try again."
+  }
+}

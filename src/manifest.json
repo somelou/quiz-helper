@@ -24,6 +24,7 @@
       ],
       "js": [
         "icons.js",
+        "shared/i18n-utils.js",
         "shared/constants.js",
         "shared/shortcut-utils.js",
         "shared/theme-utils.js",

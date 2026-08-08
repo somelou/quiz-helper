@@ -4,6 +4,8 @@
 // 共享的搜索结果提取工具（IIFE，挂 globalThis.QuizHelperSearchUtils）
 import '../shared/search-utils.js';
 
+const { getMessage } = globalThis.QuizHelperI18n;
+
 /**
  * 设置嵌套对象属性，支持 'Filter.TimeRange' 点路径
  */
@@ -131,12 +133,12 @@ export async function executeWebSearch(provider, settings, query) {
  * @returns {string}
  */
 export function formatSearchResultsForLLM(results) {
-  if (!results || results.length === 0) return '（未找到相关搜索结果）';
+  if (!results || results.length === 0) return getMessage('bgNoSearchResults');
 
   return results.map((r, i) => {
-    const title = r.title || '无标题';
+    const title = r.title || getMessage('bgNoTitle');
     const snippet = r.snippet || '';
-    return `[${i + 1}] ${title}\n   摘要：${snippet}\n   链接：${r.url || '无'}`;
+    return getMessage('bgSearchResultBlock', [i + 1, title, snippet, r.url || getMessage('bgNoUrl')]);
   }).join('\n\n');
 }
 

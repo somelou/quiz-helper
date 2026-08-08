@@ -36,26 +36,29 @@
     key: 'q'
   };
 
+  // 依赖 shared/i18n-utils.js：使用 chrome.i18n 提供本地化标签
+  const i18n = globalThis.QuizHelperI18n;
+
   const TYPE_LABELS = {
-    single: '单选',
-    multiple: '多选',
-    judge: '判断',
-    fill: '填空',
-    unknown: '其他'
+    single: i18n.getMessage('typeSingle'),
+    multiple: i18n.getMessage('typeMultiple'),
+    judge: i18n.getMessage('typeJudge'),
+    fill: i18n.getMessage('typeFill'),
+    unknown: i18n.getMessage('typeUnknown')
   };
 
   const STATUS_LABELS = {
-    pending: '待分析',
-    loading: '作答中',
-    done: '已完成',
-    error: '出错'
+    pending: i18n.getMessage('statusPending'),
+    loading: i18n.getMessage('statusLoading'),
+    done: i18n.getMessage('statusDone'),
+    error: i18n.getMessage('statusError')
   };
 
   // 题库导入模式配置（后台并发/批大小 + 设置页文案共用一份）
   const IMPORT_MODES = {
-    eco: { concurrency: 5, batchSize: 100, label: '并发 5 批 · 每批 100 题，速度较慢，适合 token 不足或 API 限流严格的场景' },
-    balanced: { concurrency: 10, batchSize: 50, label: '并发 10 批 · 每批 50 题，均衡速度与稳定性，推荐日常使用' },
-    precise: { concurrency: 10, batchSize: 25, label: '并发 10 批 · 每批 25 题，小批次高精度，适合题目格式复杂、容易解析出错的题库' }
+    eco: { concurrency: 5, batchSize: 100, label: i18n.getMessage('importModeEcoLabel') },
+    balanced: { concurrency: 10, batchSize: 50, label: i18n.getMessage('importModeBalancedLabel') },
+    precise: { concurrency: 10, batchSize: 25, label: i18n.getMessage('importModePreciseLabel') }
   };
 
   globalThis.QuizHelperConstants = {

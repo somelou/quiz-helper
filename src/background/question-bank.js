@@ -6,6 +6,7 @@ import { splitTextByQuestions } from '../shared/text-splitter.js';
 import '../shared/constants.js';
 
 const { IMPORT_MODES } = globalThis.QuizHelperConstants;
+const { getMessage } = globalThis.QuizHelperI18n;
 
 export async function handleParseQuestionBank(text, fileName) {
   try {
@@ -15,7 +16,7 @@ export async function handleParseQuestionBank(text, fileName) {
       if (fallbackQuestions.length > 0) {
         return { success: true, questions: fallbackQuestions };
       }
-      return { success: false, error: '未配置 API Key，请先在设置页面配置' };
+      return { success: false, error: getMessage('bgNoApiKeySettings') };
     }
 
     try {
@@ -40,7 +41,7 @@ export async function handleParseQuestionBank(text, fileName) {
       if (fallbackQuestions.length > 0) {
         return { success: true, questions: fallbackQuestions };
       }
-      return { success: false, error: 'AI 未解析到有效题目' };
+      return { success: false, error: getMessage('bgNoParsedQuestions') };
     } catch (error) {
       if (fallbackQuestions.length > 0) {
         return { success: true, questions: fallbackQuestions };
@@ -48,7 +49,7 @@ export async function handleParseQuestionBank(text, fileName) {
       return { success: false, error: error.message };
     }
   } catch (error) {
-    return { success: false, error: '解析过程出错：' + error.message };
+    return { success: false, error: getMessage('bgParseProcessError', [error.message]) };
   }
 }
 
@@ -95,18 +96,18 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
       if (allFallbackQuestions.length > 0) {
         sendResult({ success: true, questions: allFallbackQuestions });
       } else {
-        sendResult({ success: false, error: '未配置 API Key，请先在设置页面配置' });
+        sendResult({ success: false, error: getMessage('bgNoApiKeySettings') });
       }
       return;
     }
 
     // 构建初始进度消息
-    const countLabel = totalQuestions > 0 ? `共 ${totalQuestions} 题` : '';
-    const batchLabel = totalBatches > 1 ? `分 ${totalBatches} 批` : '';
-    const concurrencyLabel = totalBatches > 1 ? `并发 ${CONCURRENCY}` : '';
-    const desc = [countLabel, batchLabel, concurrencyLabel].filter(Boolean).join('，');
+    const countLabel = totalQuestions > 0 ? getMessage('bgTotalQuestionsLabel', [totalQuestions]) : '';
+    const batchLabel = totalBatches > 1 ? getMessage('bgTotalBatchesLabel', [totalBatches]) : '';
+    const concurrencyLabel = totalBatches > 1 ? getMessage('bgConcurrencyLabel', [CONCURRENCY]) : '';
+    const desc = [countLabel, batchLabel, concurrencyLabel].filter(Boolean).join(getMessage('bgListSeparator'));
     sendProgress(0, totalBatches, totalQuestions,
-      `正在解析题库${desc ? `（${desc}）` : ''}...`);
+      desc ? getMessage('bgParsingBankDetailed', [desc]) : getMessage('bgParsingBank'));
 
     const allQuestions = [];
     const parseErrors = [];
@@ -200,9 +201,9 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
             inFlight--;
 
             if (!cancelled) {
-              const concurrentInfo = inFlight > 0 ? `（进行中 ${inFlight}）` : '';
+              const concurrentInfo = inFlight > 0 ? getMessage('bgInFlightCount', [inFlight]) : '';
               sendProgress(completed, totalBatches, totalQuestions,
-                `正在 AI 解析第 ${completed}/${totalBatches} 批${concurrentInfo}`);
+                getMessage('bgAiParsingBatchProgress', [completed, totalBatches, concurrentInfo]));
             }
 
             if (cancelled && inFlight === 0) {
@@ -227,10 +228,10 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
           success: true,
           questions: deduped,
           cancelled: true,
-          warnings: [`解析已取消，已获取 ${deduped.length} 道题目（共 ${completed}/${totalBatches} 批）`]
+          warnings: [getMessage('bgParseCancelledWithPartial', [deduped.length, completed, totalBatches])]
         });
       } else {
-        sendResult({ success: false, error: '解析已取消', cancelled: true });
+        sendResult({ success: false, error: getMessage('bgParseCancelled'), cancelled: true });
       }
       return;
     }
@@ -241,11 +242,11 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
           success: true,
           questions: allFallbackQuestions,
           warnings: parseErrors.length > 0
-            ? ['部分批次 AI 解析失败，已使用本地规则解析']
+            ? [getMessage('bgSomeBatchesFailedFallback')]
             : []
         });
       } else {
-        sendResult({ success: false, error: 'AI 未解析到有效题目' });
+        sendResult({ success: false, error: getMessage('bgNoParsedQuestions') });
       }
       return;
     }
@@ -255,11 +256,11 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
       questions: deduped,
       totalBatches,
       warnings: parseErrors.length > 0
-        ? [`共 ${parseErrors.length} 批 AI 解析失败，已用本地规则解析兜底`]
+        ? [getMessage('bgBatchesFailedFallbackCount', [parseErrors.length])]
         : []
     });
   } catch (error) {
-    sendResult({ success: false, error: '解析过程出错：' + error.message });
+    sendResult({ success: false, error: getMessage('bgParseProcessError', [error.message]) });
   }
 }
 
@@ -484,15 +485,15 @@ function isOptionLine(line) {
 }
 
 function isAnswerLine(line) {
-  return /^(参考答案|正确答案|答案)[：:]/.test(line);
+  return /^(?:参考答案|正确答案|答案|Answer)[：:]/.test(line);
 }
 
 function isAnalysisLine(line) {
-  return /^(答案解析|解析|参考解析|答案说明)[：:]/.test(line);
+  return /^(?:答案解析|解析|参考解析|答案说明|Answer analysis|Explanation|Analysis)[：:]/.test(line);
 }
 
 function extractAnalysisFromText(text) {
-  const match = String(text || '').match(/^(?:答案解析|解析|参考解析|答案说明)[：:]\s*(.+)/i);
+  const match = String(text || '').match(/^(?:答案解析|解析|参考解析|答案说明|Answer analysis|Explanation|Analysis)[：:]\s*(.+)/i);
   return match ? match[1].trim() : '';
 }
 
@@ -504,7 +505,7 @@ function parseQuestionStartLine(line) {
   let text = line.replace(QUESTION_START_RE, '').trim();
 
   text = text
-    .replace(/[（(]\s*([A-H]{1,8}|对|错|正确|错误)\s*[)）]\s*(?=【|$)/ig, '')
+    .replace(/[（(]\s*([A-H]{1,8}|对|错|正确|错误|true|false)\s*[)）]\s*(?=【|$)/ig, '')
     .replace(/【[^】]+】/g, '')
     .trim();
 
@@ -512,10 +513,10 @@ function parseQuestionStartLine(line) {
 }
 
 function extractAnswerFromText(text) {
-  const inlineMatch = String(text || '').match(/[（(]\s*([A-H]{1,8}|对|错|正确|错误)\s*[)）]\s*(?=【|$)/i);
+  const inlineMatch = String(text || '').match(/[（(]\s*([A-H]{1,8}|对|错|正确|错误|true|false)\s*[)）]\s*(?=【|$)/i);
   if (inlineMatch) return normalizeAnswer(inlineMatch[1]);
 
-  const labelMatch = String(text || '').match(/(?:参考答案|正确答案|答案)[：:]\s*([A-H]{1,8}|对|错|正确|错误)/i);
+  const labelMatch = String(text || '').match(/(?:参考答案|正确答案|答案|Answer)[：:]\s*([A-H]{1,8}|对|错|正确|错误|true|false)/i);
   if (labelMatch) return normalizeAnswer(labelMatch[1]);
 
   return '';
@@ -543,6 +544,10 @@ function inferQuestionType(line, answer) {
   if (value.includes('判断')) return 'judge';
   if (value.includes('填空')) return 'fill';
   if (answer === '对' || answer === '错') return 'judge';
+  if (/multiple|multi[- ]?select/i.test(value)) return 'multiple';
+  if (/single[- ]?choice|single[- ]?select/i.test(value)) return 'single';
+  if (/true[- ]?or[- ]?false|true\/false|yes[- ]?or[- ]?no/i.test(value)) return 'judge';
+  if (/fill[- ]?in[- ]?the[- ]?blank/i.test(value)) return 'fill';
   if (/^[A-H]{2,}$/i.test(answer || '')) return 'multiple';
   if (/^[A-H]$/i.test(answer || '')) return 'single';
   return 'unknown';

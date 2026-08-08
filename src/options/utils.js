@@ -151,6 +151,6 @@ function renderPagination(container, total, currentPage, onPageChange) {
 
   const info = document.createElement('span');
   info.className = 'page-info';
-  info.textContent = `${currentPage}/${totalPages} 页 · 共 ${total} 条`;
+  info.textContent = getMessage('optionsPaginationFormat', [currentPage, totalPages, total]);
   container.appendChild(info);
 }

@@ -9,6 +9,7 @@
   const state = globalThis.QuizHelperContentState;
   const { normalizeShortcutConfig, shortcutMatches, getDefaultShortcut } = globalThis.QuizHelperShortcutUtils;
   const { isDomainMatch } = globalThis.QuizHelperTextUtils;
+  const { getMessage } = globalThis.QuizHelperI18n;
 
   // ===== 初始化 =====
 
@@ -241,7 +242,7 @@
     const allowed = await checkDomainAllowed();
     if (!allowed) {
       globalThis.QuizHelperPanelUI.createPanel(0);
-      globalThis.QuizHelperPanelUI.showPanelMessage('当前域名不在白名单中，请在设置页面添加生效域名。');
+      globalThis.QuizHelperPanelUI.showPanelMessage(getMessage('panelDomainNotAllowed'));
       return;
     }
 
@@ -255,7 +256,7 @@
       }
       state.questionsData = [];
       globalThis.QuizHelperPanelUI.createPanel(0);
-      globalThis.QuizHelperPanelUI.showPanelMessage('规则解析未能提取到题目。可点击"AI 选区解析"重新选取区域，AI 将自动更新规则。');
+      globalThis.QuizHelperPanelUI.showPanelMessage(getMessage('panelRuleParseFailUpdate'));
       return;
     }
 

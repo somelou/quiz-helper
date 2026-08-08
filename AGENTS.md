@@ -57,16 +57,17 @@
 当前 `src/manifest.json` 中的 `content_scripts[0].js` 顺序为：
 
 1. `src/icons.js`
-2. `src/shared/constants.js`
-3. `src/shared/shortcut-utils.js`
-4. `src/shared/theme-utils.js`
-5. `src/shared/storage-utils.js`
-6. `src/shared/text-utils.js`
-7. `src/content/state.js`
-8. `src/content/dom-parser.js`
-9. `src/content/panel-ui.js`
-10. `src/content/analyzer.js`
-11. `src/content/index.js`
+2. `src/shared/i18n-utils.js`
+3. `src/shared/constants.js`
+4. `src/shared/shortcut-utils.js`
+5. `src/shared/theme-utils.js`
+6. `src/shared/storage-utils.js`
+7. `src/shared/text-utils.js`
+8. `src/content/state.js`
+9. `src/content/dom-parser.js`
+10. `src/content/panel-ui.js`
+11. `src/content/analyzer.js`
+12. `src/content/index.js`
 
 如果调整共享工具或内容脚本初始化逻辑，需要同步检查这里的依赖顺序。
 

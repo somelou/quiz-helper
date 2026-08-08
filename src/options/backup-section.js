@@ -13,7 +13,7 @@ function initBackup({
   const MODULE_DEFS = [
     {
       id: 'settings',
-      label: '基本设置',
+      labelKey: 'optionsModuleSettings',
       keys: [
         'custom_system_prompts',
         'extra_context_prompt',
@@ -24,7 +24,7 @@ function initBackup({
     },
     {
       id: 'models',
-      label: '大模型',
+      labelKey: 'optionsModuleModels',
       keys: [
         'llm_models',
         'active_model_id',
@@ -37,7 +37,7 @@ function initBackup({
     },
     {
       id: 'search',
-      label: '联网搜索',
+      labelKey: 'optionsModuleSearch',
       keys: [
         'web_search_enabled',
         'active_search_provider_id',
@@ -48,7 +48,7 @@ function initBackup({
     },
     {
       id: 'rules',
-      label: '解析规则',
+      labelKey: 'optionsModuleRules',
       keys: [
         'parse_rules',
         'default_parse_rule_seeded_v1'
@@ -56,7 +56,7 @@ function initBackup({
     },
     {
       id: 'banks',
-      label: '题库',
+      labelKey: 'optionsModuleBanks',
       keys: [
         'question_banks',
         'active_bank_id',
@@ -67,7 +67,7 @@ function initBackup({
     },
     {
       id: 'history',
-      label: '历史记录',
+      labelKey: 'optionsModuleHistory',
       keys: ['exam_history']
     }
   ];
@@ -90,7 +90,7 @@ function initBackup({
 
   function updateFileName() {
     const file = fileInputEl.files && fileInputEl.files[0];
-    fileNameEl.textContent = file ? file.name : '未选择文件';
+    fileNameEl.textContent = file ? file.name : getMessage('optionsBackupNoFile');
   }
 
   async function buildBackupPayload(moduleIds) {
@@ -176,15 +176,15 @@ function initBackup({
     try {
       const selectedModules = getSelectedModules();
       if (selectedModules.length === 0) {
-        showStatus('请至少选择一个导出模块', 'error');
+        showStatus(getMessage('optionsBackupSelectModule'), 'error');
         return;
       }
 
       const payload = await buildBackupPayload(selectedModules);
       downloadBackupFile(payload);
-      showStatus('备份导出成功', 'success');
+      showStatus(getMessage('optionsBackupExportSuccess'), 'success');
     } catch (error) {
-      showStatus(`导出失败：${error.message || '未知错误'}`, 'error');
+      showStatus(getMessage('optionsBackupExportFailedFormat', [error.message || getMessage('commonUnknownError')]), 'error');
     }
   });
 
@@ -193,7 +193,7 @@ function initBackup({
   importBtn.addEventListener('click', async () => {
     const file = fileInputEl.files && fileInputEl.files[0];
     if (!file) {
-      showStatus('请先选择备份文件', 'error');
+      showStatus(getMessage('optionsBackupSelectFile'), 'error');
       return;
     }
 
@@ -204,29 +204,29 @@ function initBackup({
       try {
         payload = JSON.parse(text);
       } catch (_) {
-        showStatus('导入失败：备份文件不是有效的 JSON', 'error');
+        showStatus(getMessage('optionsBackupInvalidJson'), 'error');
         return;
       }
 
       const moduleIds = validateBackupPayload(payload);
       if (!moduleIds) {
-        showStatus('导入失败：备份文件格式无效', 'error');
+        showStatus(getMessage('optionsBackupInvalidFormat'), 'error');
         return;
       }
 
-      if (!confirm('将覆盖备份文件中包含的模块数据，未包含的本地数据不会变更，是否继续？')) {
+      if (!confirm(getMessage('optionsBackupConfirm'))) {
         return;
       }
 
       await importBackupPayload(payload, moduleIds);
       updateFileName();
-      showStatus(`备份导入成功，已恢复 ${moduleIds.length} 个模块`, 'success');
+      showStatus(getMessage('optionsBackupImportedFormat', [moduleIds.length]), 'success');
 
       if (typeof onImportComplete === 'function') {
         await onImportComplete(moduleIds);
       }
     } catch (error) {
-      showStatus(`导入失败：${error.message || '未知错误'}`, 'error');
+      showStatus(getMessage('optionsBackupImportFailedFormat', [error.message || getMessage('commonUnknownError')]), 'error');
     }
   });
 

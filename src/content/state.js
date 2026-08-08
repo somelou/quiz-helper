@@ -48,10 +48,10 @@
     },
 
     DEFAULT_TYPE_KEYWORDS: {
-      single: ['单选', '单项选择'],
-      multiple: ['多选', '以下哪些', '至少选', '多项选择', '可多选', '不止一个', '多个正确'],
-      judge: ['正确', '错误', '对', '错'],
-      fill: ['___', '【', '填空']
+      single: ['单选', '单项选择', 'single choice', 'single-choice', 'single question'],
+      multiple: ['多选', '以下哪些', '至少选', '多项选择', '可多选', '不止一个', '多个正确', 'multiple choice', 'multi choice', 'multi-select', 'multiple answers'],
+      judge: ['正确', '错误', '对', '错', 'true', 'false', 'correct', 'incorrect', 'right or wrong'],
+      fill: ['___', '【', '填空', 'fill in the blank', 'fill-in-the-blank', 'blank']
     },
 
     defaultRuleSeedPromise: null

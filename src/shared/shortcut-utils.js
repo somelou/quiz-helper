@@ -1,4 +1,5 @@
 (() => {
+  const { getMessage } = globalThis.QuizHelperI18n;
   const constants = globalThis.QuizHelperConstants || {};
   const defaultShortcut = constants.DEFAULT_SHORTCUT || {
     altKey: true,
@@ -68,7 +69,7 @@
   }
 
   function formatShortcutDisplay(shortcut) {
-    if (!shortcut) return '未设置';
+    if (!shortcut) return getMessage('commonNotSet');
     const mac = isMacOS();
     const parts = [];
     if (mac) {
@@ -87,7 +88,7 @@
     const keyLabel = getShortcutKeyLabel(shortcut);
     if (keyLabel) parts.push(keyLabel);
     // macOS 用符号时以空格分隔，由 CSS letter-spacing 控制间距；Windows 用 +
-    return parts.join(mac ? ' ' : '+') || '未设置';
+    return parts.join(mac ? ' ' : '+') || getMessage('commonNotSet');
   }
 
   function shortcutMatches(event, shortcut) {

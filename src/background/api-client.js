@@ -16,6 +16,8 @@ const {
   buildResponsesBody
 } = globalThis.QuizHelperLLMUtils;
 
+const { getMessage } = globalThis.QuizHelperI18n;
+
 /**
  * 获取 API 配置。支持按任务类型选择不同模型。
  * @param {'answer'|'bank'|'extract'} [taskType] - 任务类型，不传则使用首选模型
@@ -233,7 +235,7 @@ async function callOpenAIChatCompletion({
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`API 请求失败 (${response.status}): ${errText}`);
+    throw new Error(getMessage('bgApiRequestFailed', [response.status, errText]));
   }
 
   if (stream) {
@@ -297,7 +299,7 @@ async function callAnthropicMessage({
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`API 请求失败 (${response.status}): ${errText}`);
+    throw new Error(getMessage('bgApiRequestFailed', [response.status, errText]));
   }
 
   if (stream) {
@@ -342,7 +344,7 @@ async function callResponses({
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`API 请求失败 (${response.status}): ${errText}`);
+    throw new Error(getMessage('bgApiRequestFailed', [response.status, errText]));
   }
 
   if (stream) {

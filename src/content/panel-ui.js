@@ -4,6 +4,7 @@
   const state = globalThis.QuizHelperContentState;
   const { escapeHtml, normalizeWhitespace } = globalThis.QuizHelperTextUtils;
   const { TYPE_LABELS, STATUS_LABELS } = globalThis.QuizHelperConstants;
+  const { getMessage } = globalThis.QuizHelperI18n;
 
   // 面板级 matchMedia 监听器引用（createPanel 只注册一次，destroyPanel 时移除）
   let darkMediaQueryRef = null;
@@ -48,22 +49,22 @@
       bodyEl.innerHTML = `
         <div class="qh-question-section">
           <div class="qh-section-title-row">
-            <div class="qh-section-title">题目</div>
-            <button class="qh-copy-btn">复制</button>
+            <div class="qh-section-title">${getMessage('panelQuestionLabel')}</div>
+            <button class="qh-copy-btn">${getMessage('panelCopy')}</button>
           </div>
           <div class="qh-question-text">${escapeHtml(question.text)}</div>
         </div>
         <div class="qh-thinking-section" style="display:none">
           <div class="qh-thinking-header qh-thinking-collapsed">
             <span class="qh-thinking-dot"></span>
-            <span>深度思考<span class="qh-thinking-spinner" style="display:${thinkingActive ? '' : 'none'}"></span></span>
+            <span>${getMessage('panelDeepThinking')}<span class="qh-thinking-spinner" style="display:${thinkingActive ? '' : 'none'}"></span></span>
             <svg class="qh-thinking-chevron" width="12" height="12" viewBox="0 0 12 12"><path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
           </div>
           <div class="qh-thinking-body" style="display:none">${hasThinking ? escapeHtml(thinkingText) : ''}</div>
         </div>
         <div class="qh-answer-section">
-          <div class="qh-section-title">参考答案</div>
-          <div class="qh-answer-text">${escapeHtml(answerText) || '<span class="qh-loading-text">正在请求 AI 分析...</span>'}</div>
+          <div class="qh-section-title">${getMessage('panelReferenceAnswer')}</div>
+          <div class="qh-answer-text">${escapeHtml(answerText) || getMessage('panelAnswerRequesting')}</div>
         </div>`;
 
       // 绑定复制按钮
@@ -113,7 +114,7 @@
   // ===== 渲染辅助 =====
 
   function getTypeLabel(type) {
-    return TYPE_LABELS[type] || '其他';
+    return TYPE_LABELS[type] || getMessage('typeUnknown');
   }
 
   function getTypeClass(type) {
@@ -121,7 +122,7 @@
   }
 
   function getStatusLabel(status) {
-    return STATUS_LABELS[status] || '待分析';
+    return STATUS_LABELS[status] || getMessage('statusPending');
   }
 
   function getStatusClass(status) {
@@ -181,20 +182,20 @@
 
     if (question.status === 'loading') {
       return {
-        content: '<span class="qh-loading-text">作答中...</span>',
+        content: getMessage('panelAnswerLoading'),
         isError: false
       };
     }
 
     if (question.status === 'error') {
       return {
-        content: '作答失败，请重试',
+        content: getMessage('panelAnswerFailed'),
         isError: true
       };
     }
 
     return {
-      content: '<span class="qh-loading-text">待分析</span>',
+      content: `<span class="qh-loading-text">${getMessage('statusPending')}</span>`,
       isError: false
     };
   }
@@ -219,13 +220,14 @@
     const lines = t.split('\n').map(l => l.trim()).filter(Boolean);
     const firstLine = lines[0] || '';
 
-    const answerMatch = t.match(/答案[：:]\s*(.+)/i);
+    // 中英文答案标记均可识别：答案：/ Answer: （(.+) 不跨行，可同时避免误吞解析部分）
+    const answerMatch = t.match(/(?:答案[：:]|Answer\s*[：:])\s*(.+)/i);
     if (answerMatch) {
       const ans = answerMatch[1].trim();
       const letters = ans.match(/^([A-H]+)$/i);
       if (letters) return letters[1].toUpperCase();
-      if (/^(正确|对|是|true)$/i.test(ans)) return '对';
-      if (/^(错误|错|否|false)$/i.test(ans)) return '错';
+      if (/^(正确|对|是|true)$/i.test(ans)) return getMessage('panelAnswerCorrect');
+      if (/^(错误|错|否|false)$/i.test(ans)) return getMessage('panelAnswerWrong');
       return ans.length > 10 ? ans.slice(0, 10) + '...' : ans;
     }
 
@@ -240,8 +242,8 @@
     const singleMatch = firstLine.match(/^([A-H])[\.\、\)]/);
     if (singleMatch) return singleMatch[1].toUpperCase();
 
-    if (/^(正确|对|是|true)\b/i.test(firstLine)) return '对';
-    if (/^(错误|错|否|false)\b/i.test(firstLine)) return '错';
+    if (/^(正确|对|是|true)\b/i.test(firstLine)) return getMessage('panelAnswerCorrect');
+    if (/^(错误|错|否|false)\b/i.test(firstLine)) return getMessage('panelAnswerWrong');
 
     return firstLine.length > 10 ? firstLine.slice(0, 10) + '...' : firstLine;
   }
@@ -257,7 +259,7 @@
     if (!body) return;
 
     if (state.questionsData.length === 0) {
-      body.innerHTML = '<div class="qh-empty">未提取到题目。可先尝试规则解析，或点击"AI 选区解析"后在页面中点选一块题目区域。</div>';
+      body.innerHTML = getMessage('panelEmptyNoQuestions');
       updateControls();
       updateProgress();
       return;
@@ -355,7 +357,7 @@
       const retryBtn = document.createElement('button');
       retryBtn.className = 'qh-btn qh-btn-primary';
       retryBtn.style.marginTop = '10px';
-      retryBtn.textContent = '重新作答';
+      retryBtn.textContent = getMessage('panelReAnswer');
       retryBtn.addEventListener('click', event => {
         event.stopPropagation();
         globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(qIndex, { forceSearch: true });
@@ -365,7 +367,7 @@
       const answerBtn = document.createElement('button');
       answerBtn.className = 'qh-btn qh-btn-primary';
       answerBtn.style.marginTop = '10px';
-      answerBtn.textContent = '作答';
+      answerBtn.textContent = getMessage('panelAnswer');
       answerBtn.addEventListener('click', event => {
         event.stopPropagation();
         globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(qIndex, { forceSearch: true });
@@ -422,13 +424,13 @@
           <details class="qh-bank-ref">
             <summary>
               <span class="qh-bank-ref-icon" data-icon="link"></span>
-              <span class="qh-bank-ref-name">题库${m.source}</span>
-              ${m.score ? `<span class="qh-bank-ref-score">相似度 ${m.score}</span>` : ''}
+              <span class="qh-bank-ref-name">${getMessage('panelBankSource', [m.source])}</span>
+              ${m.score ? `<span class="qh-bank-ref-score">${getMessage('panelSimilarity', [m.score])}</span>` : ''}
             </summary>
             <div class="qh-bank-ref-detail">
               <div class="qh-bank-q">${escapeHtml(m.questionText)}</div>
-              <div class="qh-bank-a">答案：${escapeHtml(m.answer)}</div>
-              ${m.analysis ? `<div class="qh-bank-ana">解析：${escapeHtml(m.analysis)}</div>` : ''}
+              <div class="qh-bank-a">${getMessage('panelAnswerLabel', [escapeHtml(m.answer)])}</div>
+              ${m.analysis ? `<div class="qh-bank-ana">${getMessage('panelAnalysisLabel', [escapeHtml(m.analysis)])}</div>` : ''}
             </div>
           </details>`;
       });
@@ -443,8 +445,8 @@
       searchRefsHtml = `<details class="qh-search-ref" open>
         <summary>
           <span class="qh-search-ref-icon" data-icon="link"></span>
-          <span class="qh-search-ref-name">参考链接${providerName ? `<span class="qh-search-ref-provider"> · ${escapeHtml(providerName)}</span>` : ''}</span>
-          <span class="qh-bank-ref-score">${webSearchRefs.length} 条</span>
+          <span class="qh-search-ref-name">${getMessage('panelRefLinks')}${providerName ? `<span class="qh-search-ref-provider"> · ${escapeHtml(providerName)}</span>` : ''}</span>
+          <span class="qh-bank-ref-score">${getMessage('panelRefCount', [webSearchRefs.length])}</span>
         </summary>
         <div class="qh-search-ref-detail">`;
       webSearchRefs.forEach((ref) => {
@@ -454,7 +456,7 @@
         const displayIndex = ref.originalIndex || 0;
         searchRefsHtml += `
           <div class="qh-search-ref-item">
-            <a class="qh-search-ref-title" href="${escapeHtml(ref.url)}" target="_blank" rel="noopener">${displayIndex}. ${escapeHtml(ref.title || '无标题')}</a>
+            <a class="qh-search-ref-title" href="${escapeHtml(ref.url)}" target="_blank" rel="noopener">${displayIndex}. ${escapeHtml(ref.title || getMessage('panelNoTitle'))}</a>
             <div class="qh-search-ref-url">${escapeHtml(domain)}</div>
             ${ref.snippet ? `<div class="qh-search-ref-snippet">${escapeHtml(ref.snippet)}</div>` : ''}
           </div>`;
@@ -465,13 +467,13 @@
     bodyEl.innerHTML = `
       <div class="qh-question-section">
         <div class="qh-section-title-row">
-          <div class="qh-section-title">题目</div>
-          <button class="qh-copy-btn" type="button" data-role="copy-question">复制</button>
+          <div class="qh-section-title">${getMessage('panelQuestionLabel')}</div>
+          <button class="qh-copy-btn" type="button" data-role="copy-question">${getMessage('panelCopy')}</button>
         </div>
         <div class="qh-question-text">${escapeHtml(question.text).replace(/\n/g, '<br>')}</div>
       </div>
       <div class="qh-answer-section">
-        <div class="qh-section-title">参考答案</div>
+        <div class="qh-section-title">${getMessage('panelReferenceAnswer')}</div>
         <div class="${isError ? 'qh-error-text' : 'qh-answer-text'}">${content}</div>
       </div>
       ${searchRefsHtml}
@@ -484,14 +486,14 @@
     if (copyBtn) {
       copyBtn.addEventListener('click', async event => {
         event.stopPropagation();
-        const originalText = '复制';
+        const originalText = getMessage('panelCopy');
         copyBtn.disabled = true;
         try {
           await copyText(buildQuestionCopyText(question));
-          copyBtn.textContent = '已复制';
+          copyBtn.textContent = getMessage('panelCopied');
           copyBtn.classList.add('copied');
         } catch (error) {
-          copyBtn.textContent = '复制失败';
+          copyBtn.textContent = getMessage('panelCopyFailed');
           copyBtn.classList.add('failed');
         } finally {
           window.setTimeout(() => {
@@ -523,17 +525,34 @@
 
     const total = state.questionsData.length;
     const finished = state.questionsData.filter(q => q.status === 'done' || q.status === 'error').length;
-    let text = `- 共 ${total} 题，已完成 ${finished}/${total}`;
+    let text = getMessage('panelProgressText', [total, finished, total]);
 
     if (state.pickerState) {
-      text += '，请选择区域';
+      text += getMessage('panelSelectRegion');
     } else if (state.isPaused) {
-      text += '，已暂停';
+      text += getMessage('panelPausedSuffix');
     } else if (state.isAnalyzing) {
-      text += '，作答中';
+      text += getMessage('panelAnalyzingSuffix');
     }
 
     progressEl.textContent = text;
+  }
+
+  /**
+   * 让分段控件的滑块跟随当前活动按钮的实际位置与宽度。
+   * 文本长度随语言变化（中英文不等宽），不能用写死的像素值。
+   * @param {Element} segEl - .qh-seg 容器
+   */
+  function syncSegSlider(segEl) {
+    if (!segEl || !segEl.isConnected) return;
+    const visibleBtns = Array.from(segEl.querySelectorAll('.qh-seg-btn'))
+      .filter(b => getComputedStyle(b).display !== 'none');
+    const activeBtn = segEl.querySelector('.qh-seg-btn.active') || visibleBtns[0];
+    if (!activeBtn) return;
+    const segRect = segEl.getBoundingClientRect();
+    const btnRect = activeBtn.getBoundingClientRect();
+    segEl.style.setProperty('--seg-left', `${btnRect.left - segRect.left}px`);
+    segEl.style.setProperty('--seg-w', `${btnRect.width}px`);
   }
 
   /**
@@ -549,7 +568,7 @@
     const segEl = state.shadowRoot.querySelector('.qh-seg');
 
     if (aiBtn) {
-      aiBtn.textContent = state.pickerState ? '取消选区' : 'AI 选区';
+      aiBtn.textContent = state.pickerState ? getMessage('panelCancelSelection') : getMessage('panelAiSelection');
       aiBtn.disabled = state.isAnalyzing;
       aiBtn.classList.toggle('active', !!state.pickerState);
     }
@@ -561,12 +580,12 @@
     }
 
     if (segEl) {
-      const showRight = !!state.currentRule && !state.pickerState;
-      segEl.dataset.active = showRight ? 'reparse' : 'ai-parse';
+      // 滑块跟随活动按钮实际尺寸（语言切换后文本宽度不同；尺寸变化由 ResizeObserver 兜底）
+      syncSegSlider(segEl);
     }
 
     if (pauseBtn) {
-      pauseBtn.textContent = state.isPaused ? '继续' : '暂停';
+      pauseBtn.textContent = state.isPaused ? getMessage('panelResume') : getMessage('panelPause');
       pauseBtn.disabled = state.pickerState !== null || (!state.isAnalyzing && !state.isPaused);
     }
 
@@ -757,12 +776,12 @@
       state.panelElement.innerHTML = `
         <div class="qh-header">
           <div>
-            <span class="qh-title">题目助手</span>
-            <span class="qh-progress">- 共 ${totalQuestions} 题</span>
+            <span class="qh-title">${getMessage('panelTitle')}</span>
+            <span class="qh-progress">${getMessage('panelProgressTotal', [totalQuestions])}</span>
           </div>
           <div class="qh-header-btns">
-            <button class="qh-header-btn" id="qh-minimize" title="最小化"><span data-icon="minimize"></span></button>
-            <button class="qh-header-btn" id="qh-close" title="关闭"><span data-icon="close"></span></button>
+            <button class="qh-header-btn" id="qh-minimize" title="${getMessage('panelMinimize')}"><span data-icon="minimize"></span></button>
+            <button class="qh-header-btn" id="qh-close" title="${getMessage('commonClose')}"><span data-icon="close"></span></button>
           </div>
         </div>
         <div class="qh-body" id="qh-body"></div>
@@ -770,11 +789,11 @@
           <span class="qh-model-name" id="qh-model-name"></span>
           <div class="qh-footer-actions">
             <div class="qh-seg">
-              <button class="qh-seg-btn" id="qh-ai-parse">AI 选区</button>
-              <button class="qh-seg-btn" id="qh-reparse" style="display:none;">规则解析</button>
+              <button class="qh-seg-btn" id="qh-ai-parse">${getMessage('panelAiSelection')}</button>
+              <button class="qh-seg-btn" id="qh-reparse" style="display:none;">${getMessage('panelRuleParse')}</button>
             </div>
-            <button class="qh-btn qh-btn-warning" id="qh-pause">暂停</button>
-            <button class="qh-btn qh-btn-primary" id="qh-retry">重新作答</button>
+            <button class="qh-btn qh-btn-warning" id="qh-pause">${getMessage('panelPause')}</button>
+            <button class="qh-btn qh-btn-primary" id="qh-retry">${getMessage('panelReAnswer')}</button>
           </div>
         </div>
       `;
@@ -786,7 +805,7 @@
       miniBar.className = 'qh-mini-bar';
       miniBar.id = 'qh-mini-bar';
       const iconUrl = chrome.runtime.getURL('icons/icon48.png');
-      miniBar.innerHTML = `<img src="${iconUrl}" width="28" height="28" alt="题目助手" draggable="false">`;
+      miniBar.innerHTML = `<img src="${iconUrl}" width="28" height="28" alt="${getMessage('panelTitle')}" draggable="false">`;
       state.shadowRoot.appendChild(miniBar);
 
       state.shadowRoot.getElementById('qh-minimize').addEventListener('click', minimizePanel);
@@ -812,6 +831,17 @@
       renderCards();
       refreshModelNameDisplay();
       window.QuizHelperIcons?.replaceIcons(state.shadowRoot);
+
+      // 分段控件滑块跟随布局变化自动校准：
+      // panel.css 经 <link> 异步加载，首次渲染时样式可能未生效（块级布局），
+      // 以及按钮显隐/字体就绪都会改变控件尺寸，统一由 ResizeObserver 触发重算
+      // （活动按钮切换但尺寸不变时，updateControls 已同步一次）。
+      const segEl = state.shadowRoot.querySelector('.qh-seg');
+      if (segEl && typeof ResizeObserver !== 'undefined') {
+        const segObserver = new ResizeObserver(() => syncSegSlider(segEl));
+        segObserver.observe(segEl);
+        segEl._qhSegObserver = segObserver;
+      }
     } finally {
       taskDone();
       state._createPanelTask = null;
@@ -833,6 +863,14 @@
    */
   function destroyPanel(clearData = true) {
     globalThis.QuizHelperAnalyzer.stopElementPicker();
+    // 移除分段控件滑块 ResizeObserver，避免面板重建时累积泄漏
+    if (state.shadowRoot) {
+      const segEl = state.shadowRoot.querySelector('.qh-seg');
+      if (segEl && segEl._qhSegObserver) {
+        segEl._qhSegObserver.disconnect();
+        segEl._qhSegObserver = null;
+      }
+    }
     // 移除面板级 matchMedia 监听器，避免反复创建面板时累积泄漏
     if (darkMediaQueryRef && darkMediaQueryHandler) {
       darkMediaQueryRef.removeEventListener('change', darkMediaQueryHandler);

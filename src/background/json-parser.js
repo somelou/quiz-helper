@@ -2,6 +2,7 @@
 import '../shared/text-utils.js';
 
 const { normalizeQuestionType } = globalThis.QuizHelperTextUtils;
+const { getMessage } = globalThis.QuizHelperI18n;
 
 export { normalizeQuestionType };
 
@@ -55,7 +56,7 @@ function extractJsonResult(cleaned) {
     }
   }
 
-  throw new Error('未找到可解析的 JSON');
+  throw new Error(getMessage('bgJsonNotFound'));
 }
 
 /**
