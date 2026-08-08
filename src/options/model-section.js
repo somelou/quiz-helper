@@ -10,6 +10,17 @@ function initModels({
   const paginationState = { model: 1 };
   let currentModelEditingBase = null;
 
+  // 流式输出全局开关（作用于大模型测试与答题，默认开启）
+  const streamOutputToggle = document.getElementById('streamOutputEnabled');
+  if (streamOutputToggle) {
+    chrome.storage.local.get(['stream_output']).then(result => {
+      streamOutputToggle.checked = result.stream_output !== false;
+    });
+    streamOutputToggle.addEventListener('change', () => {
+      safeSet({ stream_output: streamOutputToggle.checked });
+    });
+  }
+
   function showModelStatus(msg) {
     globalThis.QuizHelperMessage.info(msg);
   }
@@ -313,11 +324,7 @@ function initModels({
     document.documentElement.style.overflow = 'hidden';
 
     // 初始化分段滑块指示器（同步执行，确保首次绘制前 CSS 变量已就位）
-    drawerBodyEl.getBoundingClientRect();
-    drawerBodyEl.querySelectorAll('.segmented-control').forEach(seg => {
-      const active = seg.querySelector('.seg-active');
-      if (active) setSegValue(seg, active.dataset.value);
-    });
+    initDrawerSegControls(drawerBodyEl);
   }
 
   function renderModelForm(model) {
@@ -602,19 +609,23 @@ function initModels({
     // 收集当前表单中的 tools 用于测试
     const testTools = collectTools();
 
+    // 流式输出开关：关闭时走非流式测试（一次性返回完整结果）
+    const { stream_output } = await chrome.storage.local.get(['stream_output']);
+    const streamEnabled = stream_output !== false;
+
     try {
       if (apiFormat === 'anthropic') {
         await streamAnthropicTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, {
           statusEl, thinkingEl, thinkingBodyEl, thinkingHeaderEl, responseEl
-        });
+        }, streamEnabled);
       } else if (apiFormat === 'responses') {
         await streamResponsesTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, testTools, {
           statusEl, thinkingEl, thinkingBodyEl, thinkingHeaderEl, responseEl
-        });
+        }, streamEnabled);
       } else {
         await streamOpenAITest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, {
           statusEl, thinkingEl, thinkingBodyEl, thinkingHeaderEl, responseEl
-        });
+        }, streamEnabled);
       }
     } catch (err) {
       statusEl.innerHTML = `<span class="test-status-error">连接失败: ${escapeHtml(err.message)}</span>`;
@@ -622,14 +633,28 @@ function initModels({
     }
   }
 
-  async function streamOpenAITest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, els) {
-    const body = { model: modelId, messages: [{ role: 'user', content: userContent }], stream: true };
-    if (enableThinking) {
-      body.thinking = { type: 'enabled' };
-      body.reasoning_effort = thinkingEffort;
-    } else {
-      body.temperature = 0;
+  /**
+   * 非流式测试收尾：一次性渲染完整结果并标记成功
+   * @param {string} text - 模型返回文本
+   * @param {Object} els - 测试结果相关 DOM 元素
+   */
+  function renderNonStreamResult(text, els) {
+    if (text) {
+      els.responseEl.innerHTML = marked.parse(preprocessLatex(text), { breaks: true, gfm: true });
     }
+    els.statusEl.innerHTML = '<span class="test-status-success">连接成功</span>';
+  }
+
+  async function streamOpenAITest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, els, stream = true) {
+    // 请求体构造统一复用 shared/llm-utils.js
+    const body = globalThis.QuizHelperLLMUtils.buildOpenAIBody({
+      model: modelId,
+      messages: [{ role: 'user', content: userContent }],
+      temperature: 0,
+      enableThinking,
+      thinkingEffort,
+      stream
+    });
 
     const response = await fetch(`${apiUrl}/chat/completions`, {
       method: 'POST',
@@ -640,6 +665,12 @@ function initModels({
     if (!response.ok) {
       const errText = await response.text();
       throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
+    }
+
+    if (!stream) {
+      const data = await response.json();
+      renderNonStreamResult(data.choices?.[0]?.message?.content || '', els);
+      return;
     }
 
     await parseOpenAISSE(response.body.getReader(), els);
@@ -669,50 +700,25 @@ function initModels({
   }
 
   async function parseOpenAISSE(reader, els) {
-    const decoder = new TextDecoder();
-    let buffer = '';
     let hasThinking = false;
-    let fullText = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const data = line.slice(6).trim();
-        if (data === '[DONE]') continue;
-
-        try {
-          const json = JSON.parse(data);
-          const delta = json.choices?.[0]?.delta;
-          if (!delta) continue;
-
-          if (delta.reasoning_content) {
-            if (!hasThinking) {
-              hasThinking = true;
-              els.thinkingEl.style.display = '';
-              els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
-            }
-            els.thinkingBodyEl.textContent += delta.reasoning_content;
-            els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
-          }
-
-          if (delta.content) {
-            if (hasThinking && els.thinkingBodyEl.style.display !== 'none') {
-              els.statusEl.innerHTML = '';
-            }
-            fullText += delta.content;
-            els.responseEl.textContent = fullText;
-            els.responseEl.scrollTop = els.responseEl.scrollHeight;
-          }
-        } catch (_) { /* 忽略解析错误 */ }
+    // 流式解析统一复用 shared/llm-utils.js，此处只做 UI 更新
+    const fullText = await globalThis.QuizHelperLLMUtils.parseOpenAISSE(reader, (event) => {
+      if (event.type === 'thinking') {
+        if (!hasThinking) {
+          hasThinking = true;
+          els.thinkingEl.style.display = '';
+          els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
+        }
+        els.thinkingBodyEl.textContent += event.content;
+        els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
+      } else if (event.type === 'text') {
+        if (hasThinking && els.thinkingBodyEl.style.display !== 'none') {
+          els.statusEl.innerHTML = '';
+        }
+        els.responseEl.textContent += event.content;
+        els.responseEl.scrollTop = els.responseEl.scrollHeight;
       }
-    }
+    });
 
     // 流式结束后用 marked 渲染 Markdown
     if (fullText) {
@@ -725,14 +731,17 @@ function initModels({
     }
   }
 
-  async function streamAnthropicTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, els) {
-    const body = { model: modelId, messages: [{ role: 'user', content: userContent }], max_tokens: 4096, stream: true };
-    if (enableThinking) {
-      body.thinking = { type: 'enabled' };
-      body.output_config = { effort: thinkingEffort };
-    } else {
-      body.temperature = 0;
-    }
+  async function streamAnthropicTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, els, stream = true) {
+    // 请求体构造统一复用 shared/llm-utils.js
+    const body = globalThis.QuizHelperLLMUtils.buildAnthropicBody({
+      model: modelId,
+      messages: [{ role: 'user', content: userContent }],
+      maxTokens: 4096,
+      temperature: 0,
+      enableThinking,
+      thinkingEffort,
+      stream
+    });
 
     const response = await fetch(`${apiUrl}/messages`, {
       method: 'POST',
@@ -749,61 +758,35 @@ function initModels({
       throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
     }
 
+    if (!stream) {
+      const data = await response.json();
+      renderNonStreamResult(data.content?.[0]?.text || '', els);
+      return;
+    }
+
     await parseAnthropicSSE(response.body.getReader(), els);
   }
 
   async function parseAnthropicSSE(reader, els) {
-    const decoder = new TextDecoder();
-    let buffer = '';
     let hasThinking = false;
-    let currentEvent = '';
-    let fullText = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-
-      for (const line of lines) {
-        if (line.startsWith('event: ')) {
-          currentEvent = line.slice(7).trim();
-          continue;
+    // 流式解析统一复用 shared/llm-utils.js，此处只做 UI 更新
+    const fullText = await globalThis.QuizHelperLLMUtils.parseAnthropicSSE(reader, (event) => {
+      if (event.type === 'thinking') {
+        if (!hasThinking) {
+          hasThinking = true;
+          els.thinkingEl.style.display = '';
+          els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
         }
-        if (!line.startsWith('data: ')) continue;
-        const data = line.slice(6).trim();
-
-        try {
-          const json = JSON.parse(data);
-
-          if (currentEvent === 'content_block_start' || currentEvent === 'content_block_delta') {
-            const text = json.delta?.text || json.content_block?.text || '';
-            const thinking = json.delta?.thinking || json.content_block?.thinking || '';
-
-            if (thinking) {
-              if (!hasThinking) {
-                hasThinking = true;
-                els.thinkingEl.style.display = '';
-                els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
-              }
-              els.thinkingBodyEl.textContent += thinking;
-              els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
-            }
-
-            if (text) {
-              if (hasThinking && els.thinkingBodyEl.style.display !== 'none') {
-                els.statusEl.innerHTML = '';
-              }
-              fullText += text;
-              els.responseEl.textContent = fullText;
-              els.responseEl.scrollTop = els.responseEl.scrollHeight;
-            }
-          }
-        } catch (_) { /* 忽略解析错误 */ }
+        els.thinkingBodyEl.textContent += event.content;
+        els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
+      } else if (event.type === 'text') {
+        if (hasThinking && els.thinkingBodyEl.style.display !== 'none') {
+          els.statusEl.innerHTML = '';
+        }
+        els.responseEl.textContent += event.content;
+        els.responseEl.scrollTop = els.responseEl.scrollHeight;
       }
-    }
+    });
 
     // 流式结束后用 marked 渲染 Markdown
     if (fullText) {
@@ -816,14 +799,17 @@ function initModels({
     }
   }
 
-  async function streamResponsesTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, tools, els) {
-    const body = { model: modelId, input: [{ role: 'user', content: userContent }], stream: true };
-    if (tools && tools.length > 0) body.tools = tools;
-    if (enableThinking) {
-      body.reasoning = { effort: thinkingEffort };
-    } else {
-      body.temperature = 0;
-    }
+  async function streamResponsesTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, tools, els, stream = true) {
+    // 请求体构造统一复用 shared/llm-utils.js
+    const body = globalThis.QuizHelperLLMUtils.buildResponsesBody({
+      model: modelId,
+      input: [{ role: 'user', content: userContent }],
+      tools,
+      temperature: 0,
+      enableThinking,
+      thinkingEffort,
+      stream
+    });
 
     const response = await fetch(`${apiUrl}/responses`, {
       method: 'POST',
@@ -836,57 +822,39 @@ function initModels({
       throw new Error(`HTTP ${response.status}: ${errText.slice(0, 200)}`);
     }
 
+    if (!stream) {
+      const data = await response.json();
+      const output = data.output?.find(o => o.type === 'message');
+      const textContent = output?.content?.find(c => c.type === 'output_text');
+      renderNonStreamResult(textContent?.text || '', els);
+      return;
+    }
+
     await parseResponsesSSE(response.body.getReader(), els);
   }
 
   async function parseResponsesSSE(reader, els) {
-    const decoder = new TextDecoder();
-    let buffer = '';
     let hasThinking = false;
-    let currentEvent = '';
-    let fullText = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-
-      for (const line of lines) {
-        if (line.startsWith('event: ')) {
-          currentEvent = line.slice(7).trim();
-          continue;
+    // 流式解析统一复用 shared/llm-utils.js，此处只做 UI 更新（联网搜索状态/引用标注事件在此忽略）
+    // 注意：Responses 解析返回 {text, annotations}，需取 .text
+    const result = await globalThis.QuizHelperLLMUtils.parseResponsesSSE(reader, (event) => {
+      if (event.type === 'thinking') {
+        if (!hasThinking) {
+          hasThinking = true;
+          els.thinkingEl.style.display = '';
+          els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
         }
-        if (!line.startsWith('data: ')) continue;
-        const data = line.slice(6).trim();
-        if (data === '[DONE]') continue;
-
-        try {
-          const json = JSON.parse(data);
-
-          if (currentEvent === 'response.reasoning_text.delta') {
-            if (!hasThinking) {
-              hasThinking = true;
-              els.thinkingEl.style.display = '';
-              els.statusEl.innerHTML = '<span class="test-status-thinking"><span class="test-spinner"></span>深度思考中...</span>';
-            }
-            els.thinkingBodyEl.textContent += (json.delta || '');
-            els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
-          }
-
-          if (currentEvent === 'response.output_text.delta') {
-            if (hasThinking && els.thinkingBodyEl.style.display !== 'none') {
-              els.statusEl.innerHTML = '';
-            }
-            fullText += (json.delta || '');
-            els.responseEl.textContent = fullText;
-            els.responseEl.scrollTop = els.responseEl.scrollHeight;
-          }
-        } catch (_) { /* 忽略解析错误 */ }
+        els.thinkingBodyEl.textContent += event.content;
+        els.thinkingBodyEl.scrollTop = els.thinkingBodyEl.scrollHeight;
+      } else if (event.type === 'text') {
+        if (hasThinking && els.thinkingBodyEl.style.display !== 'none') {
+          els.statusEl.innerHTML = '';
+        }
+        els.responseEl.textContent += event.content;
+        els.responseEl.scrollTop = els.responseEl.scrollHeight;
       }
-    }
+    });
+    const fullText = result.text;
 
     if (fullText) {
       els.responseEl.innerHTML = marked.parse(preprocessLatex(fullText), { breaks: true, gfm: true });

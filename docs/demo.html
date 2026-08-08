@@ -1857,6 +1857,14 @@ body {
               <button class="action-btn action-edit">+ 添加</button>
             </div>
             <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。</div>
+            <div class="form-group">
+              <label for="streamOutputEnabled">流式输出</label>
+              <label class="switch">
+                <input type="checkbox" id="streamOutputEnabled" checked>
+                <span class="switch-slider"></span>
+              </label>
+              <div class="hint">开启后，大模型测试与答题时逐字返回结果；关闭后一次性返回完整结果。</div>
+            </div>
             <div class="list-item active">
               <div class="list-item-header">
                 <div class="list-item-info">
