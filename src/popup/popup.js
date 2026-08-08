@@ -64,26 +64,15 @@ document.getElementById('analyzeBtn').addEventListener('click', async () => {
     await chrome.tabs.sendMessage(tab.id, { action: 'analyze' });
   } catch (e) {
     // Content Script 未加载，动态注入后再发送
+    // 注入文件清单直接取自 manifest 的 content_scripts（单一数据源，避免与 manifest 重复维护）
+    const files = chrome.runtime.getManifest().content_scripts[0].js;
     try {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        files: [
-          'icons.js',
-          'shared/constants.js',
-          'shared/shortcut-utils.js',
-          'shared/theme-utils.js',
-          'shared/storage-utils.js',
-          'shared/text-utils.js',
-          'content/state.js',
-          'content/dom-parser.js',
-          'content/panel-ui.js',
-          'content/analyzer.js',
-          'content/index.js'
-        ]
+        files
       });
-      setTimeout(() => {
-        chrome.tabs.sendMessage(tab.id, { action: 'analyze' });
-      }, 300);
+      // executeScript 的 Promise 在所有文件注入完成后才 resolve，可直接发送消息，无需延时
+      await chrome.tabs.sendMessage(tab.id, { action: 'analyze' });
     } catch (injectErr) {
       console.error('注入失败:', injectErr);
     }
@@ -101,6 +90,9 @@ document.getElementById('optionsBtn').addEventListener('click', () => {
 async function loadShortcutDisplay() {
   const config = await chrome.storage.local.get([STORAGE_KEYS.PANEL_SHORTCUT]);
   let shortcutText = '未设置';
+  // 注意：这里不能改成 `!= null`。存储中从未设置该键时值为 undefined，此时插件实际
+  // 使用默认快捷键（见 content 侧 resolvePanelShortcut），应显示默认值；
+  // 仅当用户显式清空（值为 null）时才显示"未设置"。
   if (config[STORAGE_KEYS.PANEL_SHORTCUT] !== null) {
     const shortcut = normalizeShortcutConfig(config[STORAGE_KEYS.PANEL_SHORTCUT]) || { ...DEFAULT_SHORTCUT };
     shortcutText = formatShortcutDisplay(shortcut);
@@ -136,6 +128,7 @@ async function loadModelSelector() {
     const opt = document.createElement('button');
     opt.className = 'model-dropdown-option';
     if (m.id === activeModelId) opt.classList.add('selected');
+    // 选中态按显示文本（name）判断：name 在保存时被强制唯一（见 model-section.js saveModelFromDrawer），不会误选
     opt.textContent = m.name || m.modelId;
     opt.addEventListener('mousedown', async e => {
       e.preventDefault();
@@ -149,6 +142,7 @@ async function selectModel(id, label) {
   activeModelId = id;
   await chrome.storage.local.set({ [STORAGE_KEYS.ACTIVE_MODEL_ID]: id });
   modelDropdownLabel.textContent = label;
+  // 与初始渲染保持一致：显示文本即 name（唯一），按文本比较选中态
   modelDropdownMenu.querySelectorAll('.model-dropdown-option').forEach(opt => {
     opt.classList.toggle('selected', opt.textContent === label);
   });
