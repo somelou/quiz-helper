@@ -37,7 +37,7 @@ quiz-helper/
 │   ├── background/                # 后台逻辑模块
 │   │   ├── index.js               # 后台入口（webSearch 独立监听 + 路由注册）
 │   │   ├── router.js              # 消息路由（onMessage + onConnect port 通道）
-│   │   ├── api-client.js          # LLM API 调用（OpenAI/Anthropic/Responses + 流式 SSE）
+│   │   ├── api-client.js          # LLM API 调用（三格式统一分发 + 流式/非流式，复用 llm-utils）
 │   │   ├── prompt-builder.js      # 提示词构建
 │   │   ├── json-parser.js         # JSON 响应解析与题型归一化
 │   │   ├── question-bank.js       # 题库解析（含分批）与相似题检索
@@ -76,8 +76,9 @@ quiz-helper/
 │   │   ├── shortcut-utils.js      # 快捷键工具（格式化/匹配/录制辅助）
 │   │   ├── theme-utils.js         # 主题工具
 │   │   ├── storage-utils.js       # 存储工具（safeSet 等）
-│   │   ├── search-utils.js        # 联网搜索共用工具（结果提取，IIFE）
-│   │   ├── text-utils.js          # 文本工具（转义/规范化/正则）
+│   │   ├── search-utils.js        # 联网搜索共用工具（结果提取、月度用量重置，IIFE）
+│   │   ├── llm-utils.js           # 大模型共用工具（SSE 流解析/请求体构造/system 消息分离）
+│   │   ├── text-utils.js          # 文本工具（转义/规范化/题型归一化）
 │   │   ├── text-splitter.js       # 题库文本按题目边界拆分（background 专用，ES module）
 │   │   ├── variables.css          # Design Token 变量
 │   │   └── toggle.css             # 开关组件样式
@@ -164,7 +165,7 @@ quiz-helper/
 - 加载并展示可用模型下拉，支持快捷切换 `active_model_id`
 - 点击“分析当前页面题目”时：
   - 先尝试给当前标签页发送 `analyze` 消息
-  - 如果 content script 未加载，则动态注入共享脚本 + `src/content/` 模块文件（清单与 manifest content_scripts 一致，共 11 个文件）
+  - 如果 content script 未加载，则按 `chrome.runtime.getManifest().content_scripts[0].js` 动态注入（单一数据源，与 manifest 自动保持一致）
   - 注入后再发送 `analyze` 消息
 - 点击“打开设置”时打开 `options.html`
 
@@ -172,7 +173,7 @@ quiz-helper/
 
 - Popup 体量较小，适合作为"入口控制页"继续保持轻量。
 - 样式已独立到 `src/popup/popup.css`。
-- 动态注入兜底路径的清单必须与 `manifest.json` 的 content_scripts 保持一致。
+- 动态注入兜底路径的文件清单直接取自 manifest 的 content_scripts，无需手工同步。
 
 ## 5. Options 设置页
 
@@ -217,6 +218,7 @@ quiz-helper/
    - 添加按钮：`#addModelBtn`
    - 列表容器：`#modelList`
    - 状态提示：`#modelStatus`
+   - 流式输出开关：`#streamOutputEnabled`（全局公用，控制大模型测试与答题是否流式返回，默认开启，存储 key `stream_output`）
    - 支持多模型配置，可激活/停用，为答题/题库/抽题指定专用模型（`active_model_id` / `model_bank_id` / `model_extract_id`）
    - 模型字段：名称、API 格式（OpenAI/Anthropic/Responses）、API URL、API Key、模型 ID、内置工具（Responses）、思考模式与强度、测试连接
 
@@ -304,7 +306,7 @@ quiz-helper/
   - `src/options/utils.js` — 共享常量和工具函数（分页 `renderPagination`、文本清洗、Excel/Word 文件读取、`normalizeBankQuestionType`）
   - `src/options/shortcut-section.js` — 快捷键录制与显示（复用 `shared/shortcut-utils.js`）
   - `src/options/config-section.js` — 基本配置读取/保存/重置（系统提示词按题型分 tab）
-  - `src/options/model-section.js` — 大模型管理（多模型 CRUD、激活/停用、任务专用模型指定、SSE 测试连接）
+  - `src/options/model-section.js` — 大模型管理（多模型 CRUD、激活/停用、任务专用模型指定、流式/非流式测试连接、流式输出开关）
   - `src/options/search-section.js` — 联网搜索设置（服务商 CRUD、参数配置、测试搜索、结果提取）
   - `src/options/history-section.js` — 历史记录 CRUD
   - `src/options/bank-section.js` — 题库导入（port 通道分批进度）、管理、渲染
@@ -472,6 +474,8 @@ content 目录 5 个模块的职责划分如下：
   - 按 `request.action` 分发请求
   - 同时注册 `chrome.runtime.onConnect` 支持 port 通道：`parseQuestionBank`（分批题库解析进度上报）、`streamAnswer`（流式答题）
   - 包含 `fetchAnswerWithSearch` 的"搜索感知 → 搜索 → 二次作答"流程与引用链接过滤
+  - 答题按流式输出开关（`stream_output`）决定流式/非流式调用，关闭时经流式通道一次性回传完整结果
+  - 提取 `callLLM` 统一流式/非流式分发，降级分叉合并复用
 
 - `src/background/api-client.js`
   - 读取 API 配置（支持按任务类型读取专用模型：答题/题库/抽题）
@@ -485,8 +489,8 @@ content 目录 5 个模块的职责划分如下：
   - 拼装搜索感知提示词和搜索结果提示词
 
 - `src/background/json-parser.js`
-  - 去 markdown fence、JSON 解析
-  - AI 返回结构归一化（`normalizeParsedQuestions` / `normalizeQuestionType`）
+  - 去 markdown fence、JSON 解析（公共 `extractJsonResult`，统一数组/对象探测顺序）
+  - AI 返回结构归一化（`normalizeParsedQuestions`，题型归一化复用 `shared/text-utils.js`）
 
 - `src/background/question-bank.js`
   - 题库导入解析（支持分批 `handleParseQuestionBankBatched`，并发 + AbortController 取消）
@@ -585,6 +589,7 @@ content 目录 5 个模块的职责划分如下：
   - `DEFAULT_SHORTCUT`
   - `TYPE_LABELS`
   - `STATUS_LABELS`
+  - `IMPORT_MODES`（题库导入模式配置：eco/balanced/precise，后台与设置页共用）
 
 - `src/shared/shortcut-utils.js`
   - 快捷键格式化（mac/win 差异显示）
@@ -598,15 +603,22 @@ content 目录 5 个模块的职责划分如下：
 
 - `src/shared/storage-utils.js`
   - `safeSet` — 统一写入封装（捕获配额超限并提示）
-  - `getParseRules` / `setParseRules` / `getAllowedDomains`
 
 - `src/shared/search-utils.js`
   - `extractSearchResults` — 从各搜索服务商 API 数据中提取统一格式的搜索结果（IIFE，options 页与 background 共用）
+  - `getOrResetProviderUsage` — 搜索服务商月度用量记录获取/跨月重置（background 限额检查与计数共用）
+
+- `src/shared/llm-utils.js`
+  - 大模型共用工具（IIFE + `globalThis.QuizHelperLLMUtils`，background 与 options 模型测试共用）
+  - `parseOpenAISSE` / `parseAnthropicSSE` / `parseResponsesSSE` — 三格式 SSE 流解析，输出 `{type: 'thinking'|'text'|'searchStatus'|'referenceLinks'}` 事件并返回完整文本（注意：Responses 返回 `{text, annotations}` 对象）
+  - `splitSystemMessages` / `convertToResponsesFormat` — system 消息分离与 Responses input 转换
+  - `buildOpenAIBody` / `buildAnthropicBody` / `buildResponsesBody` — 三格式请求体构造（thinking/temperature 互斥）
 
 - `src/shared/text-utils.js`
   - `normalizeWhitespace` — 空白字符规范化
   - `escapeRegex` — 正则特殊字符转义
   - `escapeHtml` — HTML 实体转义
+  - `normalizeQuestionType` — 题型归一化（AI/Excel 题型描述 → 内部题型，content/options/background 三端共用）
 
 - `src/shared/text-splitter.js`
   - `splitTextByQuestions` — 按题目边界拆分题库文本为多个批次（ES module，供 background 使用）
@@ -677,7 +689,7 @@ content 目录 5 个模块的职责划分如下：
 - `src/content/index.js` 已拆分为 5 个模块，单文件最大 ~888 行（`panel-ui.js`）
 - `src/options/index.js` 仍可继续细拆（已拆分 10 个模块文件）
 - 重复的常量和快捷键函数已被消除，改为统一引用 `src/shared/`
-- 跨文件重复代码已收敛：月度限额函数（`background/search-usage.js`）、搜索结果提取（`shared/search-utils.js`）均单点维护
+- 跨文件重复代码已收敛：月度限额函数（`background/search-usage.js` 复用 `shared/search-utils.js`）、搜索结果提取（`shared/search-utils.js`）、题型归一化（`shared/text-utils.js`）、大模型 SSE 解析与请求体构造（`shared/llm-utils.js`）均单点维护
 
 ## 11. 建议后续 AI 接手顺序
 
