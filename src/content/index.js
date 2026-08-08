@@ -41,18 +41,24 @@
 
   async function loadPanelShortcut() {
     const config = await chrome.storage.local.get(['panel_shortcut']);
-    state.panelShortcut = config.panel_shortcut === null
+    state.panelShortcut = resolvePanelShortcut(config.panel_shortcut);
+  }
+
+  /**
+   * 解析面板快捷键：显式 null（已清空）返回 null，否则归一化后回退默认值
+   * @param {*} value - 存储中的快捷键配置
+   * @returns {Object|null}
+   */
+  function resolvePanelShortcut(value) {
+    return value === null
       ? null
-      : normalizeShortcutConfig(config.panel_shortcut) || getDefaultShortcut();
+      : normalizeShortcutConfig(value) || getDefaultShortcut();
   }
 
   function handleStorageChange(changes, areaName) {
     if (areaName !== 'local') return;
     if (changes.panel_shortcut) {
-      const newValue = changes.panel_shortcut.newValue;
-      state.panelShortcut = newValue === null
-        ? null
-        : normalizeShortcutConfig(newValue) || getDefaultShortcut();
+      state.panelShortcut = resolvePanelShortcut(changes.panel_shortcut.newValue);
     }
     if (changes.theme_mode) {
       state.themeMode = changes.theme_mode.newValue || 'system';
@@ -66,11 +72,7 @@
   function isEditableTarget(target) {
     const element = target instanceof Element ? target : target?.parentElement;
     if (!element) return false;
-
-    if (element.matches('input, textarea, select, [contenteditable="true"]')) {
-      return true;
-    }
-
+    // closest 已包含元素自身，无需额外的 matches 判断
     return !!element.closest('input, textarea, select, [contenteditable="true"]');
   }
 
@@ -248,9 +250,7 @@
     if (state.currentRule) {
       const success = await globalThis.QuizHelperDomParser.parseExamQuestions();
       if (success) {
-        globalThis.QuizHelperPanelUI.createPanel(state.questionsData.length);
-        globalThis.QuizHelperPanelUI.renderCards();
-        await globalThis.QuizHelperAnalyzer.analyzeAllQuestions();
+        await globalThis.QuizHelperAnalyzer.runAnalysisFlow();
         return;
       }
       state.questionsData = [];

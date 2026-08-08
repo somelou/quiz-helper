@@ -64,14 +64,6 @@
   }
 
   /**
-   * 获取下一个待分析题目的索引
-   * @returns {number}
-   */
-  function getNextPendingQuestionIndex() {
-    return state.questionsData.findIndex(q => q.status === 'pending' || q.status === 'error');
-  }
-
-  /**
    * 获取恢复分析的起始索引：从最后一道已处理（done/loading）的题目开始
    * 如果该题正在加载中，从该题开始；如果已完成，从下一题开始
    * @returns {number}
@@ -234,7 +226,6 @@
 
       if (!bankMatched) {
         await streamQuestion(question, index, runId, options.forceSearch || false);
-        finalizeQuestion(index, wasPaused, runId);
         return;
       }
     } catch (error) {
@@ -343,6 +334,14 @@
       return;
     }
 
+    await runAnalysisFlow();
+  }
+
+  /**
+   * 启动完整分析流程：创建面板 → 渲染全部卡片 → 触发全量分析
+   * （规则重新解析 / AI 全页解析 / AI 选区解析 / 内容脚本入口共用）
+   */
+  async function runAnalysisFlow() {
     UI.createPanel(state.questionsData.length);
     UI.renderCards();
     await analyzeAllQuestions();
@@ -360,7 +359,8 @@
     let fallback = null;
 
     while (current && current !== document.body && current !== document.documentElement) {
-      if (current.id === 'quiz-helper-host' || current.closest('#quiz-helper-host')) {
+      // closest 已包含元素自身，无需单独判断 id
+      if (current.closest('#quiz-helper-host')) {
         return null;
       }
 
@@ -635,18 +635,8 @@
    * @returns {Object}
    */
   function createQuestionPayload(item, index) {
-    const rawType = (item.type || '').toLowerCase();
-    let type = 'unknown';
-    if (rawType.includes('single') || rawType.includes('单选')) {
-      type = 'single';
-    } else if (rawType.includes('multiple') || rawType.includes('multi') || rawType.includes('多选')) {
-      type = 'multiple';
-    } else if (rawType.includes('judge') || rawType.includes('judgement') || rawType.includes('truefalse') ||
-               rawType.includes('true_false') || rawType.includes('boolean') || rawType.includes('判断')) {
-      type = 'judge';
-    } else if (rawType.includes('fill') || rawType.includes('blank') || rawType.includes('填空')) {
-      type = 'fill';
-    }
+    // 题型归一化统一复用 shared/text-utils.js（覆盖 multiple/multi、judge/judgement、true_false、boolean 等关键词）
+    const type = globalThis.QuizHelperTextUtils.normalizeQuestionType(item.type);
 
     return {
       id: item.id || index + 1,
@@ -768,9 +758,7 @@
       return;
     }
 
-    UI.createPanel(state.questionsData.length);
-    UI.renderCards();
-    await analyzeAllQuestions();
+    await runAnalysisFlow();
   }
 
   /**
@@ -786,9 +774,7 @@
       return;
     }
 
-    UI.createPanel(state.questionsData.length);
-    UI.renderCards();
-    await analyzeAllQuestions();
+    await runAnalysisFlow();
   }
 
   // 导出 API
@@ -798,6 +784,7 @@
     togglePauseAnalysis,
     restartAnalysis,
     reparseAndAnalyze,
+    runAnalysisFlow,
     toggleAiPicker,
     aiParseAndAnalyze,
     aiParseFullPageAndAnalyze,

@@ -287,7 +287,8 @@
 
       body.appendChild(card);
       const answerState = getAnswerSectionState(question);
-      updateCardBody(index, answerState.content, answerState.isError);
+      // 批量渲染时静默更新卡片内容，循环结束后统一刷新进度与按钮，避免 O(n²) 重复计算
+      updateCardBody(index, answerState.content, answerState.isError, true);
     });
 
     updateProgress();
@@ -313,15 +314,108 @@
    * @param {number} index
    * @param {string} content
    * @param {boolean} isError
+   * @param {boolean} [silent=false] - 为 true 时跳过进度/按钮刷新（批量渲染时由调用方统一刷新）
    */
-  function updateCardBody(index, content, isError = false) {
+  /**
+   * 同步卡片头部的状态标签与答案预览
+   * @param {number} qIndex - 题目下标
+   * @param {Object} question - 题目对象
+   */
+  function syncCardHeader(qIndex, question) {
+    const card = state.shadowRoot?.getElementById(`card-body-${qIndex}`)?.closest('.qh-card');
+    if (!card) return;
+    const headerEl = card.querySelector('.qh-card-header');
+    const statusEl = card.querySelector('.qh-card-status');
+    if (statusEl) {
+      statusEl.className = `qh-card-status ${getStatusClass(question.status)}`;
+      statusEl.textContent = getStatusLabel(question.status);
+    }
+    if (question.answer && (question.status === 'done' || question.status === 'error')) {
+      let answerEl = card.querySelector('.qh-card-answer');
+      if (!answerEl && headerEl) {
+        answerEl = document.createElement('span');
+        answerEl.className = 'qh-card-answer';
+        headerEl.insertBefore(answerEl, statusEl);
+      }
+      if (answerEl) {
+        answerEl.textContent = getAnswerResult(question.answer);
+      }
+    }
+  }
+
+  /**
+   * 同步"重新作答/作答"按钮（先移除旧的再按需添加，避免重复）
+   * @param {HTMLElement} body - 卡片内容容器
+   * @param {number} qIndex - 题目下标
+   * @param {Object} question - 题目对象
+   */
+  function syncActionButton(body, qIndex, question) {
+    body.querySelectorAll('.qh-btn.qh-btn-primary').forEach(btn => btn.remove());
+    if (question.status === 'done' || question.status === 'error') {
+      const retryBtn = document.createElement('button');
+      retryBtn.className = 'qh-btn qh-btn-primary';
+      retryBtn.style.marginTop = '10px';
+      retryBtn.textContent = '重新作答';
+      retryBtn.addEventListener('click', event => {
+        event.stopPropagation();
+        globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(qIndex, { forceSearch: true });
+      });
+      body.appendChild(retryBtn);
+    } else if (state.isPaused && question.status === 'pending') {
+      const answerBtn = document.createElement('button');
+      answerBtn.className = 'qh-btn qh-btn-primary';
+      answerBtn.style.marginTop = '10px';
+      answerBtn.textContent = '作答';
+      answerBtn.addEventListener('click', event => {
+        event.stopPropagation();
+        globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(qIndex, { forceSearch: true });
+      });
+      body.appendChild(answerBtn);
+    }
+  }
+
+  /**
+   * 更新单张卡片的内容区域
+   * @param {number} index
+   * @param {string} content
+   * @param {boolean} isError
+   * @param {boolean} [silent=false] - 为 true 时跳过进度/按钮刷新（批量渲染时由调用方统一刷新）
+   */
+  function updateCardBody(index, content, isError = false, silent = false) {
     if (!state.shadowRoot) return;
     const bodyEl = state.shadowRoot.getElementById(`card-body-${index}`);
     if (!bodyEl) return;
 
     const question = state.questionsData[index];
+
+    // 是否有引用内容：增量快速路径不需要引用时，直接跳过引用 HTML 的构建
+    const hasBankRefs = !!(question.bankMatches && question.bankMatches.length > 0);
+    const hasSearchRefs = !!(question.webSearchRefs && question.webSearchRefs.length > 0);
+    const needRefs = hasBankRefs || hasSearchRefs;
+
+    // 增量更新：结构未变（无思考区、无引用区、本次也不需要引用）时仅更新答案文本与状态，
+    // 避免每次状态流转都整卡 innerHTML 重建
+    const existingQuestionSection = bodyEl.querySelector('.qh-question-section');
+    const existingAnswerEl = bodyEl.querySelector('.qh-answer-text, .qh-error-text');
+    const hasThinkingSection = !!bodyEl.querySelector('.qh-thinking-section');
+    const existingRefs = !!bodyEl.querySelector('.qh-bank-refs, .qh-search-ref');
+
+    if (existingQuestionSection && existingAnswerEl && !hasThinkingSection && !existingRefs && !needRefs) {
+      const newCls = isError ? 'qh-error-text' : 'qh-answer-text';
+      if (existingAnswerEl.className !== newCls) existingAnswerEl.className = newCls;
+      existingAnswerEl.innerHTML = content;
+      syncActionButton(bodyEl, index, question);
+      syncCardHeader(index, question);
+      if (!silent) {
+        updateProgress();
+        updateControls();
+      }
+      return;
+    }
+
+    // 全量重建路径，此时才构建引用 HTML
     let bankRefsHtml = '';
-    if (question.bankMatches && question.bankMatches.length > 0) {
+    if (hasBankRefs) {
       bankRefsHtml = '<div class="qh-bank-refs">';
       question.bankMatches.forEach(m => {
         bankRefsHtml += `
@@ -344,7 +438,7 @@
     // 联网搜索参考链接
     let searchRefsHtml = '';
     const webSearchRefs = question.webSearchRefs || [];
-    if (webSearchRefs.length > 0) {
+    if (hasSearchRefs) {
       const providerName = question.searchProviderName || '';
       searchRefsHtml = `<details class="qh-search-ref" open>
         <summary>
@@ -366,78 +460,6 @@
           </div>`;
       });
       searchRefsHtml += '</div></details>';
-    }
-
-    /**
-     * 同步卡片头部的状态标签与答案预览
-     */
-    function syncCardHeader(qIndex, question) {
-      const card = state.shadowRoot?.getElementById(`card-body-${qIndex}`)?.closest('.qh-card');
-      if (!card) return;
-      const headerEl = card.querySelector('.qh-card-header');
-      const statusEl = card.querySelector('.qh-card-status');
-      if (statusEl) {
-        statusEl.className = `qh-card-status ${getStatusClass(question.status)}`;
-        statusEl.textContent = getStatusLabel(question.status);
-      }
-      if (question.answer && (question.status === 'done' || question.status === 'error')) {
-        let answerEl = card.querySelector('.qh-card-answer');
-        if (!answerEl && headerEl) {
-          answerEl = document.createElement('span');
-          answerEl.className = 'qh-card-answer';
-          headerEl.insertBefore(answerEl, statusEl);
-        }
-        if (answerEl) {
-          answerEl.textContent = getAnswerResult(question.answer);
-        }
-      }
-    }
-
-    /**
-     * 同步"重新作答/作答"按钮（先移除旧的再按需添加，避免重复）
-     */
-    function syncActionButton(body, qIndex, question) {
-      body.querySelectorAll('.qh-btn.qh-btn-primary').forEach(btn => btn.remove());
-      if (question.status === 'done' || question.status === 'error') {
-        const retryBtn = document.createElement('button');
-        retryBtn.className = 'qh-btn qh-btn-primary';
-        retryBtn.style.marginTop = '10px';
-        retryBtn.textContent = '重新作答';
-        retryBtn.addEventListener('click', event => {
-          event.stopPropagation();
-          globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(qIndex, { forceSearch: true });
-        });
-        body.appendChild(retryBtn);
-      } else if (state.isPaused && question.status === 'pending') {
-        const answerBtn = document.createElement('button');
-        answerBtn.className = 'qh-btn qh-btn-primary';
-        answerBtn.style.marginTop = '10px';
-        answerBtn.textContent = '作答';
-        answerBtn.addEventListener('click', event => {
-          event.stopPropagation();
-          globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(qIndex, { forceSearch: true });
-        });
-        body.appendChild(answerBtn);
-      }
-    }
-
-    // 增量更新：结构未变（无思考区、无引用区、本次也不需要引用）时仅更新答案文本与状态，
-    // 避免每次状态流转都整卡 innerHTML 重建
-    const existingQuestionSection = bodyEl.querySelector('.qh-question-section');
-    const existingAnswerEl = bodyEl.querySelector('.qh-answer-text, .qh-error-text');
-    const hasThinkingSection = !!bodyEl.querySelector('.qh-thinking-section');
-    const existingRefs = !!bodyEl.querySelector('.qh-bank-refs, .qh-search-ref');
-    const needRefs = searchRefsHtml !== '' || bankRefsHtml !== '';
-
-    if (existingQuestionSection && existingAnswerEl && !hasThinkingSection && !existingRefs && !needRefs) {
-      const newCls = isError ? 'qh-error-text' : 'qh-answer-text';
-      if (existingAnswerEl.className !== newCls) existingAnswerEl.className = newCls;
-      existingAnswerEl.innerHTML = content;
-      syncActionButton(bodyEl, index, question);
-      syncCardHeader(index, question);
-      updateProgress();
-      updateControls();
-      return;
     }
 
     bodyEl.innerHTML = `
@@ -485,8 +507,10 @@
 
     syncCardHeader(index, question);
 
-    updateProgress();
-    updateControls();
+    if (!silent) {
+      updateProgress();
+      updateControls();
+    }
   }
 
   /**
@@ -918,8 +942,6 @@
     applyTheme,
     createPanel,
     ensurePanel,
-    destroyPanel,
-    minimizePanel,
     restorePanel,
     removePanel,
     renderCards,

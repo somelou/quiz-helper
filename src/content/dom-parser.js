@@ -133,7 +133,6 @@
     const current = (value || '').toLowerCase();
     if (current.includes('judgement')) return 'judge';
     if (current.includes('fill')) return 'fill';
-    if (current.includes('choise') || current.includes('choice')) return 'unknown';
     return 'unknown';
   }
 
@@ -472,7 +471,6 @@
     sliceWithTail,
     sanitizeOuterHTML,
     getSelectors,
-    getTypeKeywords,
     parseExamQuestions
   };
 })();
