@@ -16,16 +16,28 @@ function fillTemplate(template, values) {
   return String(template || '').replace(/\{\{(\w+)\}\}/g, (_match, key) => values[key] ?? '');
 }
 
+/**
+ * 解析用户自定义系统提示词
+ * 支持按题型配置的对象（customPrompt[questionType] || customPrompt.unknown）或单个字符串
+ * @param {Object|string|undefined} customPrompt - 用户自定义提示词
+ * @param {string} questionType - 题型
+ * @returns {string} 解析后的自定义提示词（可能为空字符串）
+ */
+function resolveCustomPrompt(customPrompt, questionType) {
+  if (customPrompt && typeof customPrompt === 'object') {
+    return (customPrompt[questionType] || customPrompt.unknown || '').trim();
+  }
+  if (customPrompt && typeof customPrompt === 'string') {
+    return customPrompt.trim();
+  }
+  return '';
+}
+
 export async function buildSystemPrompt(questionType, customPrompt, extraContextPrompt) {
   const templates = await loadPromptTemplates();
   const prompts = templates.answerSystemPrompts || {};
 
-  let basePrompt = '';
-  if (customPrompt && typeof customPrompt === 'object') {
-    basePrompt = (customPrompt[questionType] || customPrompt.unknown || '').trim();
-  } else if (customPrompt && typeof customPrompt === 'string') {
-    basePrompt = customPrompt.trim();
-  }
+  let basePrompt = resolveCustomPrompt(customPrompt, questionType);
 
   if (!basePrompt) {
     basePrompt = prompts[questionType] || prompts.unknown || '';
@@ -143,12 +155,7 @@ export async function buildSearchAwarePrompt(questionType, customPrompt, extraCo
   const basePrompt = templates.answerWithSearchSystemPrompt || '';
 
   // 合并用户自定义系统提示词（优先）
-  let customPart = '';
-  if (customPrompt && typeof customPrompt === 'object') {
-    customPart = (customPrompt[questionType] || customPrompt.unknown || '').trim();
-  } else if (customPrompt && typeof customPrompt === 'string') {
-    customPart = customPrompt.trim();
-  }
+  const customPart = resolveCustomPrompt(customPrompt, questionType);
 
   const extraPrompt = String(extraContextPrompt || '').trim();
 
