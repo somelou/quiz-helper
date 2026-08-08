@@ -330,11 +330,8 @@ function initBank({
     const importModeHint = document.getElementById('importModeHint');
     if (!importMode) return;
 
-    const MODE_MAP = {
-      eco: { concurrency: 5, batchSize: 100, label: '并发 5 批 · 每批 100 题，速度较慢，适合 token 不足或 API 限流严格的场景' },
-      balanced: { concurrency: 10, batchSize: 50, label: '并发 10 批 · 每批 50 题，均衡速度与稳定性，推荐日常使用' },
-      precise: { concurrency: 10, batchSize: 25, label: '并发 10 批 · 每批 25 题，小批次高精度，适合题目格式复杂、容易解析出错的题库' }
-    };
+    // 导入模式配置统一来自 shared/constants.js（IMPORT_MODES），与后台并发/批大小共用一份
+    const MODE_MAP = globalThis.QuizHelperConstants.IMPORT_MODES;
 
     const result = await chrome.storage.local.get(['import_mode']);
     const currentMode = result.import_mode || 'balanced';

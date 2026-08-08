@@ -1,7 +1,11 @@
 import { getApiConfig, postChatCompletion } from './api-client.js';
 import { buildQuestionBankPrompt } from './prompt-builder.js';
-import { normalizeParsedQuestions, normalizeQuestionType, parseQuestionBankResult } from './json-parser.js';
+import { normalizeParsedQuestions, parseQuestionBankResult } from './json-parser.js';
 import { splitTextByQuestions } from '../shared/text-splitter.js';
+// 导入模式配置（并发/批大小）统一来自共享常量
+import '../shared/constants.js';
+
+const { IMPORT_MODES } = globalThis.QuizHelperConstants;
 
 export async function handleParseQuestionBank(text, fileName) {
   try {
@@ -74,12 +78,7 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
   try {
     // 读取导入模式，映射并发数和每批题数
     const modeConfig = await chrome.storage.local.get(['import_mode']);
-    const MODE_MAP = {
-      eco: { concurrency: 5, batchSize: 100 },
-      balanced: { concurrency: 10, batchSize: 50 },
-      precise: { concurrency: 10, batchSize: 25 }
-    };
-    const mode = MODE_MAP[modeConfig.import_mode] || MODE_MAP.balanced;
+    const mode = IMPORT_MODES[modeConfig.import_mode] || IMPORT_MODES.balanced;
     const CONCURRENCY = mode.concurrency;
     const batchSize = mode.batchSize;
 
@@ -287,15 +286,22 @@ const MAX_INDEX_ENTRIES = 3000;
 let searchBankIndexCache = null; // { key: string, entries: Array }
 
 /**
+ * 筛选激活状态的题库
+ * @param {Array} banks - 全部题库
+ * @param {Array} activeBankIds - 激活题库 id 列表
+ * @returns {Array} 激活题库
+ */
+function getActiveBanks(banks, activeBankIds) {
+  return banks.filter(bank => activeBankIds.includes(bank.id));
+}
+
+/**
  * 生成激活题库的签名（id + 题数），storage 变更会自动改变签名使缓存失效
  */
 function buildSearchBankKey(banks, activeBankIds) {
-  const parts = [];
-  for (const bank of banks) {
-    if (!activeBankIds.includes(bank.id)) continue;
-    parts.push(`${bank.id}:${bank.questions ? bank.questions.length : 0}`);
-  }
-  return parts.join('|');
+  return getActiveBanks(banks, activeBankIds)
+    .map(bank => `${bank.id}:${bank.questions ? bank.questions.length : 0}`)
+    .join('|');
 }
 
 /**
@@ -303,8 +309,7 @@ function buildSearchBankKey(banks, activeBankIds) {
  */
 function buildSearchBankIndex(banks, activeBankIds) {
   const entries = [];
-  for (const activeBank of banks) {
-    if (!activeBankIds.includes(activeBank.id)) continue;
+  for (const activeBank of getActiveBanks(banks, activeBankIds)) {
     if (!activeBank.questions || activeBank.questions.length === 0) continue;
     for (const question of activeBank.questions) {
       const normalized = question.text.toLowerCase().replace(/\s+/g, '');
@@ -324,10 +329,9 @@ function buildSearchBankIndex(banks, activeBankIds) {
  */
 function getSearchBankIndex(banks, activeBankIds) {
   const key = buildSearchBankKey(banks, activeBankIds);
+  // 缓存仅在条目数不超过 MAX_INDEX_ENTRIES 时写入，命中即复用
   if (searchBankIndexCache && searchBankIndexCache.key === key) {
-    if (searchBankIndexCache.entries.length <= MAX_INDEX_ENTRIES) {
-      return searchBankIndexCache.entries;
-    }
+    return searchBankIndexCache.entries;
   }
   const entries = buildSearchBankIndex(banks, activeBankIds);
   searchBankIndexCache = entries.length <= MAX_INDEX_ENTRIES ? { key, entries } : null;
@@ -468,8 +472,11 @@ function cleanBankLine(line) {
     .trim();
 }
 
+// 题号起始行匹配（如 "1、", "2.", "3．", "4,"），捕获组为题号
+const QUESTION_START_RE = /^(\d+)\s*[、，,.．]/;
+
 function isQuestionStartLine(line) {
-  return /^\d+\s*[、，,.．]/.test(line);
+  return QUESTION_START_RE.test(line);
 }
 
 function isOptionLine(line) {
@@ -490,11 +497,11 @@ function extractAnalysisFromText(text) {
 }
 
 function parseQuestionStartLine(line) {
-  const idMatch = line.match(/^(\d+)\s*[、，,.．]/);
+  const idMatch = line.match(QUESTION_START_RE);
   const id = idMatch ? Number(idMatch[1]) : '';
   const answer = extractAnswerFromText(line);
   const type = inferQuestionType(line, answer);
-  let text = line.replace(/^\d+\s*[、，,.．]\s*/, '').trim();
+  let text = line.replace(QUESTION_START_RE, '').trim();
 
   text = text
     .replace(/[（(]\s*([A-H]{1,8}|对|错|正确|错误)\s*[)）]\s*(?=【|$)/ig, '')
