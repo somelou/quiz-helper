@@ -2,7 +2,7 @@ import { getApiConfig, postChatCompletion, streamChatCompletion } from './api-cl
 import { parseExtractedQuestions, normalizeQuestionType } from './json-parser.js';
 import { buildExtractPrompt, buildSystemPrompt, buildVerifyPrompt, buildSearchAwarePrompt, buildSearchResultPrompt } from './prompt-builder.js';
 import { handleParseQuestionBank, handleParseQuestionBankBatched, handleSearchQuestionBank } from './question-bank.js';
-import { executeWebSearch, extractSearchResults, formatSearchResultsForLLM, extractReferenceLinks } from './search-proxy.js';
+import { executeWebSearch, extractSearchResults, formatSearchResultsForLLM } from './search-proxy.js';
 import { checkMonthlySearchLimit, incrementMonthlySearchCount } from './search-usage.js';
 
 /**
@@ -26,13 +26,29 @@ function filterReferencedLinks(answer, referenceLinks) {
     .filter(ref => citedIndices.has(ref.originalIndex));
 }
 
+/**
+ * 流式输出是否开启（全局公用设置，默认开启）
+ * 关闭时，大模型答题与测试均一次性返回完整结果
+ * @returns {Promise<boolean>}
+ */
+async function isStreamOutputEnabled() {
+  const { stream_output } = await chrome.storage.local.get(['stream_output']);
+  return stream_output !== false;
+}
+
 async function handleFetchAnswer(questionText, questionType, sendChunk) {
   const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt, enableThinking, thinkingEffort, tools } = await getApiConfig('answer');
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
   }
 
-  if (sendChunk) {
+  const system = await buildSystemPrompt(questionType, systemPrompt, extraContextPrompt);
+  const messages = [
+    { role: 'system', content: system },
+    { role: 'user', content: questionText }
+  ];
+
+  if (sendChunk && await isStreamOutputEnabled()) {
     const collectedLinks = [];
     const collectChunk = (data) => {
       if (data.type === 'referenceLinks') {
@@ -41,37 +57,44 @@ async function handleFetchAnswer(questionText, questionType, sendChunk) {
         sendChunk(data);
       }
     };
-    const answer = await streamChatCompletion({
+    const answer = await callLLM(messages, {
       apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
-      messages: [
-        { role: 'system', content: await buildSystemPrompt(questionType, systemPrompt, extraContextPrompt) },
-        { role: 'user', content: questionText }
-      ],
-      onChunk: collectChunk
+      sendChunk: collectChunk
     });
     sendChunk({ type: 'done', answer: answer || '未获取到有效答案', referenceLinks: collectedLinks });
     return;
   }
 
-  const answer = await postChatCompletion({
-    apiKey,
-    apiUrl,
-    apiFormat,
-    messages: [
-      { role: 'system', content: await buildSystemPrompt(questionType, systemPrompt, extraContextPrompt) },
-      { role: 'user', content: questionText }
-    ],
-    model,
-    temperature: 0.3,
-    enableThinking,
-    thinkingEffort,
-    tools
+  const answer = await callLLM(messages, {
+    apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
+    temperature: 0.3
   });
 
+  if (sendChunk) {
+    // 关闭流式输出：通过流式通道一次性回传完整结果
+    sendChunk({ type: 'done', answer: answer || '未获取到有效答案', referenceLinks: [] });
+    return;
+  }
   return { success: true, answer: answer || '未获取到有效答案' };
 }
 
-async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) {
+/**
+ * 根据是否流式选择对应的 LLM 请求入口
+ * 流式走 streamChatCompletion（默认 temperature 0.2），非流式走 postChatCompletion（传入 temperature）
+ * @param {Array} messages - 消息数组
+ * @param {Object} options - 请求参数
+ * @param {Function} [options.sendChunk] - 流式回调，存在时走流式
+ * @param {number} [options.temperature] - 非流式请求的采样温度
+ * @returns {Promise<string>} 完整回答文本
+ */
+async function callLLM(messages, { sendChunk, temperature, ...rest }) {
+  if (sendChunk) {
+    return streamChatCompletion({ ...rest, messages, onChunk: sendChunk });
+  }
+  return postChatCompletion({ ...rest, messages, temperature });
+}
+
+async function handleVerifyBankAnswer(questionText, bankMatches) {
   const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, enableThinking, thinkingEffort, tools } = await getApiConfig('answer');
   if (!apiKey) {
     throw new Error('未配置 API Key，请先打开设置页面配置');
@@ -126,18 +149,23 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
   const providers = storage.web_search_providers || [];
   const activeProvider = providers.find(p => p.id === activeId && p.apiKey);
 
+  // 搜索不可用/达限额时降级为普通答题（流式/非流式两态）
+  const fallbackToBasicAnswer = () => (sendChunk
+    ? handleFetchAnswer(questionText, questionType, sendChunk)
+    : handleFetchAnswer(questionText, questionType));
+
   if (!enabled || !activeProvider) {
-    return sendChunk
-      ? handleFetchAnswer(questionText, questionType, sendChunk)
-      : handleFetchAnswer(questionText, questionType);
+    return fallbackToBasicAnswer();
   }
 
   const monthlyLimitOk = await checkMonthlySearchLimit(activeProvider.id);
   if (!monthlyLimitOk) {
-    return sendChunk
-      ? handleFetchAnswer(questionText, questionType, sendChunk)
-      : handleFetchAnswer(questionText, questionType);
+    return fallbackToBasicAnswer();
   }
+
+  // 流式输出开关：关闭时两次 LLM 调用均走非流式，最终结果一次性回传
+  const streamingEnabled = await isStreamOutputEnabled();
+  const effectiveSendChunk = streamingEnabled ? sendChunk : undefined;
 
   const { apiUrl, apiKey, apiFormat, extraContextPrompt, model, systemPrompt: customPrompt, enableThinking, thinkingEffort, tools } = await getApiConfig('answer');
   if (!apiKey) throw new Error('未配置 API Key，请先打开设置页面配置');
@@ -149,18 +177,10 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
   ];
 
   // 第一次 LLM 调用
-  let firstFull;
-  if (sendChunk) {
-    firstFull = await streamChatCompletion({
-      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
-      messages,
-      onChunk: sendChunk
-    });
-  } else {
-    firstFull = await postChatCompletion({
-      apiKey, apiUrl, apiFormat, messages, model, temperature: 0.3, enableThinking, thinkingEffort, tools
-    });
-  }
+  const firstFull = await callLLM(messages, {
+    apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
+    sendChunk: effectiveSendChunk, temperature: 0.3
+  });
 
   const needSearchMatch = firstFull.match(/\[NEED_SEARCH:\s*(.+?)\]/i);
   if (!needSearchMatch && !forceSearch) {
@@ -174,9 +194,9 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
   let searchResultsText = '';
   try {
     const searchData = await executeWebSearch(activeProvider, settings, searchQuery || questionText.slice(0, 200));
-    const results = extractSearchResults(searchData, activeProvider.id);
-    referenceLinks = extractReferenceLinks(searchData, activeProvider.id);
-    searchResultsText = formatSearchResultsForLLM(results);
+    // 搜索结果与参考链接同源，一次提取两处复用
+    referenceLinks = extractSearchResults(searchData, activeProvider.id);
+    searchResultsText = formatSearchResultsForLLM(referenceLinks);
     incrementMonthlySearchCount(activeProvider.id);
   } catch (searchError) {
     return fallbackToCleanedAnswer(firstFull, sendChunk);
@@ -189,18 +209,10 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
     { role: 'user', content: searchResultPrompt.user }
   ];
 
-  let finalAnswer;
-  if (sendChunk) {
-    finalAnswer = await streamChatCompletion({
-      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
-      messages: resultMessages,
-      onChunk: sendChunk
-    });
-  } else {
-    finalAnswer = await postChatCompletion({
-      apiKey, apiUrl, apiFormat, messages: resultMessages, model, temperature: 0.3, enableThinking, thinkingEffort, tools
-    });
-  }
+  const finalAnswer = await callLLM(resultMessages, {
+    apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
+    sendChunk: effectiveSendChunk, temperature: 0.3
+  });
 
   const filteredLinks = filterReferencedLinks(finalAnswer, referenceLinks);
   if (sendChunk) {
@@ -272,7 +284,7 @@ export function registerBackgroundRouter() {
     }
 
     if (request.action === 'verifyBankAnswer') {
-      handleVerifyBankAnswer(request.questionText, request.questionType, request.bankMatches)
+      handleVerifyBankAnswer(request.questionText, request.bankMatches)
         .then(sendResponse)
         .catch(err => sendResponse({ success: false, error: err.message }));
       return true;
