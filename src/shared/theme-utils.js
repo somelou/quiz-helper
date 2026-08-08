@@ -35,7 +35,6 @@
   globalThis.QuizHelperThemeUtils = {
     applyBodyTheme,
     loadThemeMode,
-    resolveIsDark,
     saveThemeMode,
     updateThemeToggleUI
   };

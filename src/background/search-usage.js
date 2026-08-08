@@ -1,6 +1,11 @@
 // 每月搜索次数限制检查与递增（按服务商）
 // 由 background/index.js（webSearch 独立监听）与 background/router.js（fetchAnswerWithSearch）共用
 
+// 跨月用量重置逻辑在共享工具中实现，供两个函数复用
+import '../shared/search-utils.js';
+
+const { getOrResetProviderUsage } = globalThis.QuizHelperSearchUtils;
+
 /**
  * 检查每月搜索次数限制（按服务商）
  * @param {string} providerId
@@ -13,14 +18,9 @@ export async function checkMonthlySearchLimit(providerId) {
   const limit = parseInt(provider?.monthlyLimit, 10) || 0;
   if (limit <= 0) return true; // 0 表示不限制
 
-  const currentMonth = new Date().toISOString().slice(0, 7);
   const usage = result.web_search_usage || {};
-  const pu = usage[providerId] || { month: '', count: 0 };
-  if (pu.month !== currentMonth) {
-    pu.month = currentMonth;
-    pu.count = 0;
-  }
-  return pu.count < limit;
+  const record = getOrResetProviderUsage(usage, providerId);
+  return record.count < limit;
 }
 
 /**
@@ -29,14 +29,9 @@ export async function checkMonthlySearchLimit(providerId) {
  */
 export async function incrementMonthlySearchCount(providerId) {
   const result = await chrome.storage.local.get(['web_search_usage']);
-  const currentMonth = new Date().toISOString().slice(0, 7);
   const usage = result.web_search_usage || {};
-  const pu = usage[providerId] || { month: '', count: 0 };
-  if (pu.month !== currentMonth) {
-    pu.month = currentMonth;
-    pu.count = 0;
-  }
-  pu.count += 1;
-  usage[providerId] = pu;
+  const record = getOrResetProviderUsage(usage, providerId);
+  record.count += 1;
+  usage[providerId] = record;
   await chrome.storage.local.set({ web_search_usage: usage });
 }

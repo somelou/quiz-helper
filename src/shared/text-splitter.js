@@ -101,13 +101,14 @@ function splitByChars(text) {
   if (current) {
     // 最后一块如果还是太长，强制切分
     if (current.length > FALLBACK_CHUNK_SIZE * 1.5 && batches.length > 0) {
-      splitLongText(current).forEach(b => batches.push(b));
+      batches.push(...splitLongText(current));
     } else {
       batches.push(current);
     }
   }
 
-  return batches.length > 0 ? batches : [raw];
+  // 能走到此处说明 paragraphs.length > 1，batches 必非空
+  return batches;
 }
 
 /**

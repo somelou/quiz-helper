@@ -37,5 +37,22 @@
     }));
   }
 
-  globalThis.QuizHelperSearchUtils = { extractSearchResults };
+  /**
+   * 获取某搜索服务商的月度用量记录，若记录月份与当前月不同则重置计数
+   * （供后台按服务商统计/限额检查使用，原地更新 usage 对象）
+   * @param {Object} usage - web_search_usage 存储对象
+   * @param {string} providerId - 服务商标识
+   * @returns {{month: string, count: number}} 当前月的用量记录
+   */
+  function getOrResetProviderUsage(usage, providerId) {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const record = usage[providerId] || { month: '', count: 0 };
+    if (record.month !== currentMonth) {
+      record.month = currentMonth;
+      record.count = 0;
+    }
+    return record;
+  }
+
+  globalThis.QuizHelperSearchUtils = { extractSearchResults, getOrResetProviderUsage };
 })();

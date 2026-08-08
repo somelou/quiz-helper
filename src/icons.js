@@ -28,5 +28,5 @@
     }));
   }
 
-  window.QuizHelperIcons = { getSvg, replaceIcons };
+  window.QuizHelperIcons = { replaceIcons };
 })();

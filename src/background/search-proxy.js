@@ -141,7 +141,7 @@ export function formatSearchResultsForLLM(results) {
 }
 
 /**
- * 从原始 API 数据中提取参考链接，供 UI 展示
+ * 从原始 API 数据中提取统一格式的搜索结果（同时供 LLM 阅读与 UI 参考链接展示）
  * 统一实现见 src/shared/search-utils.js（globalThis.QuizHelperSearchUtils.extractSearchResults）
  * @param {Object} data - 原始 API 响应
  * @param {string} providerId - 服务商标识
@@ -149,14 +149,4 @@ export function formatSearchResultsForLLM(results) {
  */
 export function extractSearchResults(data, providerId) {
   return globalThis.QuizHelperSearchUtils.extractSearchResults(data, providerId);
-}
-
-/**
- * 从原始 API 数据中提取参考链接，供 UI 展示
- * @param {Object} data - 原始 API 响应
- * @param {string} providerId - 服务商标识
- * @returns {Array<{title: string, url: string, snippet: string}>}
- */
-export function extractReferenceLinks(data, providerId) {
-  return extractSearchResults(data, providerId);
 }
