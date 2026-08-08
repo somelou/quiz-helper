@@ -2,7 +2,8 @@
 
 const PAGE_SIZE = 10;
 
-const TYPE_LABELS = { single: '单选', multiple: '多选', judge: '判断', fill: '填空', unknown: '其他' };
+// 题型中文标签统一复用 shared/constants.js（面板与选项页共用一份，避免双份维护）
+const TYPE_LABELS = globalThis.QuizHelperConstants.TYPE_LABELS;
 const TYPE_CLASSES = {
   single: 'q-type-single',
   multiple: 'q-type-multiple',
@@ -22,20 +23,27 @@ function parseKeywords(text) {
   return String(text || '').split(',').map(s => s.trim()).filter(Boolean);
 }
 
+/**
+ * 初始化抽屉内分段滑块指示器（同步执行，确保首次绘制前 CSS 变量已就位）
+ * 依赖 options/index.js 中定义的全局 setSegValue
+ * @param {HTMLElement} drawerBodyEl - 抽屉内容容器
+ */
+function initDrawerSegControls(drawerBodyEl) {
+  drawerBodyEl.getBoundingClientRect();
+  drawerBodyEl.querySelectorAll('.segmented-control').forEach(seg => {
+    const active = seg.querySelector('.seg-active');
+    if (active) setSegValue(seg, active.dataset.value);
+  });
+}
+
 function normalizeArrayField(value, mode) {
   if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
   if (typeof value === 'string') return mode === 'keywords' ? parseKeywords(value) : parseLines(value);
   return [];
 }
 
-function normalizeBankQuestionType(type) {
-  const value = String(type || '').toLowerCase();
-  if (value.includes('single') || value.includes('单选')) return 'single';
-  if (value.includes('multiple') || value.includes('multi') || value.includes('多选')) return 'multiple';
-  if (value.includes('judge') || value.includes('judgement') || value.includes('判断')) return 'judge';
-  if (value.includes('fill') || value.includes('blank') || value.includes('填空')) return 'fill';
-  return 'unknown';
-}
+// 题型归一化统一复用 shared/text-utils.js（与后台 AI 解析、题库导入共用一份）
+const normalizeBankQuestionType = globalThis.QuizHelperTextUtils.normalizeQuestionType;
 
 function readExcelFile(file) {
   return new Promise((resolve, reject) => {

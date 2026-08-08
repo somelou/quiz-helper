@@ -28,10 +28,6 @@ function initShortcut({
     return normalized;
   }
 
-  function isModifierKey(key) {
-    return sharedIsModifierKey(key);
-  }
-
   function showStatus(msg) {
     globalThis.QuizHelperMessage.info(msg);
   }
@@ -60,12 +56,7 @@ function initShortcut({
     showStatus('已清空快捷键，保存后生效');
   });
 
-  resetBtn.addEventListener('click', () => {
-    isRecordingShortcut = false;
-    currentShortcut = getDefaultShortcut();
-    updateShortcutDisplay();
-    showStatus('已恢复默认快捷键，保存后生效');
-  });
+  resetBtn.addEventListener('click', resetShortcut);
 
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') {
@@ -83,7 +74,7 @@ function initShortcut({
     event.preventDefault();
     event.stopPropagation();
 
-    if (isModifierKey(event.key)) return;
+    if (sharedIsModifierKey(event.key)) return;
     if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
       shortcutHintEl.textContent = '快捷键至少需要一个修饰键，请重新录制。';
       return;

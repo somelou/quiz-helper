@@ -121,11 +121,7 @@ function initRules({
     drawerOverlay.classList.add('open');
 
     // 初始化分段滑块指示器（同步执行，确保首次绘制前 CSS 变量已就位）
-    drawerBodyEl.getBoundingClientRect();
-    drawerBodyEl.querySelectorAll('.segmented-control').forEach(seg => {
-      const active = seg.querySelector('.seg-active');
-      if (active) setSegValue(seg, active.dataset.value);
-    });
+    initDrawerSegControls(drawerBodyEl);
   }
 
   function renderRuleForm(rule) {

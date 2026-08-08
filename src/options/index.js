@@ -245,12 +245,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const drawerCloseBtn = document.getElementById('drawerCloseBtn');
   const drawerSaveBtn = document.getElementById('drawerSaveBtn');
 
-  let drawerType = null;
   let currentDrawerId = null;
 
   // 抽屉关闭函数（供各模块使用）
   function closeDrawer() {
-    drawerType = null;
     currentDrawerId = null;
     drawerOverlay.classList.remove('open');
     document.body.style.overflow = '';
@@ -290,7 +288,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // --- 打开抽屉：根据类型分发 ---
   function openDrawer(type, data) {
-    drawerType = type;
     currentDrawerId = data.id || data.timestamp;
 
     if (type === 'bank') {
@@ -371,12 +368,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
 
-    // 强制布局计算，确保 drawer 内元素 offset 可用（同步，首次绘制前即就位）
-    drawerBodyEl.getBoundingClientRect();
-    drawerBodyEl.querySelectorAll('.segmented-control').forEach(seg => {
-      const active = seg.querySelector('.seg-active');
-      if (active) setSegValue(seg, active.dataset.value);
-    });
+    // 初始化分段滑块指示器（强制布局计算，首次绘制前即就位）
+    initDrawerSegControls(drawerBodyEl);
   }
 
   // --- 初始化历史模块 ---
@@ -407,12 +400,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const importModeHint = document.getElementById('importModeHint');
     if (!importMode) return;
 
-    const MODE_MAP = {
-      eco: '并发 5 批 · 每批 100 题，速度较慢，适合 token 不足或 API 限流严格的场景',
-      balanced: '并发 10 批 · 每批 50 题，均衡速度与稳定性，推荐日常使用',
-      precise: '并发 10 批 · 每批 25 题，小批次高精度，适合题目格式复杂、容易解析出错的题库'
-    };
-
     const result = await chrome.storage.local.get(['import_mode']);
     const currentMode = result.import_mode || 'balanced';
 
@@ -421,7 +408,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     setSegValue(importMode, currentMode);
     if (importModeHint) {
-      importModeHint.textContent = MODE_MAP[currentMode] || MODE_MAP.balanced;
+      // 文案统一来自 shared/constants.js（IMPORT_MODES）
+      const modes = globalThis.QuizHelperConstants.IMPORT_MODES;
+      importModeHint.textContent = (modes[currentMode] || modes.balanced).label;
     }
   }
 
