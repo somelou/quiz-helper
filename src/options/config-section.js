@@ -3,7 +3,7 @@
 function initConfig({
   extraContextPromptInput, allowedDomainsInput,
   systemPromptTextareas, promptTypeTabs, promptClearBtns,
-  saveBtn, resetBtn, statusDiv,
+  saveBtn, resetBtn,
   questionBankEnabledInput, getCurrentShortcut, resetShortcut,
   loadQuestionBanks
 }) {
@@ -12,10 +12,7 @@ function initConfig({
   let defaultPrompts = {};
 
   function showStatus(msg) {
-    statusDiv.textContent = msg;
-    setTimeout(() => {
-      if (statusDiv.textContent === msg) statusDiv.textContent = '';
-    }, 3000);
+    globalThis.QuizHelperMessage.info(msg);
   }
 
   async function loadDefaultPrompts() {

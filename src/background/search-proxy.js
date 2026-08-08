@@ -1,6 +1,9 @@
 // 联网搜索代理（后台 Service Worker 执行）
 // 认证头及 Content-Type 由 webrequest-interceptor.js 在网络层注入，规避 CORS 预检
 
+// 共享的搜索结果提取工具（IIFE，挂 globalThis.QuizHelperSearchUtils）
+import '../shared/search-utils.js';
+
 /**
  * 设置嵌套对象属性，支持 'Filter.TimeRange' 点路径
  */
@@ -123,38 +126,6 @@ export async function executeWebSearch(provider, settings, query) {
 }
 
 /**
- * 从各 API 返回数据中提取统一格式的搜索结果
- */
-export function extractSearchResults(data, providerId) {
-  if (providerId === 'brave-search') {
-    const generic = data?.grounding?.generic || [];
-    return generic.map(item => ({
-      title: item.title || '',
-      url: item.url || '',
-      snippet: (item.snippets || []).join(' ')
-    }));
-  }
-
-  // tavily-search
-  if (providerId === 'tavily-search') {
-    const results = data?.results || [];
-    return results.map(item => ({
-      title: item.title || '',
-      url: item.url || '',
-      snippet: item.content || ''
-    }));
-  }
-
-  // volcengine-search / 默认 WebResults
-  const webResults = data?.Result?.WebResults || data?.WebResults || [];
-  return webResults.map(item => ({
-    title: item.Title || '',
-    url: item.Url || '',
-    snippet: item.Snippet || item.Summary || ''
-  }));
-}
-
-/**
  * 将搜索结果格式化为 LLM 可读的编号文本块
  * @param {Array} results - extractSearchResults 的输出
  * @returns {string}
@@ -167,6 +138,17 @@ export function formatSearchResultsForLLM(results) {
     const snippet = r.snippet || '';
     return `[${i + 1}] ${title}\n   摘要：${snippet}\n   链接：${r.url || '无'}`;
   }).join('\n\n');
+}
+
+/**
+ * 从原始 API 数据中提取参考链接，供 UI 展示
+ * 统一实现见 src/shared/search-utils.js（globalThis.QuizHelperSearchUtils.extractSearchResults）
+ * @param {Object} data - 原始 API 响应
+ * @param {string} providerId - 服务商标识
+ * @returns {Array<{title: string, url: string, snippet: string}>}
+ */
+export function extractSearchResults(data, providerId) {
+  return globalThis.QuizHelperSearchUtils.extractSearchResults(data, providerId);
 }
 
 /**

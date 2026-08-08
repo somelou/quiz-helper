@@ -47,7 +47,7 @@ const DEFAULT_WEB_SEARCH_SETTINGS = { count: 10, timeRange: '' };
 // 分段滑块辅助（使用 index.js 中的全局 setSegValue/getSegValue）
 
 function initSearch({
-  searchListEl, searchStatusEl,
+  searchListEl,
   searchEnabledInput,
   countInput, timeRangeEl,
   drawerBodyEl, drawerTitleEl, drawerMetaEl, drawerSaveBtn, drawerOverlay,
@@ -58,16 +58,7 @@ function initSearch({
   let currentEditingProvider = null;
 
   function showStatus(msg, isError) {
-    searchStatusEl.textContent = msg;
-    searchStatusEl.style.color = isError ? 'var(--color-error-text)' : '#666';
-    if (msg) {
-      setTimeout(() => {
-        if (searchStatusEl.textContent === msg) {
-          searchStatusEl.textContent = '';
-          searchStatusEl.style.color = '#666';
-        }
-      }, 3000);
-    }
+    globalThis.QuizHelperMessage[isError ? 'error' : 'info'](msg);
   }
 
   // ===== 加载 =====
@@ -534,7 +525,7 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
       // 提取搜索结果摘要
       let summaryHtml = `<span style="color:var(--color-success)">搜索成功！</span>\n`;
       try {
-        const results = extractSearchResults(data, currentEditingProvider.id);
+        const results = globalThis.QuizHelperSearchUtils.extractSearchResults(data, currentEditingProvider.id);
         if (results.length === 0) {
           summaryHtml += `<span style="color:var(--color-text-muted)">未找到相关结果</span>`;
         } else {
@@ -560,38 +551,6 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
     // 刷新服务商列表以更新用量显示
     const refreshResult = await chrome.storage.local.get(['web_search_providers', 'active_search_provider_id', 'web_search_usage']);
     renderSearchProviders(refreshResult.web_search_providers || [], refreshResult.active_search_provider_id || '', refreshResult.web_search_usage);
-  }
-
-  /**
-   * 从各 API 返回数据中提取统一格式的搜索结果
-   */
-  function extractSearchResults(data, providerId) {
-    if (providerId === 'brave-search') {
-      const generic = data?.grounding?.generic || [];
-      return generic.map(item => ({
-        title: item.title || '',
-        url: item.url || '',
-        snippet: (item.snippets || []).join(' ')
-      }));
-    }
-
-    // tavily-search
-    if (providerId === 'tavily-search') {
-      const results = data?.results || [];
-      return results.map(item => ({
-        title: item.title || '',
-        url: item.url || '',
-        snippet: item.content || ''
-      }));
-    }
-
-    // volcengine-search / 默认 WebResults
-    const webResults = data?.Result?.WebResults || data?.WebResults || [];
-    return webResults.map(item => ({
-      title: item.Title || '',
-      url: item.Url || '',
-      snippet: item.Snippet || item.Summary || ''
-    }));
   }
 
   // ===== 抽屉保存 =====

@@ -3,11 +3,9 @@
 function initBackup({
   moduleListEl,
   exportBtn,
-  exportStatusEl,
   fileInputEl,
   fileNameEl,
   importBtn,
-  importStatusEl,
   onImportComplete
 }) {
   const { safeSet } = globalThis.QuizHelperStorageUtils;
@@ -79,22 +77,9 @@ function initBackup({
     return acc;
   }, {});
 
-  function showStatus(targetEl, msg, type) {
-    targetEl.textContent = msg || '';
-    targetEl.classList.remove('is-error', 'is-success');
-    if (type === 'error') {
-      targetEl.classList.add('is-error');
-    } else if (type === 'success') {
-      targetEl.classList.add('is-success');
-    }
-    if (msg) {
-      window.setTimeout(() => {
-        if (targetEl.textContent === msg) {
-          targetEl.textContent = '';
-          targetEl.classList.remove('is-error', 'is-success');
-        }
-      }, 3000);
-    }
+  function showStatus(msg, type) {
+    const method = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+    globalThis.QuizHelperMessage[method](msg);
   }
 
   function getSelectedModules() {
@@ -191,15 +176,15 @@ function initBackup({
     try {
       const selectedModules = getSelectedModules();
       if (selectedModules.length === 0) {
-        showStatus(exportStatusEl, '请至少选择一个导出模块', 'error');
+        showStatus('请至少选择一个导出模块', 'error');
         return;
       }
 
       const payload = await buildBackupPayload(selectedModules);
       downloadBackupFile(payload);
-      showStatus(exportStatusEl, '备份导出成功', 'success');
+      showStatus('备份导出成功', 'success');
     } catch (error) {
-      showStatus(exportStatusEl, `导出失败：${error.message || '未知错误'}`, 'error');
+      showStatus(`导出失败：${error.message || '未知错误'}`, 'error');
     }
   });
 
@@ -208,7 +193,7 @@ function initBackup({
   importBtn.addEventListener('click', async () => {
     const file = fileInputEl.files && fileInputEl.files[0];
     if (!file) {
-      showStatus(importStatusEl, '请先选择备份文件', 'error');
+      showStatus('请先选择备份文件', 'error');
       return;
     }
 
@@ -219,13 +204,13 @@ function initBackup({
       try {
         payload = JSON.parse(text);
       } catch (_) {
-        showStatus(importStatusEl, '导入失败：备份文件不是有效的 JSON', 'error');
+        showStatus('导入失败：备份文件不是有效的 JSON', 'error');
         return;
       }
 
       const moduleIds = validateBackupPayload(payload);
       if (!moduleIds) {
-        showStatus(importStatusEl, '导入失败：备份文件格式无效', 'error');
+        showStatus('导入失败：备份文件格式无效', 'error');
         return;
       }
 
@@ -235,13 +220,13 @@ function initBackup({
 
       await importBackupPayload(payload, moduleIds);
       updateFileName();
-      showStatus(importStatusEl, `备份导入成功，已恢复 ${moduleIds.length} 个模块`, 'success');
+      showStatus(`备份导入成功，已恢复 ${moduleIds.length} 个模块`, 'success');
 
       if (typeof onImportComplete === 'function') {
         await onImportComplete(moduleIds);
       }
     } catch (error) {
-      showStatus(importStatusEl, `导入失败：${error.message || '未知错误'}`, 'error');
+      showStatus(`导入失败：${error.message || '未知错误'}`, 'error');
     }
   });
 

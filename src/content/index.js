@@ -8,6 +8,7 @@
 
   const state = globalThis.QuizHelperContentState;
   const { normalizeShortcutConfig, shortcutMatches, getDefaultShortcut } = globalThis.QuizHelperShortcutUtils;
+  const { isDomainMatch } = globalThis.QuizHelperTextUtils;
 
   // ===== 初始化 =====
 
@@ -115,7 +116,7 @@
     const domains = config.allowed_domains || [];
     if (domains.length === 0) return true;
     const hostname = location.hostname;
-    return domains.some(domain => hostname === domain || hostname.endsWith('.' + domain));
+    return domains.some(domain => isDomainMatch(hostname, domain));
   }
 
   // ===== 解析规则管理 =====
@@ -128,7 +129,7 @@
     const result = await chrome.storage.local.get(['parse_rules']);
     const rules = result.parse_rules || [];
     const hostname = location.hostname;
-    return rules.find(r => hostname === r.domain || hostname.endsWith('.' + r.domain)) || null;
+    return rules.find(r => isDomainMatch(hostname, r.domain)) || null;
   }
 
   /**
@@ -170,6 +171,7 @@
 
   /**
    * 确保默认规则（example.com）已入库
+   * 与设置页 ensureDefaultParseRuleSeeded 保持一致：以种子标记 + 规则存在性共同判定
    */
   async function ensureDefaultRules() {
     const { safeSet } = globalThis.QuizHelperStorageUtils;
@@ -182,11 +184,38 @@
       });
     }
 
-    const result = await chrome.storage.local.get(['parse_rules']);
+    const result = await chrome.storage.local.get(['parse_rules', 'default_parse_rule_seeded_v1']);
     const rules = result.parse_rules || [];
-    if (!rules.some(r => r.id === 'default-example')) {
-      const seedRule = await state.defaultRuleSeedPromise;
-      const now = Date.now();
+    const seeded = result.default_parse_rule_seeded_v1 === true;
+    if (seeded && rules.some(r => r.id === 'default-example')) return;
+
+    const seedRule = await state.defaultRuleSeedPromise;
+    const now = Date.now();
+    const existingIdx = rules.findIndex(r => r.id === 'default-example');
+    if (existingIdx >= 0) {
+      // 已有同 ID 规则：保留用户修改字段，仅合并补齐缺失的种子字段（如新增的 single 关键词）
+      const existing = rules[existingIdx] || {};
+      const seedSelectors = seedRule.selectors || {};
+      const existingSelectors = existing.selectors || {};
+      rules[existingIdx] = {
+        ...existing,
+        id: existing.id || seedRule.id,
+        domain: existing.domain || seedRule.domain,
+        name: existing.name || seedRule.name,
+        selectors: {
+          ...seedSelectors,
+          ...existingSelectors,
+          typeIndicators: {
+            ...(seedSelectors.typeIndicators || {}),
+            ...(existingSelectors.typeIndicators || {})
+          }
+        },
+        typeKeywords: {
+          ...(seedRule.typeKeywords || {}),
+          ...(existing.typeKeywords || {})
+        }
+      };
+    } else {
       rules.push({
         id: seedRule.id,
         domain: seedRule.domain,
@@ -197,8 +226,8 @@
         typeKeywords: seedRule.typeKeywords,
         useCount: 1
       });
-      await safeSet({ parse_rules: rules });
     }
+    await safeSet({ parse_rules: rules, default_parse_rule_seeded_v1: true });
   }
 
   // ===== 主入口 =====

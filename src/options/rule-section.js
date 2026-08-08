@@ -28,7 +28,7 @@ function highlightJson(json) {
 }
 
 function initRules({
-  ruleListEl, ruleStatusEl, drawerBodyEl, drawerTitleEl, drawerMetaEl,
+  ruleListEl, drawerBodyEl, drawerTitleEl, drawerMetaEl,
   drawerSaveBtn, drawerOverlay, onCloseDrawer
 }) {
   const { safeSet } = globalThis.QuizHelperStorageUtils;
@@ -37,12 +37,7 @@ function initRules({
   let currentRuleEditingBase = null;
 
   function showRuleStatus(msg) {
-    ruleStatusEl.textContent = msg;
-    if (msg) {
-      setTimeout(() => {
-        if (ruleStatusEl.textContent === msg) ruleStatusEl.textContent = '';
-      }, 3000);
-    }
+    globalThis.QuizHelperMessage.info(msg);
   }
 
   async function loadParseRules() {
@@ -145,6 +140,7 @@ function initRules({
     const singleIndicators = (typeIndicators.single || []).join(', ');
     const multipleIndicators = (typeIndicators.multiple || []).join(', ');
     const judgeIndicators = (typeIndicators.judge || []).join(', ');
+    const singleKw = (typeKeywords.single || []).join(', ');
     const multipleKw = (typeKeywords.multiple || []).join(', ');
     const judgeKw = (typeKeywords.judge || []).join(', ');
     const fillKw = (typeKeywords.fill || []).join(', ');
@@ -217,6 +213,10 @@ function initRules({
         </div>
 
         <div class="rule-form-section">题型检测关键词</div>
+        <div class="rule-form-group">
+          <label>单选题关键词（逗号分隔）</label>
+          <input type="text" id="rule-kwSingle" value="${escapeHtml(singleKw)}" placeholder="单选, 单项选择">
+        </div>
         <div class="rule-form-group">
           <label>多选题关键词（逗号分隔）</label>
           <input type="text" id="rule-kwMultiple" value="${escapeHtml(multipleKw)}" placeholder="多选, 以下哪些, 至少选">
@@ -317,6 +317,7 @@ function initRules({
         fallbackTextSelectors: parseLines(drawerBodyEl.querySelector('#rule-fallbackTextSelectors').value)
       },
       typeKeywords: {
+        single: parseKeywords(drawerBodyEl.querySelector('#rule-kwSingle').value),
         multiple: parseKeywords(drawerBodyEl.querySelector('#rule-kwMultiple').value),
         judge: parseKeywords(drawerBodyEl.querySelector('#rule-kwJudge').value),
         fill: parseKeywords(drawerBodyEl.querySelector('#rule-kwFill').value)
@@ -347,6 +348,7 @@ function initRules({
     setValue('#rule-multipleIndicators', (typeIndicators.multiple || []).join(', '));
     setValue('#rule-judgeIndicators', (typeIndicators.judge || []).join(', '));
     setValue('#rule-fallbackTextSelectors', (selectors.fallbackTextSelectors || []).join('\n'));
+    setValue('#rule-kwSingle', (typeKeywords.single || []).join(', '));
     setValue('#rule-kwMultiple', (typeKeywords.multiple || []).join(', '));
     setValue('#rule-kwJudge', (typeKeywords.judge || []).join(', '));
     setValue('#rule-kwFill', (typeKeywords.fill || []).join(', '));
@@ -382,6 +384,7 @@ function initRules({
         fallbackTextSelectors: normalizeArrayField(selectors.fallbackTextSelectors, 'lines')
       },
       typeKeywords: {
+        single: normalizeArrayField(typeKeywords.single, 'keywords'),
         multiple: normalizeArrayField(typeKeywords.multiple, 'keywords'),
         judge: normalizeArrayField(typeKeywords.judge, 'keywords'),
         fill: normalizeArrayField(typeKeywords.fill, 'keywords')

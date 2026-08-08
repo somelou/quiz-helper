@@ -228,11 +228,74 @@ button:hover,
   background: var(--color-btn-danger-bg);
   color: var(--color-btn-danger-text);
 }
-#status {
-  margin-top: 12px;
+/* 全局消息提示：顶部居中，对齐 antd message（深色半透明底 + 白字 + 类型色图标） */
+.qh-message-container {
+  position: fixed;
+  top: 16px;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.qh-message {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-message-bg);
+  box-shadow: var(--color-message-shadow);
+  color: var(--color-message-text);
   font-size: var(--font-md);
-  color: var(--color-success);
-  min-height: 20px;
+  line-height: 1.5;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+.qh-message-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.qh-message-hide {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.qh-message-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+.qh-message-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.qh-message-text {
+  color: var(--color-message-text);
+  word-break: break-word;
+}
+.qh-message-info .qh-message-icon { color: var(--color-info); }
+.qh-message-success .qh-message-icon { color: var(--color-success); }
+.qh-message-warning .qh-message-icon { color: var(--color-warning); }
+.qh-message-error .qh-message-icon { color: var(--color-error-text); }
+@media (prefers-reduced-motion: reduce) {
+  .qh-message {
+    transition: opacity var(--transition-fast);
+    transform: none;
+  }
+  .qh-message-show,
+  .qh-message-hide {
+    transform: none;
+  }
 }
 
 /* 历史记录样式 */
@@ -370,18 +433,6 @@ button:hover,
   gap: 10px;
   flex-wrap: wrap;
 }
-.backup-status {
-  min-height: 20px;
-  margin-top: 10px;
-  font-size: var(--font-sm);
-  color: #666;
-}
-.backup-status.is-error {
-  color: var(--color-error-text);
-}
-.backup-status.is-success {
-  color: var(--color-success);
-}
 .backup-file-trigger {
   display: inline-flex;
   font-weight: 400;
@@ -451,8 +502,12 @@ button:hover,
   border-color: var(--color-primary);
   box-shadow: var(--shadow-sm);
 }
-.about-strip-link .about-strip-value {
-  color: var(--color-primary);
+.about-strip-value svg {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: -2px;
+  margin-right: 4px;
 }
 @media (max-width: 640px) {
   .about-strip-item {

@@ -206,7 +206,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- 缓存 DOM 引用 ---
-  const statusDiv = document.getElementById('status');
 
   // --- 初始化快捷键模块 ---
   const shortcutMod = initShortcut({
@@ -214,8 +213,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     shortcutHintEl: document.getElementById('shortcutHint'),
     recordBtn: document.getElementById('recordShortcutBtn'),
     clearBtn: document.getElementById('clearShortcutBtn'),
-    resetBtn: document.getElementById('resetShortcutBtn'),
-    statusDiv
+    resetBtn: document.getElementById('resetShortcutBtn')
   });
 
   // --- 初始化配置模块 ---
@@ -233,7 +231,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     promptClearBtns: Array.from(document.querySelectorAll('.prompt-clear-btn')),
     saveBtn: document.getElementById('saveBtn'),
     resetBtn: document.getElementById('resetBtn'),
-    statusDiv,
     questionBankEnabledInput: document.getElementById('questionBankEnabled'),
     getCurrentShortcut: () => shortcutMod.getCurrentShortcut(),
     resetShortcut: () => shortcutMod.resetShortcut(),
@@ -270,7 +267,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // --- 初始化模型模块 ---
   const modelMod = initModels({
     modelListEl: document.getElementById('modelList'),
-    modelStatusEl: document.getElementById('modelStatus'),
     drawerBodyEl, drawerTitleEl, drawerMetaEl, drawerSaveBtn, drawerOverlay,
     onCloseDrawer: closeDrawer
   });
@@ -278,7 +274,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // --- 初始化搜索模块 ---
   const searchMod = initSearch({
     searchListEl: document.getElementById('searchList'),
-    searchStatusEl: document.getElementById('searchStatus'),
     searchEnabledInput: document.getElementById('webSearchEnabled'),
     countInput: document.getElementById('searchCount'),
     timeRangeEl: document.getElementById('searchTimeRange'),
@@ -289,7 +284,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // --- 初始化规则模块 ---
   const ruleMod = initRules({
     ruleListEl: document.getElementById('parseRuleList'),
-    ruleStatusEl: document.getElementById('ruleStatus'),
     drawerBodyEl, drawerTitleEl, drawerMetaEl, drawerSaveBtn, drawerOverlay,
     onCloseDrawer: closeDrawer
   });
@@ -395,7 +389,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const bankMod = initBank({
     bankListEl: document.getElementById('questionBankList'),
     bankFileInput: document.getElementById('questionBankFile'),
-    bankStatusEl: document.getElementById('bankStatus'),
     questionBankEnabledInput: document.getElementById('questionBankEnabled'),
     onOpenDrawer: openDrawer,
     onCloseDrawer: closeDrawer
@@ -446,11 +439,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initBackup({
     moduleListEl: document.getElementById('backupModuleList'),
     exportBtn: document.getElementById('exportBackupBtn'),
-    exportStatusEl: document.getElementById('backupExportStatus'),
     fileInputEl: document.getElementById('backupFileInput'),
     fileNameEl: document.getElementById('backupFileName'),
     importBtn: document.getElementById('importBackupBtn'),
-    importStatusEl: document.getElementById('backupImportStatus'),
     onImportComplete: reloadOptionModulesAfterImport
   });
 
@@ -553,7 +544,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const idx = rules.findIndex(r => r && r.id === 'default-example');
     if (idx >= 0) {
-      rules[idx] = { ...rules[idx], ...seedRule };
+      // 已有同 ID 规则：保留用户修改字段，仅合并补齐缺失的种子字段（与 content 侧 ensureDefaultRules 一致）
+      const existing = rules[idx] || {};
+      const seedSelectors = seedRule.selectors || {};
+      const existingSelectors = existing.selectors || {};
+      rules[idx] = {
+        ...existing,
+        id: existing.id || seedRule.id,
+        domain: existing.domain || seedRule.domain,
+        name: existing.name || seedRule.name,
+        selectors: {
+          ...seedSelectors,
+          ...existingSelectors,
+          typeIndicators: {
+            ...(seedSelectors.typeIndicators || {}),
+            ...(existingSelectors.typeIndicators || {})
+          }
+        },
+        typeKeywords: {
+          ...(seedRule.typeKeywords || {}),
+          ...(existing.typeKeywords || {})
+        }
+      };
     } else {
       rules.push(seedRule);
     }

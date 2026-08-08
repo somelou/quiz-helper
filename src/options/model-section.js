@@ -1,7 +1,7 @@
 // 大模型管理模块
 
 function initModels({
-  modelListEl, modelStatusEl,
+  modelListEl,
   drawerBodyEl, drawerTitleEl, drawerMetaEl,
   drawerSaveBtn, drawerOverlay,
   onCloseDrawer
@@ -11,12 +11,7 @@ function initModels({
   let currentModelEditingBase = null;
 
   function showModelStatus(msg) {
-    modelStatusEl.textContent = msg;
-    if (msg) {
-      setTimeout(() => {
-        if (modelStatusEl.textContent === msg) modelStatusEl.textContent = '';
-      }, 3000);
-    }
+    globalThis.QuizHelperMessage.info(msg);
   }
 
   async function loadModels() {

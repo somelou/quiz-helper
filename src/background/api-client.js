@@ -90,16 +90,22 @@ function fetchWithTimeout(url, options, timeoutMs = DEFAULT_TIMEOUT_MS, external
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   // 外部取消信号也关联到同一个 controller
+  let onExternalAbort = null;
   if (externalSignal) {
     if (externalSignal.aborted) {
       controller.abort();
     } else {
-      externalSignal.addEventListener('abort', () => controller.abort(), { once: true });
+      onExternalAbort = () => controller.abort();
+      externalSignal.addEventListener('abort', onExternalAbort, { once: true });
     }
   }
 
   return fetch(url, { ...options, signal: controller.signal }).finally(() => {
     clearTimeout(timer);
+    // 显式移除外部信号监听，避免共用 signal 时监听器累积
+    if (externalSignal && onExternalAbort) {
+      externalSignal.removeEventListener('abort', onExternalAbort);
+    }
   });
 }
 

@@ -127,6 +127,38 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
     });
 
     await new Promise((resolve) => {
+      /**
+       * 单批 AI 解析（首次失败且未取消时重试 1 次，应对限流/抖动）
+       * @param {number} i - 批次下标
+       * @returns {Promise<string>} AI 原始返回
+       */
+      async function parseBatchWithRetry(i) {
+        const attempt = async () => {
+          const prompt = await buildQuestionBankPrompt(batches[i], fileName);
+          return postChatCompletion({
+            apiKey, apiUrl, apiFormat,
+            messages: [
+              { role: 'system', content: prompt.system },
+              { role: 'user', content: prompt.user }
+            ],
+            model,
+            temperature: 0.1,
+            signal: abortController.signal,
+            enableThinking,
+            thinkingEffort
+          });
+        };
+        try {
+          return await attempt();
+        } catch (firstError) {
+          if (cancelled) throw firstError;
+          // 退避 1s 后重试一次（退避期间可能被取消，需复查）
+          await new Promise(resolveDelay => setTimeout(resolveDelay, 1000));
+          if (cancelled) throw firstError;
+          return attempt();
+        }
+      }
+
       function runNext() {
         if (cancelled) {
           if (inFlight === 0) resolve();
@@ -139,19 +171,7 @@ export async function handleParseQuestionBankBatched(text, fileName, port) {
           (async () => {
             let batchSuccess = false;
             try {
-              const prompt = await buildQuestionBankPrompt(batches[i], fileName);
-              const raw = await postChatCompletion({
-                apiKey, apiUrl, apiFormat,
-                messages: [
-                  { role: 'system', content: prompt.system },
-                  { role: 'user', content: prompt.user }
-                ],
-                model,
-                temperature: 0.1,
-                signal: abortController.signal,
-                enableThinking,
-                thinkingEffort
-              });
+              const raw = await parseBatchWithRetry(i);
               const questions = normalizeParsedQuestions(parseQuestionBankResult(raw));
               if (questions.length > 0) {
                 allQuestions.push(...questions);
@@ -257,6 +277,63 @@ function deduplicateQuestions(questions) {
   });
 }
 
+// ===== 题库搜索索引（SW 内存级缓存） =====
+// 高可用策略：缓存仅用于加速，签名不一致/缓存丢失/超限时回退实时构建，不影响正确性；
+// SW 随时可能被回收，缓存丢失后下次调用自动重建。
+
+// 内存保护：索引条目（题目）超过该数量时不缓存，避免大库拖垮 SW
+const MAX_INDEX_ENTRIES = 3000;
+
+let searchBankIndexCache = null; // { key: string, entries: Array }
+
+/**
+ * 生成激活题库的签名（id + 题数），storage 变更会自动改变签名使缓存失效
+ */
+function buildSearchBankKey(banks, activeBankIds) {
+  const parts = [];
+  for (const bank of banks) {
+    if (!activeBankIds.includes(bank.id)) continue;
+    parts.push(`${bank.id}:${bank.questions ? bank.questions.length : 0}`);
+  }
+  return parts.join('|');
+}
+
+/**
+ * 构建规范化题目索引（每题含规范化文本、字符集、来源库名）
+ */
+function buildSearchBankIndex(banks, activeBankIds) {
+  const entries = [];
+  for (const activeBank of banks) {
+    if (!activeBankIds.includes(activeBank.id)) continue;
+    if (!activeBank.questions || activeBank.questions.length === 0) continue;
+    for (const question of activeBank.questions) {
+      const normalized = question.text.toLowerCase().replace(/\s+/g, '');
+      entries.push({
+        question,
+        normalized,
+        charSet: normalized ? new Set(normalized.split('')) : new Set(),
+        source: activeBank.name
+      });
+    }
+  }
+  return entries;
+}
+
+/**
+ * 获取题库索引：优先复用内存缓存，缓存不可用时实时构建
+ */
+function getSearchBankIndex(banks, activeBankIds) {
+  const key = buildSearchBankKey(banks, activeBankIds);
+  if (searchBankIndexCache && searchBankIndexCache.key === key) {
+    if (searchBankIndexCache.entries.length <= MAX_INDEX_ENTRIES) {
+      return searchBankIndexCache.entries;
+    }
+  }
+  const entries = buildSearchBankIndex(banks, activeBankIds);
+  searchBankIndexCache = entries.length <= MAX_INDEX_ENTRIES ? { key, entries } : null;
+  return entries;
+}
+
 export async function handleSearchQuestionBank(questionText) {
   const result = await chrome.storage.local.get([
     'question_banks',
@@ -273,26 +350,24 @@ export async function handleSearchQuestionBank(questionText) {
   }
 
   const searchText = questionText.toLowerCase().replace(/\s+/g, '');
+  const searchCharSet = searchText ? new Set(searchText.split('')) : new Set();
   const allMatches = [];
 
-  for (const activeBank of banks) {
-    if (!activeBankIds.includes(activeBank.id)) continue;
-    if (!activeBank.questions || activeBank.questions.length === 0) continue;
+  // 预计算/缓存题库索引（规范化文本 + 字符集），避免逐题重复计算
+  const indexEntries = getSearchBankIndex(banks, activeBankIds);
 
-    for (const question of activeBank.questions) {
-      const bankText = question.text.toLowerCase().replace(/\s+/g, '');
-      const score = calculateSimilarity(searchText, bankText);
+  for (const { question, normalized, charSet, source } of indexEntries) {
+    const score = calculateSimilarity(searchText, normalized, searchCharSet, charSet);
 
-      if (score >= 0.6) {
-        allMatches.push({
-          answer: question.answer,
-          analysis: question.analysis || '',
-          questionId: question.id,
-          questionText: question.text,
-          score: Math.round(score * 100) / 100,
-          source: activeBank.name
-        });
-      }
+    if (score >= 0.6) {
+      allMatches.push({
+        answer: question.answer,
+        analysis: question.analysis || '',
+        questionId: question.id,
+        questionText: question.text,
+        score: Math.round(score * 100) / 100,
+        source
+      });
     }
   }
 
@@ -466,13 +541,22 @@ function inferQuestionType(line, answer) {
   return 'unknown';
 }
 
-function calculateSimilarity(s1, s2) {
+/**
+ * 计算两个规范化文本的字符集 Jaccard 相似度
+ * 支持传入预计算的字符集，避免重复 split/建 Set
+ * @param {string} s1
+ * @param {string} s2
+ * @param {Set} [set1] - s1 的预计算字符集
+ * @param {Set} [set2] - s2 的预计算字符集
+ * @returns {number}
+ */
+function calculateSimilarity(s1, s2, set1 = null, set2 = null) {
   if (!s1 || !s2) return 0;
   if (s1 === s2) return 1;
 
-  const set1 = new Set(s1.split(''));
-  const set2 = new Set(s2.split(''));
-  const intersection = [...set1].filter(char => set2.has(char)).length;
-  const union = set1.size + set2.size - intersection;
+  const a = set1 || new Set(s1.split(''));
+  const b = set2 || new Set(s2.split(''));
+  const intersection = [...a].filter(char => b.has(char)).length;
+  const union = a.size + b.size - intersection;
   return union === 0 ? 0 : intersection / union;
 }

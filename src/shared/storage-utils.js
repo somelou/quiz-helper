@@ -22,65 +22,6 @@
     }
   }
 
-  async function getApiConfig() {
-    const config = await chrome.storage.local.get([
-      STORAGE_KEYS.LLM_MODELS || 'llm_models',
-      STORAGE_KEYS.ACTIVE_MODEL_ID || 'active_model_id',
-      STORAGE_KEYS.CUSTOM_SYSTEM_PROMPTS || 'custom_system_prompts',
-      STORAGE_KEYS.EXTRA_CONTEXT_PROMPT || 'extra_context_prompt',
-      STORAGE_KEYS.API_URL || 'api_url',
-      STORAGE_KEYS.API_KEY || 'api_key',
-      STORAGE_KEYS.MODEL || 'model',
-      STORAGE_KEYS.SYSTEM_PROMPT || 'system_prompt'
-    ]);
-
-    const DEFAULT_API_URL = 'https://api.deepseek.com/v1';
-    const DEFAULT_MODEL = 'deepseek-v4-pro';
-
-    let apiUrl = '';
-    let apiKey = '';
-    let model = '';
-    let apiFormat = 'openai';
-    let systemPrompt = '';
-    const extraContextPrompt = config[STORAGE_KEYS.EXTRA_CONTEXT_PROMPT || 'extra_context_prompt'] || '';
-
-    const models = config[STORAGE_KEYS.LLM_MODELS || 'llm_models'] || [];
-    const activeModelId = config[STORAGE_KEYS.ACTIVE_MODEL_ID || 'active_model_id'] || '';
-
-    if (models.length > 0) {
-      const preferredModel = models.find(m => m.id === activeModelId && m.isActive);
-      const activeModel = preferredModel || models.find(m => m.isActive);
-      if (activeModel) {
-        apiUrl = activeModel.apiUrl || '';
-        apiKey = activeModel.apiKey || '';
-        model = activeModel.modelId || '';
-        apiFormat = activeModel.apiFormat || 'openai';
-      }
-    }
-
-    if (!apiKey) {
-      apiUrl = (config[STORAGE_KEYS.API_URL || 'api_url'] || DEFAULT_API_URL).replace(/\/+$/, '');
-      apiKey = config[STORAGE_KEYS.API_KEY || 'api_key'] || '';
-      model = config[STORAGE_KEYS.MODEL || 'model'] || DEFAULT_MODEL;
-    }
-
-    const customPrompts = config[STORAGE_KEYS.CUSTOM_SYSTEM_PROMPTS || 'custom_system_prompts'];
-    if (customPrompts && typeof customPrompts === 'object') {
-      systemPrompt = customPrompts;
-    } else if (config[STORAGE_KEYS.SYSTEM_PROMPT || 'system_prompt']) {
-      systemPrompt = { unknown: config[STORAGE_KEYS.SYSTEM_PROMPT || 'system_prompt'] };
-    }
-
-    return {
-      apiUrl: apiUrl || DEFAULT_API_URL,
-      apiKey,
-      apiFormat,
-      model: model || DEFAULT_MODEL,
-      systemPrompt,
-      extraContextPrompt
-    };
-  }
-
   async function getParseRules() {
     const key = STORAGE_KEYS.PARSE_RULES || 'parse_rules';
     const result = await chrome.storage.local.get([key]);
@@ -100,7 +41,6 @@
 
   globalThis.QuizHelperStorageUtils = {
     getAllowedDomains,
-    getApiConfig,
     getParseRules,
     safeSet,
     setParseRules

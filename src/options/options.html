@@ -94,8 +94,6 @@ exam.example.com"></textarea>
           <button class="btn-primary" id="saveBtn">保存设置</button>
           <button class="btn-secondary" id="resetBtn">恢复默认</button>
         </div>
-
-        <div id="status"></div>
       </div>
 
       <div class="card" id="section-models">
@@ -105,7 +103,6 @@ exam.example.com"></textarea>
         </div>
         <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。点击下方按钮可为各任务指定专用模型。</div>
         <div id="modelList"></div>
-        <div id="modelStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
       </div>
 
       <div class="card" id="section-search">
@@ -138,14 +135,12 @@ exam.example.com"></textarea>
 
         <div class="rule-form-section">搜索服务商</div>
         <div id="searchList"></div>
-        <div id="searchStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
       </div>
 
       <div class="card" id="section-rules">
         <h2 style="margin:0 0 12px 0;">解析规则管理</h2>
         <div class="hint" style="margin-bottom: 12px;">管理各站点的题目解析规则。有规则的站点优先使用规则解析，无规则的站点首次解析时由 AI 自动生成规则。</div>
         <div id="parseRuleList"></div>
-        <div id="ruleStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
       </div>
 
       <div class="card" id="section-bank">
@@ -187,7 +182,6 @@ exam.example.com"></textarea>
             <button class="bank-progress-cancel" id="bankProgressCancel" title="取消解析">取消</button>
           </div>
         </div>
-        <div id="bankStatus" style="margin-top: 12px; font-size: 13px; color: #666; min-height: 20px;"></div>
       </div>
 
       <div class="card" id="section-history">
@@ -246,7 +240,6 @@ exam.example.com"></textarea>
               导出备份
             </button>
           </div>
-          <div id="backupExportStatus" class="backup-status"></div>
         </div>
 
         <div class="backup-section-block">
@@ -263,7 +256,6 @@ exam.example.com"></textarea>
               导入备份
             </button>
           </div>
-          <div id="backupImportStatus" class="backup-status"></div>
         </div>
       </div>
 
@@ -290,7 +282,7 @@ exam.example.com"></textarea>
             rel="noopener noreferrer"
           >
             <span class="about-strip-label">仓库</span>
-            <span class="about-strip-value">github.com/somelou/quiz-helper</span>
+            <span class="about-strip-value"><span class="about-strip-github" data-icon="github" aria-hidden="true"></span>somelou/quiz-helper</span>
           </a>
           <a
             class="about-strip-item about-strip-link"
@@ -302,10 +294,6 @@ exam.example.com"></textarea>
             <span class="about-strip-label">隐私</span>
             <span class="about-strip-value">隐私政策</span>
           </a>
-          <div class="about-strip-item">
-            <span class="about-strip-label">特性</span>
-            <span class="about-strip-value">本地存储 / 开源维护</span>
-          </div>
         </div>
       </div>
     </main>
@@ -336,6 +324,9 @@ exam.example.com"></textarea>
   <script src="../shared/shortcut-utils.js"></script>
   <script src="../shared/theme-utils.js"></script>
   <script src="../shared/storage-utils.js"></script>
+  <script src="../shared/text-utils.js"></script>
+  <script src="../shared/search-utils.js"></script>
+  <script src="message.js"></script>
   <script src="utils.js"></script>
   <script src="shortcut-section.js"></script>
   <script src="config-section.js"></script>

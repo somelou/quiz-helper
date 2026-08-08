@@ -10,7 +10,7 @@ const {
 
 function initShortcut({
   shortcutDisplayEl, shortcutHintEl,
-  recordBtn, clearBtn, resetBtn, statusDiv
+  recordBtn, clearBtn, resetBtn
 }) {
   let currentShortcut = getDefaultShortcut();
   let isRecordingShortcut = false;
@@ -33,10 +33,7 @@ function initShortcut({
   }
 
   function showStatus(msg) {
-    statusDiv.textContent = msg;
-    setTimeout(() => {
-      if (statusDiv.textContent === msg) statusDiv.textContent = '';
-    }, 3000);
+    globalThis.QuizHelperMessage.info(msg);
   }
 
   function updateShortcutDisplay() {

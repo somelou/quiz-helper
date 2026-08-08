@@ -77,6 +77,7 @@
   - 打开设置页
   - 显示快捷键提示
   - 切换主题
+  - 快捷切换答题模型
 - Options：
   - 基本设置
   - 大模型管理
@@ -84,21 +85,31 @@
   - 解析规则管理
   - 题库管理
   - 历史记录管理
+  - 备份与恢复
+  - 关于
 - Content 面板：
   - 从页面 DOM 解析题目
-  - 展示题目卡片与答题结果
+  - 展示题目卡片与答题结果（支持流式输出与深度思考展示）
   - AI 选区解析
   - 题库匹配与校验
 
 ## 后台消息动作
 
-当前主要由 `src/background/router.js` 路由：
+`src/background/router.js` 注册 `chrome.runtime.onMessage` 分发以下动作：
 
 - `fetchAnswer`
+- `fetchAnswerWithSearch`（搜索感知流程：首次作答 → 判断是否需搜索 → 二次作答，含自动降级）
 - `verifyBankAnswer`
 - `extractQuestions`
 - `parseQuestionBank`
 - `searchQuestionBank`
+
+`src/background/index.js` 额外独立注册 `webSearch` 动作（含每月搜索次数限额检查）。
+
+`src/background/router.js` 同时注册 `chrome.runtime.onConnect` port 通道：
+
+- `parseQuestionBank`：题库分批解析，进度通过 port 上报
+- `streamAnswer`：流式答题，逐块回传思考 / 答案 / 参考链接
 
 新增 AI 能力时，需要同时更新路由、提示词构建和对应数据流。
 

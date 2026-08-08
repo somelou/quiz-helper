@@ -3,46 +3,7 @@ import { parseExtractedQuestions, normalizeQuestionType } from './json-parser.js
 import { buildExtractPrompt, buildSystemPrompt, buildVerifyPrompt, buildSearchAwarePrompt, buildSearchResultPrompt } from './prompt-builder.js';
 import { handleParseQuestionBank, handleParseQuestionBankBatched, handleSearchQuestionBank } from './question-bank.js';
 import { executeWebSearch, extractSearchResults, formatSearchResultsForLLM, extractReferenceLinks } from './search-proxy.js';
-
-/**
- * 检查每月搜索次数限制（按服务商）
- * @param {string} providerId
- * @returns {Promise<boolean>} true 表示可用，false 表示达到上限
- */
-async function checkMonthlySearchLimit(providerId) {
-  const result = await chrome.storage.local.get(['web_search_providers', 'web_search_usage']);
-  const providers = result.web_search_providers || [];
-  const provider = providers.find(p => p.id === providerId);
-  const limit = parseInt(provider?.monthlyLimit, 10) || 0;
-  if (limit <= 0) return true; // 0 表示不限制
-
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const usage = result.web_search_usage || {};
-  const pu = usage[providerId] || { month: '', count: 0 };
-  if (pu.month !== currentMonth) {
-    pu.month = currentMonth;
-    pu.count = 0;
-  }
-  return pu.count < limit;
-}
-
-/**
- * 递增每月搜索次数（按服务商）
- * @param {string} providerId
- */
-async function incrementMonthlySearchCount(providerId) {
-  const result = await chrome.storage.local.get(['web_search_usage']);
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const usage = result.web_search_usage || {};
-  const pu = usage[providerId] || { month: '', count: 0 };
-  if (pu.month !== currentMonth) {
-    pu.month = currentMonth;
-    pu.count = 0;
-  }
-  pu.count += 1;
-  usage[providerId] = pu;
-  await chrome.storage.local.set({ web_search_usage: usage });
-}
+import { checkMonthlySearchLimit, incrementMonthlySearchCount } from './search-usage.js';
 
 /**
  * 从答案中提取引用的来源编号，过滤参考链接
@@ -135,6 +96,23 @@ async function handleVerifyBankAnswer(questionText, _questionType, bankMatches) 
   return { success: true, answer: answer || '未获取到有效答案' };
 }
 
+/**
+ * 剥离 [NEED_SEARCH: ...] 标记并返回降级答案
+ * 搜索不需要/搜索失败时共用，统一流式与非流式两种返回
+ * @param {string} firstFull - 第一次 LLM 的完整回答
+ * @param {Function} [sendChunk] - 流式回调，存在时通过其发送 done
+ * @returns {Object|undefined} 非流式时返回 { success, answer, referenceLinks }
+ */
+function fallbackToCleanedAnswer(firstFull, sendChunk) {
+  const cleanedAnswer = String(firstFull || '').replace(/\[NEED_SEARCH:\s*.+?\]\s*/gi, '').trim();
+  const answer = cleanedAnswer || '未获取到有效答案';
+  if (sendChunk) {
+    sendChunk({ type: 'done', answer, referenceLinks: [] });
+    return undefined;
+  }
+  return { success: true, answer, referenceLinks: [] };
+}
+
 async function handleFetchAnswerWithSearch(questionText, questionType, forceSearch = false, sendChunk) {
   const storage = await chrome.storage.local.get([
     'web_search_enabled',
@@ -186,12 +164,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
 
   const needSearchMatch = firstFull.match(/\[NEED_SEARCH:\s*(.+?)\]/i);
   if (!needSearchMatch && !forceSearch) {
-    const cleanedAnswer = firstFull.replace(/\[NEED_SEARCH:\s*.+?\]\s*/gi, '').trim();
-    if (sendChunk) {
-      sendChunk({ type: 'done', answer: cleanedAnswer || '未获取到有效答案', referenceLinks: [] });
-      return;
-    }
-    return { success: true, answer: cleanedAnswer || '未获取到有效答案', referenceLinks: [] };
+    return fallbackToCleanedAnswer(firstFull, sendChunk);
   }
 
   const searchQuery = needSearchMatch ? (needSearchMatch[1] || '').trim() : questionText.slice(0, 200);
@@ -206,12 +179,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
     searchResultsText = formatSearchResultsForLLM(results);
     incrementMonthlySearchCount(activeProvider.id);
   } catch (searchError) {
-    const cleanedAnswer = firstFull.replace(/\[NEED_SEARCH:\s*.+?\]\s*/gi, '').trim();
-    if (sendChunk) {
-      sendChunk({ type: 'done', answer: cleanedAnswer || '未获取到有效答案', referenceLinks: [] });
-      return;
-    }
-    return { success: true, answer: cleanedAnswer || '未获取到有效答案', referenceLinks: [] };
+    return fallbackToCleanedAnswer(firstFull, sendChunk);
   }
 
   // 第二次 LLM 调用

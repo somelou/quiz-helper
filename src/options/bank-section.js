@@ -1,19 +1,14 @@
 // 题库管理模块
 
 function initBank({
-  bankListEl, bankFileInput, bankStatusEl,
+  bankListEl, bankFileInput,
   questionBankEnabledInput, onOpenDrawer, onCloseDrawer
 }) {
   const { safeSet } = globalThis.QuizHelperStorageUtils;
   const paginationState = { bank: 1 };
 
   function showBankStatus(msg) {
-    bankStatusEl.textContent = msg;
-    if (msg) {
-      setTimeout(() => {
-        if (bankStatusEl.textContent === msg) bankStatusEl.textContent = '';
-      }, 3000);
-    }
+    globalThis.QuizHelperMessage.info(msg);
   }
 
   async function getQuestionBankState() {
@@ -45,10 +40,8 @@ function initBank({
   function renderQuestionBanks(banks, activeBankIds, questionBankEnabled) {
     const bankCountHint = document.getElementById('bankCountHint');
     if (bankCountHint) {
-      const activeCount = activeBankIds.length;
-      bankCountHint.textContent = activeCount > 0
-        ? `共 ${banks.length} 个题库，${activeCount} 个已启用`
-        : `共 ${banks.length} 个题库`;
+      const totalQuestions = banks.reduce((sum, bank) => sum + (bank.questions ? bank.questions.length : 0), 0);
+      bankCountHint.textContent = `共 ${banks.length} 个题库 · ${totalQuestions.toLocaleString('zh-CN')} 题`;
     }
 
     if (banks.length === 0) {
@@ -137,7 +130,8 @@ function initBank({
       // 更新计数提示
       const hintEl = document.getElementById('bankCountHint');
       if (hintEl) {
-        hintEl.textContent = `共 ${banks.length} 个题库，已启用 ${activeBankIds.length} 个`;
+        const totalQuestions = banks.reduce((sum, b) => sum + (b.questions ? b.questions.length : 0), 0);
+        hintEl.textContent = `共 ${banks.length} 个题库 · ${totalQuestions.toLocaleString('zh-CN')} 题`;
       }
       return;
     }

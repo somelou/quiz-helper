@@ -72,6 +72,12 @@ document.getElementById('analyzeBtn').addEventListener('click', async () => {
           'shared/constants.js',
           'shared/shortcut-utils.js',
           'shared/theme-utils.js',
+          'shared/storage-utils.js',
+          'shared/text-utils.js',
+          'content/state.js',
+          'content/dom-parser.js',
+          'content/panel-ui.js',
+          'content/analyzer.js',
           'content/index.js'
         ]
       });

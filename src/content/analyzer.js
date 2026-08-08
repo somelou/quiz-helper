@@ -143,6 +143,61 @@
   }
 
   /**
+   * 查询题库并校验答案，命中则直接写入题目结果
+   * analyzeSingleQuestion 与 analyzeAllQuestions 共用
+   * @param {Object} question - 当前题目对象（会原地修改状态与答案）
+   * @param {number} index - 题目下标（用于更新卡片）
+   * @param {number} runId - 分析运行 ID（防止过期回调）
+   * @returns {Promise<boolean>} true 表示题库命中并已处理
+   */
+  async function resolveQuestionFromBank(question, index, runId) {
+    const bankResponse = await chrome.runtime.sendMessage({
+      action: 'searchQuestionBank',
+      questionText: question.text
+    });
+
+    if (runId !== state.analysisRunId) return false;
+
+    if (!bankResponse.success || !bankResponse.found || bankResponse.matches.length === 0) {
+      return false;
+    }
+
+    UI.updateCardBody(index, '<div class="qh-loading-text">匹配到题库，正在校验选项顺序...</div>');
+
+    const verifyResponse = await chrome.runtime.sendMessage({
+      action: 'verifyBankAnswer',
+      questionText: question.text,
+      questionType: question.type,
+      bankMatches: bankResponse.matches
+    });
+
+    if (runId !== state.analysisRunId) return false;
+
+    if (verifyResponse.success) {
+      question.status = 'done';
+      question.answer = verifyResponse.answer;
+      question.bankMatches = bankResponse.matches;
+      UI.updateCardBody(index, UI.formatAnswer(verifyResponse.answer));
+    } else {
+      question.status = 'done';
+      const firstMatch = bankResponse.matches[0];
+      let fallbackAnswer = `⚠️ 校验失败，以下为原始题库答案（选项顺序可能与当前考试不同）\n答案：${firstMatch.answer}`;
+      if (firstMatch.analysis) {
+        fallbackAnswer += `\n解析：${firstMatch.analysis}`;
+      }
+      fallbackAnswer += `\n来源：题库「${firstMatch.source}」`;
+      if (firstMatch.questionText) {
+        fallbackAnswer += `\n题库原题：${firstMatch.questionText}`;
+      }
+      question.answer = fallbackAnswer;
+      question.bankMatches = bankResponse.matches;
+      UI.updateCardBody(index, UI.formatAnswer(fallbackAnswer));
+    }
+
+    return true;
+  }
+
+  /**
    * 分析单道题目（优先搜索题库，题库无匹配时调用 AI）
    * @param {number} index
    * @param {Object} [options]
@@ -163,8 +218,6 @@
     question.webSearchRefs = null;
     UI.updateCardBody(index, '<div class="qh-loading-text">正在分析...</div>');
 
-    let bankMatched = false;
-
     // 流式与非流式路径共用的收尾逻辑
     function finalizeQuestion(idx, wasPausedLocal, runIdLocal) {
       if (runIdLocal !== state.analysisRunId) return;
@@ -176,48 +229,8 @@
     }
 
     try {
-      const bankResponse = await chrome.runtime.sendMessage({
-        action: 'searchQuestionBank',
-        questionText: question.text
-      });
-
+      const bankMatched = await resolveQuestionFromBank(question, index, runId);
       if (runId !== state.analysisRunId) return;
-
-      if (bankResponse.success && bankResponse.found && bankResponse.matches.length > 0) {
-        UI.updateCardBody(index, '<div class="qh-loading-text">匹配到题库，正在校验选项顺序...</div>');
-
-        const verifyResponse = await chrome.runtime.sendMessage({
-          action: 'verifyBankAnswer',
-          questionText: question.text,
-          questionType: question.type,
-          bankMatches: bankResponse.matches
-        });
-
-        if (runId !== state.analysisRunId) return;
-
-        if (verifyResponse.success) {
-          question.status = 'done';
-          question.answer = verifyResponse.answer;
-          question.bankMatches = bankResponse.matches;
-          UI.updateCardBody(index, UI.formatAnswer(verifyResponse.answer));
-        } else {
-          question.status = 'done';
-          const firstMatch = bankResponse.matches[0];
-          let fallbackAnswer = `⚠️ 校验失败，以下为原始题库答案（选项顺序可能与当前考试不同）\n答案：${firstMatch.answer}`;
-          if (firstMatch.analysis) {
-            fallbackAnswer += `\n解析：${firstMatch.analysis}`;
-          }
-          fallbackAnswer += `\n来源：题库「${firstMatch.source}」`;
-          if (firstMatch.questionText) {
-            fallbackAnswer += `\n题库原题：${firstMatch.questionText}`;
-          }
-          question.answer = fallbackAnswer;
-          question.bankMatches = bankResponse.matches;
-          UI.updateCardBody(index, UI.formatAnswer(fallbackAnswer));
-        }
-
-        bankMatched = true;
-      }
 
       if (!bankMatched) {
         await streamQuestion(question, index, runId, options.forceSearch || false);
@@ -272,54 +285,16 @@
       UI.updateCardBody(index, '<div class="qh-loading-text">正在分析...</div>');
 
       try {
-        const bankResponse = await chrome.runtime.sendMessage({
-          action: 'searchQuestionBank',
-          questionText: question.text
-        });
-
+        const bankMatched = await resolveQuestionFromBank(question, index, runId);
         if (runId !== state.analysisRunId) return;
 
-        if (bankResponse.success && bankResponse.found && bankResponse.matches.length > 0) {
-          UI.updateCardBody(index, '<div class="qh-loading-text">匹配到题库，正在校验选项顺序...</div>');
-
-          const verifyResponse = await chrome.runtime.sendMessage({
-            action: 'verifyBankAnswer',
-            questionText: question.text,
-            questionType: question.type,
-            bankMatches: bankResponse.matches
-          });
-
-          if (runId !== state.analysisRunId) return;
-
-          if (verifyResponse.success) {
-            question.status = 'done';
-            question.answer = verifyResponse.answer;
-            question.bankMatches = bankResponse.matches;
-            UI.updateCardBody(index, UI.formatAnswer(verifyResponse.answer));
-          } else {
-            question.status = 'done';
-            const firstMatch = bankResponse.matches[0];
-            let fallbackAnswer = `⚠️ 校验失败，以下为原始题库答案（选项顺序可能与当前考试不同）\n答案：${firstMatch.answer}`;
-            if (firstMatch.analysis) {
-              fallbackAnswer += `\n解析：${firstMatch.analysis}`;
-            }
-            fallbackAnswer += `\n来源：题库「${firstMatch.source}」`;
-            if (firstMatch.questionText) {
-              fallbackAnswer += `\n题库原题：${firstMatch.questionText}`;
-            }
-            question.answer = fallbackAnswer;
-            question.bankMatches = bankResponse.matches;
-            UI.updateCardBody(index, UI.formatAnswer(fallbackAnswer));
-          }
-
-          continue;
-        }
+        if (bankMatched) continue;
 
         await streamQuestion(question, index, runId);
 
         if (runId !== state.analysisRunId) return;
-        } catch (error) {
-          if (runId !== state.analysisRunId) return;
+      } catch (error) {
+        if (runId !== state.analysisRunId) return;
         question.status = 'error';
         UI.updateCardBody(index, `通信错误：${UI.escapeHtml(error.message)}`, true);
       }
@@ -539,7 +514,7 @@
     if (!newKw) return existing || state.DEFAULT_TYPE_KEYWORDS;
     if (!existing) return newKw;
     const result = {};
-    for (const key of ['multiple', 'judge', 'fill']) {
+    for (const key of ['single', 'multiple', 'judge', 'fill']) {
       result[key] = mergeArray(existing[key], newKw[key]);
     }
     return result;
@@ -660,13 +635,23 @@
    * @returns {Object}
    */
   function createQuestionPayload(item, index) {
+    const rawType = (item.type || '').toLowerCase();
+    let type = 'unknown';
+    if (rawType.includes('single') || rawType.includes('单选')) {
+      type = 'single';
+    } else if (rawType.includes('multiple') || rawType.includes('multi') || rawType.includes('多选')) {
+      type = 'multiple';
+    } else if (rawType.includes('judge') || rawType.includes('judgement') || rawType.includes('truefalse') ||
+               rawType.includes('true_false') || rawType.includes('boolean') || rawType.includes('判断')) {
+      type = 'judge';
+    } else if (rawType.includes('fill') || rawType.includes('blank') || rawType.includes('填空')) {
+      type = 'fill';
+    }
+
     return {
       id: item.id || index + 1,
       text: D.normalizeWhitespace(item.text || ''),
-      type: (item.type || '').toLowerCase().includes('single') ? 'single' :
-            (item.type || '').toLowerCase().includes('multiple') || (item.type || '').toLowerCase().includes('multi') ? 'multiple' :
-            (item.type || '').toLowerCase().includes('judge') || (item.type || '').toLowerCase().includes('judgement') || (item.type || '').toLowerCase().includes('truefalse') ? 'judge' :
-            (item.type || '').toLowerCase().includes('fill') || (item.type || '').toLowerCase().includes('blank') ? 'fill' : 'unknown',
+      type,
       answer: null,
       status: 'pending'
     };

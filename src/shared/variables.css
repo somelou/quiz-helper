@@ -110,6 +110,11 @@
   --shadow-primary: 0 2px 8px rgba(99, 102, 241, 0.28);
   --shadow-toggle-active: 0 1px 3px rgba(0,0,0,0.08);
 
+  /* ---- 全局消息提示（message，插件风格：白底 + 阴影，随主题自动适配） ---- */
+  --color-message-bg: var(--color-surface);
+  --color-message-text: var(--color-text);
+  --color-message-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), 0 8px 20px rgba(0, 0, 0, 0.1), 0 16px 40px rgba(0, 0, 0, 0.08);
+
   /* ---- 过渡 ---- */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.2s ease;
@@ -194,6 +199,11 @@ body.dark {
   --shadow-lg: 0 4px 6px rgba(0,0,0,0.2), 0 12px 32px rgba(0,0,0,0.35);
   --shadow-primary: 0 2px 8px rgba(99, 102, 241, 0.35);
   --shadow-toggle-active: 0 1px 3px rgba(0,0,0,0.4);
+
+  /* ---- 全局消息提示（message）暗色 ---- */
+  --color-message-bg: var(--color-surface);
+  --color-message-text: var(--color-text);
+  --color-message-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.25);
 
   /* ---- 操作按钮暗色 ---- */
   --color-btn-action-bg: #2a2d36;

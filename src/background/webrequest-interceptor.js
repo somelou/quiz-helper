@@ -29,8 +29,10 @@ function buildDynamicRules(providers) {
     // POST 型 API 额外注入 Content-Type（避免 fetch 中设置触发预检）
     if (p.id !== 'brave-search') {
       requestHeaders.push({ header: 'Content-Type', operation: 'set', value: 'application/json' });
-      // 火山引擎需要 X-Traffic-Tag 头（官方 SDK 第 51 行）
-      requestHeaders.push({ header: 'X-Traffic-Tag', operation: 'set', value: 'skill_web_search_common' });
+      // 火山引擎需要 X-Traffic-Tag 头（官方 SDK 第 51 行），仅对该服务商注入
+      if (p.id === 'volcengine-search') {
+        requestHeaders.push({ header: 'X-Traffic-Tag', operation: 'set', value: 'skill_web_search_common' });
+      }
     }
 
     rules.push({

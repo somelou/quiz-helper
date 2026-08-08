@@ -5,6 +5,10 @@
   const { escapeHtml, normalizeWhitespace } = globalThis.QuizHelperTextUtils;
   const { TYPE_LABELS, STATUS_LABELS } = globalThis.QuizHelperConstants;
 
+  // 面板级 matchMedia 监听器引用（createPanel 只注册一次，destroyPanel 时移除）
+  let darkMediaQueryRef = null;
+  let darkMediaQueryHandler = null;
+
   // ===== 工具函数 =====
 
   /**
@@ -364,6 +368,78 @@
       searchRefsHtml += '</div></details>';
     }
 
+    /**
+     * 同步卡片头部的状态标签与答案预览
+     */
+    function syncCardHeader(qIndex, question) {
+      const card = state.shadowRoot?.getElementById(`card-body-${qIndex}`)?.closest('.qh-card');
+      if (!card) return;
+      const headerEl = card.querySelector('.qh-card-header');
+      const statusEl = card.querySelector('.qh-card-status');
+      if (statusEl) {
+        statusEl.className = `qh-card-status ${getStatusClass(question.status)}`;
+        statusEl.textContent = getStatusLabel(question.status);
+      }
+      if (question.answer && (question.status === 'done' || question.status === 'error')) {
+        let answerEl = card.querySelector('.qh-card-answer');
+        if (!answerEl && headerEl) {
+          answerEl = document.createElement('span');
+          answerEl.className = 'qh-card-answer';
+          headerEl.insertBefore(answerEl, statusEl);
+        }
+        if (answerEl) {
+          answerEl.textContent = getAnswerResult(question.answer);
+        }
+      }
+    }
+
+    /**
+     * 同步"重新作答/作答"按钮（先移除旧的再按需添加，避免重复）
+     */
+    function syncActionButton(body, qIndex, question) {
+      body.querySelectorAll('.qh-btn.qh-btn-primary').forEach(btn => btn.remove());
+      if (question.status === 'done' || question.status === 'error') {
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'qh-btn qh-btn-primary';
+        retryBtn.style.marginTop = '10px';
+        retryBtn.textContent = '重新作答';
+        retryBtn.addEventListener('click', event => {
+          event.stopPropagation();
+          globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(qIndex, { forceSearch: true });
+        });
+        body.appendChild(retryBtn);
+      } else if (state.isPaused && question.status === 'pending') {
+        const answerBtn = document.createElement('button');
+        answerBtn.className = 'qh-btn qh-btn-primary';
+        answerBtn.style.marginTop = '10px';
+        answerBtn.textContent = '作答';
+        answerBtn.addEventListener('click', event => {
+          event.stopPropagation();
+          globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(qIndex, { forceSearch: true });
+        });
+        body.appendChild(answerBtn);
+      }
+    }
+
+    // 增量更新：结构未变（无思考区、无引用区、本次也不需要引用）时仅更新答案文本与状态，
+    // 避免每次状态流转都整卡 innerHTML 重建
+    const existingQuestionSection = bodyEl.querySelector('.qh-question-section');
+    const existingAnswerEl = bodyEl.querySelector('.qh-answer-text, .qh-error-text');
+    const hasThinkingSection = !!bodyEl.querySelector('.qh-thinking-section');
+    const existingRefs = !!bodyEl.querySelector('.qh-bank-refs, .qh-search-ref');
+    const needRefs = searchRefsHtml !== '' || bankRefsHtml !== '';
+
+    if (existingQuestionSection && existingAnswerEl && !hasThinkingSection && !existingRefs && !needRefs) {
+      const newCls = isError ? 'qh-error-text' : 'qh-answer-text';
+      if (existingAnswerEl.className !== newCls) existingAnswerEl.className = newCls;
+      existingAnswerEl.innerHTML = content;
+      syncActionButton(bodyEl, index, question);
+      syncCardHeader(index, question);
+      updateProgress();
+      updateControls();
+      return;
+    }
+
     bodyEl.innerHTML = `
       <div class="qh-question-section">
         <div class="qh-section-title-row">
@@ -380,27 +456,7 @@
       ${bankRefsHtml}
     `;
 
-    if (question.status === 'done' || question.status === 'error') {
-      const retryBtn = document.createElement('button');
-      retryBtn.className = 'qh-btn qh-btn-primary';
-      retryBtn.style.marginTop = '10px';
-      retryBtn.textContent = '重新作答';
-      retryBtn.addEventListener('click', event => {
-        event.stopPropagation();
-        globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(index, { forceSearch: true });
-      });
-      bodyEl.appendChild(retryBtn);
-    } else if (state.isPaused && question.status === 'pending') {
-      const answerBtn = document.createElement('button');
-      answerBtn.className = 'qh-btn qh-btn-primary';
-      answerBtn.style.marginTop = '10px';
-      answerBtn.textContent = '作答';
-      answerBtn.addEventListener('click', event => {
-        event.stopPropagation();
-        globalThis.QuizHelperAnalyzer.analyzeSingleQuestion(index, { forceSearch: true });
-      });
-      bodyEl.appendChild(answerBtn);
-    }
+    syncActionButton(bodyEl, index, question);
 
     const copyBtn = bodyEl.querySelector('[data-role="copy-question"]');
     if (copyBtn) {
@@ -427,26 +483,7 @@
 
     window.QuizHelperIcons?.replaceIcons(bodyEl);
 
-    const card = bodyEl.closest('.qh-card');
-    if (card) {
-      const headerEl = card.querySelector('.qh-card-header');
-      const statusEl = card.querySelector('.qh-card-status');
-      if (statusEl) {
-        statusEl.className = `qh-card-status ${getStatusClass(question.status)}`;
-        statusEl.textContent = getStatusLabel(question.status);
-      }
-      if (question.answer && (question.status === 'done' || question.status === 'error')) {
-        let answerEl = card.querySelector('.qh-card-answer');
-        if (!answerEl && headerEl) {
-          answerEl = document.createElement('span');
-          answerEl.className = 'qh-card-answer';
-          headerEl.insertBefore(answerEl, statusEl);
-        }
-        if (answerEl) {
-          answerEl.textContent = getAnswerResult(question.answer);
-        }
-      }
-    }
+    syncCardHeader(index, question);
 
     updateProgress();
     updateControls();
@@ -677,11 +714,15 @@
       state.shadowRoot.appendChild(styleLink);
 
       const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      darkMediaQuery.addEventListener('change', () => {
-        if (state.themeMode === 'system') {
-          globalThis.QuizHelperApp.updateDarkMode();
-        }
-      });
+      if (!darkMediaQueryRef) {
+        darkMediaQueryRef = darkMediaQuery;
+        darkMediaQueryHandler = () => {
+          if (state.themeMode === 'system') {
+            globalThis.QuizHelperApp.updateDarkMode();
+          }
+        };
+        darkMediaQueryRef.addEventListener('change', darkMediaQueryHandler);
+      }
 
       applyTheme();
 
@@ -768,6 +809,12 @@
    */
   function destroyPanel(clearData = true) {
     globalThis.QuizHelperAnalyzer.stopElementPicker();
+    // 移除面板级 matchMedia 监听器，避免反复创建面板时累积泄漏
+    if (darkMediaQueryRef && darkMediaQueryHandler) {
+      darkMediaQueryRef.removeEventListener('change', darkMediaQueryHandler);
+      darkMediaQueryRef = null;
+      darkMediaQueryHandler = null;
+    }
     removeAllPanelHosts();
     state.shadowRoot = null;
     state.panelElement = null;

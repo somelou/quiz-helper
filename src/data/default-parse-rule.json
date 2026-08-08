@@ -67,6 +67,10 @@
     ]
   },
   "typeKeywords": {
+    "single": [
+      "单选",
+      "单项选择"
+    ],
     "multiple": [
       "多选",
       "以下哪些",

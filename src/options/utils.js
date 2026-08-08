@@ -11,11 +11,8 @@ const TYPE_CLASSES = {
   unknown: 'q-type-unknown'
 };
 
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
+// HTML 转义统一复用 shared/text-utils.js（避免双份实现）
+const escapeHtml = globalThis.QuizHelperTextUtils.escapeHtml;
 
 function parseLines(text) {
   return String(text || '').split('\n').map(s => s.trim()).filter(Boolean);

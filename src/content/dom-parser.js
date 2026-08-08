@@ -94,11 +94,18 @@
     if (kw.judge && kw.judge.length > 0) {
       const pattern = kw.judge.map(escapeRegex).join('|');
       if (new RegExp(`(?:^|\\n)\\s*(?:${pattern})\\s*(?:$|\\n)`, 'm').test(normalized)) return 'judge';
+      // 判断/对错选项的符号或单字母渲染（√/×/✓/✗、T/F 独立成行）
+      if (/(?:^|\n)\s*[√×✓✗]\s*(?:$|\n)/m.test(normalized)) return 'judge';
+      if (/(?:^|\n)\s*[TtFf]\s*(?:$|\n)/m.test(normalized)) return 'judge';
     }
 
     if (kw.fill && kw.fill.some(k => normalized.includes(k))) return 'fill';
 
-    if (/(?:^|\n)\s*[A-Ha-h][\.\、\)]\s*/m.test(normalized)) return 'single';
+    if (kw.single && kw.single.some(k => normalized.includes(k))) return 'single';
+
+    if (/(?:^|\n)\s*[A-Ha-h][\.\、\)）:：]\s*/m.test(normalized)) return 'single';
+    // 选项以 "A 内容" 空格分隔（无标点）的形式
+    if (/(?:^|\n)\s*[A-Ha-h]\s+(?=\S)/m.test(normalized)) return 'single';
 
     return 'unknown';
   }
@@ -174,9 +181,14 @@
     if (questionEl.querySelector('input[type="checkbox"]')) return 'multiple';
 
     if (questionEl.querySelector('input[type="radio"]')) {
-      if (/(?:正确|错误|对|错)/.test(optionText || questionText)) {
-        return 'judge';
-      }
+      // 判断：选项独立成行且为"对/错/正确/错误/√/×"等判断词（可带字母编号前缀），
+      // 避免题干含"对/错"字样（如"下列说法正确的是"）导致单选题误判为判断
+      const optionLines = (optionText || '').split('\n').map(l => l.trim()).filter(Boolean);
+      const judgeLikeCount = optionLines.filter(line => {
+        const body = line.replace(/^[A-Ha-h]?[\.\、\)）:：]?\s*/, '').trim();
+        return /^(正确|错误|对|错|√|×|✓|✗)$/.test(body);
+      }).length;
+      if (judgeLikeCount >= 1) return 'judge';
       return fallbackType !== 'unknown' ? fallbackType : 'single';
     }
 
