@@ -1,0 +1,127 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=1280"><title>02 · 双引擎协作：题库优先，联网兜底</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:800px;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(150deg,#0f172a,#1e1b4b);color:#e2e8f0}
+
+/* ===== 顶部横幅 ===== */
+.hero{height:148px;padding:34px 48px 0;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-80px;top:-110px;width:320px;height:320px;border-radius:50%;background:rgba(139,92,246,.10)}
+.kicker{font-size:13.5px;font-weight:800;letter-spacing:2.5px;color:#c4b5fd}
+h1{font-size:36px;font-weight:800;color:#fff;margin:8px 0 4px;letter-spacing:-.01em}
+.sub{font-size:16.5px;color:#a5b4fc}
+
+/* ===== 主体 ===== */
+.main{height:calc(800px - 148px);padding:18px 44px 24px;display:flex;flex-direction:column}
+
+/* 主流程一行三卡 */
+.flow{display:flex;align-items:stretch;gap:18px;flex:1;min-height:250px}
+.card{flex:1;background:#111827;border:1px solid #334155;border-radius:18px;padding:16px 24px;box-shadow:0 12px 28px rgba(2,6,23,.4);display:flex;flex-direction:column}
+.card .tag{font-size:13px;font-weight:800;letter-spacing:1px;color:#a5b4fc;margin-bottom:8px}
+.card h3{font-size:22px;font-weight:800;color:#fff;margin-bottom:8px}
+.card p{font-size:15px;color:#cbd5e1;line-height:1.65}
+.card .chips{margin-top:auto;padding-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:13px;font-weight:800;border-radius:999px;padding:5px 13px;letter-spacing:.3px;white-space:nowrap}
+.card.c1{border-color:#334155}
+.card.c1 .chips .chip{color:#a5b4fc;background:#1e293b;border:1px solid #6366f1}
+.card.c2{border-color:#818cf8}.card.c2 .tag{color:#67e8f9}.card.c2 .chips .chip{color:#86efac;background:#052e16;border:1px solid #34d399}
+.card.c3{border-color:#f59e0b}.card.c3 .tag{color:#fbbf24}.card.c3 .chips .chip{color:#fde68a;background:#451a03;border:1px solid #f59e0b}
+
+/* 箭头分隔（与分支列保持同宽，保证对齐） */
+.sep{width:50px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#818cf8}
+.sep svg{filter:drop-shadow(0 0 8px rgba(129,140,248,.55))}
+
+/* 分支连接（三列 + 两个等宽箭位列，与上方卡片严格对齐） */
+.branch{display:flex;gap:18px;height:62px;padding-top:12px;flex-shrink:0}
+.bcol{flex:1}
+.bsep{width:50px;flex-shrink:0}
+.bcol .inner{display:flex;flex-direction:column;align-items:center}
+.vline{position:relative;width:2px;height:20px;background:linear-gradient(180deg,#6366f1,#34d399)}
+.vline::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #34d399}
+.vline.net{background:linear-gradient(180deg,#6366f1,#2dd4bf)}
+.vline.net::after{border-top-color:#2dd4bf}
+.bl{font-size:14px;font-weight:800;letter-spacing:.5px;margin-top:8px}
+.bl.hit{color:#34d399}.bl.net{color:#2dd4bf}
+
+/* 分支结果一行两卡 */
+.results{display:flex;gap:18px;flex:none;height:230px}
+.result{flex:1;background:#111827;border-radius:18px;padding:18px 24px;box-shadow:0 12px 28px rgba(2,6,23,.4);display:flex;flex-direction:column}
+.result .tag{font-size:13px;font-weight:800;letter-spacing:1px;margin-bottom:6px}
+.result h3{font-size:21.5px;font-weight:800;color:#fff;margin-bottom:6px}
+.result p{font-size:15px;color:#cbd5e1;line-height:1.6}
+.result .mini{margin-top:12px;background:#0b1220;border:1px solid #1e293b;border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.mini .mrow{display:flex;align-items:center;gap:12px;font-size:15px}
+.mini .mk{color:#94a3b8;width:76px;flex-shrink:0;font-size:13px}
+.mini .mv{color:#fff;font-weight:800;background:#10b981;border-radius:6px;padding:2px 13px;font-size:15px}
+.mini .mv2{color:#e2e8f0;font-weight:600}
+.mini .mb{margin-left:auto;font-size:12px;color:#64748b}
+.result .chips{margin-top:auto;padding-top:12px}
+.result.hit{border:1px solid #34d399}.result.hit .tag{color:#86efac}.result.hit .chips .chip{color:#86efac;background:#052e16;border:1px solid #34d399}
+.result.net{border:1px solid #2dd4bf}.result.net .tag{color:#5eead4}.result.net .chips .chip{color:#5eead4;background:#042f2e;border:1px solid #2dd4bf}
+.result.net .mini .mv{background:#14b8a6}
+
+/* 约束条 */
+.constraint{height:58px;background:#111827;border:1px solid #334155;border-radius:14px;display:flex;align-items:center;padding:0 24px;font-size:15px;color:#cbd5e1;margin-top:8px;flex-shrink:0}
+</style></head>
+<body>
+  <div class="hero">
+    <div class="kicker">QUIZ HELPER · ANSWER ENGINE 02</div>
+    <h1>双引擎协作：题库优先，联网兜底</h1>
+    <div class="sub">题库优先 · AI 兜底 · 联网增强</div>
+  </div>
+
+  <div class="main">
+    <div class="flow">
+      <div class="card c1">
+        <div class="tag">1 · 题目进入</div>
+        <h3>整页提取题目</h3>
+        <p>规则解析 / AI 选区抽题</p>
+        <div class="chips"><span class="chip">单选</span><span class="chip">多选</span><span class="chip">判断</span></div>
+      </div>
+      <div class="sep"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h16M14 6l6 6-6 6"/></svg></div>
+      <div class="card c2">
+        <div class="tag">2 · 题库优先匹配</div>
+        <h3>本地题库命中检测</h3>
+        <p>本地题库相似度检索</p>
+        <div class="chips"><span class="chip">命中 → 少一次 API 调用</span></div>
+      </div>
+      <div class="sep"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h16M14 6l6 6-6 6"/></svg></div>
+      <div class="card c3">
+        <div class="tag">3 · AI 生成作答</div>
+        <h3>大模型兜底生成</h3>
+        <p>OpenAI / Anthropic / Responses</p>
+        <div class="chips"><span class="chip">不确定 → 搜索</span></div>
+      </div>
+    </div>
+
+    <div class="branch">
+      <div class="bcol"></div>
+      <div class="bsep"></div>
+      <div class="bcol"><div class="inner"><div class="vline"></div><span class="bl hit">命中 ✓</span></div></div>
+      <div class="bsep"></div>
+      <div class="bcol"><div class="inner"><div class="vline net"></div><span class="bl net">需要联网？</span></div></div>
+    </div>
+
+    <div class="results">
+      <div class="result hit">
+        <div class="tag">命中 ✓ · 直接出答案</div>
+        <h3>题库答案 + 选项校验</h3>
+        <div class="mini">
+          <div class="mrow"><span class="mk">参考答案</span><span class="mv">B</span><span class="mb">已校验</span></div>
+          <div class="mrow"><span class="mk">相似度</span><span class="mv2">0.92</span><span class="mb">可回溯</span></div>
+        </div>
+        <div class="chips"><span class="chip">稳定 · 快速 · 少调用 API</span></div>
+      </div>
+      <div class="result net">
+        <div class="tag">需要联网 ✓ · 搜索增强</div>
+        <h3>二次作答 + 参考链接</h3>
+        <div class="mini">
+          <div class="mrow"><span class="mk">搜索来源</span><span class="mv2">Bing · 3 条</span><span class="mb">可过滤</span></div>
+          <div class="mrow"><span class="mk">参考链接</span><span class="mv2">wikipedia.org</span><span class="mb">可溯源</span></div>
+        </div>
+        <div class="chips"><span class="chip">搜索不可用自动降级</span></div>
+      </div>
+    </div>
+
+    <div class="constraint">数据留在本地 · 请求直达你的服务 · 搜索不可用自动降级</div>
+  </div>
+</body></html>

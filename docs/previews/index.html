@@ -1,0 +1,172 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>题目助手 · 功能宣传图预览</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(160deg,#0f172a,#1e1b4b);color:#e2e8f0;min-height:100vh}
+.wrap{max-width:1370px;margin:0 auto;padding:48px 24px 80px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:40px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid #334155;border-radius:999px;color:#c7d2fe;font-size:13px;font-weight:600;background:rgba(99,102,241,.12)}
+.badge b{color:#fff}
+h1{font-size:34px;font-weight:800;letter-spacing:-.01em;background:linear-gradient(90deg,#fff,#a5b4fc);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:18px}
+header p{color:#94a3b8;margin-top:12px;font-size:15px;max-width:760px;line-height:1.8}
+.grid{display:grid;gap:32px}
+figure{margin:0;background:#1e293b;border:1px solid #334155;border-radius:22px;padding:20px;box-shadow:0 24px 60px rgba(2,6,23,.45);transition:transform .25s ease,border-color .25s ease}
+figure:hover{transform:translateY(-4px);border-color:#4f46e5}
+figcaption{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 4px 16px}
+figcaption h2{font-size:19px;font-weight:800;line-height:1.5}
+figcaption h2 small{display:block;color:#94a3b8;font-weight:600;font-size:13px;margin-top:4px}
+.cap-actions{flex-shrink:0;display:flex;align-items:center;gap:10px}
+.num{font-size:12px;font-weight:800;color:#a5b4fc;background:rgba(99,102,241,.15);border:1px solid rgba(129,140,248,.4);padding:6px 12px;border-radius:999px;letter-spacing:1px;white-space:nowrap}
+.dl{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12px;font-weight:700;color:#e0e7ff;background:rgba(99,102,241,.22);border:1px solid rgba(129,140,248,.5);border-radius:999px;padding:6px 14px;cursor:pointer;white-space:nowrap;transition:background .2s ease,transform .2s ease}
+.dl:hover{background:rgba(99,102,241,.42);transform:translateY(-1px)}
+.dl:active{transform:translateY(0)}
+.dl svg{width:13px;height:13px}
+.dl.loading{opacity:.6;pointer-events:none}
+.shot{position:relative;width:100%;aspect-ratio:1280/800;overflow:hidden;border-radius:14px;border:1px solid #334155;background:#fff}
+.shot iframe{width:1280px;height:800px;border:0;transform-origin:0 0;display:block}
+.note{font-size:12px;color:#64748b;padding:8px 4px 0;line-height:1.7}
+footer{margin-top:44px;color:#64748b;font-size:13px;text-align:center;line-height:1.8}
+</style></head><body>
+<div class="wrap">
+<header>
+  <div>
+    <span class="badge">QUIZ HELPER · 宣传物料 <b>1280 × 800</b></span>
+    <h1>题目助手 · 功能宣传图</h1>
+    <p>四张 1280 × 800 的宣传页面，从「用户视角」展示扩展如何工作。点击每张图右上角的「下载图片」可直接导出 1280×800 的 PNG。</p>
+  </div>
+</header>
+<main class="grid">
+  <figure data-name="quiz-helper-01-one-click-solve">
+    <figcaption>
+      <h2>01 · 打开网页，就能开始答题<small>自动识别题目 · 页面内生成答案 · 支持局部解析</small></h2>
+      <span class="cap-actions"><span class="num">01 / FEATURE</span><button class="dl" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>下载图片</button></span>
+    </figcaption>
+    <div class="shot"><iframe src="01-one-click-solve.html"></iframe></div>
+    <div class="note">用一个真实页面说明：打开网页、开始分析、查看答案。</div>
+  </figure>
+  <figure data-name="quiz-helper-02-dual-engine">
+    <figcaption>
+      <h2>02 · 先查题库，再让 AI 作答<small>熟题快速命中 · 新题自动生成 · 需要时再搜索</small></h2>
+      <span class="cap-actions"><span class="num">02 / ENGINE</span><button class="dl" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>下载图片</button></span>
+    </figcaption>
+    <div class="shot"><iframe src="02-dual-engine.html"></iframe></div>
+    <div class="note">用用户能理解的顺序，说明题库、AI 和搜索分别在什么时候发挥作用。</div>
+  </figure>
+  <figure data-name="quiz-helper-03-streaming-thinking">
+    <figcaption>
+      <h2>03 · 答案生成过程，看得见<small>边生成边阅读 · 思路按需展开 · 答案与依据分层</small></h2>
+      <span class="cap-actions"><span class="num">03 / STREAM</span><button class="dl" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>下载图片</button></span>
+    </figcaption>
+    <div class="shot"><iframe src="03-streaming-thinking.html"></iframe></div>
+    <div class="note">突出用户真正关心的体验：进度可见、思路可读、结果可控。</div>
+  </figure>
+  <figure data-name="quiz-helper-04-privacy-local">
+    <figcaption>
+      <h2>04 · 配置和记录，留在你的设备<small>本地保存 · 请求直连你选择的服务 · 数据去向说清楚</small></h2>
+      <span class="cap-actions"><span class="num">04 / PRIVACY</span><button class="dl" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>下载图片</button></span>
+    </figcaption>
+    <div class="shot"><iframe src="04-privacy-local.html"></iframe></div>
+    <div class="note">把本地保存、请求直连和用户可控的边界讲清楚，不用模糊的隐私口号。</div>
+  </figure>
+</main>
+<footer>画布尺寸 1280 × 800 px · 点击「下载图片」导出 PNG，或单独打开页面在浏览器中截图</footer>
+</div>
+<script>
+(function(){
+  // 预览 iframe 等比缩放
+  function scaleAll(){
+    document.querySelectorAll('.shot').forEach(function(box){
+      var f = box.querySelector('iframe');
+      f.style.transform = 'scale(' + (box.clientWidth / 1280) + ')';
+    });
+  }
+  scaleAll();
+  window.addEventListener('resize', scaleAll);
+
+  // 将 iframe 页面渲染为 1280×800 PNG 并下载
+  document.querySelectorAll('.dl').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var fig = btn.closest('figure');
+      var iframe = fig.querySelector('iframe');
+      var name = fig.dataset.name || 'quiz-helper';
+      btn.classList.add('loading');
+      btn.textContent = '导出中…';
+      renderToPng(iframe, name).then(function(){
+        btn.classList.remove('loading');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>下载图片';
+      }).catch(function(e){
+        btn.classList.remove('loading');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>下载图片';
+        alert('导出失败：' + ((e && e.message) || '请重试'));
+      });
+    });
+  });
+
+  function renderToPng(iframe, name){
+    return new Promise(function(resolve, reject){
+      var doc, bodyEl;
+      try {
+        doc = iframe.contentDocument || iframe.contentWindow.document;
+        bodyEl = doc.body;
+      } catch (err) {
+        reject(new Error('无法读取页面内容：' + err.message));
+        return;
+      }
+      if (!bodyEl || !bodyEl.innerHTML) {
+        reject(new Error('页面尚未加载完成'));
+        return;
+      }
+      try {
+        // 内联样式 + body 的计算背景/字体/颜色
+        var styles = Array.prototype.map.call(doc.querySelectorAll('style'), function(s){ return s.textContent; }).join('\n');
+        var cs = getComputedStyle(bodyEl);
+        // 2x（2560×1600）超采样渲染后，高质量压缩回严格 1280×800
+        // 说明：Chrome 将 foreignObject 内 HTML 文字按固定倍率栅格化，
+        // 提高超采样无法进一步变清晰；需要像素级高清请用 export-images.sh
+        var W = 1280, H = 800, S = 2;
+        var tmp = document.createElement('div');
+        tmp.style.cssText = 'width:' + W + 'px;height:' + H + 'px;zoom:' + S + ';overflow:hidden;box-sizing:border-box;' +
+          'background:' + cs.backgroundImage + ';' +
+          'background-color:' + cs.backgroundColor + ';' +
+          'font-family:' + cs.fontFamily + ';' +
+          'color:' + cs.color + ';';
+        tmp.innerHTML = bodyEl.innerHTML;
+        var styleEl = document.createElement('style');
+        styleEl.textContent = styles;
+        tmp.insertBefore(styleEl, tmp.firstChild);
+        // 用 XMLSerializer 序列化为规范 XHTML（自动闭合 <br> 等、转义 & " <），
+        // 避免手工拼接导致 SVG 解析失败
+        var bodyHTML = new XMLSerializer().serializeToString(tmp);
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" width="' + (W*S) + '" height="' + (H*S) + '" viewBox="0 0 ' + (W*S) + ' ' + (H*S) + '"><foreignObject width="' + (W*S) + '" height="' + (H*S) + '">' + bodyHTML + '</foreignObject></svg>';
+        var img = new Image();
+        img.onload = function(){
+          var big = document.createElement('canvas');
+          big.width = W * S; big.height = H * S;
+          big.getContext('2d').drawImage(img, 0, 0, W * S, H * S);
+          var canvas = document.createElement('canvas');
+          canvas.width = W; canvas.height = H;
+          var ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(big, 0, 0, W, H);
+          canvas.toBlob(function(blob){
+            if(!blob){ reject(new Error('生成图片失败')); return; }
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = name + '.png';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+            resolve();
+          }, 'image/png');
+        };
+        img.onerror = function(){ reject(new Error('SVG 渲染失败')); };
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+})();
+</script>
+</body></html>

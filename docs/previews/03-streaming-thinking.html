@@ -1,0 +1,99 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=1280"><title>03 · 不只给答案，更给思考过程</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:800px;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#f8fafc,#eef2ff);color:#1f2937}
+
+/* ===== 顶部横幅 ===== */
+.hero{position:relative;height:160px;background:linear-gradient(90deg,#312e81,#6366f1);padding:40px 48px 0;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-70px;top:-90px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.07)}
+.kicker{font-size:14px;font-weight:800;letter-spacing:2.5px;color:#a5b4fc}
+h1{font-size:38px;font-weight:800;color:#fff;margin:10px 0 6px;letter-spacing:-.01em}
+.sub{font-size:17px;color:#e0e7ff}
+
+/* ===== 主体 ===== */
+.main{display:flex;gap:26px;padding:16px 40px 24px;height:calc(800px - 160px)}
+
+/* --- 答题面板（真实组件样式） --- */
+.panel{width:596px;background:#fff;border:1px solid #c7d2fe;border-radius:18px;box-shadow:0 18px 40px rgba(49,46,129,.20);display:flex;flex-direction:column;overflow:hidden}
+.panel-head{background:linear-gradient(90deg,#4f46e5,#8b5cf6);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.panel-head b{font-size:16.5px}
+.panel-head .meta{font-size:13.5px;color:#e0e7ff;font-weight:600}
+.panel-head .btns{display:flex;gap:8px}.panel-head .btns i{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.25);display:inline-block}
+.panel-body{flex:1;overflow:hidden;padding:16px 20px;display:flex;flex-direction:column;gap:14px;background:#f8fafc}
+
+.qcard{background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:16px 18px}
+.qcard .row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.qcard .num{background:#eef2ff;color:#4f46e5;font-size:13.5px;font-weight:800;border-radius:7px;padding:3px 10px}
+.qcard .type{background:#eef2ff;color:#4f46e5;font-size:13px;font-weight:800;border-radius:7px;padding:3px 10px}
+.qcard .title{font-size:17px;font-weight:700;color:#1f2937;flex:1}
+.qcard .state{background:#eef2ff;color:#4f46e5;font-size:13px;font-weight:800;border-radius:999px;padding:3px 13px}
+.qcard .opts{font-size:15.5px;color:#64748b;line-height:1.9}
+
+.think{background:#fff;border:1px solid #eef2f7;border-radius:12px;padding:13px 16px}
+.think .trow{display:flex;align-items:center;gap:8px;color:#6366f1;font-size:15px;font-weight:800;margin-bottom:6px}
+.think .trow .chev{width:0;height:0;border-left:6px solid #a5b4fc;border-top:5px solid transparent;border-bottom:5px solid transparent}
+.think p{font-size:14.5px;color:#94a3b8;line-height:1.6}
+
+.answer{background:#fff;border:1px solid #c7d2fe;border-radius:14px;padding:16px 18px;flex:1}
+.answer .alabel{font-size:13.5px;font-weight:800;color:#94a3b8;letter-spacing:1px;margin-bottom:8px}
+.answer .main{font-size:18px;font-weight:800;color:#16a34a;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.cursor{display:inline-block;width:11px;height:20px;border-radius:2px;background:#16a34a;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.answer p{font-size:15px;color:#475569;line-height:1.75}
+.progress{margin-top:auto;padding-top:12px;height:10px;background:#eef2ff;border-radius:999px;overflow:hidden}
+.progress i{display:block;height:100%;width:58%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:999px}
+
+.panel-foot{margin:0 20px 18px;background:#f8fafc;border:1px solid #eef2f7;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.pbtn{border:1px solid #e2e8f0;background:#fff;color:#52525b;font-size:14px;font-weight:600;border-radius:999px;padding:7px 20px}
+.pbtn.primary{border-color:#c7d2fe;background:#eef2ff;color:#4f46e5;font-weight:700}
+.panel-foot .hint{margin-left:auto;font-size:13.5px;color:#94a3b8}
+
+/* --- 右侧卖点 --- */
+.feats{flex:1;display:flex;flex-direction:column;gap:12px}
+.feat{flex:1;display:flex;gap:18px;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:0 24px;box-shadow:0 6px 18px rgba(49,46,129,.08)}
+.feat .ic{width:68px;height:68px;border-radius:50%;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.feat .ic svg{display:block}
+.feat h3{font-size:24px;font-weight:800;margin-bottom:4px}
+.feat p{font-size:17px;color:#64748b;line-height:1.7}
+</style></head>
+<body>
+  <div class="hero">
+    <div class="kicker">QUIZ HELPER · FEATURE 03 · STREAMING &amp; THINKING</div>
+    <h1>不只给答案，更给你思考的过程</h1>
+    <div class="sub">流式输出 · 深度思考折叠展示 · 答案 / 思考 / 证据 三层结构</div>
+  </div>
+
+  <div class="main">
+    <section class="panel">
+      <div class="panel-head"><b>题目助手</b><span class="meta">1/1 · 作答中</span><span class="btns"><i></i><i></i></span></div>
+      <div class="panel-body">
+        <div class="qcard">
+          <div class="row"><span class="num">1</span><span class="type">单选</span><span class="title">下列关于二叉树的说法，正确的是？</span><span class="state">作答中</span></div>
+          <div class="opts">A. 中序遍历的序列一定有序<br>B. 后序遍历中，根节点一定最后访问</div>
+        </div>
+        <div class="think">
+          <div class="trow"><span class="chev"></span>深度思考 · 点击展开</div>
+          <p>结合二叉树遍历顺序与递归定义给出推理…</p>
+        </div>
+        <div class="answer">
+          <div class="alabel">参考答案</div>
+          <div class="main">B　后序遍历中，根节点最后访问<span class="cursor"></span></div>
+          <p>解析：二叉树的后序遍历顺序为「左 → 右 → 根」，<br>因此根节点一定最后被访问，B 正确。</p>
+          <div class="progress"><i></i></div>
+        </div>
+      </div>
+      <div class="panel-foot">
+        <button class="pbtn">暂停</button>
+        <button class="pbtn primary">重新作答</button>
+        <span class="hint">Alt+Q 随时唤起面板</span>
+      </div>
+    </section>
+
+    <aside class="feats">
+      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 13h4l3-9 6 16 3-7h4"/></svg></div><div><h3>流式输出</h3><p>答案逐字生成，进度即时可见</p></div></div>
+      <div class="feat"><div class="ic">💡</div><div><h3>深度思考</h3><p>推理过程折叠展示，可回溯</p></div></div>
+      <div class="feat"><div class="ic">▤</div><div><h3>证据分层</h3><p>答案 / 思考 / 引用 分层呈现</p></div></div>
+      <div class="feat"><div class="ic">⏸</div><div><h3>随时控制</h3><p>暂停、重试、重解析，无打断</p></div></div>
+    </aside>
+  </div>
+</body></html>

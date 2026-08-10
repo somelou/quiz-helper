@@ -1,0 +1,95 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=1280"><title>01 · 打开页面，一键开始答题</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:800px;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#f8fafc,#eef2ff);color:#1f2937}
+
+/* ===== 顶部横幅 ===== */
+.hero{position:relative;height:160px;background:linear-gradient(90deg,#312e81,#6366f1);padding:40px 48px 0;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-70px;top:-90px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.07)}
+.kicker{font-size:14px;font-weight:800;letter-spacing:2.5px;color:#a5b4fc}
+h1{font-size:38px;font-weight:800;color:#fff;margin:10px 0 6px;letter-spacing:-.01em}
+.sub{font-size:17px;color:#e0e7ff}
+
+/* ===== 主体 ===== */
+.main{display:flex;gap:26px;padding:18px 40px 24px;height:calc(800px - 160px)}
+
+/* --- 浏览器窗口 --- */
+.browser{position:relative;flex:1.45;background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 8px 26px rgba(49,46,129,.10)}
+.browser-bar{display:flex;align-items:center;gap:14px;height:48px;padding:0 18px;background:#f8fafc;border-bottom:1px solid #eef2f7}
+.browser-bar i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px}
+.browser-bar i:nth-child(1){background:#fca5a5}.browser-bar i:nth-child(2){background:#fde68a}.browser-bar i:nth-child(3){background:#86efac}
+.url{flex:1;max-width:470px;font-size:13.5px;color:#94a3b8;background:#fff;border:1px solid #e2e8f0;border-radius:999px;padding:6px 16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page{padding:18px 22px}
+.page h2{font-size:24px;font-weight:800;margin-bottom:5px}
+.page-sub{font-size:15.5px;color:#94a3b8;margin-bottom:12px}
+.q{background:#f8fafc;border:1px solid #eef2f7;border-radius:12px;padding:16px 20px;margin-bottom:12px;font-size:15.5px;color:#64748b;line-height:1.9}
+.q b{display:block;font-size:17px;color:#334155;margin-bottom:6px;font-weight:700}
+.q .type{display:inline-block;font-size:12.5px;font-weight:800;color:#ea580c;background:#fff7ed;border-radius:999px;padding:3px 13px}
+
+/* --- 悬浮答题面板 --- */
+.panel{position:absolute;right:18px;bottom:18px;width:250px;background:#fff;border:1px solid #c7d2fe;border-radius:14px;box-shadow:0 16px 34px rgba(49,46,129,.22);overflow:hidden}
+.panel-head{background:linear-gradient(90deg,#4f46e5,#8b5cf6);color:#fff;font-size:15px;font-weight:800;padding:11px 14px;display:flex;justify-content:space-between;align-items:center}
+.panel-head span:last-child{font-size:12.5px;font-weight:700;color:#e0e7ff}
+.panel-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.prow{display:flex;align-items:center;justify-content:space-between;font-size:13.5px;font-weight:700;border-radius:10px;padding:9px 12px}
+.prow.done{background:#ecfdf5;border:1px solid #a7f3d0;color:#047857}
+.prow.busy{background:#eef2ff;border:1px solid #818cf8;color:#4f46e5}
+.prow.wait{background:#fff;border:1px solid #e2e8f0;color:#71717a}
+.badge{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.badge.ok{background:#10b981;color:#fff}.badge.run{border:2px solid #a5b4fc;border-top-color:transparent;animation:spin 1s linear infinite}
+.badge.dot{width:9px;height:9px;background:#cbd5e1}
+@keyframes spin{to{transform:rotate(360deg)}}
+.panel-foot{padding:0 14px 10px;font-size:11.5px;color:#94a3b8}
+
+/* --- 右侧卖点 --- */
+.feats{flex:1;display:flex;flex-direction:column;gap:12px}
+.feat{flex:1;display:flex;gap:18px;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:0 24px;box-shadow:0 6px 18px rgba(49,46,129,.08)}
+.feat .ic{width:68px;height:68px;border-radius:50%;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.feat h3{font-size:24px;font-weight:800;margin-bottom:4px}
+.feat p{font-size:17px;color:#64748b;line-height:1.7}
+.stats{height:128px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 6px 18px rgba(49,46,129,.08);display:flex}
+.stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #eef2f7}
+.stat:first-child{border-left:none}
+.stat b{font-size:34px;font-weight:800;color:#4f46e5;line-height:1.2}
+.stat span{font-size:14.5px;color:#64748b;margin-top:3px}
+</style></head>
+<body>
+  <div class="hero">
+    <div class="kicker">QUIZ HELPER · FEATURE 01</div>
+    <h1>打开题目页面，一键开始答题</h1>
+    <div class="sub">自动识别题目与选项 · 逐题流式作答 · 题型自动分类</div>
+  </div>
+
+  <div class="main">
+    <section class="browser">
+      <div class="browser-bar"><span><i></i><i></i><i></i></span><div class="url">learning.example.com / practice / chapter-4</div></div>
+      <div class="page">
+        <h2>第四章 · 数据结构与算法</h2>
+        <div class="page-sub">请阅读题干，选择最合适的答案。</div>
+        <div class="q"><b>1. 以下关于哈希表的描述，正确的是：</b>A. 查找复杂度始终为 O(1)<br>B. 冲突只可能发生在开放寻址法中</div>
+        <div class="q"><b>2. AVL 树的最坏情况查找复杂度是？</b>A. O(n)<br>B. O(log n)</div>
+        <div class="q"><b>3. 堆排序的空间复杂度为 ____。</b><span class="type">填空</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span>题目助手</span><span>2/3 已完成</span></div>
+        <div class="panel-body">
+          <div class="prow done">1 · 单选 已完成<span class="badge ok">✓</span></div>
+          <div class="prow busy">2 · 单选 作答中<span class="badge run"></span></div>
+          <div class="prow wait">3 · 判断 待分析<span class="badge dot"></span></div>
+        </div>
+        <div class="panel-foot">暂停 · 重新作答 · Alt+Q</div>
+      </div>
+    </section>
+
+    <aside class="feats">
+      <div class="feat"><div class="ic">✓</div><div><h3>免复制粘贴</h3><p>自动提取题干、选项与题型</p></div></div>
+      <div class="feat"><div class="ic">⚡</div><div><h3>流式逐字作答</h3><p>答案边生成边展示，随时重试</p></div></div>
+      <div class="feat"><div class="ic">▤</div><div><h3>题型自动识别</h3><p>单选 / 多选 / 判断 / 填空</p></div></div>
+      <div class="stats">
+        <div class="stat"><b>3 种</b><span>API 格式支持</span></div>
+        <div class="stat"><b>100%</b><span>数据留在本地</span></div>
+        <div class="stat"><b>1 步</b><span>从题目到答案</span></div>
+      </div>
+    </aside>
+  </div>
+</body></html>

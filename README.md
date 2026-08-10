@@ -1,22 +1,59 @@
-# 题目助手
+# 题目助手（Quiz Helper）
 
-一个面向网页题目场景的浏览器插件。
+**中文** | [English](./README.en.md)
+
+<p align="center">
+  <img src="./docs/previews/png/quiz-helper-small-tile-440x280.png" alt="题目助手" width="440" />
+</p>
+
+一个面向在线题目场景的浏览器插件。
 
 它可以从当前页面提取题目内容，调用用户自行配置的大模型接口生成参考答案，并支持题库匹配、AI 选区解析和联网搜索增强。
+
+<p align="center">
+  <a href="https://github.com/somelou/quiz-helper/releases"><img src="https://img.shields.io/github/v/release/somelou/quiz-helper?color=369eff&labelColor=black&logo=github&logoColor=white&style=flat-square" alt="GitHub Release" /></a>
+  <a href="https://github.com/somelou/quiz-helper/stargazers"><img src="https://img.shields.io/github/stars/somelou/quiz-helper?color=ffcb47&labelColor=black&style=flat-square" alt="GitHub Stars" /></a>
+  <a href="https://github.com/somelou/quiz-helper/network/members"><img src="https://img.shields.io/github/forks/somelou/quiz-helper?color=8ae8ff&labelColor=black&style=flat-square" alt="GitHub Forks" /></a>
+  <a href="https://github.com/somelou/quiz-helper/issues"><img src="https://img.shields.io/github/issues/somelou/quiz-helper?color=ff80eb&labelColor=black&style=flat-square" alt="GitHub Issues" /></a>
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black&style=flat-square" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/Manifest%20V3-4285F4?style=flat-square" alt="Manifest V3" />
+  <img src="https://img.shields.io/badge/Chrome-4285F4?style=flat-square" alt="Chrome" />
+  <img src="https://img.shields.io/badge/Edge-0A60BE?style=flat-square" alt="Microsoft Edge" />
+</p>
+
 
 ## 核心功能
 
 - 页面题目提取：从当前网页中识别并提取题目、选项和题型
 - AI 参考答案：调用用户配置的大模型接口生成逐题参考答案
-- 流式输出控制：可在设置页全局开关大模型测试与答题的流式返回，默认开启
+- 流式输出控制：可在设置页全局开关大模型测试与答题的流式返回
 - AI 选区解析：手动选择页面区域，让 AI 解析局部题目内容
 - 题库导入与匹配：支持导入题库，并在答题时优先进行题库匹配
 - 联网搜索增强：在需要时结合搜索结果辅助生成答案
 - 历史记录管理：保存本地分析记录，支持查看、导出和清理
 - 备份与恢复：支持按模块导出/导入本地配置与数据
 - 主题与快捷键：支持深浅色主题与面板快捷键配置
+- 中英双语适配：界面文案与 AI 提示词随浏览器界面语言自动切换中/英文
+
+<p align="center">
+  <img src="./docs/previews/png/01-one-click-solve.png" alt="一键解题" width="720" />
+</p>
+
+## 语言说明
+
+插件已适配中文、英文两种使用场景，无需手动配置，根据浏览器界面语言自动生效：
+
+- **界面文案**：弹窗、设置页与页面面板的文案随浏览器界面语言自动切换（英文环境显示英文，其余默认中文）
+- **AI 提示词**：答题与测试使用的提示词模板按语言自动加载，保证中英文题目都能获得高质量参考
+- **未翻译兜底**：个别暂未翻译的文案会保留中文默认值，不影响使用
 
 ## 安装方式
+
+### 方式一：商店安装
+
+[Microsoft Edge 商店安装链接](https://microsoftedge.microsoft.com/addons/detail/%E9%A2%98%E7%9B%AE%E5%8A%A9%E6%89%8B/enmbkdjfpdjpmnjmpnfhfkhkhljkoiji)
+
+### 方式二：离线安装
 
 当前仓库适合通过本地加载方式安装到 Chrome 或 Edge。
 
@@ -40,14 +77,14 @@
 5. 按需导入题库文件，用于后续匹配与校验。
 6. 保存设置。
 
-如果没有先完成模型配置，插件将无法正常生成参考答案。
+> 如果没有先完成模型配置，插件将无法正常生成参考答案。
 
 ## 使用方法
 
 ### 1. 分析当前页面题目
 
 1. 打开包含题目的目标网页。
-2. 点击浏览器工具栏中的“题目助手”。
+2. 点击浏览器工具栏中的“题目助手”（或使用快捷键唤起）。
 3. 在弹窗中点击“分析当前页面题目”。
 4. 插件会在当前页面注入面板，并自动提取题目。
 5. 等待逐题生成参考答案。
