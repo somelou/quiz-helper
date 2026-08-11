@@ -20,8 +20,8 @@
       </button>
     </div>
   </div>
-  <button class="btn btn-primary" id="analyzeBtn" data-i18n="popupAnalyzeBtn">分析当前页面题目</button>
-  <button class="btn btn-secondary" id="optionsBtn" data-i18n="popupOptionsBtn">打开设置</button>
+  <button class="btn btn-primary" id="analyzeBtn"><span data-icon="sparkles"></span><span data-i18n="popupAnalyzeBtn">分析当前页面题目</span></button>
+  <button class="btn btn-secondary" id="optionsBtn"><span data-icon="settings"></span><span data-i18n="popupOptionsBtn">打开设置</span></button>
   <div class="model-dropdown" id="modelDropdown">
     <button class="btn btn-secondary model-dropdown-btn" id="modelDropdownBtn">
       <span class="model-dropdown-label" data-i18n="commonNoModels">无可用模型</span>
@@ -29,7 +29,10 @@
     </button>
     <div class="model-dropdown-menu" id="modelDropdownMenu"></div>
   </div>
-  <div class="hint" id="popupHint" data-i18n="popupInitialHint">提示：选中题目文本后分析效果更佳</div>
+  <div class="popup-footer">
+    <div class="hint" id="popupHint" data-i18n="popupInitialHint">提示：选中题目文本后分析效果更佳</div>
+    <span class="version-tag" id="popupVersion"></span>
+  </div>
   <script src="../icons.js"></script>
   <script src="../shared/i18n-utils.js"></script>
   <script src="../shared/constants.js"></script>

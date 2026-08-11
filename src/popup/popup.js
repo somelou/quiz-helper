@@ -16,6 +16,13 @@ const modelDropdownBtn = document.getElementById('modelDropdownBtn');
 const modelDropdownLabel = modelDropdownBtn.querySelector('.model-dropdown-label');
 const modelDropdownMenu = document.getElementById('modelDropdownMenu');
 
+// 版本号：与设置页"关于"一致，从 manifest 读取
+const popupVersion = document.getElementById('popupVersion');
+if (popupVersion) {
+  const version = chrome?.runtime?.getManifest?.()?.version || '--';
+  popupVersion.textContent = `v${version}`;
+}
+
 // ===== 主题管理 =====
 
 let currentTheme = 'system';

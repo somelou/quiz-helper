@@ -361,6 +361,25 @@ body {
   color: var(--color-btn-secondary-text);
 }
 .popup-preview .btn-secondary:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.popup-preview .btn svg { width: 16px; height: 16px; display: block; flex-shrink: 0; }
+.popup-preview .popup-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+.popup-preview .popup-footer .hint {
+  margin-top: 0;
+  flex: 1;
+  min-width: 0;
+}
+.popup-preview .version-tag {
+  flex-shrink: 0;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  user-select: none;
+}
 
 /* 模型下拉 */
 .model-dropdown { position: relative; margin-bottom: 10px; }
@@ -1627,15 +1646,18 @@ body {
             <button class="theme-btn" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
           </div>
         </div>
-        <button class="btn btn-primary">分析当前页面题目</button>
-        <button class="btn btn-secondary">打开设置</button>
+        <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>分析当前页面题目</button>
+        <button class="btn btn-secondary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>打开设置</button>
         <div class="model-dropdown">
           <button class="btn btn-secondary model-dropdown-btn">
             <span class="model-dropdown-label">DeepSeek-V3（默认）</span>
             <span class="model-dropdown-arrow"></span>
           </button>
         </div>
-        <div class="hint">提示：选中题目文本后分析效果更佳 · 快捷键 <strong>Ctrl+Shift+Y</strong></div>
+        <div class="popup-footer">
+          <div class="hint">唤起助手快捷键：<strong>Ctrl+Shift+Y</strong></div>
+          <span class="version-tag">v3.0.0</span>
+        </div>
       </div>
 
       <div class="demo-frame-label">模型下拉展开</div>
@@ -1648,8 +1670,8 @@ body {
             <button class="theme-btn" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
           </div>
         </div>
-        <button class="btn btn-primary">分析当前页面题目</button>
-        <button class="btn btn-secondary">打开设置</button>
+        <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>分析当前页面题目</button>
+        <button class="btn btn-secondary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>打开设置</button>
         <div class="model-dropdown open">
           <button class="btn btn-secondary model-dropdown-btn">
             <span class="model-dropdown-label">DeepSeek-V3（默认）</span>
@@ -1661,7 +1683,10 @@ body {
             <button class="model-dropdown-option">GLM-4-Air</button>
           </div>
         </div>
-        <div class="hint">提示：选中题目文本后分析效果更佳 · 快捷键 <strong>Ctrl+Shift+Y</strong></div>
+        <div class="popup-footer">
+          <div class="hint">唤起助手快捷键：<strong>Ctrl+Shift+Y</strong></div>
+          <span class="version-tag">v3.0.0</span>
+        </div>
       </div>
     </div>
   </section>
