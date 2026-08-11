@@ -525,17 +525,8 @@
 
     const total = state.questionsData.length;
     const finished = state.questionsData.filter(q => q.status === 'done' || q.status === 'error').length;
-    let text = getMessage('panelProgressText', [total, finished, total]);
-
-    if (state.pickerState) {
-      text += getMessage('panelSelectRegion');
-    } else if (state.isPaused) {
-      text += getMessage('panelPausedSuffix');
-    } else if (state.isAnalyzing) {
-      text += getMessage('panelAnalyzingSuffix');
-    }
-
-    progressEl.textContent = text;
+    // 仅在有已完成题目时显示进度；无进度（作答中/已暂停/选区）一律不显示
+    progressEl.textContent = finished > 0 ? getMessage('panelProgressText', [finished, total]) : '';
   }
 
   /**
@@ -777,7 +768,7 @@
         <div class="qh-header">
           <div>
             <span class="qh-title">${getMessage('panelTitle')}</span>
-            <span class="qh-progress">${getMessage('panelProgressTotal', [totalQuestions])}</span>
+            <span class="qh-progress"></span>
           </div>
           <div class="qh-header-btns">
             <button class="qh-header-btn" id="qh-minimize" title="${getMessage('panelMinimize')}"><span data-icon="minimize"></span></button>

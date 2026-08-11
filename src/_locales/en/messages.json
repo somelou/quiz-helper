@@ -1016,9 +1016,6 @@
   "panelAnalyzing": {
     "message": "<div class=\"qh-loading-text\">Analyzing...</div>"
   },
-  "panelAnalyzingSuffix": {
-    "message": ", answering"
-  },
   "panelAnswer": {
     "message": "Answer"
   },
@@ -1097,9 +1094,6 @@
   "panelPause": {
     "message": "Pause"
   },
-  "panelPausedSuffix": {
-    "message": ", paused"
-  },
   "panelPickerCancelled": {
     "message": "AI selection parse cancelled. You can continue with rule parsing, or click “AI Select Area” again to select a region on the page."
   },
@@ -1110,10 +1104,7 @@
     "message": "Select the question region on the page. Press Esc to cancel."
   },
   "panelProgressText": {
-    "message": "- $1 questions, $2/$3 completed"
-  },
-  "panelProgressTotal": {
-    "message": "- $1 questions total"
+    "message": "$1/$2 completed"
   },
   "panelQuestionLabel": {
     "message": "Question"
@@ -1144,9 +1135,6 @@
   },
   "panelRuleParseFailUpdate": {
     "message": "Rule parsing failed to extract questions. Click “AI Select Area” to re-select a region, and AI will automatically update the rule."
-  },
-  "panelSelectRegion": {
-    "message": ", please select a region"
   },
   "panelSelectionTooShort": {
     "message": "The selected region contains too little text. Please select a region that contains complete questions."

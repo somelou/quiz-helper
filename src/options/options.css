@@ -40,7 +40,9 @@ body {
 }
 h2 {
   font-size: var(--font-xl);
-  margin-bottom: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
   color: var(--color-text-heading);
 }
 
@@ -49,7 +51,7 @@ h2 {
   position: fixed;
   top: 40px;
   right: calc(50vw + 350px + 28px);
-  width: 150px;
+  width: 160px;
 }
 .nav-list {
   list-style: none;
@@ -58,7 +60,7 @@ h2 {
 }
 .nav-item {
   display: block;
-  padding: 8px 12px;
+  padding: 8px 14px;
   margin: 2px 0;
   border-radius: var(--radius-md);
   font-size: var(--font-md);
@@ -83,12 +85,13 @@ h2 {
 label {
   display: block;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-size: var(--font-md);
   color: var(--color-text-label);
 }
 input[type="text"],
 input[type="password"],
+input[type="number"],
 textarea {
   width: 100%;
   padding: 9px 12px;
@@ -190,7 +193,8 @@ textarea {
 .hint {
   font-size: var(--font-sm);
   color: var(--color-text-muted);
-  margin-top: 4px;
+  margin-top: 6px;
+  line-height: 1.6;
 }
 .actions {
   margin-top: 24px;
@@ -325,8 +329,8 @@ button:hover,
 }
 .action-btn:hover { filter: brightness(0.97); }
 .action-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   display: block;
   flex-shrink: 0;
 }
@@ -777,51 +781,6 @@ button:hover,
   margin-top: 12px;
 }
 
-/* 分页样式 */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-.page-btn {
-  min-width: 28px;
-  height: 26px;
-  padding: 0 8px;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: var(--font-sm);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity var(--transition-normal);
-}
-.page-btn:hover:not(:disabled) {
-  opacity: 0.9;
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-.page-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
-.page-btn.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-}
-.page-info {
-  font-size: var(--font-sm);
-  color: var(--color-text-muted);
-  margin: 0 4px;
-}
-
 /* 规则编辑表单 */
 .rule-form-group {
   margin-bottom: 14px;
@@ -1061,24 +1020,6 @@ button:hover,
 .json-punctuation {
   color: var(--color-text-muted);
 }
-body.dark .json-key {
-  color: #e06c75;
-}
-body.dark .json-string {
-  color: #98c379;
-}
-body.dark .json-number {
-  color: #d19a66;
-}
-body.dark .json-boolean {
-  color: #56b6c2;
-}
-body.dark .json-null {
-  color: #7f848e;
-}
-body.dark .json-punctuation {
-  color: var(--color-text-muted);
-}
 .rule-json .hint {
   flex-shrink: 0;
   margin-top: 6px;
@@ -1238,7 +1179,7 @@ body.dark .json-punctuation {
   white-space: pre-wrap;
   line-height: 1.6;
   padding: 8px;
-  border-radius: var(--radius-toggle);
+  border-radius: var(--radius-md);
   font-size: var(--font-sm);
 }
 .drawer-body .q-text {
@@ -1428,9 +1369,10 @@ body.dark .model-inactive-badge {
   background: var(--color-bg);
   color: var(--color-text-secondary);
   font-size: var(--font-sm);
+  font-family: inherit;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
 }
 .page-btn:hover:not(:disabled):not(.active) {
   border-color: var(--color-primary);
@@ -1566,7 +1508,7 @@ body.dark .search-badge-active {
 }
 
 .test-thinking-header:hover {
-  background: var(--color-bg-hover, rgba(0,0,0,0.03));
+  background: var(--color-surface-hover);
 }
 
 .test-thinking-dot {

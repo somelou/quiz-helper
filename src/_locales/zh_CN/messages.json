@@ -1016,9 +1016,6 @@
   "panelAnalyzing": {
     "message": "<div class=\"qh-loading-text\">正在分析...</div>"
   },
-  "panelAnalyzingSuffix": {
-    "message": "，作答中"
-  },
   "panelAnswer": {
     "message": "作答"
   },
@@ -1097,9 +1094,6 @@
   "panelPause": {
     "message": "暂停"
   },
-  "panelPausedSuffix": {
-    "message": "，已暂停"
-  },
   "panelPickerCancelled": {
     "message": "已取消 AI 选区解析。可继续规则解析，或再次点击“AI 选区解析”后选择页面区域。"
   },
@@ -1110,10 +1104,7 @@
     "message": "请选择页面中的题目区域。按 Esc 可取消。"
   },
   "panelProgressText": {
-    "message": "- 共 $1 题，已完成 $2/$3"
-  },
-  "panelProgressTotal": {
-    "message": "- 共 $1 题"
+    "message": "已完成 $1/$2"
   },
   "panelQuestionLabel": {
     "message": "题目"
@@ -1144,9 +1135,6 @@
   },
   "panelRuleParseFailUpdate": {
     "message": "规则解析未能提取到题目。可点击“AI 选区解析”重新选取区域，AI 将自动更新规则。"
-  },
-  "panelSelectRegion": {
-    "message": "，请选择区域"
   },
   "panelSelectionTooShort": {
     "message": "所选区域文本过少，请重新选择包含完整题目的区域。"

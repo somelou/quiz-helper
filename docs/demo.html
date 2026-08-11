@@ -1541,6 +1541,40 @@ body {
 .demo-message-warning .demo-message-icon { color: var(--color-warning); }
 .demo-message-error .demo-message-icon { color: var(--color-error-text); }
 
+/* 进度文案状态示例 */
+.progress-spec {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 240px;
+}
+.progress-spec .ps-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  font-size: var(--font-sm);
+}
+.progress-spec .ps-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-surface-hover);
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  width: 52px;
+  text-align: center;
+}
+.progress-spec .ps-demo {
+  color: var(--color-text);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 @media (max-width: 900px) {
   .options-preview { flex-direction: column; }
   .options-preview .sidebar { position: static; width: 100%; }
@@ -1635,7 +1669,7 @@ body {
         <div class="qh-header">
           <div>
             <span class="qh-title">题目助手</span>
-            <span class="qh-progress">3/5 已完成</span>
+            <span class="qh-progress">已完成 3/5</span>
           </div>
           <div class="qh-header-btns">
             <button class="qh-header-btn" title="最小化"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
@@ -1768,7 +1802,6 @@ body {
           <div class="qh-header">
             <div>
               <span class="qh-title">题目助手</span>
-              <span class="qh-progress">- 共 0 题</span>
             </div>
             <div class="qh-header-btns">
               <button class="qh-header-btn" title="最小化"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
@@ -1778,6 +1811,13 @@ body {
           <div class="qh-body">
             <div class="qh-empty">未提取到题目。可先尝试规则解析，或点击"AI 选区解析"后在页面中点选一块题目区域。</div>
           </div>
+        </div>
+        <div class="demo-frame-label" style="margin-bottom:-8px;">进度文案（仅已完成数 · 无进度不显示）</div>
+        <div class="progress-spec">
+          <div class="ps-row"><span class="ps-tag">解析中</span><span class="ps-demo">已完成 3/5</span></div>
+          <div class="ps-row"><span class="ps-tag">作答中</span><span class="ps-demo">已完成 3/5</span></div>
+          <div class="ps-row"><span class="ps-tag">已暂停</span><span class="ps-demo">已完成 3/5</span></div>
+          <div class="ps-row"><span class="ps-tag">选区</span><span class="ps-demo"></span></div>
         </div>
       </div>
     </div>
