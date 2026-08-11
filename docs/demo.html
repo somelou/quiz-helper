@@ -831,22 +831,25 @@ body {
   position: relative; /* 真实环境中为 fixed 右下角 */
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  background: var(--color-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: var(--shadow-primary), var(--shadow-lg);
-  overflow: hidden;
   flex-shrink: 0;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.qh-mini-bar:hover {
-  transform: scale(1.08);
+.qh-mini-bar:hover img {
   box-shadow: 0 6px 20px rgba(79, 110, 247, 0.5);
 }
-.qh-mini-bar img { width: 26px; height: 26px; display: block; border-radius: 50%; object-fit: contain; pointer-events: none; }
+.qh-mini-bar img {
+  width: 48px;
+  height: 48px;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+  pointer-events: none;
+  box-shadow: var(--shadow-primary), var(--shadow-lg);
+  transition: box-shadow 0.15s ease;
+}
 
 /* ============================================================
    Section 3 · 设置页（沿用真实 class）
@@ -1800,7 +1803,7 @@ body {
 
       <div style="display:flex; flex-direction:column; gap:24px; align-items:center;">
         <div class="demo-frame-label" style="margin-bottom:-8px;">最小化悬浮球</div>
-        <div class="qh-mini-bar"><img src="../src/icons/icon48.png" alt="题目助手"></div>
+        <div class="qh-mini-bar"><img src="../src/icons/icon.svg" alt="题目助手"></div>
         <div class="demo-frame-label" style="margin-bottom:-8px;">空状态</div>
         <div class="qh-panel" style="max-height:none;">
           <div class="qh-header">

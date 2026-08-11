@@ -795,8 +795,8 @@
       const miniBar = document.createElement('div');
       miniBar.className = 'qh-mini-bar';
       miniBar.id = 'qh-mini-bar';
-      const iconUrl = chrome.runtime.getURL('icons/icon48.png');
-      miniBar.innerHTML = `<img src="${iconUrl}" width="28" height="28" alt="${getMessage('panelTitle')}" draggable="false">`;
+      const iconUrl = chrome.runtime.getURL('icons/icon.svg');
+      miniBar.innerHTML = `<img src="${iconUrl}" width="48" height="48" alt="${getMessage('panelTitle')}" draggable="false">`;
       state.shadowRoot.appendChild(miniBar);
 
       state.shadowRoot.getElementById('qh-minimize').addEventListener('click', minimizePanel);

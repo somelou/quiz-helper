@@ -693,29 +693,25 @@
   right: 24px;
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  background: var(--color-primary-gradient);
   display: none;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: var(--shadow-primary), var(--shadow-lg);
   z-index: 2147483647;
-  overflow: hidden;
   padding: 0;
   box-sizing: border-box;
   flex-shrink: 0;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.qh-mini-bar:hover {
-  transform: scale(1.08);
+.qh-mini-bar:hover img {
   box-shadow: 0 6px 20px rgba(79, 110, 247, 0.5);
 }
 .qh-mini-bar img {
-  width: 26px;
-  height: 26px;
+  width: 48px;
+  height: 48px;
   display: block;
   border-radius: 50%;
-  object-fit: contain;
+  object-fit: cover;
   pointer-events: none;
+  box-shadow: var(--shadow-primary), var(--shadow-lg);
+  transition: box-shadow 0.15s ease;
 }
