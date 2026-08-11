@@ -29,8 +29,12 @@ async function copyText(text) {
   }
 }
 
-function buildDrawerQuestionCopyText(type, text) {
-  return getMessage('optionsQuestionCopyFormat', [TYPE_LABELS[type] || getMessage('typeUnknown'), text || '']).trim();
+function buildDrawerQuestionCopyText(q) {
+  const typeLabel = TYPE_LABELS[q.type] || getMessage('typeUnknown');
+  const parts = [getMessage('optionsQuestionCopyFormat', [typeLabel, q.text || '']).trim()];
+  if (q.answer) parts.push(`${getMessage('optionsAnswerLabel')}：${q.answer}`);
+  if (q.analysis) parts.push(`${getMessage('optionsAnalysisLabel')}：${q.analysis}`);
+  return parts.join('\n\n');
 }
 
 // ===== 主题管理（提前执行，避免闪烁） =====
@@ -312,7 +316,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   <span class="q-id">${idx + 1}</span>
                   <span class="q-type ${typeClass}">${typeLabel}</span>
                 </div>
-                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q.type, q.text))}">${getMessage('optionsCopyQuestion')}</button>
+                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q))}">${getMessage('optionsCopyQuestion')}</button>
               </div>
               <div class="q-label">${getMessage('optionsQuestionLabel')}</div>
               <div class="q-text">${escapeHtml(q.text)}</div>
@@ -349,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   <span class="q-id">${idx + 1}</span>
                   <span class="q-type ${typeClass}">${typeLabel}</span>
                 </div>
-                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q.type, q.text))}">${getMessage('optionsCopyQuestion')}</button>
+                <button type="button" class="q-copy-btn" data-copy-question="${escapeHtml(buildDrawerQuestionCopyText(q))}">${getMessage('optionsCopyQuestion')}</button>
               </div>
               <div class="q-label">${getMessage('optionsQuestionLabel')}</div>
               <div class="q-text">${escapeHtml(q.text)}</div>

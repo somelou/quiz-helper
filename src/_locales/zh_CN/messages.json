@@ -432,7 +432,7 @@
     "message": "复制失败"
   },
   "optionsCopyQuestion": {
-    "message": "复制题目"
+    "message": "复制"
   },
   "optionsDrawerTitleAddModel": {
     "message": "添加大模型"
