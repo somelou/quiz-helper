@@ -179,6 +179,42 @@
     return { instructions: system, input: nonSystem };
   }
 
+  // 思考强度档位（业界通用枚举：OpenAI / Anthropic 取值一致）
+  const THINKING_EFFORT_LEVELS = ['low', 'medium', 'high', 'xhigh', 'max'];
+
+  /**
+   * 各模型家族支持的思考强度上限
+   * @param {string} model - 模型名
+   * @returns {string} 该家族支持的最高档位
+   */
+  function getThinkingEffortCap(model) {
+    const m = String(model || '').toLowerCase();
+    // OpenAI o 系列等早期推理模型（o1/o3/o4）仅支持到 high
+    if (/(^|\/)(o[1-4])(-|$)/.test(m)) return 'high';
+    // Claude：Opus 5 / Mythos / Fable 起支持完整档位，其余 Claude 模型仅支持到 high
+    if (m.includes('claude')) {
+      if (/claude-(opus-5|mythos|fable)/.test(m)) return 'max';
+      return 'high';
+    }
+    // 其余（gpt-5 系列、未知模型）按完整档位透传
+    return 'max';
+  }
+
+  /**
+   * 按模型兼容性归一化思考强度
+   * 选择超出模型支持的档位时自动降级到该模型支持的最高档
+   * @param {string} model - 模型名
+   * @param {string} [effort='high'] - 用户选择的档位
+   * @returns {string} 归一化后的档位
+   */
+  function normalizeThinkingEffort(model, effort = 'high') {
+    const level = THINKING_EFFORT_LEVELS.includes(effort) ? effort : 'high';
+    const cap = getThinkingEffortCap(model);
+    return THINKING_EFFORT_LEVELS.indexOf(level) <= THINKING_EFFORT_LEVELS.indexOf(cap)
+      ? level
+      : cap;
+  }
+
   /**
    * 组装 OpenAI Chat Completions 请求体
    * @param {Object} params
@@ -195,7 +231,7 @@
     if (stream) body.stream = true;
     if (enableThinking) {
       body.thinking = { type: 'enabled' };
-      body.reasoning_effort = thinkingEffort;
+      body.reasoning_effort = normalizeThinkingEffort(model, thinkingEffort);
     } else {
       body.temperature = temperature;
     }
@@ -220,7 +256,7 @@
     if (stream) body.stream = true;
     if (enableThinking) {
       body.thinking = { type: 'enabled' };
-      body.output_config = { effort: thinkingEffort };
+      body.output_config = { effort: normalizeThinkingEffort(model, thinkingEffort) };
     } else {
       body.temperature = temperature;
     }
@@ -247,7 +283,7 @@
     if (instructions) body.instructions = instructions;
     if (tools && tools.length > 0) body.tools = tools;
     if (enableThinking) {
-      body.reasoning = { effort: thinkingEffort };
+      body.reasoning = { effort: normalizeThinkingEffort(model, thinkingEffort) };
     } else {
       body.temperature = temperature;
     }
@@ -260,6 +296,7 @@
     parseResponsesSSE,
     splitSystemMessages,
     convertToResponsesFormat,
+    normalizeThinkingEffort,
     buildOpenAIBody,
     buildAnthropicBody,
     buildResponsesBody

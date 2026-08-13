@@ -388,7 +388,10 @@ function initModels({
       <div class="rule-form-group" id="model-thinkingEffortGroup" style="display:${model.enableThinking ? '' : 'none'}">
         <label>${getMessage('optionsModelFormEffortLabel')}</label>
         <div class="segmented-control" id="model-thinkingEffort" data-active="${model.thinkingEffort || 'high'}">
+          <button type="button" class="${model.thinkingEffort === 'low' ? 'seg-active' : ''}" data-value="low">Low</button>
+          <button type="button" class="${model.thinkingEffort === 'medium' ? 'seg-active' : ''}" data-value="medium">Medium</button>
           <button type="button" class="${(!model.thinkingEffort || model.thinkingEffort === 'high') ? 'seg-active' : ''}" data-value="high">High</button>
+          <button type="button" class="${model.thinkingEffort === 'xhigh' ? 'seg-active' : ''}" data-value="xhigh">X-High</button>
           <button type="button" class="${model.thinkingEffort === 'max' ? 'seg-active' : ''}" data-value="max">Max</button>
         </div>
         <div class="hint">${getMessage('optionsModelFormEffortHint')}</div>

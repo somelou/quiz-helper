@@ -540,7 +540,7 @@
     "message": "深度思考"
   },
   "optionsModelFormEffortHint": {
-    "message": "High 适合多数场景；Max 适合复杂推理任务"
+    "message": "Low 响应最快；Medium 均衡；High 适合多数场景；X-High / Max 适合复杂推理任务。不支持高档位的模型将自动降级"
   },
   "optionsModelFormEffortLabel": {
     "message": "思考强度"

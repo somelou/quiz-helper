@@ -540,7 +540,7 @@
     "message": "Deep Thinking"
   },
   "optionsModelFormEffortHint": {
-    "message": "High works for most use cases; Max is for complex reasoning tasks"
+    "message": "Low is fastest; Medium is balanced; High fits most use cases; X-High / Max are for complex reasoning tasks. Falls back automatically if the model does not support the selected level"
   },
   "optionsModelFormEffortLabel": {
     "message": "Thinking Effort"
