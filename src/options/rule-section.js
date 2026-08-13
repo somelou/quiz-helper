@@ -75,8 +75,8 @@ function initRules({
             <div class="list-item-meta">${getMessage('optionsRuleMetaFormat', [created, lastUsed, useCount])}</div>
           </div>
           <div class="list-item-actions">
-            <button class="action-btn action-edit" data-idx="${idx}">${getMessage('optionsEdit')}</button>
-            <button class="action-btn action-delete" data-idx="${idx}">${getMessage('commonDelete')}</button>
+            <button class="action-btn action-edit" data-idx="${idx}"><span data-icon="pencil"></span>${getMessage('optionsEdit')}</button>
+            <button class="action-btn action-delete" data-idx="${idx}"><span data-icon="trash"></span>${getMessage('commonDelete')}</button>
           </div>
         </div>
       `;
@@ -86,6 +86,8 @@ function initRules({
 
       ruleListEl.appendChild(item);
     }
+
+    window.QuizHelperIcons?.replaceIcons(ruleListEl);
 
     const pager = document.createElement('div');
     pager.className = 'pagination';

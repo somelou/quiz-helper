@@ -833,12 +833,22 @@ body {
 }
 .qh-btn:active { }
 .qh-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.qh-btn-primary { background: var(--color-primary); color: #fff; }
-.qh-btn-primary:hover { background: var(--color-primary-dark); }
+/* 主按钮：浅色底 + 主色文字/图标，明暗模式一致（与卡片内"重新作答"同款） */
+.qh-btn-primary {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+.qh-btn-primary:hover { opacity: 0.85; }
 .qh-btn-secondary { background: var(--color-btn-secondary-bg); color: var(--color-btn-secondary-text); }
 .qh-btn-secondary:hover { background: var(--color-surface-hover); color: var(--color-text); }
 .qh-btn-warning { background: var(--color-warning-bg); color: var(--color-warning); }
 .qh-btn-warning:hover { opacity: 0.85; }
+.qh-btn-icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+.qh-btn-icon svg { width: 14px; height: 14px; display: block; }
 /* card-body 内按钮：浅色背景 + primary 文本 */
 .qh-card-body .qh-btn-primary {
   background: var(--color-primary-bg);
@@ -1567,38 +1577,89 @@ body {
 .demo-message-warning .demo-message-icon { color: var(--color-warning); }
 .demo-message-error .demo-message-icon { color: var(--color-error-text); }
 
-/* 进度文案状态示例 */
-.progress-spec {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 240px;
-}
-.progress-spec .ps-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-light);
+/* 大模型测试结果（参考实际实现 test-status / test-thinking / test-response） */
+.test-result {
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-top: 8px;
+}
+.test-status {
   padding: 6px 12px;
   font-size: var(--font-sm);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.progress-spec .ps-tag {
-  font-size: 10px;
-  font-weight: 600;
+.test-status-success { color: var(--color-success); }
+.test-status-error { color: var(--color-error-text); }
+.test-status-loading { color: var(--color-text-muted); display: inline-flex; align-items: center; gap: 6px; }
+.test-status-thinking { color: var(--color-primary); display: inline-flex; align-items: center; gap: 6px; }
+.test-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: test-spin 0.6s linear infinite;
+}
+@keyframes test-spin { to { transform: rotate(360deg); } }
+.test-thinking { border-bottom: 1px solid var(--color-border); }
+.test-thinking summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: var(--font-sm);
   color: var(--color-text-muted);
-  background: var(--color-surface-hover);
-  padding: 1px 8px;
-  border-radius: var(--radius-full);
-  flex-shrink: 0;
-  width: 52px;
-  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  background: var(--color-bg);
+  list-style: none;
 }
-.progress-spec .ps-demo {
+.test-thinking summary::-webkit-details-marker { display: none; }
+.test-thinking summary:hover { background: var(--color-surface-hover); }
+.test-thinking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+}
+.test-thinking-chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  display: inline-flex;
+}
+.test-thinking-chevron svg { width: 12px; height: 12px; display: block; }
+.test-thinking:not([open]) .test-thinking-chevron svg { transform: rotate(-90deg); }
+.test-thinking-body {
+  padding: 8px 12px 12px;
+  font-size: var(--font-sm);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--color-bg-secondary);
+}
+.test-response {
+  padding: 12px;
+  font-size: var(--font-md);
+  line-height: 1.6;
   color: var(--color-text);
-  font-weight: 500;
-  white-space: nowrap;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 20px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--color-bg);
 }
 
 @media (max-width: 900px) {
@@ -1820,8 +1881,8 @@ body {
               <button class="qh-seg-btn active">AI 选区</button>
               <button class="qh-seg-btn">规则解析</button>
             </div>
-            <button class="qh-btn qh-btn-warning">暂停</button>
-            <button class="qh-btn qh-btn-primary">重新作答</button>
+            <button class="qh-btn qh-btn-warning qh-btn-icon" title="暂停"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></button>
+            <button class="qh-btn qh-btn-primary qh-btn-icon" title="重新作答"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg></button>
           </div>
         </div>
       </div>
@@ -1843,13 +1904,6 @@ body {
           <div class="qh-body">
             <div class="qh-empty">未提取到题目。可先尝试规则解析，或点击"AI 选区解析"后在页面中点选一块题目区域。</div>
           </div>
-        </div>
-        <div class="demo-frame-label" style="margin-bottom:-8px;">进度文案（仅已完成数 · 无进度不显示）</div>
-        <div class="progress-spec">
-          <div class="ps-row"><span class="ps-tag">解析中</span><span class="ps-demo">已完成 3/5</span></div>
-          <div class="ps-row"><span class="ps-tag">作答中</span><span class="ps-demo">已完成 3/5</span></div>
-          <div class="ps-row"><span class="ps-tag">已暂停</span><span class="ps-demo">已完成 3/5</span></div>
-          <div class="ps-row"><span class="ps-tag">选区</span><span class="ps-demo"></span></div>
         </div>
       </div>
     </div>
@@ -1926,7 +1980,7 @@ body {
           <div class="card">
             <div class="switch-row" style="margin-bottom: 12px;">
               <h2>大模型管理</h2>
-              <button class="action-btn action-edit">+ 添加</button>
+              <button class="action-btn action-edit">添加</button>
             </div>
             <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。</div>
             <div class="form-group">
@@ -2025,7 +2079,6 @@ body {
                   <div class="list-item-meta">创建: 2026-07-10 16:30:00 · 最后使用: 2026-07-15 10:22:00 · 使用次数: 12</div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-view">查看</button>
                   <button class="action-btn action-edit">编辑</button>
                   <button class="action-btn action-delete">删除</button>
                 </div>
@@ -2038,7 +2091,6 @@ body {
                   <div class="list-item-meta">创建: 2026-07-08 09:15:00 · 最后使用: 2026-07-14 08:45:00 · 使用次数: 5</div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-view">查看</button>
                   <button class="action-btn action-edit">编辑</button>
                   <button class="action-btn action-delete">删除</button>
                 </div>
@@ -2073,7 +2125,7 @@ body {
               <div class="hint">并发 10 批 · 每批 50 题</div>
             </div>
             <div class="bank-toolbar">
-              <button class="btn btn-secondary">+ 导入题库</button>
+              <button class="btn btn-secondary">导入题库</button>
               <span class="hint" style="margin-top:0;">共 2 个题库 · 1,280 题</span>
             </div>
             <div style="margin-top: 4px;">
@@ -2090,7 +2142,6 @@ body {
                   <div class="list-item-meta">820 题 · 2026-07-10 导入</div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-view">查看</button>
                   <button class="action-btn action-export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>导出</button>
                   <button class="action-btn action-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>删除</button>
                 </div>
@@ -2114,7 +2165,6 @@ body {
                   <div class="list-item-meta">2026-07-18 14:32 · 20 题 · 已完成 20 题</div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-view">查看</button>
                   <button class="action-btn action-delete">删除</button>
                 </div>
               </div>
@@ -2126,7 +2176,6 @@ body {
                   <div class="list-item-meta">2026-07-17 09:15 · 12 题 · 已完成 11 题 · 1 题出错</div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-view">查看</button>
                   <button class="action-btn action-delete">删除</button>
                 </div>
               </div>
@@ -2203,10 +2252,6 @@ body {
                 <span class="about-strip-label">隐私</span>
                 <span class="about-strip-value">隐私政策</span>
               </a>
-              <div class="about-strip-item">
-                <span class="about-strip-label">特性</span>
-                <span class="about-strip-value">本地存储 / 开源维护</span>
-              </div>
             </div>
           </div>
 
@@ -2277,7 +2322,19 @@ body {
             <div class="rule-form-group">
               <textarea rows="3" placeholder="输入测试文本" style="width:100%;resize:vertical;">请回复 OK</textarea>
               <button type="button" class="btn btn-primary" style="width:100%;margin-top:8px;">测试连接</button>
-              <div class="hint" style="margin-top:8px;"></div>
+              <div class="test-result">
+                <div class="test-status"><span class="test-status-success">连接成功 · 响应正常</span></div>
+                <details class="test-thinking" open>
+                  <summary>
+                    <span class="test-thinking-dot" aria-hidden="true"></span>
+                    <span>深度思考</span>
+                    <span class="test-thinking-chevron"><svg viewBox="0 0 12 12"><path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  </summary>
+                  <div class="test-thinking-body">这是一段测试连接时的深度思考内容示意。模型先对请求进行推理，再给出最终回复。</div>
+                </details>
+                <div class="test-response">连接成功，模型可以正常响应。这是一条用于验证 API 连通性的测试回复。</div>
+              </div>
+              <div class="hint" style="margin-top:8px;">将以当前配置发起一次真实请求，验证连通性</div>
             </div>
           </div>
         </div>
@@ -2327,7 +2384,13 @@ body {
             <div class="rule-form-group">
               <textarea rows="2" placeholder="输入测试搜索词" style="width:100%;resize:vertical;">人工智能最新进展</textarea>
               <button type="button" class="btn btn-primary" style="width:100%;margin-top:8px;">测试搜索</button>
-              <div class="hint" style="margin-top:8px;"></div>
+              <div class="test-result">
+                <div class="test-status"><span class="test-status-success">搜索完成 · 返回 10 条结果</span></div>
+                <div class="test-response">1. 人工智能最新进展 - 示例新闻站点
+2. 人工智能行业动态 - 行业媒体
+3. 人工智能技术白皮书 - 研究机构</div>
+              </div>
+              <div class="hint" style="margin-top:8px;">将向服务商发起一次真实搜索请求</div>
             </div>
           </div>
         </div>

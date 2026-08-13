@@ -524,6 +524,21 @@
 .qh-search-ref summary:hover .qh-search-ref-name {
   color: var(--color-text);
 }
+/* 参考链接/题库可折叠区的 chevron（两主题统一结构，展开时旋转） */
+.qh-ref-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 2px;
+  color: var(--color-text-muted);
+  transition: transform var(--transition-normal);
+}
+.qh-ref-chevron svg { width: 12px; height: 12px; display: block; }
+.qh-bank-ref[open] .qh-ref-chevron,
+.qh-search-ref[open] .qh-ref-chevron {
+  transform: rotate(180deg);
+}
 .qh-search-ref-detail {
   padding: 10px 12px;
   font-size: var(--font-sm);
@@ -673,20 +688,37 @@
   color: var(--color-warning);
 }
 .qh-btn-warning:hover { opacity: 0.85; }
-
-/* card-body 内按钮：浅色背景 + primary 文本 */
-.qh-card-body .qh-btn-primary {
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
+.qh-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.qh-card-body .qh-btn-primary:hover { opacity: 0.85; }
+.qh-btn-icon svg { width: 14px; height: 14px; display: block; }
+.qh-btn-icon-only {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: var(--radius-md);
+}
+
 .qh-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   text-align: center;
   padding: 28px 20px;
   color: var(--color-text-muted);
   font-size: var(--font-md);
   line-height: 1.7;
 }
+.qh-empty-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+.qh-empty-icon svg { width: 28px; height: 28px; display: block; }
 .qh-mini-bar {
   position: fixed;
   bottom: 24px;

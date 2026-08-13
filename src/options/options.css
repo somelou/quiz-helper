@@ -59,7 +59,9 @@ h2 {
   padding: 0;
 }
 .nav-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 14px;
   margin: 2px 0;
   border-radius: var(--radius-md);
@@ -69,6 +71,12 @@ h2 {
   cursor: pointer;
   transition: color var(--transition-fast), background var(--transition-fast);
   line-height: 1.5;
+}
+.nav-item svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex-shrink: 0;
 }
 .nav-item:hover {
   color: var(--color-text);
@@ -118,11 +126,20 @@ textarea:focus {
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
   background: none;
   border: none;
   cursor: pointer;
   font-size: var(--font-md);
   color: var(--color-text-secondary);
+}
+.toggle-visible svg {
+  width: 14px;
+  height: 14px;
+  display: block;
 }
 .theme-toggle {
   position: relative;
@@ -218,6 +235,14 @@ button,
 button:hover,
 .btn:hover {
   opacity: 0.9;
+}
+.btn-primary svg,
+.btn-secondary svg,
+.btn-danger svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex-shrink: 0;
 }
 .btn-primary {
   background: var(--color-primary-gradient);
@@ -726,20 +751,49 @@ button:hover,
   border-radius: var(--radius-md);
   padding: 10px 12px;
 }
+/* 快捷键行（demo2 同构：shortcut-row > shortcut-key + shortcut-actions），
+   经典主题下呈现为描边行 */
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
 .shortcut-box {
   border: none;
   border-radius: 0;
   background: none;
   padding: 0;
 }
-.shortcut-value {
+.shortcut-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: var(--font-lg);
   font-weight: 600;
   color: var(--color-text);
   letter-spacing: 2px;
 }
-.shortcut-value.recording {
+.shortcut-key-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--color-primary);
+}
+.shortcut-key-icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+.shortcut-key.recording {
+  color: var(--color-primary);
+}
+.shortcut-row .shortcut-actions {
+  margin-top: 0;
 }
 .shortcut-actions {
   display: flex;
@@ -1051,6 +1105,11 @@ button:hover,
   box-shadow: var(--color-drawer-shadow);
   display: flex;
   flex-direction: column;
+  animation: qh-drawer-in 0.3s cubic-bezier(0.32, 0.72, 0.35, 1) both;
+}
+@keyframes qh-drawer-in {
+  from { transform: translateX(28px); opacity: 0.4; }
+  to { transform: translateX(0); opacity: 1; }
 }
 .drawer-header {
   padding: 18px 20px;

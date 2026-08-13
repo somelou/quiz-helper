@@ -1,0 +1,1483 @@
+/* ============================================================
+   主题 · 苹果（Apple）
+   来源：docs/demo2.html（Pinguo Apple 设计系统，参考 Apple 系统色）
+   说明：
+   - 将 demo2 设计令牌「映射」到扩展现有 --color-*、--radius-*、--shadow-*
+     语义变量上，使现有 DOM 整体切换为苹果风格。
+   - 组件覆盖层把现有类名重绘为 demo2 几何形态（胶囊按钮、圆形序号、
+     绿色开关、圆形 Toast 图标等）。
+   - 选择器同时支持页面（html[data-theme-style=apple]）与内容面板
+     （shadow 内 .qh-theme-root[data-theme-style=apple]）。
+   ============================================================ */
+
+/* ============================================================
+   1. 设计令牌映射（浅色）
+   说明：选择器列表中不能含 :host（普通页面中为无效选择器，会整条丢弃）；
+   内容面板通过 shadow 内 .qh-theme-root[data-theme-style] 匹配。
+   ============================================================ */
+
+/* 保留一条 :root 规则作为引导：确保后续 data-theme-style 作用域内的令牌覆盖能被浏览器正确解析并生效 */
+:root {
+}
+
+
+html[data-theme-style="apple"],
+[data-theme-style="apple"] {
+  /* ---- 品牌主色（Apple Blue #007aff） ---- */
+  --color-primary: #007aff;
+  --color-primary-dark: #0064d6;
+  --color-primary-gradient: linear-gradient(135deg, #007aff 0%, #0a84ff 100%);
+  --color-primary-bg: rgba(0, 122, 255, 0.10);
+  --color-primary-light: #66abff;
+
+  /* ---- 语义色 ---- */
+  --color-success: #34c759;
+  --color-success-bg: #e9f9ee;
+  --color-error: #ff3b30;
+  --color-error-text: #ff3b30;
+  --color-error-bg: #ffecea;
+  --color-info: #0a84ff;
+  --color-info-bg: #eaf4ff;
+  --color-warning: #ff9500;
+  --color-warning-bg: #fff5e6;
+
+  /* ---- 中性色 ---- */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f2f2f7;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f2f2f7;
+  --color-border: #e5e5ea;
+  --color-border-light: #e5e5ea;
+  --color-border-focus: #007aff;
+
+  --color-text: #1d1d1f;
+  --color-text-heading: #1d1d1f;
+  --color-text-secondary: #3c3c43;
+  --color-text-muted: #8e8e93;
+  --color-text-label: #3c3c43;
+
+  --color-input-bg: #ffffff;
+  --color-input-border: #d1d1d6;
+  --color-input-text: #1d1d1f;
+
+  --color-btn-secondary-bg: #f2f2f7;
+  --color-btn-secondary-text: #3c3c43;
+
+  --color-toggle-bg: #f2f2f7;
+  --color-toggle-btn: #8e8e93;
+  --color-toggle-btn-hover: #1d1d1f;
+  --color-toggle-slider-bg: #ffffff;
+  --color-toggle-slider-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  --color-switch-off: #d1d1d6;
+  --color-shortcut-bg: #f2f2f7;
+  --color-shortcut-border: #e5e5ea;
+
+  --color-drawer-overlay: rgba(0, 0, 0, 0.40);
+  --color-drawer-bg: #ffffff;
+  --color-drawer-shadow: -12px 0 40px rgba(0, 0, 0, 0.14);
+  --color-drawer-close-bg: #f2f2f7;
+
+  /* 侧边栏（demo2 --sidebar / --sidebar-accent / --sidebar-border） */
+  --sidebar: #f2f2f7;
+  --sidebar-accent: #e5e5ea;
+  --sidebar-border: #e5e5ea;
+  --sidebar-foreground: #1d1d1f;
+
+  --color-rule-view-toggle-bg: #f2f2f7;
+  --color-rule-view-toggle-border: #e5e5ea;
+  --color-rule-view-btn-active-bg: #ffffff;
+  --color-rule-view-btn-active-text: #1d1d1f;
+
+  --color-q-id-bg: #f2f2f7;
+  --color-q-id-text: #3c3c43;
+  --color-type-single-bg: rgba(0, 122, 255, 0.10);
+  --color-type-single-text: #007aff;
+  --color-type-multiple-bg: rgba(147, 51, 234, 0.10);
+  --color-type-multiple-text: #9333ea;
+  --color-type-judge-bg: rgba(52, 199, 89, 0.10);
+  --color-type-judge-text: #34c759;
+  --color-type-fill-bg: rgba(255, 149, 0, 0.10);
+  --color-type-fill-text: #ff9500;
+  --color-type-unknown-bg: #f2f2f7;
+  --color-type-unknown-text: #8e8e93;
+
+  --color-panel-header-text: #1d1d1f;
+
+  --color-btn-action-bg: rgba(0, 122, 255, 0.10);
+  --color-btn-action-text: #007aff;
+  --color-btn-export-bg: rgba(52, 199, 89, 0.14);
+  --color-btn-export-text: #34c759;
+  --color-btn-danger-bg: rgba(255, 59, 48, 0.10);
+  --color-btn-danger-text: #ff3b30;
+
+  /* ---- 圆角（令牌名与经典统一，值随主题变化：--radius-lg 取 demo2 的 1.2rem） ---- */
+  --radius-xs: 6px;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.2rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 999px;
+  --radius-toggle: 999px;
+  --radius-drawer: 14px;
+
+  /* ---- 字体 ---- */
+  --font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    ui-sans-serif, system-ui, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "SF Mono", monospace;
+
+  /* ---- 阴影 ---- */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.05);
+  --shadow-primary: 0 2px 8px rgba(0, 122, 255, 0.28);
+  --shadow-toggle-active: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  --color-message-bg: var(--color-surface);
+  --color-message-text: var(--color-text);
+  --color-message-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.10), 0 4px 8px -4px rgba(0, 0, 0, 0.06);
+
+  --transition-fast: 0.18s ease;
+  --transition-normal: 0.18s ease;
+  --transition-toggle: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   2. 设计令牌映射（深色）
+   ============================================================ */
+html[data-theme-style="apple"].dark,
+[data-theme-style="apple"].dark,
+[data-theme-style="apple"] body.dark,
+[data-theme-style="apple"] .dark {
+  --color-primary: #0a84ff;
+  --color-primary-dark: #007aff;
+  --color-primary-gradient: linear-gradient(135deg, #0a84ff 0%, #409cff 100%);
+  --color-primary-bg: rgba(10, 132, 255, 0.16);
+  --color-primary-light: #66abff;
+
+  --color-success: #30d158;
+  --color-success-bg: rgba(48, 209, 88, 0.14);
+  --color-error: #ff453a;
+  --color-error-text: #ff453a;
+  --color-error-bg: rgba(255, 69, 58, 0.14);
+  --color-info: #409cff;
+  --color-info-bg: rgba(64, 156, 255, 0.14);
+  --color-warning: #ff9f0a;
+  --color-warning-bg: rgba(255, 159, 10, 0.14);
+
+  --color-bg: #1c1c1e;
+  --color-bg-secondary: #000000;
+  --color-surface: #1c1c1e;
+  --color-surface-hover: #2c2c2e;
+  --color-border: #3a3a3c;
+  --color-border-light: #3a3a3c;
+  --color-border-focus: #0a84ff;
+
+  --color-text: #f5f5f7;
+  --color-text-heading: #f5f5f7;
+  --color-text-secondary: #e3e3e8;
+  --color-text-muted: #8e8e93;
+  --color-text-label: #e3e3e8;
+
+  --color-input-bg: #000000;
+  --color-input-border: #3a3a3c;
+  --color-input-text: #f5f5f7;
+
+  --color-btn-secondary-bg: #2c2c2e;
+  --color-btn-secondary-text: #f5f5f7;
+
+  --color-toggle-bg: #2c2c2e;
+  --color-toggle-btn: #aeaeb2;
+  --color-toggle-btn-hover: #f5f5f7;
+  --color-toggle-slider-bg: #3a3a3c;
+  --color-toggle-slider-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+
+  --color-switch-off: #3a3a3c;
+  --color-shortcut-bg: #1c1c1e;
+  --color-shortcut-border: #3a3a3c;
+
+  --color-drawer-overlay: rgba(0, 0, 0, 0.6);
+  --color-drawer-bg: #3a3a3c;
+  --color-drawer-shadow: -12px 0 40px rgba(0, 0, 0, 0.55);
+  --color-drawer-close-bg: #2c2c2e;
+
+  /* 侧边栏（demo2 深色） */
+  --sidebar: #1c1c1e;
+  --sidebar-accent: #3a3a3c;
+  --sidebar-border: #3a3a3c;
+  --sidebar-foreground: #f5f5f7;
+
+  --color-rule-view-toggle-bg: #2c2c2e;
+  --color-rule-view-toggle-border: #3a3a3c;
+  --color-rule-view-btn-active-bg: #3a3a3c;
+  --color-rule-view-btn-active-text: #f5f5f7;
+
+  --color-q-id-bg: #2c2c2e;
+  --color-q-id-text: #aeaeb2;
+  --color-type-single-bg: rgba(10, 132, 255, 0.16);
+  --color-type-single-text: #66abff;
+  --color-type-multiple-bg: rgba(216, 180, 254, 0.16);
+  --color-type-multiple-text: #d8b4fe;
+  --color-type-judge-bg: rgba(48, 209, 88, 0.16);
+  --color-type-judge-text: #30d158;
+  --color-type-fill-bg: rgba(255, 159, 10, 0.16);
+  --color-type-fill-text: #ff9f0a;
+  --color-type-unknown-bg: #2c2c2e;
+  --color-type-unknown-text: #aeaeb2;
+
+  --color-panel-header-text: #f5f5f7;
+
+  /* 操作按钮深色：保持透明白底（demo2 用 color-mix(primary 10~16%, transparent)） */
+  --color-btn-action-bg: rgba(10, 132, 255, 0.16);
+  --color-btn-action-text: #66abff;
+  --color-btn-export-bg: rgba(48, 209, 88, 0.16);
+  --color-btn-export-text: #30d158;
+  --color-btn-danger-bg: rgba(255, 69, 58, 0.16);
+  --color-btn-danger-text: #ff453a;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-primary: 0 2px 8px rgba(10, 132, 255, 0.35);
+  --shadow-toggle-active: 0 1px 3px rgba(0, 0, 0, 0.4);
+
+  --color-message-bg: #1c1c1e;
+  --color-message-text: #f5f5f7;
+  --color-message-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.55), 0 4px 8px -4px rgba(0, 0, 0, 0.44);
+}
+
+/* ============================================================
+   3. 提取自 demo 的内联样式（工具类）
+   ============================================================ */
+.req,
+.required-mark {
+  color: var(--color-error-text);
+  font-weight: 700;
+}
+.btn-block {
+  width: 100%;
+  margin-top: 8px;
+}
+.qh-btn-mt {
+  margin-top: 10px;
+}
+.card-title-stack {
+  margin: 0 0 12px;
+}
+.toolbar-hint {
+  margin-top: 0;
+}
+.hint-mt {
+  margin-top: 8px;
+}
+
+/* ============================================================
+   4. 组件覆盖层（真实扩展 DOM → 苹果形态）
+   ============================================================ */
+
+/* ---- 4.1 通用按钮（按 demo2 分场景圆角/高度） ---- */
+[data-theme-style="apple"] .btn {
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  letter-spacing: 0;
+  box-shadow: none;
+}
+[data-theme-style="apple"] .btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+[data-theme-style="apple"] .btn-secondary {
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-text);
+}
+/* 设置页「保存设置 / 恢复默认」按钮：demo2 .opt-main .btn → 40px 高 + 胶囊 */
+[data-theme-style="apple"] .actions .btn-primary,
+[data-theme-style="apple"] .actions .btn-secondary {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  gap: 6px;
+}
+/* 设置页操作区：去掉 base 的 margin-top: 24px（demo2 .card-actions 紧随内容，间距由 .card gap 承担） */
+[data-theme-style="apple"] .actions {
+  margin-top: 0;
+  display: flex;
+  gap: 10px;
+}
+
+/* ---- 4.2 主题切换器（胶囊） ---- */
+[data-theme-style="apple"] .theme-toggle {
+  border-radius: 999px;
+}
+[data-theme-style="apple"] .theme-toggle::before {
+  border-radius: 999px;
+}
+[data-theme-style="apple"] .theme-btn {
+  border-radius: 999px;
+}
+
+/* ---- 4.3 分段控件（胶囊滑块：真实扩展用 ::before 滑动指示器，只胶囊化指示器，避免与按钮背景叠加） ---- */
+[data-theme-style="apple"] .segmented-control {
+  width: max-content;
+  max-width: 100%;
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+[data-theme-style="apple"] .segmented-control::before {
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+}
+[data-theme-style="apple"] .segmented-control button {
+  border-radius: 999px;
+  height: 30px;
+}
+
+/* ---- 4.4 操作按钮（对齐 demo2 .chip-btn：胶囊 + 32px 高） ---- */
+[data-theme-style="apple"] .action-btn {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-weight: 500;
+  gap: 6px;
+}
+[data-theme-style="apple"] .action-btn svg {
+  width: 14px;
+  height: 14px;
+}
+[data-theme-style="apple"] .action-link {
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+/* ---- 4.5 开关（对齐 demo2 .switch：绿色开态 + 更大滑块） ---- */
+[data-theme-style="apple"] .switch {
+  width: 46px;
+  height: 28px;
+}
+[data-theme-style="apple"] .switch-slider::before {
+  width: 24px;
+  height: 24px;
+  left: 2px;
+  top: 2px;
+}
+[data-theme-style="apple"] .switch input:checked + .switch-slider {
+  background: var(--color-success);
+}
+[data-theme-style="apple"] .switch input:checked + .switch-slider::before {
+  transform: translateX(18px);
+}
+
+/* ---- 4.6 输入框（对齐 demo2：设置页 textarea/num-input 用 --radius，抽屉用 --radius-md） ---- */
+[data-theme-style="apple"] input[type="text"],
+[data-theme-style="apple"] input[type="password"],
+[data-theme-style="apple"] input[type="number"],
+[data-theme-style="apple"] textarea {
+  border-radius: var(--radius-lg);
+}
+[data-theme-style="apple"] input:focus,
+[data-theme-style="apple"] textarea:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 1px var(--color-border-focus);
+}
+/* JSON 编辑器 textarea 自身保持透明，focus 环交由外层 .rule-json-editor 呈现 */
+[data-theme-style="apple"] .rule-json-editor textarea:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+[data-theme-style="apple"] #rule-json {
+  border: none;
+  outline: none;
+}
+
+/* ---- 4.7 设置页侧边导航（仅移到左侧 + 胶囊项 + 图标，宽度两主题一致） ---- */
+[data-theme-style="apple"] .sidebar {
+  right: auto;
+  left: max(16px, calc(50vw - 350px - 188px));
+}
+[data-theme-style="apple"] .nav-item {
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--sidebar-foreground);
+  box-shadow: none;
+}
+[data-theme-style="apple"] .nav-item svg {
+  color: var(--color-text-muted);
+}
+/* hover / active：与 demo2 一致，accent 底、无阴影 */
+[data-theme-style="apple"] .nav-item:hover {
+  background: var(--sidebar-accent);
+  color: var(--sidebar-foreground);
+  box-shadow: none;
+}
+[data-theme-style="apple"] .nav-item:hover svg {
+  color: var(--color-text);
+}
+[data-theme-style="apple"] .nav-item.active {
+  background: var(--sidebar-accent);
+  color: var(--color-primary);
+  box-shadow: none;
+}
+[data-theme-style="apple"] .nav-item.active svg {
+  color: var(--color-primary);
+}
+
+/* ---- 4.8 卡片 / 区块（demo2 .settings-card → --radius 19.2px） ---- */
+[data-theme-style="apple"] .card {
+  border-radius: var(--radius-lg);
+}
+
+/* ---- 4.9 列表项 ---- */
+[data-theme-style="apple"] .list-item {
+  border-radius: var(--radius-lg);
+}
+
+/* 模型下拉菜单（demo2 .model-menu → --radius-md 12px） */
+[data-theme-style="apple"] .model-dropdown-menu {
+  border-radius: var(--radius-md);
+}
+[data-theme-style="apple"] .model-dropdown-option {
+  border-radius: var(--radius-sm);
+}
+
+/* ---- 4.10 分页 ---- */
+[data-theme-style="apple"] .page-btn {
+  border-radius: 999px;
+  border: none;
+  min-width: 32px;
+  height: 32px;
+}
+[data-theme-style="apple"] .page-btn svg {
+  width: 14px;
+  height: 14px;
+}
+[data-theme-style="apple"] .page-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* ---- 4.11 徽标（模型/搜索/题库） ---- */
+[data-theme-style="apple"] .model-badge,
+[data-theme-style="apple"] .search-provider-badge {
+  border-radius: 999px;
+  height: 20px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  font-weight: 600;
+}
+
+/* ---- 4.12 答题面板（demo2 .panel → --radius-lg 19.2px） ---- */
+[data-theme-style="apple"] .qh-panel {
+  border-radius: var(--radius-lg);
+}
+[data-theme-style="apple"] .qh-header {
+  background: transparent;
+  color: var(--color-text);
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+[data-theme-style="apple"] .qh-header-btn {
+  border-radius: 999px;
+  color: var(--color-text-muted);
+}
+[data-theme-style="apple"] .qh-header-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+[data-theme-style="apple"] .qh-card {
+  border-radius: 12px;
+}
+[data-theme-style="apple"] .qh-card-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+  font-family: var(--font-code);
+  line-height: 1;
+}
+[data-theme-style="apple"] .qh-card-type,
+[data-theme-style="apple"] .qh-type-single,
+[data-theme-style="apple"] .qh-type-multiple,
+[data-theme-style="apple"] .qh-type-judge,
+[data-theme-style="apple"] .qh-type-fill,
+[data-theme-style="apple"] .qh-type-unknown {
+  border-radius: 999px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  font-weight: 600;
+  line-height: 1;
+}
+[data-theme-style="apple"] .qh-card-answer {
+  border-radius: 999px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 7px;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+[data-theme-style="apple"] .qh-card-summary {
+  font-size: 13px;
+  font-weight: 500;
+}
+[data-theme-style="apple"] .qh-model-name {
+  font-size: 12px;
+}
+
+/* 分段控件：内容自适应宽度（两主题统一结构，苹果胶囊化） */
+[data-theme-style="apple"] .qh-seg {
+  border-radius: 999px;
+  padding: 2px;
+}
+[data-theme-style="apple"] .qh-seg::before {
+  border-radius: 999px;
+}
+[data-theme-style="apple"] .qh-seg-btn {
+  border-radius: 999px;
+}
+
+[data-theme-style="apple"] .qh-btn {
+  border-radius: 999px;
+}
+/* 卡片内「作答 / 重新作答」（demo2 .qh-btn：30px 高、0 13px、600 12px/1） */
+[data-theme-style="apple"] .qh-card-body .qh-btn {
+  height: 30px;
+  padding: 0 13px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  gap: 6px;
+}
+/* footer 纯图标按钮（demo2 .qh-foot-btn）：胶囊，仅苹果主题 */
+[data-theme-style="apple"] .qh-btn-icon-only {
+  border-radius: 999px;
+}
+[data-theme-style="apple"] .qh-btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+[data-theme-style="apple"] .qh-btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+[data-theme-style="apple"] .qh-copy-btn,
+[data-theme-style="apple"] .q-copy-btn {
+  border-radius: 999px;
+}
+/* 面板内复制按钮：去边框，hover 改为中性灰（对齐 demo2 .copy-btn） */
+[data-theme-style="apple"] .qh-question-section .qh-copy-btn {
+  border: 0;
+  background: transparent;
+  height: 24px;
+  padding: 0 8px;
+  line-height: 1;
+}
+[data-theme-style="apple"] .qh-question-section .qh-copy-btn:hover:not(:disabled) {
+  border: 0;
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+[data-theme-style="apple"] .qh-question-text {
+  border-radius: var(--radius-sm);
+}
+[data-theme-style="apple"] .qh-thinking-section {
+  border-radius: var(--radius-sm);
+}
+[data-theme-style="apple"] .qh-bank-ref,
+[data-theme-style="apple"] .qh-search-ref {
+  border-radius: var(--radius-sm);
+}
+/* 题库折叠 hover 改为中性灰（对齐 demo2 .qh-ref summary:hover） */
+[data-theme-style="apple"] .qh-bank-ref:hover {
+  border-color: var(--color-border);
+}
+[data-theme-style="apple"] .qh-bank-ref summary:hover {
+  background: var(--color-surface-hover);
+}
+[data-theme-style="apple"] .qh-bank-ref summary:hover .qh-bank-ref-name {
+  color: var(--color-text);
+}
+
+/* 参考链接/题库 chevron（两主题统一新增 DOM，苹果着色） */
+[data-theme-style="apple"] .qh-ref-chevron {
+  color: var(--color-text-muted);
+}
+[data-theme-style="apple"] .qh-bank-ref[open] .qh-ref-chevron,
+[data-theme-style="apple"] .qh-search-ref[open] .qh-ref-chevron {
+  transform: rotate(180deg);
+}
+
+/* 空状态图标 */
+[data-theme-style="apple"] .qh-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 22px 32px;
+}
+[data-theme-style="apple"] .qh-empty-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+[data-theme-style="apple"] .qh-empty-icon svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+[data-theme-style="apple"] .qh-mini-bar img {
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35);
+}
+[data-theme-style="apple"] .qh-mini-bar:hover img {
+  box-shadow: 0 6px 20px rgba(0, 122, 255, 0.5);
+}
+
+/* ---- 4.13 抽屉 ---- */
+[data-theme-style="apple"] .drawer {
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+}
+/* 抽屉头部「保存 / 关闭」按钮：demo2 .drawer-header .btn → 36px 高 + 胶囊 */
+[data-theme-style="apple"] .drawer-header-actions .btn-primary,
+[data-theme-style="apple"] .drawer-header-actions .btn-secondary {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+  border-radius: 999px;
+  gap: 6px;
+  box-shadow: none;
+}
+/* 抽屉主体底色跟随抽屉容器（demo2 .drawer-body 继承 --popover） */
+[data-theme-style="apple"] .drawer-body {
+  background: var(--color-drawer-bg);
+}
+[data-theme-style="apple"] .drawer-body .q-id {
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+}
+[data-theme-style="apple"] .drawer-body .q-type {
+  border-radius: 999px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+}
+[data-theme-style="apple"] .drawer-body .q-answer {
+  padding: 5px 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+  font-weight: 600;
+}
+/* 密码显示按钮：胶囊 + 眼睛图标 */
+[data-theme-style="apple"] .toggle-visible {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: var(--color-primary);
+  background: transparent;
+}
+[data-theme-style="apple"] .toggle-visible:hover {
+  background: var(--color-surface-hover);
+}
+[data-theme-style="apple"] .toggle-visible svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---- 4.14 全局消息 Toast（以真实 .qh-message 为基础，苹果卡面 + 圆底图标） ---- */
+[data-theme-style="apple"] .qh-message-container {
+  z-index: 10000;
+}
+[data-theme-style="apple"] .qh-message {
+  border-radius: var(--radius-lg);
+  padding: 11px 16px;
+  background: var(--color-message-bg);
+  color: var(--color-message-text);
+  box-shadow: var(--color-message-shadow);
+}
+[data-theme-style="apple"] .qh-message-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+[data-theme-style="apple"] .qh-message-icon svg {
+  width: 15px;
+  height: 15px;
+}
+[data-theme-style="apple"] .qh-message-info .qh-message-icon {
+  color: var(--color-info);
+  background: var(--color-info-bg);
+}
+[data-theme-style="apple"] .qh-message-success .qh-message-icon {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+[data-theme-style="apple"] .qh-message-warning .qh-message-icon {
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+[data-theme-style="apple"] .qh-message-error .qh-message-icon {
+  color: var(--color-error-text);
+  background: var(--color-error-bg);
+}
+
+/* ---- 4.15 备份模块勾选框（自定义方块 + 勾图标） ---- */
+[data-theme-style="apple"] .backup-module-item {
+  border-radius: var(--radius-md);
+}
+[data-theme-style="apple"] .backup-module-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex-shrink: 0;
+  border: 1.5px solid var(--color-input-border);
+  border-radius: 7px;
+  background: var(--color-bg);
+  cursor: pointer;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+[data-theme-style="apple"] .backup-module-item input[type="checkbox"]:checked {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l2.5 2.5 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+}
+
+/* ---- 4.16 快捷键展示（对齐 demo2：shortcut-row 透明 + shortcut-key 键帽胶囊 + chip 按钮） ---- */
+[data-theme-style="apple"] .shortcut-row {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+[data-theme-style="apple"] .shortcut-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow: var(--shadow-xs);
+}
+[data-theme-style="apple"] .shortcut-key-icon {
+  color: var(--color-primary);
+}
+[data-theme-style="apple"] .shortcut-key.recording {
+  color: var(--color-primary);
+}
+
+/* ---- 4.17 关于信息条目（CSS 近似：圆角卡片化） ---- */
+[data-theme-style="apple"] .about-strip-item {
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+/* ---- 4.18 题库工具栏 / 进度条（对齐 demo2 .toolbar / .progress-block） ---- */
+[data-theme-style="apple"] .bank-toolbar .btn {
+  border-radius: 999px;
+}
+[data-theme-style="apple"] #bankProgress {
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-hover);
+}
+[data-theme-style="apple"] .bank-progress-bar {
+  height: 8px;
+  background: var(--color-primary-bg);
+}
+[data-theme-style="apple"] .bank-progress-fill {
+  background: var(--color-primary);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+[data-theme-style="apple"] .bank-progress-cancel {
+  color: var(--color-error-text);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+[data-theme-style="apple"] .bank-progress-cancel:hover {
+  background: var(--color-error-bg);
+}
+
+/* ---- 4.19 历史/规则/搜索列表工具条 ---- */
+[data-theme-style="apple"] .history-toolbar-right {
+  display: flex;
+  gap: 6px;
+}
+[data-theme-style="apple"] .list-empty {
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* ---- 4.20 测试结果 / 深度思考折叠 ---- */
+[data-theme-style="apple"] .test-result {
+  border-radius: var(--radius-sm);
+}
+[data-theme-style="apple"] .test-thinking summary {
+  border-radius: 0;
+}
+[data-theme-style="apple"] .test-thinking-body {
+  background: var(--color-bg-secondary);
+}
+[data-theme-style="apple"] .test-response {
+  background: var(--color-surface);
+}
+
+/* ---- 4.21 高优先级覆盖（复合选择器，确保覆盖 base 高特异度规则） ---- */
+[data-theme-style="apple"] .theme-toggle {
+  border-radius: 999px;
+}
+[data-theme-style="apple"] .theme-toggle::before {
+  border-radius: 999px;
+}
+[data-theme-style="apple"] .theme-toggle button.theme-btn,
+[data-theme-style="apple"] .theme-toggle .theme-btn {
+  border-radius: 999px;
+}
+
+/* 抽屉内表单字段（rule-form-group 结构） */
+/* 区块标题（demo2 主页面 .sub-title：13px/600 前景色） */
+[data-theme-style="apple"] .rule-form-section {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding-bottom: 0;
+  padding-top: 16px;
+  border-bottom: 0;
+  border-top: 1px solid var(--color-border);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+/* 抽屉内区块（demo2 .sec-drawer .form-section） */
+[data-theme-style="apple"] .drawer-body .rule-form-section,
+[data-theme-style="apple"] .drawer .rule-form-section {
+  margin-top: 22px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+/* 抽屉内首个区块不显示顶部分隔（demo2 .drawer-body > .form-section:first-child） */
+[data-theme-style="apple"] .drawer-body .rule-form-section:first-child,
+[data-theme-style="apple"] .drawer .rule-form-section:first-child {
+  margin-top: 10px;
+  padding-top: 0;
+  border-top: 0;
+}
+[data-theme-style="apple"] .drawer-body .rule-form-group label,
+[data-theme-style="apple"] .drawer .rule-form-group label {
+  color: var(--color-text-label);
+  font-weight: 600;
+}
+[data-theme-style="apple"] .drawer-body .rule-form-group input,
+[data-theme-style="apple"] .drawer-body .rule-form-group textarea,
+[data-theme-style="apple"] .drawer .rule-form-group input,
+[data-theme-style="apple"] .drawer .rule-form-group textarea {
+  border-radius: 12px;
+  border-color: var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+}
+/* 抽屉内按钮（demo2 .sec-drawer .btn → calc(var(--radius)*2) ≈ 2.4rem 胶囊） */
+[data-theme-style="apple"] .drawer-body .btn-primary,
+[data-theme-style="apple"] .drawer-body .btn-secondary,
+[data-theme-style="apple"] .drawer .btn-primary,
+[data-theme-style="apple"] .drawer .btn-secondary {
+  border-radius: 2.4rem;
+}
+[data-theme-style="apple"] .drawer-body .btn-block,
+[data-theme-style="apple"] .drawer .btn-block {
+  width: 100%;
+  margin-top: 10px;
+}
+[data-theme-style="apple"] .drawer-body input:focus,
+[data-theme-style="apple"] .drawer-body textarea:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 1px var(--color-border-focus);
+}
+[data-theme-style="apple"] .drawer-body .q-item {
+  border-radius: 12px;
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+[data-theme-style="apple"] .drawer-body .q-text {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+[data-theme-style="apple"] .drawer-body .q-label {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* 抽屉遮罩过渡 */
+[data-theme-style="apple"] .drawer-overlay {
+  background: var(--color-drawer-overlay);
+}
+
+/* 关于条目链接 hover */
+[data-theme-style="apple"] .about-strip-item:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 分页信息 */
+[data-theme-style="apple"] .page-info {
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+}
+
+/* 输入框禁用态 */
+[data-theme-style="apple"] input:disabled,
+[data-theme-style="apple"] textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* 分段控件容器与滑块（显式圆角，覆盖任何 base 复合规则） */
+[data-theme-style="apple"] .segmented-control {
+  border-radius: 999px;
+}
+[data-theme-style="apple"] .segmented-control button,
+[data-theme-style="apple"] .segmented-control .seg-active {
+  border-radius: 999px;
+}
+
+/* 系统提示词工具栏：清空按钮 → 胶囊 chip */
+[data-theme-style="apple"] .prompt-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-text-secondary);
+}
+[data-theme-style="apple"] .prompt-clear-btn:hover {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+
+/* 设置页顶部开关行 */
+[data-theme-style="apple"] .switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ---- 4.22 列表 / 备份 / 关于（对齐 demo2 的 list-row / module-check / about-tile） ---- */
+/* 列表项：去边框 → 分隔线式 list-row */
+[data-theme-style="apple"] .list-item {
+  border: 0;
+  border-radius: 0;
+  margin-bottom: 0;
+  padding: 16px 0;
+  background: transparent;
+  box-shadow: none;
+}
+[data-theme-style="apple"] .list-item + .list-item {
+  border-top: 1px solid var(--color-border);
+}
+[data-theme-style="apple"] .list-item.active {
+  background: transparent;
+  border-color: transparent;
+}
+/* 搜索服务商激活态：去掉经典主题的蓝底与主色边框，避免破坏分隔线 */
+[data-theme-style="apple"] .search-item-active {
+  background: transparent;
+  border-color: var(--color-border) !important;
+}
+/* demo2 .list-row：行内左信息 / 右操作，gap 16 */
+[data-theme-style="apple"] .list-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+[data-theme-style="apple"] .list-item-info {
+  flex: 1;
+  min-width: 0;
+}
+[data-theme-style="apple"] .list-item-footer {
+  padding-top: 8px;
+}
+
+/* 备份模块勾选项：圆角方块卡片（module-check） */
+[data-theme-style="apple"] .backup-module-item {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  font-weight: 500;
+  gap: 10px;
+  margin-bottom: 0;
+}
+[data-theme-style="apple"] .backup-module-item:hover {
+  border-color: var(--color-primary);
+  box-shadow: none;
+}
+
+/* 关于条目：圆角瓦片（about-tile） */
+[data-theme-style="apple"] .about-strip-item {
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  margin-bottom: 10px;
+}
+[data-theme-style="apple"] .about-strip-label {
+  font-weight: 600;
+}
+[data-theme-style="apple"] .about-strip-value {
+  color: var(--color-text);
+}
+
+/* 历史/搜索列表工具条 */
+[data-theme-style="apple"] .history-toolbar-right {
+  display: flex;
+  gap: 6px;
+}
+
+/* 卡片 hover：取消抬升/阴影（demo2 .settings-card 无 hover 变化） */
+[data-theme-style="apple"] .card:hover {
+  box-shadow: var(--shadow-sm);
+}
+/* 列表项 hover：无阴影、无边框变化 */
+[data-theme-style="apple"] .list-item:hover {
+  box-shadow: none;
+}
+/* 列表标题/元信息对齐 demo2 .list-title/.list-meta */
+[data-theme-style="apple"] .list-item-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+[data-theme-style="apple"] .list-item-meta {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  color: var(--color-text-muted);
+}
+/* 列表操作区右对齐（demo2 .list-actions） */
+[data-theme-style="apple"] .list-item-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: 0;
+}
+/* 徽标对齐 demo2 .badge：胶囊 + 11px */
+[data-theme-style="apple"] .model-badge,
+[data-theme-style="apple"] .search-provider-badge {
+  margin-left: 0;
+  font-size: 11px;
+}
+
+/* 苹果主题隐藏经典页脚（demo2 .list-row 无页脚，苹果用 task-toggles 代替） */
+[data-theme-style="apple"] .list-item-footer {
+  display: none;
+}
+
+/* ---- 4.25 设置页卡片间距（demo2 .settings-card：纵向 gap 18px，去 margin 堆积） ---- */
+[data-theme-style="apple"] .card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 24px;
+}
+[data-theme-style="apple"] .card .form-group,
+[data-theme-style="apple"] .card .rule-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 0;
+}
+[data-theme-style="apple"] .card .form-group > label,
+[data-theme-style="apple"] .card .rule-form-group > label {
+  margin-bottom: 0;
+}
+[data-theme-style="apple"] .card .section-header,
+[data-theme-style="apple"] .card .switch-row {
+  margin-bottom: 0;
+}
+[data-theme-style="apple"] .card h2 {
+  margin-bottom: 0 !important;
+}
+[data-theme-style="apple"] .card .hint {
+  margin-top: 0;
+  margin-bottom: 0 !important;
+  font-size: 12px;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* ---- 4.27 设置页内子元素间距 / 尺寸对齐 demo2（补充 4.25） ---- */
+/* 系统提示词工具栏：demo2 .form-group 由 gap 排列，去掉 base 的 margin-bottom */
+[data-theme-style="apple"] .prompt-toolbar {
+  margin-bottom: 0;
+}
+/* 表单字段间距（demo2 .form-field：margin-top 16px）；主页面 .card 内由 gap 承担 */
+[data-theme-style="apple"] .rule-form-group {
+  margin-bottom: 0;
+  margin-top: 16px;
+}
+[data-theme-style="apple"] .card .rule-form-group {
+  margin-top: 0;
+}
+/* 卡片头部（demo2 .card-head）：gap 16px */
+[data-theme-style="apple"] .card .switch-row {
+  gap: 16px;
+}
+/* 分段按钮（demo2 .seg-btn）：12px / 500，内边距 0 15px */
+[data-theme-style="apple"] .segmented-control button {
+  padding: 0 15px;
+  font-size: 12px;
+}
+/* 题库工具栏（demo2 .toolbar）：gap 16、允许换行、去掉底部 margin */
+[data-theme-style="apple"] .bank-toolbar {
+  margin-bottom: 0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+/* 题库进度条容器（demo2 .progress-block）：间距由 .card gap 承担 */
+[data-theme-style="apple"] #bankProgress {
+  margin-top: 0;
+}
+/* 备份模块网格（demo2 .module-grid）：固定 3 列 */
+[data-theme-style="apple"] .backup-module-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+/* 备份区块（demo2 .settings-card 直接子元素由 gap 18px 排列，此处让 block 内部同样进入 gap 体系） */
+[data-theme-style="apple"] .backup-section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+[data-theme-style="apple"] .backup-section-block + .backup-section-block {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+/* 备份区块标题（demo2 .sub-title）：13px，上边框分隔 + 16px 上边距 */
+[data-theme-style="apple"] .backup-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---- 4.23 分段控件选中态（demo2：激活项为前景色深色文字，非主色） ---- */
+[data-theme-style="apple"] .segmented-control button.seg-active {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* ---- 4.26 显式按钮 / 徽标颜色（浅色 + 深色，直接写死 demo2 值，不依赖令牌级联） ---- */
+/* 查看 / 编辑 / 导出 = demo2 默认 chip（灰底深字），删除 = chip-danger（红） */
+[data-theme-style="apple"] .action-btn.action-view,
+[data-theme-style="apple"] .action-btn.action-edit,
+[data-theme-style="apple"] .action-btn.action-export {
+  background-color: #f2f2f7;
+  color: #1d1d1f;
+}
+[data-theme-style="apple"] .action-link,
+[data-theme-style="apple"] .action-btn.action-primary {
+  background-color: rgba(0, 122, 255, 0.10);
+  color: #007aff;
+}
+[data-theme-style="apple"] .action-btn.action-delete {
+  background-color: rgba(255, 59, 48, 0.10);
+  color: #ff3b30;
+}
+[data-theme-style="apple"] .action-btn.action-secondary {
+  background-color: #f2f2f7;
+  color: #3c3c43;
+}
+/* 徽标 */
+[data-theme-style="apple"] .model-badge.model-preferred,
+[data-theme-style="apple"] .search-provider-badge.search-badge-active {
+  background-color: rgba(0, 122, 255, 0.12);
+  color: #007aff;
+}
+[data-theme-style="apple"] .model-badge.model-active {
+  background-color: rgba(52, 199, 89, 0.14);
+  color: #34c759;
+}
+[data-theme-style="apple"] .model-badge.model-task-bank {
+  background-color: rgba(255, 149, 0, 0.14);
+  color: #ff9500;
+}
+[data-theme-style="apple"] .model-badge.model-inactive-badge,
+[data-theme-style="apple"] .search-provider-badge.search-badge-inactive {
+  background-color: #f2f2f7;
+  color: #6e6e73;
+}
+/* 深色模式 */
+html[data-theme-style="apple"].dark .action-btn.action-view,
+html[data-theme-style="apple"].dark .action-btn.action-edit,
+html[data-theme-style="apple"].dark .action-btn.action-export,
+[data-theme-style="apple"] .dark .action-btn.action-view,
+[data-theme-style="apple"] .dark .action-btn.action-edit,
+[data-theme-style="apple"] .dark .action-btn.action-export {
+  background-color: #2c2c2e;
+  color: #f5f5f7;
+}
+html[data-theme-style="apple"].dark .action-link,
+html[data-theme-style="apple"].dark .action-btn.action-primary,
+[data-theme-style="apple"] .dark .action-link,
+[data-theme-style="apple"] .dark .action-btn.action-primary {
+  background-color: rgba(10, 132, 255, 0.16);
+  color: #66abff;
+}
+html[data-theme-style="apple"].dark .action-btn.action-delete,
+[data-theme-style="apple"] .dark .action-btn.action-delete {
+  background-color: rgba(255, 69, 58, 0.16);
+  color: #ff453a;
+}
+html[data-theme-style="apple"].dark .action-btn.action-secondary,
+[data-theme-style="apple"] .dark .action-btn.action-secondary {
+  background-color: #2c2c2e;
+  color: #f5f5f7;
+}
+html[data-theme-style="apple"].dark .model-badge.model-preferred,
+html[data-theme-style="apple"].dark .search-provider-badge.search-badge-active,
+[data-theme-style="apple"] .dark .model-badge.model-preferred,
+[data-theme-style="apple"] .dark .search-provider-badge.search-badge-active {
+  background-color: rgba(10, 132, 255, 0.16);
+  color: #66abff;
+}
+html[data-theme-style="apple"].dark .model-badge.model-active,
+[data-theme-style="apple"] .dark .model-badge.model-active {
+  background-color: rgba(48, 209, 88, 0.16);
+  color: #30d158;
+}
+html[data-theme-style="apple"].dark .model-badge.model-task-bank,
+[data-theme-style="apple"] .dark .model-badge.model-task-bank {
+  background-color: rgba(255, 159, 10, 0.16);
+  color: #ff9f0a;
+}
+html[data-theme-style="apple"].dark .model-badge.model-inactive-badge,
+html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive,
+[data-theme-style="apple"] .dark .model-badge.model-inactive-badge,
+[data-theme-style="apple"] .dark .search-provider-badge.search-badge-inactive {
+  background-color: #2c2c2e;
+  color: #aeaeb2;
+}
+
+/* ---- 4.28 备份区按钮 / 文件名（demo2 .export-row / .import-row / .opt-main .btn） ---- */
+[data-theme-style="apple"] .backup-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+[data-theme-style="apple"] .backup-import-row {
+  gap: 10px;
+}
+/* 三个按钮：40px 高 + 2.4rem 胶囊（demo2 .btn） */
+[data-theme-style="apple"] .backup-action-row .action-btn,
+[data-theme-style="apple"] .backup-import-row .action-btn {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 2.4rem;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 6px;
+}
+/* 导出 / 导入备份 = demo2 .btn-primary（蓝底白字） */
+[data-theme-style="apple"] .backup-action-row .action-btn.action-export,
+[data-theme-style="apple"] .backup-import-row .action-btn.action-edit {
+  background: var(--color-primary);
+  color: #fff;
+}
+[data-theme-style="apple"] .backup-action-row .action-btn.action-export:hover,
+[data-theme-style="apple"] .backup-import-row .action-btn.action-edit:hover {
+  background: var(--color-primary-dark);
+  opacity: 1;
+}
+/* 选择备份文件 = demo2 .btn-secondary（灰底深字） */
+[data-theme-style="apple"] .backup-import-row .backup-file-trigger {
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-text);
+}
+/* 文件名（demo2 .import-file）：纯文本、13px/600、前景色，去掉胶囊底 */
+[data-theme-style="apple"] .backup-file-name {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 按钮图标 15px（demo2 .opt-main .btn svg） */
+[data-theme-style="apple"] .backup-action-row .action-btn svg,
+[data-theme-style="apple"] .backup-import-row .action-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ---- 4.24 Popup 细化（对齐 demo2 .popup） ---- */
+/* Popup 整体：卡片式容器（浏览器扩展弹窗窗口自带边框，此处增加内边距氛围与圆角衔接） */
+[data-theme-style="apple"] .popup-page {
+  border-radius: var(--radius-lg);
+}
+/* 按钮字号 14px；按钮携带浅阴影增强层级；字重沿用通用 600，不单独覆盖 */
+[data-theme-style="apple"] .popup-page .btn {
+  font-size: 14px;
+  box-shadow: var(--shadow-sm);
+}
+[data-theme-style="apple"] .popup-page .btn svg {
+  transition: transform var(--transition-normal);
+}
+[data-theme-style="apple"] .popup-page .btn-primary:hover svg {
+  transform: scale(1.08);
+}
+/* 按钮间距：demo2 用 .btn + .btn { margin-top: 10px }，覆盖 base 的 margin-bottom */
+[data-theme-style="apple"] .popup-page .btn {
+  margin-bottom: 0;
+}
+[data-theme-style="apple"] .popup-page .btn + .btn {
+  margin-top: 10px;
+}
+/* 主按钮 hover：轻微降亮度（与设置页/抽屉一致），并带上主色阴影层 */
+[data-theme-style="apple"] .popup-page .btn-primary {
+  box-shadow: var(--shadow-sm), var(--shadow-primary);
+}
+/* 模型下拉容器：demo2 margin-top 10px */
+[data-theme-style="apple"] .popup-page .model-dropdown {
+  margin-bottom: 0;
+  margin-top: 10px;
+}
+/* 标题字号 17px（demo2 .popup-title） */
+[data-theme-style="apple"] .popup-page .header h2 {
+  font-size: 17px;
+}
+/* 模型下拉箭头：CSS 三角 → demo2 chevron 图标（mask），保留 base 的 translateY 居中 */
+[data-theme-style="apple"] .popup-page .model-dropdown-arrow {
+  width: 15px;
+  height: 15px;
+  border: 0;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  opacity: 0.5;
+}
+[data-theme-style="apple"] .popup-page .model-dropdown.open .model-dropdown-arrow {
+  transform: translateY(-50%) rotate(180deg);
+}
+/* 模型下拉菜单：内边距 + 入场动画（demo2 .model-menu） */
+[data-theme-style="apple"] .popup-page .model-dropdown-menu {
+  padding: 6px;
+  animation: qh-menu-in 0.18s cubic-bezier(0.32, 0.72, 0, 1);
+  transform-origin: top center;
+}
+[data-theme-style="apple"] .popup-page .model-dropdown-option:hover {
+  background: var(--color-surface-hover);
+}
+[data-theme-style="apple"] .popup-page .model-dropdown-option.selected {
+  font-weight: 600;
+}
+@keyframes qh-menu-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* Popup Footer：顶部间距加大（demo2 .popup-footer margin-top:14px） */
+[data-theme-style="apple"] .popup-page .popup-footer {
+  margin-top: 14px;
+}
+/* 版本号：等宽字体（demo2 .popup-version） */
+[data-theme-style="apple"] .popup-page .version-tag {
+  font-family: var(--font-code);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* ============================================================
+   5. 苹果主题新增工具类（供后续渐进式 DOM 升级使用）
+   ============================================================ */
+.task-toggles { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.task-toggle {
+  display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 10px;
+  border: 1px solid var(--color-border); border-radius: 999px; background: transparent;
+  color: var(--color-text-muted); font-size: 11px; font-weight: 500; line-height: 1; cursor: pointer;
+  white-space: nowrap;
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+.task-toggle:hover { color: var(--color-text); border-color: var(--color-input-border); }
+.task-toggle::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; opacity: .4; }
+.task-toggle.active { border-color: transparent; background: var(--color-primary-bg); color: var(--color-primary); }
+.task-toggle.active::before { opacity: 1; }
+.task-toggle:disabled { cursor: not-allowed; }
+
+.badge { display: inline-flex; align-items: center; height: 20px; padding: 0 9px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-primary { background: var(--color-primary-bg); color: var(--color-primary); }
+.badge-success { background: var(--color-success-bg); color: var(--color-success); }
+.badge-muted { background: var(--color-surface-hover); color: var(--color-text-muted); }
+
+.toast-icon-wrap {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 999px; flex-shrink: 0;
+}
+
+/* 面板内主题根容器（shadow DOM 中承载 data-theme-style） */
+.qh-theme-root { height: auto; }

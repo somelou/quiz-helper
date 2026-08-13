@@ -62,6 +62,12 @@
   --color-drawer-shadow: -12px 0 40px rgba(0,0,0,0.12);
   --color-drawer-close-bg: #f4f4f5;
 
+  /* ---- 侧边栏（令牌名与经典统一，值随主题变化） ---- */
+  --sidebar: #f6f7f9;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-border: #e8e8ec;
+  --sidebar-foreground: #3f3f46;
+
   --color-rule-view-toggle-bg: #f0f0f3;
   --color-rule-view-toggle-border: #e8e8ec;
   --color-rule-view-btn-active-bg: #ffffff;
@@ -181,6 +187,11 @@ body.dark {
   --color-drawer-bg: #1a1c22;
   --color-drawer-shadow: -12px 0 40px rgba(0,0,0,0.5);
   --color-drawer-close-bg: #2a2d36;
+
+  --sidebar: #0f1115;
+  --sidebar-accent: #22242c;
+  --sidebar-border: #2a2d36;
+  --sidebar-foreground: #e4e4e7;
 
   --color-rule-view-toggle-bg: #22242c;
   --color-rule-view-toggle-border: #2a2d36;

@@ -5,23 +5,14 @@
   "commonClear": {
     "message": "Clear"
   },
-  "commonSave": {
-    "message": "Save"
-  },
   "commonClose": {
     "message": "Close"
-  },
-  "commonCancel": {
-    "message": "Cancel"
   },
   "commonExport": {
     "message": "Export"
   },
   "commonDelete": {
     "message": "Delete"
-  },
-  "commonConfirm": {
-    "message": "Confirm"
   },
   "typeSingle": {
     "message": "Single Choice"
@@ -98,6 +89,21 @@
   "optionsSettings": {
     "message": "Basic Settings"
   },
+  "optionsThemeStyle": {
+    "message": "Interface Theme"
+  },
+  "optionsThemeClassic": {
+    "message": "Classic"
+  },
+  "optionsThemeApple": {
+    "message": "Apple"
+  },
+  "optionsThemeStyleHint": {
+    "message": "Choose the visual style of the whole interface. You can switch at any time."
+  },
+  "optionsThemeStyleSaved": {
+    "message": "Interface theme switched to $1"
+  },
   "optionsModels": {
     "message": "Model Management"
   },
@@ -156,7 +162,7 @@
     "message": "Restore Defaults"
   },
   "optionsAddModel": {
-    "message": "+ Add"
+    "message": "Add"
   },
   "optionsModelsHint": {
     "message": "Manage multiple model configs; enable or disable them and set a preferred model. Use the buttons below to assign a dedicated model to each task."
@@ -228,7 +234,7 @@
     "message": "10 concurrent batches - 50 questions each"
   },
   "optionsImportBank": {
-    "message": "+ Import Bank"
+    "message": "Import Bank"
   },
   "optionsCancelParseTitle": {
     "message": "Cancel parsing"
@@ -244,9 +250,6 @@
   },
   "optionsBackupExportTitle": {
     "message": "Export Local Data"
-  },
-  "optionsBackupExportHint": {
-    "message": "Export current local data by module; all modules are selected by default."
   },
   "optionsModuleSettings": {
     "message": "Basic Settings"
@@ -1091,9 +1094,6 @@
   "panelNoTitle": {
     "message": "No title"
   },
-  "panelPause": {
-    "message": "Pause"
-  },
   "panelPickerCancelled": {
     "message": "AI selection parse cancelled. You can continue with rule parsing, or click “AI Select Area” again to select a region on the page."
   },
@@ -1123,9 +1123,6 @@
   },
   "panelRequestFailed": {
     "message": "Request failed: $1"
-  },
-  "panelResume": {
-    "message": "Resume"
   },
   "panelRuleParse": {
     "message": "Rule Parsing"

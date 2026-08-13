@@ -5,23 +5,14 @@
   "commonClear": {
     "message": "清空"
   },
-  "commonSave": {
-    "message": "保存"
-  },
   "commonClose": {
     "message": "关闭"
-  },
-  "commonCancel": {
-    "message": "取消"
   },
   "commonExport": {
     "message": "导出"
   },
   "commonDelete": {
     "message": "删除"
-  },
-  "commonConfirm": {
-    "message": "确定"
   },
   "typeSingle": {
     "message": "单选"
@@ -98,6 +89,21 @@
   "optionsSettings": {
     "message": "基本设置"
   },
+  "optionsThemeStyle": {
+    "message": "界面主题"
+  },
+  "optionsThemeClassic": {
+    "message": "经典"
+  },
+  "optionsThemeApple": {
+    "message": "苹果"
+  },
+  "optionsThemeStyleHint": {
+    "message": "选择整套界面的视觉风格，可随时切换。"
+  },
+  "optionsThemeStyleSaved": {
+    "message": "界面主题已切换为 $1"
+  },
   "optionsModels": {
     "message": "大模型管理"
   },
@@ -156,7 +162,7 @@
     "message": "恢复默认"
   },
   "optionsAddModel": {
-    "message": "+ 添加"
+    "message": "添加"
   },
   "optionsModelsHint": {
     "message": "管理多个大模型配置，可激活/停用，设置首选模型。点击下方按钮可为各任务指定专用模型。"
@@ -228,7 +234,7 @@
     "message": "并发 10 批 · 每批 50 题"
   },
   "optionsImportBank": {
-    "message": "+ 导入题库"
+    "message": "导入题库"
   },
   "optionsCancelParseTitle": {
     "message": "取消解析"
@@ -244,9 +250,6 @@
   },
   "optionsBackupExportTitle": {
     "message": "导出本地数据"
-  },
-  "optionsBackupExportHint": {
-    "message": "可按模块导出当前本地数据，默认全选。"
   },
   "optionsModuleSettings": {
     "message": "基本设置"
@@ -375,7 +378,7 @@
     "message": "该题库暂无可展示的题目。"
   },
   "optionsBankEmpty": {
-    "message": "暂无题库。点击上方\"+ 导入题库\"按钮上传 Excel(.xlsx/.xls) 或 Word(.docx) 文件。"
+    "message": "暂无题库。点击上方\"导入题库\"按钮上传 Excel(.xlsx/.xls) 或 Word(.docx) 文件。"
   },
   "optionsBankEnabledBadge": {
     "message": "已启用"
@@ -1091,9 +1094,6 @@
   "panelNoTitle": {
     "message": "无标题"
   },
-  "panelPause": {
-    "message": "暂停"
-  },
   "panelPickerCancelled": {
     "message": "已取消 AI 选区解析。可继续规则解析，或再次点击“AI 选区解析”后选择页面区域。"
   },
@@ -1123,9 +1123,6 @@
   },
   "panelRequestFailed": {
     "message": "请求失败：$1"
-  },
-  "panelResume": {
-    "message": "继续"
   },
   "panelRuleParse": {
     "message": "规则解析"

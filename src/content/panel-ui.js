@@ -10,6 +10,9 @@
   let darkMediaQueryRef = null;
   let darkMediaQueryHandler = null;
 
+  // shadow DOM 内主题根容器（承载 data-theme-style，供主题组件覆盖选择器匹配）
+  let panelThemeRoot = null;
+
   // ===== 工具函数 =====
 
   /**
@@ -305,7 +308,12 @@
     ensurePanel(state.questionsData.length);
     const body = state.shadowRoot.getElementById('qh-body');
     if (body) {
-      body.innerHTML = `<div class="qh-empty">${escapeHtml(message).replace(/\n/g, '<br>')}</div>`;
+      body.innerHTML = `
+        <div class="qh-empty">
+          <span class="qh-empty-icon" data-icon="help-circle" aria-hidden="true"></span>
+          <span>${escapeHtml(message).replace(/\n/g, '<br>')}</span>
+        </div>`;
+      window.QuizHelperIcons?.replaceIcons(body);
     }
     updateControls();
     updateProgress();
@@ -352,10 +360,10 @@
    * @param {Object} question - 题目对象
    */
   function syncActionButton(body, qIndex, question) {
-    body.querySelectorAll('.qh-btn.qh-btn-primary').forEach(btn => btn.remove());
+    body.querySelectorAll('.qh-btn.qh-btn-secondary').forEach(btn => btn.remove());
     if (question.status === 'done' || question.status === 'error') {
       const retryBtn = document.createElement('button');
-      retryBtn.className = 'qh-btn qh-btn-primary';
+      retryBtn.className = 'qh-btn qh-btn-secondary';
       retryBtn.style.marginTop = '10px';
       retryBtn.textContent = getMessage('panelReAnswer');
       retryBtn.addEventListener('click', event => {
@@ -365,7 +373,7 @@
       body.appendChild(retryBtn);
     } else if (state.isPaused && question.status === 'pending') {
       const answerBtn = document.createElement('button');
-      answerBtn.className = 'qh-btn qh-btn-primary';
+      answerBtn.className = 'qh-btn qh-btn-secondary';
       answerBtn.style.marginTop = '10px';
       answerBtn.textContent = getMessage('panelAnswer');
       answerBtn.addEventListener('click', event => {
@@ -423,9 +431,10 @@
         bankRefsHtml += `
           <details class="qh-bank-ref">
             <summary>
-              <span class="qh-bank-ref-icon" data-icon="link"></span>
+              <span class="qh-bank-ref-icon" data-icon="database"></span>
               <span class="qh-bank-ref-name">${getMessage('panelBankSource', [m.source])}</span>
               ${m.score ? `<span class="qh-bank-ref-score">${getMessage('panelSimilarity', [m.score])}</span>` : ''}
+              <span class="qh-ref-chevron" data-icon="chevron-down"></span>
             </summary>
             <div class="qh-bank-ref-detail">
               <div class="qh-bank-q">${escapeHtml(m.questionText)}</div>
@@ -447,6 +456,7 @@
           <span class="qh-search-ref-icon" data-icon="link"></span>
           <span class="qh-search-ref-name">${getMessage('panelRefLinks')}${providerName ? `<span class="qh-search-ref-provider"> · ${escapeHtml(providerName)}</span>` : ''}</span>
           <span class="qh-bank-ref-score">${getMessage('panelRefCount', [webSearchRefs.length])}</span>
+          <span class="qh-ref-chevron" data-icon="chevron-down"></span>
         </summary>
         <div class="qh-search-ref-detail">`;
       webSearchRefs.forEach((ref) => {
@@ -576,7 +586,15 @@
     }
 
     if (pauseBtn) {
-      pauseBtn.textContent = state.isPaused ? getMessage('panelResume') : getMessage('panelPause');
+      const pauseIcon = pauseBtn.querySelector('.qh-btn-icon');
+      if (pauseIcon) {
+        const nextIcon = state.isPaused ? 'play' : 'pause';
+        if (pauseIcon.getAttribute('data-icon') !== nextIcon) {
+          pauseIcon.setAttribute('data-icon', nextIcon);
+          delete pauseIcon.dataset.iconLoaded;
+          window.QuizHelperIcons?.replaceIcons(pauseBtn);
+        }
+      }
       pauseBtn.disabled = state.pickerState !== null || (!state.isAnalyzing && !state.isPaused);
     }
 
@@ -646,10 +664,23 @@
   function applyTheme() {
     const host = document.getElementById('quiz-helper-host');
     if (!host || !state.shadowRoot) return;
-    if (state.isDarkMode) {
-      host.classList.add('dark');
-    } else {
-      host.classList.remove('dark');
+    const isDark = state.isDarkMode;
+    host.classList.toggle('dark', isDark);
+    if (panelThemeRoot) panelThemeRoot.classList.toggle('dark', isDark);
+  }
+
+  /**
+   * 应用主题风格（经典/苹果）到面板宿主与 shadow 内根容器
+   */
+  async function applyThemeStyle() {
+    try {
+      const style = await globalThis.QuizHelperThemeUtils.loadThemeStyle();
+      const resolved = style === 'apple' ? 'apple' : 'classic';
+      const host = document.getElementById('quiz-helper-host');
+      if (host) host.setAttribute('data-theme-style', resolved);
+      if (panelThemeRoot) panelThemeRoot.setAttribute('data-theme-style', resolved);
+    } catch (e) {
+      // 静默降级为经典
     }
   }
 
@@ -725,6 +756,12 @@
       state.shadowRoot.replaceChildren();
       state.panelElement = null;
 
+      // 主题根容器：承载 data-theme-style，使主题组件覆盖选择器可匹配
+      panelThemeRoot = document.createElement('div');
+      panelThemeRoot.className = 'qh-theme-root';
+      panelThemeRoot.setAttribute('data-theme-style', 'classic');
+      state.shadowRoot.appendChild(panelThemeRoot);
+
       try {
         const variablesUrl = chrome.runtime.getURL('shared/variables.css');
         const resp = await fetch(variablesUrl);
@@ -747,6 +784,25 @@
       styleLink.href = chrome.runtime.getURL('content/panel.css');
       state.shadowRoot.appendChild(styleLink);
 
+      // 主题样式注入（经典 + 苹果，由 data-theme-style 属性决定生效者）。
+      // 必须位于 panel.css <link> 之后，保证同优先级时主题覆盖生效。
+      // ?v=5 用于强制刷新浏览器缓存。
+      for (const themeFile of ['themes/theme-classic.css?v=10', 'themes/theme-apple.css?v=10']) {
+        try {
+          const resp = await fetch(chrome.runtime.getURL(themeFile));
+          if (!isActiveRender(host, renderToken)) return;
+          if (resp.ok) {
+            const cssText = await resp.text();
+            if (!isActiveRender(host, renderToken)) return;
+            const themeStyle = document.createElement('style');
+            themeStyle.textContent = cssText;
+            state.shadowRoot.appendChild(themeStyle);
+          }
+        } catch (e) {
+          // 静默降级
+        }
+      }
+
       const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       if (!darkMediaQueryRef) {
         darkMediaQueryRef = darkMediaQuery;
@@ -759,6 +815,7 @@
       }
 
       applyTheme();
+      applyThemeStyle();
 
       if (!isActiveRender(host, renderToken)) return;
 
@@ -783,12 +840,12 @@
               <button class="qh-seg-btn" id="qh-ai-parse">${getMessage('panelAiSelection')}</button>
               <button class="qh-seg-btn" id="qh-reparse" style="display:none;">${getMessage('panelRuleParse')}</button>
             </div>
-            <button class="qh-btn qh-btn-warning" id="qh-pause">${getMessage('panelPause')}</button>
-            <button class="qh-btn qh-btn-primary" id="qh-retry">${getMessage('panelReAnswer')}</button>
+            <button class="qh-btn qh-btn-icon-only qh-btn-warning" id="qh-pause"><span class="qh-btn-icon" data-icon="pause"></span></button>
+            <button class="qh-btn qh-btn-icon-only qh-btn-primary" id="qh-retry"><span class="qh-btn-icon" data-icon="refresh-cw"></span></button>
           </div>
         </div>
       `;
-      state.shadowRoot.appendChild(state.panelElement);
+      panelThemeRoot.appendChild(state.panelElement);
 
       if (!isActiveRender(host, renderToken)) return;
 
@@ -797,7 +854,7 @@
       miniBar.id = 'qh-mini-bar';
       const iconUrl = chrome.runtime.getURL('icons/icon.svg');
       miniBar.innerHTML = `<img src="${iconUrl}" width="48" height="48" alt="${getMessage('panelTitle')}" draggable="false">`;
-      state.shadowRoot.appendChild(miniBar);
+      panelThemeRoot.appendChild(miniBar);
 
       state.shadowRoot.getElementById('qh-minimize').addEventListener('click', minimizePanel);
       state.shadowRoot.getElementById('qh-close').addEventListener('click', removePanel);
@@ -871,6 +928,7 @@
     removeAllPanelHosts();
     state.shadowRoot = null;
     state.panelElement = null;
+    panelThemeRoot = null;
     state.isAnalyzing = false;
     state.isPaused = false;
     state.analysisRunId += 1;
@@ -969,6 +1027,7 @@
   // 导出 API
   globalThis.QuizHelperPanelUI = {
     applyTheme,
+    applyThemeStyle,
     createPanel,
     ensurePanel,
     restorePanel,

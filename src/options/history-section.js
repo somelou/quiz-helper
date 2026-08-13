@@ -39,9 +39,9 @@ function initHistory({ historyListEl, onOpenDrawer }) {
             <div class="list-item-meta">${escapeHtml(record.url || '')}</div>
           </div>
           <div class="list-item-actions">
-            <button class="action-btn action-view" data-idx="${idx}">${getMessage('optionsView')}</button>
-            <button class="action-btn action-export" data-idx="${idx}">${getMessage('commonExport')}</button>
-            <button class="action-btn action-delete" data-idx="${idx}">${getMessage('commonDelete')}</button>
+            <button class="action-btn action-view" data-idx="${idx}"><span data-icon="eye"></span>${getMessage('optionsView')}</button>
+            <button class="action-btn action-export" data-idx="${idx}"><span data-icon="export"></span>${getMessage('commonExport')}</button>
+            <button class="action-btn action-delete" data-idx="${idx}"><span data-icon="trash"></span>${getMessage('commonDelete')}</button>
           </div>
         </div>
       `;
@@ -52,6 +52,8 @@ function initHistory({ historyListEl, onOpenDrawer }) {
 
       historyListEl.appendChild(item);
     }
+
+    window.QuizHelperIcons?.replaceIcons(historyListEl);
 
     const pager = document.createElement('div');
     pager.className = 'pagination';

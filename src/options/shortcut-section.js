@@ -34,16 +34,23 @@ function initShortcut({
 
   function updateShortcutDisplay() {
     shortcutDisplayEl.classList.remove('recording');
-    shortcutDisplayEl.textContent = currentShortcut ? currentShortcut.display : getMessage('optionsShortcutNotSet');
+    setShortcutText(currentShortcut ? currentShortcut.display : getMessage('optionsShortcutNotSet'));
     const defaultLabel = sharedIsMacOS() ? '⌥ Q' : 'Alt+Q';
     shortcutHintEl.textContent = currentShortcut
       ? getMessage('optionsShortcutDefaultFormat', [defaultLabel])
       : getMessage('optionsShortcutNoneHint');
   }
 
+  // 只更新文本节点，保留钥匙图标（.shortcut-key-icon）
+  function setShortcutText(text) {
+    const textEl = shortcutDisplayEl.querySelector('#shortcutText');
+    if (textEl) textEl.textContent = text;
+    else shortcutDisplayEl.textContent = text;
+  }
+
   recordBtn.addEventListener('click', () => {
     isRecordingShortcut = true;
-    shortcutDisplayEl.textContent = getMessage('optionsShortcutRecording');
+    setShortcutText(getMessage('optionsShortcutRecording'));
     shortcutDisplayEl.classList.add('recording');
     const mods = sharedIsMacOS() ? getMessage('optionsShortcutModsMac') : getMessage('optionsShortcutModsWin');
     shortcutHintEl.textContent = getMessage('optionsShortcutModifierHintFormat', [mods]);

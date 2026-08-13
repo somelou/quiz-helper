@@ -5,21 +5,26 @@
   <title data-i18n="optionsPageTitle">题目助手 - 设置</title>
   <link rel="stylesheet" href="../shared/variables.css">
   <link rel="stylesheet" href="../shared/toggle.css">
-  <link rel="stylesheet" href="options.css">
+  <link rel="stylesheet" href="options.css?v=10">
   <link rel="stylesheet" href="../lib/katex.min.css">
+  <!-- 主题引导：独立文件（MV3 扩展 CSP 禁止内联脚本），尽早设置 data-theme-style -->
+  <script src="../shared/theme-boot.js"></script>
+  <!-- 主题覆盖层：必须位于组件 CSS 之后；?v=10 用于强制刷新浏览器缓存 -->
+  <link rel="stylesheet" href="../themes/theme-classic.css?v=10">
+  <link rel="stylesheet" href="../themes/theme-apple.css?v=10">
 </head>
 <body>
   <div class="page-layout">
     <nav class="sidebar" id="sidebar">
       <ul class="nav-list">
-        <li><a class="nav-item active" href="#section-settings" data-i18n="optionsSettings">基本设置</a></li>
-        <li><a class="nav-item" href="#section-models" data-i18n="optionsModels">大模型管理</a></li>
-        <li><a class="nav-item" href="#section-search" data-i18n="optionsSearch">联网搜索设置</a></li>
-        <li><a class="nav-item" href="#section-rules" data-i18n="optionsRules">解析规则管理</a></li>
-        <li><a class="nav-item" href="#section-bank" data-i18n="optionsBank">题库管理</a></li>
-        <li><a class="nav-item" href="#section-history" data-i18n="optionsHistory">历史记录</a></li>
-        <li><a class="nav-item" href="#section-backup" data-i18n="optionsBackup">备份与恢复</a></li>
-        <li><a class="nav-item" href="#section-about" data-i18n="optionsAbout">关于</a></li>
+        <li><a class="nav-item active" href="#section-settings"><span data-icon="settings"></span><span data-i18n="optionsSettings">基本设置</span></a></li>
+        <li><a class="nav-item" href="#section-models"><span data-icon="cpu"></span><span data-i18n="optionsModels">大模型管理</span></a></li>
+        <li><a class="nav-item" href="#section-search"><span data-icon="globe"></span><span data-i18n="optionsSearch">联网搜索设置</span></a></li>
+        <li><a class="nav-item" href="#section-rules"><span data-icon="file-text"></span><span data-i18n="optionsRules">解析规则管理</span></a></li>
+        <li><a class="nav-item" href="#section-bank"><span data-icon="database"></span><span data-i18n="optionsBank">题库管理</span></a></li>
+        <li><a class="nav-item" href="#section-history"><span data-icon="history"></span><span data-i18n="optionsHistory">历史记录</span></a></li>
+        <li><a class="nav-item" href="#section-backup"><span data-icon="archive"></span><span data-i18n="optionsBackup">备份与恢复</span></a></li>
+        <li><a class="nav-item" href="#section-about"><span data-icon="info"></span><span data-i18n="optionsAbout">关于</span></a></li>
       </ul>
     </nav>
 
@@ -38,6 +43,15 @@
               <span data-icon="system"></span>
             </button>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label for="themeStyleSelect" data-i18n="optionsThemeStyle">界面主题</label>
+          <div class="segmented-control" id="themeStyleSelect">
+            <button data-value="classic" data-i18n="optionsThemeClassic">经典</button>
+            <button data-value="apple" data-i18n="optionsThemeApple">苹果</button>
+          </div>
+          <div class="hint" data-i18n="optionsThemeStyleHint">选择整套界面的视觉风格，可随时切换。</div>
         </div>
 
         <div class="form-group">
@@ -71,12 +85,12 @@
         <div class="form-group">
           <label data-i18n="optionsShortcut">面板快捷键</label>
           <div class="shortcut-box">
-            <div class="setting-row">
-              <div class="shortcut-value" id="shortcutDisplay">--</div>
-              <div class="shortcut-actions" style="margin-top:0;">
-                <button type="button" class="action-btn action-view" id="recordShortcutBtn" data-i18n="optionsRecordShortcut">录制</button>
-                <button type="button" class="action-btn action-secondary action-clear" id="clearShortcutBtn" data-i18n="commonClear">清空</button>
-                <button type="button" class="action-btn action-secondary" id="resetShortcutBtn" data-i18n="optionsResetShortcut">默认</button>
+            <div class="shortcut-row">
+              <span class="shortcut-key" id="shortcutDisplay"><span class="shortcut-key-icon" data-icon="key-round" aria-hidden="true"></span><span id="shortcutText">--</span></span>
+              <div class="shortcut-actions">
+                <button type="button" class="action-btn action-primary" id="recordShortcutBtn"><span data-icon="circle-dot" aria-hidden="true"></span><span data-i18n="optionsRecordShortcut">录制</span></button>
+                <button type="button" class="action-btn action-secondary action-clear" id="clearShortcutBtn"><span data-icon="eraser" aria-hidden="true"></span><span data-i18n="commonClear">清空</span></button>
+                <button type="button" class="action-btn action-secondary" id="resetShortcutBtn"><span data-icon="rotate-ccw" aria-hidden="true"></span><span data-i18n="optionsResetShortcut">默认</span></button>
               </div>
             </div>
             <div class="hint" id="shortcutHint" style="margin-top:8px;">--</div>
@@ -91,15 +105,15 @@ exam.example.com"></textarea>
         </div>
 
         <div class="actions">
-          <button class="btn-primary" id="saveBtn" data-i18n="optionsSaveSettings">保存设置</button>
-          <button class="btn-secondary" id="resetBtn" data-i18n="optionsRestoreDefaults">恢复默认</button>
+          <button class="btn-primary" id="saveBtn"><span data-icon="check" aria-hidden="true"></span><span data-i18n="optionsSaveSettings">保存设置</span></button>
+          <button class="btn-secondary" id="resetBtn"><span data-i18n="optionsRestoreDefaults">恢复默认</span></button>
         </div>
       </div>
 
       <div class="card" id="section-models">
         <div class="switch-row" style="margin-bottom: 12px;">
           <h2 style="margin:0;" data-i18n="optionsModels">大模型管理</h2>
-          <button class="action-btn action-edit" id="addModelBtn" data-i18n="optionsAddModel">+ 添加</button>
+          <button class="action-btn action-primary" id="addModelBtn"><span data-icon="plus" aria-hidden="true"></span><span data-i18n="optionsAddModel">添加</span></button>
         </div>
         <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsModelsHint">管理多个大模型配置，可激活/停用，设置首选模型。点击下方按钮可为各任务指定专用模型。</div>
         <div class="rule-form-group">
@@ -173,7 +187,8 @@ exam.example.com"></textarea>
           <div class="bank-toolbar-left">
             <label class="btn btn-secondary">
               <input type="file" id="questionBankFile" accept=".xlsx,.xls,.docx" style="display: none;">
-              <span data-i18n="optionsImportBank">+ 导入题库</span>
+              <span data-icon="upload" aria-hidden="true"></span>
+              <span data-i18n="optionsImportBank">导入题库</span>
             </label>
           </div>
           <div class="bank-toolbar-right">
@@ -187,7 +202,7 @@ exam.example.com"></textarea>
           </div>
           <div class="bank-progress-text">
             <span id="bankProgressText"></span>
-            <button class="bank-progress-cancel" id="bankProgressCancel" title="取消解析" data-i18n="optionsCancel" data-i18n-title="optionsCancelParseTitle">取消</button>
+            <button class="bank-progress-cancel" id="bankProgressCancel" title="取消解析" data-i18n-title="optionsCancelParseTitle"><span data-icon="close" aria-hidden="true"></span><span data-i18n="optionsCancel">取消</span></button>
           </div>
         </div>
       </div>
@@ -215,7 +230,6 @@ exam.example.com"></textarea>
 
         <div class="backup-section-block">
           <div class="backup-section-title" data-i18n="optionsBackupExportTitle">导出本地数据</div>
-          <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsBackupExportHint">可按模块导出当前本地数据，默认全选。</div>
           <div class="backup-module-grid" id="backupModuleList">
             <label class="backup-module-item">
               <input type="checkbox" value="settings" checked>
@@ -256,11 +270,12 @@ exam.example.com"></textarea>
           <div class="backup-import-row">
             <label class="action-btn action-secondary backup-file-trigger">
               <input type="file" id="backupFileInput" accept=".json" style="display: none;">
+              <span data-icon="folder-open" aria-hidden="true"></span>
               <span data-i18n="optionsChooseBackupFile">选择备份文件</span>
             </label>
             <span id="backupFileName" class="backup-file-name" data-i18n="optionsNoFileSelected">未选择文件</span>
             <button type="button" class="action-btn action-edit" id="importBackupBtn">
-              <span data-icon="import"></span>
+              <span data-icon="upload"></span>
               <span data-i18n="optionsImportBackup">导入备份</span>
             </button>
           </div>
@@ -315,8 +330,8 @@ exam.example.com"></textarea>
           <div class="drawer-meta" id="drawerMeta"></div>
         </div>
         <div class="drawer-header-actions">
-          <button type="button" class="btn-primary" id="drawerSaveBtn" style="display:none;" data-i18n="optionsSave">保存</button>
-          <button type="button" class="btn-secondary" id="drawerCloseBtn" data-i18n="optionsClose">关闭</button>
+          <button type="button" class="btn-primary" id="drawerSaveBtn" style="display:none;"><span data-icon="check" aria-hidden="true"></span><span data-i18n="optionsSave">保存</span></button>
+          <button type="button" class="btn-secondary" id="drawerCloseBtn"><span data-i18n="optionsClose">关闭</span></button>
         </div>
       </div>
       <div class="drawer-body" id="drawerBody"></div>

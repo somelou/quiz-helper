@@ -64,21 +64,20 @@ function initModels({
       const item = document.createElement('div');
       item.className = 'list-item' + (isAnswerModel ? ' active' : (model.isActive ? '' : ' model-inactive'));
 
-      // 构建 footer 按钮
-      const footerButtons = [];
-      if (!isAnswerModel && model.isActive) {
-        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">' + getMessage('optionsModelUseForAnswer') + '</button>');
-      }
-      if (!isExtract && model.isActive) {
-        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">' + getMessage('optionsModelUseForExtract') + '</button>');
-      }
-      if (!isBank && model.isActive) {
-        footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">' + getMessage('optionsModelUseForBank') + '</button>');
-      }
+      // 构建用途切换 chips（demo2 .task-toggles，位于 list-info 内，供苹果主题使用）
+      const taskTogglesHtml = `
+        <div class="task-toggles" role="group" aria-label="${getMessage('optionsModelUseForAnswer')}">
+          <button type="button" class="task-toggle${isAnswerModel ? ' active' : ''}" data-idx="${idx}" data-action="set-answer" ${model.isActive ? '' : 'disabled'}>${getMessage('optionsModelUseForAnswer')}</button>
+          <button type="button" class="task-toggle${isExtract ? ' active' : ''}" data-idx="${idx}" data-action="set-extract" ${model.isActive ? '' : 'disabled'}>${getMessage('optionsModelUseForExtract')}</button>
+          <button type="button" class="task-toggle${isBank ? ' active' : ''}" data-idx="${idx}" data-action="set-bank" ${model.isActive ? '' : 'disabled'}>${getMessage('optionsModelUseForBank')}</button>
+        </div>`;
 
-      const footerHtml = footerButtons.length > 0
-        ? '<div class="list-item-footer">' + footerButtons.join('') + '</div>'
-        : '';
+      // 经典主题页脚操作链接（仅显示未指派的任务，供经典主题使用）
+      const footerButtons = [];
+      if (!isAnswerModel && model.isActive) footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">' + getMessage('optionsModelUseForAnswer') + '</button>');
+      if (!isExtract && model.isActive) footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">' + getMessage('optionsModelUseForExtract') + '</button>');
+      if (!isBank && model.isActive) footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">' + getMessage('optionsModelUseForBank') + '</button>');
+      const footerHtml = footerButtons.length ? '<div class="list-item-footer">' + footerButtons.join('') + '</div>' : '';
 
       item.innerHTML = `
         <div class="list-item-header">
@@ -88,14 +87,15 @@ function initModels({
               ${badgeHtml}
             </div>
             <div class="list-item-meta">${getMessage('optionsModelMetaFormat', [escapeHtml(model.modelId || ''), escapeHtml(model.apiUrl || '')])}</div>
+            ${taskTogglesHtml}
           </div>
           <div class="list-item-actions">
             <label class="switch">
               <input type="checkbox" data-action="toggle" data-idx="${idx}" ${model.isActive ? 'checked' : ''}>
               <span class="switch-slider"></span>
             </label>
-            <button class="action-btn action-edit" data-idx="${idx}">${getMessage('optionsEdit')}</button>
-            <button class="action-btn action-delete" data-idx="${idx}">${getMessage('commonDelete')}</button>
+            <button class="action-btn action-edit" data-idx="${idx}"><span data-icon="pencil"></span>${getMessage('optionsEdit')}</button>
+            <button class="action-btn action-delete" data-idx="${idx}"><span data-icon="trash"></span>${getMessage('commonDelete')}</button>
           </div>
         </div>
         ${footerHtml}
@@ -107,21 +107,20 @@ function initModels({
       item.querySelector('.action-edit').addEventListener('click', () => openModelDrawer(model));
       item.querySelector('.action-delete').addEventListener('click', () => deleteModel(idx));
 
-      const answerBtn = item.querySelector('[data-action="set-answer"]');
-      if (answerBtn) {
-        answerBtn.addEventListener('click', () => setAnswerModel(idx));
-      }
-      const extractBtn = item.querySelector('[data-action="set-extract"]');
-      if (extractBtn) {
-        extractBtn.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', getMessage('optionsModelBadgeExtract')));
-      }
-      const bankBtn = item.querySelector('[data-action="set-bank"]');
-      if (bankBtn) {
-        bankBtn.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', getMessage('optionsModelBadgeBank')));
-      }
+      item.querySelectorAll('[data-action="set-answer"]').forEach(btn => {
+        btn.addEventListener('click', () => setAnswerModel(idx));
+      });
+      item.querySelectorAll('[data-action="set-extract"]').forEach(btn => {
+        btn.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', getMessage('optionsModelBadgeExtract')));
+      });
+      item.querySelectorAll('[data-action="set-bank"]').forEach(btn => {
+        btn.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', getMessage('optionsModelBadgeBank')));
+      });
 
       modelListEl.appendChild(item);
     }
+
+    window.QuizHelperIcons?.replaceIcons(modelListEl);
 
     const pager = document.createElement('div');
     pager.className = 'pagination';
@@ -235,40 +234,33 @@ function initModels({
       if (isBank) badgeHtml += '<span class="model-badge model-task-bank">' + getMessage('optionsModelBadgeBank') + '</span>';
       titleEl.innerHTML = nameText + badgeHtml;
     }
-    // 重建 footer（包含全部三个操作链接）
-    const existingFooter = item.querySelector('.list-item-footer');
-    const footerButtons = [];
-    if (!isAnswerModel && model.isActive) {
-      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">' + getMessage('optionsModelUseForAnswer') + '</button>');
-    }
-    if (!isExtract && model.isActive) {
-      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">' + getMessage('optionsModelUseForExtract') + '</button>');
-    }
-    if (!isBank && model.isActive) {
-      footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">' + getMessage('optionsModelUseForBank') + '</button>');
-    }
-    if (existingFooter && footerButtons.length > 0) {
-      existingFooter.innerHTML = footerButtons.join('');
-    } else if (!existingFooter && footerButtons.length > 0) {
-      const footer = document.createElement('div');
-      footer.className = 'list-item-footer';
-      footer.innerHTML = footerButtons.join('');
-      item.appendChild(footer);
-    } else if (existingFooter) {
-      existingFooter.remove();
-    }
-    // 重新绑定 footer 按钮事件
-    const answerBtn = item.querySelector('[data-action="set-answer"]');
-    if (answerBtn) {
-      answerBtn.addEventListener('click', () => setAnswerModel(idx));
-    }
-    const extractBtn = item.querySelector('[data-action="set-extract"]');
-    if (extractBtn) {
-      extractBtn.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', getMessage('optionsModelBadgeExtract')));
-    }
-    const bankBtn = item.querySelector('[data-action="set-bank"]');
-    if (bankBtn) {
-      bankBtn.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', getMessage('optionsModelBadgeBank')));
+    // 更新用途切换 chips 状态
+    const toggles = item.querySelectorAll('.task-toggle');
+    const stateMap = {
+      'set-answer': isAnswerModel,
+      'set-extract': isExtract,
+      'set-bank': isBank
+    };
+    toggles.forEach(btn => {
+      const active = !!stateMap[btn.dataset.action];
+      btn.classList.toggle('active', active);
+      btn.disabled = !model.isActive;
+    });
+    // 更新经典主题页脚操作链接（仅显示未指派任务）
+    const footer = item.querySelector('.list-item-footer');
+    if (footer) {
+      const footerButtons = [];
+      if (!isAnswerModel && model.isActive) footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-answer">' + getMessage('optionsModelUseForAnswer') + '</button>');
+      if (!isExtract && model.isActive) footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-extract">' + getMessage('optionsModelUseForExtract') + '</button>');
+      if (!isBank && model.isActive) footerButtons.push('<button class="action-link" data-idx="' + idx + '" data-action="set-bank">' + getMessage('optionsModelUseForBank') + '</button>');
+      if (footerButtons.length) {
+        footer.innerHTML = footerButtons.join('');
+        footer.querySelectorAll('[data-action="set-answer"]').forEach(b => b.addEventListener('click', () => setAnswerModel(idx)));
+        footer.querySelectorAll('[data-action="set-extract"]').forEach(b => b.addEventListener('click', () => setTaskModel(idx, 'model_extract_id', getMessage('optionsModelBadgeExtract'))));
+        footer.querySelectorAll('[data-action="set-bank"]').forEach(b => b.addEventListener('click', () => setTaskModel(idx, 'model_bank_id', getMessage('optionsModelBadgeBank'))));
+      } else {
+        footer.remove();
+      }
     }
   }
 
@@ -360,7 +352,7 @@ function initModels({
         <label>API Key <span style="color:var(--color-error-text);">*</span></label>
         <div class="input-wrapper">
           <input type="password" id="model-apiKey" value="${escapeHtml(model.apiKey || '')}" placeholder="sk-...">
-          <button type="button" class="toggle-visible" id="model-toggleKey">${getMessage('optionsShow')}</button>
+          <button type="button" class="toggle-visible" id="model-toggleKey"><span data-icon="eye"></span>${getMessage('optionsShow')}</button>
         </div>
         <div class="hint">${getMessage('optionsModelFormApiKeyHint')}</div>
       </div>
@@ -405,7 +397,7 @@ function initModels({
       <div class="rule-form-section">${getMessage('optionsModelTestConnection')}</div>
       <div class="rule-form-group">
         <textarea id="model-testText" placeholder="${getMessage('optionsModelFormTestTextPlaceholder')}" rows="3" style="width:100%;box-sizing:border-box;resize:vertical;">${getMessage('optionsModelFormTestTextValue')}</textarea>
-        <button type="button" class="btn-primary" id="model-testBtn" style="width:100%;margin-top:8px;">${getMessage('optionsModelTestConnection')}</button>
+        <button type="button" class="btn-primary" id="model-testBtn" style="width:100%;margin-top:8px;"><span data-icon="plug"></span>${getMessage('optionsModelTestConnection')}</button>
         <div id="model-testResult" style="display:none;">
           <div class="test-status" id="model-testStatus"></div>
           <div class="test-thinking" id="model-testThinking" style="display:none;">
@@ -420,6 +412,9 @@ function initModels({
         </div>
       </div>
     `;
+
+    // 渲染后统一替换 data-icon（列表编辑入口不经过 index.js openDrawer，需在此兜底）
+    window.QuizHelperIcons?.replaceIcons(drawerBodyEl);
 
     // 自动生成名称
     const nameInput = drawerBodyEl.querySelector('#model-name');
@@ -450,13 +445,10 @@ function initModels({
     const toggleKeyBtn = drawerBodyEl.querySelector('#model-toggleKey');
     const apiKeyInput = drawerBodyEl.querySelector('#model-apiKey');
     toggleKeyBtn.addEventListener('click', () => {
-      if (apiKeyInput.type === 'password') {
-        apiKeyInput.type = 'text';
-        toggleKeyBtn.textContent = getMessage('optionsHide');
-      } else {
-        apiKeyInput.type = 'password';
-        toggleKeyBtn.textContent = getMessage('optionsShow');
-      }
+      const reveal = apiKeyInput.type === 'password';
+      apiKeyInput.type = reveal ? 'text' : 'password';
+      toggleKeyBtn.innerHTML = `<span data-icon="${reveal ? 'eye-off' : 'eye'}"></span>${reveal ? getMessage('optionsHide') : getMessage('optionsShow')}`;
+      window.QuizHelperIcons?.replaceIcons(toggleKeyBtn);
     });
 
     // 思考模式开关 - 控制思考强度是否显示

@@ -15,6 +15,7 @@
 
   loadPanelShortcut();
   loadThemeMode();
+  loadThemeStyle();
   ensureDefaultRules();
   chrome.storage.onChanged.addListener(handleStorageChange);
   document.addEventListener('keydown', handleGlobalShortcut, true);
@@ -25,6 +26,10 @@
     const config = await chrome.storage.local.get(['theme_mode']);
     state.themeMode = config.theme_mode || 'system';
     updateDarkMode();
+  }
+
+  async function loadThemeStyle() {
+    await globalThis.QuizHelperPanelUI.applyThemeStyle();
   }
 
   function updateDarkMode() {
@@ -64,6 +69,9 @@
     if (changes.theme_mode) {
       state.themeMode = changes.theme_mode.newValue || 'system';
       updateDarkMode();
+    }
+    if (changes.theme_style) {
+      globalThis.QuizHelperPanelUI.applyThemeStyle();
     }
     if (changes.active_model_id || changes.llm_models) {
       globalThis.QuizHelperPanelUI.refreshModelNameDisplay();

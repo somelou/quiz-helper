@@ -104,7 +104,15 @@ function renderPagination(container, total, currentPage, onPageChange) {
   const createBtn = (text, page, opts = {}) => {
     const btn = document.createElement('button');
     btn.className = 'page-btn' + (opts.active ? ' active' : '');
-    btn.textContent = text;
+    if (opts.icon) {
+      const span = document.createElement('span');
+      span.setAttribute('data-icon', opts.icon);
+      span.setAttribute('aria-hidden', 'true');
+      btn.appendChild(span);
+      btn.setAttribute('aria-label', text);
+    } else {
+      btn.textContent = text;
+    }
     if (opts.disabled) btn.disabled = true;
     if (!opts.active && !opts.disabled) {
       btn.addEventListener('click', () => onPageChange(page));
@@ -112,7 +120,7 @@ function renderPagination(container, total, currentPage, onPageChange) {
     return btn;
   };
 
-  container.appendChild(createBtn('<', currentPage - 1, { disabled: currentPage === 1 }));
+  container.appendChild(createBtn('上一页', currentPage - 1, { disabled: currentPage === 1, icon: 'chevron-left' }));
 
   const maxVisible = 7;
   let start = 1, end = totalPages;
@@ -147,10 +155,12 @@ function renderPagination(container, total, currentPage, onPageChange) {
     container.appendChild(createBtn(String(totalPages), totalPages));
   }
 
-  container.appendChild(createBtn('>', currentPage + 1, { disabled: currentPage === totalPages }));
+  container.appendChild(createBtn('下一页', currentPage + 1, { disabled: currentPage === totalPages, icon: 'chevron-right' }));
 
   const info = document.createElement('span');
   info.className = 'page-info';
   info.textContent = getMessage('optionsPaginationFormat', [currentPage, totalPages, total]);
   container.appendChild(info);
+
+  window.QuizHelperIcons?.replaceIcons(container);
 }

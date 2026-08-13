@@ -80,9 +80,57 @@ chrome.storage.onChanged.addListener((changes, area) => {
     applyOptionsTheme(_currentTheme);
     updateOptionsToggleUI();
   }
+  if (area === 'local' && changes.theme_style) {
+    applyThemeStyleUI(changes.theme_style.newValue || 'classic');
+  }
 });
 
 initTheme();
+
+// ===== 主题风格（经典 / 苹果） =====
+const themeStyleSelect = document.getElementById('themeStyleSelect');
+
+function applyThemeStyleUI(style) {
+  const resolved = style === 'apple' ? 'apple' : 'classic';
+  globalThis.QuizHelperThemeUtils.applyThemeStyle(resolved, document.documentElement);
+  if (themeStyleSelect) {
+    themeStyleSelect.querySelectorAll('button').forEach(btn => {
+      btn.classList.toggle('seg-active', btn.dataset.value === resolved);
+    });
+    // 同步滑动指示器位置，保证打开页面时默认主题即处于选中态
+    setSegValue(themeStyleSelect, resolved);
+  }
+  // 主题切换后重算所有分段控件滑块（字体/内边距随主题变化，需重新测量）
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.segmented-control').forEach(seg => {
+      const val = getSegValue(seg);
+      if (val) setSegValue(seg, val);
+    });
+  });
+}
+
+async function initThemeStyle() {
+  const style = await globalThis.QuizHelperThemeUtils.loadThemeStyle();
+  applyThemeStyleUI(style);
+}
+
+if (themeStyleSelect) {
+  themeStyleSelect.addEventListener('click', event => {
+    const btn = event.target.closest('button');
+    if (!btn) return;
+    const style = btn.dataset.value;
+    applyThemeStyleUI(style);
+    globalThis.QuizHelperThemeUtils.saveThemeStyle(style);
+    setSegValue(themeStyleSelect, style);
+    globalThis.QuizHelperMessage?.success(
+      getMessage('optionsThemeStyleSaved', [
+        style === 'apple' ? getMessage('optionsThemeApple') : getMessage('optionsThemeClassic')
+      ])
+    );
+  });
+}
+
+initThemeStyle();
 
 // ===== 侧边导航 =====
 function initSidebarNav() {
@@ -370,6 +418,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (type === 'search') {
       searchMod.openSearchDrawer(data);
     }
+
+    // 抽屉内容渲染后统一替换图标（否则 data-icon 首次进入不显示，如 API Key 显示/隐藏按钮）
+    window.QuizHelperIcons?.replaceIcons(drawerBodyEl);
 
     drawerOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';

@@ -48,6 +48,11 @@ async function loadTheme() {
   currentTheme = await loadThemeMode(STORAGE_KEYS.THEME_MODE);
   updateToggleUI();
   applyTheme();
+  // 应用主题风格（经典/苹果），与头部内联脚本互为兜底
+  try {
+    const { applyThemeStyle, loadThemeStyle } = globalThis.QuizHelperThemeUtils;
+    applyThemeStyle(await loadThemeStyle(), document.documentElement);
+  } catch (e) {}
 }
 
 async function setTheme(theme) {
@@ -138,24 +143,47 @@ async function loadModelSelector() {
   activeModels.forEach(m => {
     const opt = document.createElement('button');
     opt.className = 'model-dropdown-option';
-    if (m.id === activeModelId) opt.classList.add('selected');
+    const isSelected = m.id === activeModelId;
+    if (isSelected) opt.classList.add('selected');
     // 选中态按显示文本（name）判断：name 在保存时被强制唯一（见 model-section.js saveModelFromDrawer），不会误选
     opt.textContent = m.name || m.modelId;
+    // 选中项追加对勾图标（图标统一来自 src/icons/check.svg）
+    if (isSelected) {
+      const check = document.createElement('span');
+      check.className = 'model-dropdown-check';
+      check.setAttribute('data-icon', 'check');
+      check.setAttribute('aria-hidden', 'true');
+      opt.appendChild(check);
+    }
     opt.addEventListener('mousedown', async e => {
       e.preventDefault();
       await selectModel(m.id, m.name || m.modelId);
     });
     modelDropdownMenu.appendChild(opt);
   });
+  window.QuizHelperIcons?.replaceIcons(modelDropdownMenu);
 }
 
 async function selectModel(id, label) {
   activeModelId = id;
   await chrome.storage.local.set({ [STORAGE_KEYS.ACTIVE_MODEL_ID]: id });
   modelDropdownLabel.textContent = label;
-  // 与初始渲染保持一致：显示文本即 name（唯一），按文本比较选中态
+  // 与初始渲染保持一致：显示文本即 name（唯一），按文本比较选中态，并同步对勾图标
   modelDropdownMenu.querySelectorAll('.model-dropdown-option').forEach(opt => {
-    opt.classList.toggle('selected', opt.textContent === label);
+    const isSelected = opt.textContent === label;
+    opt.classList.toggle('selected', isSelected);
+    let check = opt.querySelector('.model-dropdown-check');
+    if (isSelected && !check) {
+      check = document.createElement('span');
+      check.className = 'model-dropdown-check';
+      check.setAttribute('data-icon', 'check');
+      check.setAttribute('aria-hidden', 'true');
+      opt.appendChild(check);
+      // 注意：replaceIcons 只处理目标元素的子节点，需传入 opt 而非 check 本身
+      window.QuizHelperIcons?.replaceIcons(opt);
+    } else if (!isSelected && check) {
+      check.remove();
+    }
   });
   closeModelDropdown();
 }

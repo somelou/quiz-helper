@@ -121,13 +121,16 @@ body {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid currentColor;
-  opacity: 0.5;
+  width: 15px;
+  height: 15px;
+  color: var(--color-text-muted);
+  display: inline-flex;
   transition: transform var(--transition-normal);
+}
+.model-dropdown-arrow svg {
+  width: 15px;
+  height: 15px;
+  display: block;
 }
 .model-dropdown.open .model-dropdown-arrow {
   transform: translateY(-50%) rotate(180deg);
@@ -149,6 +152,7 @@ body {
 
 /* 下拉选项 */
 .model-dropdown-option {
+  position: relative;
   display: block;
   width: 100%;
   height: 34px;
@@ -163,6 +167,17 @@ body {
   text-align: center;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
+.model-dropdown-check {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--color-primary);
+  display: inline-flex;
+}
+.model-dropdown-check svg { width: 14px; height: 14px; display: block; }
 .model-dropdown-option:not(:last-child) { margin-bottom: 2px; }
 .model-dropdown-option:hover { background: var(--color-surface-hover); color: var(--color-text); }
 .model-dropdown-option.selected {

@@ -84,8 +84,8 @@ function initBank({
               <input type="checkbox" data-action="toggle-enabled" data-idx="${idx}" ${enabled ? 'checked' : ''}>
               <span class="switch-slider"></span>
             </label>
-            <button class="action-btn action-view" data-action="view" data-idx="${idx}">${getMessage('optionsView')}</button>
-            <button class="action-btn action-delete" data-action="delete" data-idx="${idx}">${getMessage('commonDelete')}</button>
+            <button class="action-btn action-view" data-action="view" data-idx="${idx}"><span data-icon="eye"></span>${getMessage('optionsView')}</button>
+            <button class="action-btn action-delete" data-action="delete" data-idx="${idx}"><span data-icon="trash"></span>${getMessage('commonDelete')}</button>
           </div>
         </div>
       `;
@@ -98,6 +98,8 @@ function initBank({
 
       bankListEl.appendChild(item);
     }
+
+    window.QuizHelperIcons?.replaceIcons(bankListEl);
 
     const pager = document.createElement('div');
     pager.className = 'pagination';

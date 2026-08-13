@@ -418,7 +418,7 @@ function initSearch({
         <label>API Key <span style="color:var(--color-error-text);">*</span></label>
         <div class="input-wrapper">
           <input type="password" id="search-apiKey" value="${escapeHtml(provider.apiKey || '')}" placeholder="${getMessage('optionsSearchApiKeyPlaceholder')}">
-          <button type="button" class="toggle-visible" id="search-toggleKey">${getMessage('optionsShow')}</button>
+          <button type="button" class="toggle-visible" id="search-toggleKey"><span data-icon="eye"></span>${getMessage('optionsShow')}</button>
         </div>
         <div class="hint">${getMessage('optionsModelFormApiKeyHint')}</div>
       </div>
@@ -434,22 +434,22 @@ function initSearch({
       <div class="rule-form-section">${getMessage('optionsSearchTest')}</div>
       <div class="rule-form-group">
         <textarea id="search-testQuery" placeholder="${getMessage('optionsSearchTestQueryPlaceholder')}" rows="2" style="width:100%;box-sizing:border-box;resize:vertical;">${getMessage('optionsSearchTestQueryValue')}</textarea>
-        <button type="button" class="btn-primary" id="search-testBtn" style="width:100%;margin-top:8px;">${getMessage('optionsSearchTest')}</button>
+        <button type="button" class="btn-primary" id="search-testBtn" style="width:100%;margin-top:8px;"><span data-icon="search"></span>${getMessage('optionsSearchTest')}</button>
         <div class="hint" id="search-testResult" style="margin-top:8px;white-space:pre-wrap;word-break:break-all;"></div>
       </div>
     `;
+
+    // 渲染后统一替换 data-icon（列表编辑入口不经过 index.js openDrawer，需在此兜底）
+    window.QuizHelperIcons?.replaceIcons(drawerBodyEl);
 
     // 切换 key 可见性
     const toggleKeyBtn = drawerBodyEl.querySelector('#search-toggleKey');
     const apiKeyInput = drawerBodyEl.querySelector('#search-apiKey');
     toggleKeyBtn.addEventListener('click', () => {
-      if (apiKeyInput.type === 'password') {
-        apiKeyInput.type = 'text';
-        toggleKeyBtn.textContent = getMessage('optionsHide');
-      } else {
-        apiKeyInput.type = 'password';
-        toggleKeyBtn.textContent = getMessage('optionsShow');
-      }
+      const reveal = apiKeyInput.type === 'password';
+      apiKeyInput.type = reveal ? 'text' : 'password';
+      toggleKeyBtn.innerHTML = `<span data-icon="${reveal ? 'eye-off' : 'eye'}"></span>${reveal ? getMessage('optionsHide') : getMessage('optionsShow')}`;
+      window.QuizHelperIcons?.replaceIcons(toggleKeyBtn);
     });
 
     // 测试搜索

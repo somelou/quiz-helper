@@ -1,0 +1,83 @@
+/* ============================================================
+   主题 · 经典（Classic）
+   来源：docs/demo.html（即当前扩展线上风格）
+   说明：
+   - 基础令牌与组件样式由 shared/variables.css + popup.css/options.css/panel.css 提供，
+     本文件仅补齐「主题可切换」所需的差异层。
+   - 包含从 demo.html 中提取的内联样式（原 style="..." → class）。
+   - 挂载方式：<html data-theme-style="classic">
+   ============================================================ */
+
+/* ===== 1. 提取自 demo.html 的内联样式（经典值） ===== */
+
+/* 抽屉/表单中「必填」星号（原：style="color:var(--color-error-text);"） */
+.req,
+.required-mark {
+  color: var(--color-error-text);
+  font-weight: 700;
+}
+
+/* 全宽按钮 + 上边距（原：style="width:100%;margin-top:8px;"） */
+.btn-block {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* 卡片内「重新作答」按钮上边距（原：style="margin-top:10px;"） */
+.qh-btn-mt {
+  margin-top: 10px;
+}
+
+/* 面板内按钮区块通用间距 */
+.qh-card-body > .qh-btn-mt:first-child {
+  margin-top: 10px;
+}
+
+/* 分区标题与副标题的间距（原：style="margin:0 0 12px 0;" 等） */
+.card-title-stack {
+  margin: 0 0 12px;
+}
+
+/* 工具条说明文本（原：style="margin-top:0;"） */
+.toolbar-hint {
+  margin-top: 0;
+}
+
+/* 提示说明（原：style="margin-top:8px;"） */
+.hint-mt {
+  margin-top: 8px;
+}
+
+/* ===== 2. 经典主题组件微调（与 variables.css 默认一致，保持对称结构） ===== */
+
+/* 经典主题下 .btn-primary 保留渐变背景（苹果主题会覆盖为纯色） */
+[data-theme-style="classic"] .btn-primary {
+  background: var(--color-primary-gradient);
+}
+
+/* 经典主题下主题切换器滑块为直角小圆角 */
+[data-theme-style="classic"] .theme-toggle {
+  border-radius: var(--radius-md);
+}
+[data-theme-style="classic"] .theme-toggle::before {
+  border-radius: var(--radius-toggle);
+}
+
+/* 经典主题下分段控件为直角小圆角 */
+[data-theme-style="classic"] .segmented-control {
+  border-radius: 10px;
+}
+[data-theme-style="classic"] .segmented-control button {
+  border-radius: var(--radius-toggle);
+}
+
+/* 经典主题下面板头部保留主色淡底 */
+[data-theme-style="classic"] .qh-header {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+/* 经典主题隐藏苹果专用的任务用途 chips（改用经典 .list-item-footer 操作链接） */
+[data-theme-style="classic"] .task-toggles {
+  display: none;
+}

@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="../shared/variables.css">
   <link rel="stylesheet" href="popup.css">
+  <!-- 主题引导：独立文件（MV3 扩展 CSP 禁止内联脚本），尽早设置 data-theme-style -->
+  <script src="../shared/theme-boot.js"></script>
+  <!-- 主题覆盖层：必须位于组件 CSS 之后；?v=5 用于强制刷新浏览器缓存 -->
+  <link rel="stylesheet" href="../themes/theme-classic.css?v=10">
+  <link rel="stylesheet" href="../themes/theme-apple.css?v=10">
 </head>
-<body>
+<body class="popup-page">
   <div class="header">
     <h2 data-i18n="appName">题目助手</h2>
     <div class="theme-toggle" id="themeToggle">
@@ -25,7 +30,7 @@
   <div class="model-dropdown" id="modelDropdown">
     <button class="btn btn-secondary model-dropdown-btn" id="modelDropdownBtn">
       <span class="model-dropdown-label" data-i18n="commonNoModels">无可用模型</span>
-      <span class="model-dropdown-arrow"></span>
+      <span class="model-dropdown-arrow" data-icon="chevron-down" aria-hidden="true"></span>
     </button>
     <div class="model-dropdown-menu" id="modelDropdownMenu"></div>
   </div>

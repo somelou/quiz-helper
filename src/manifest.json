@@ -68,7 +68,8 @@
         "lib/*.css",
         "data/*.json",
         "content/*.css",
-        "shared/*.css"
+        "shared/*.css",
+        "themes/*.css"
       ],
       "matches": [
         "<all_urls>"
