@@ -1,0 +1,247 @@
+/*
+ * Quiz Helper UI Redesign — Design Tokens
+ * Brand: 题目助手 (Quiz Helper)
+ * Theme mode: light-dark
+ * Source language: zh
+ *
+ * Color architecture:
+ *   1. Primitive palette — brand (indigo, from src/shared/variables.css),
+ *      background / text / icon neutral scales, state-success / state-error /
+ *      state-warning / state-info anchored on the original plugin palette.
+ *   2. Semantic tokens — :root (light) and .dark map roles onto primitives.
+ *      Components must only consume the semantic tokens below.
+ */
+
+:root {
+  /* ===== PRIMITIVE PALETTE ===== */
+
+  /* brand — indigo, matching original variables.css primary #4f46e5 */
+  --brand-50: #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-300: #a5b4fc;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+
+  /* background */
+  --background-50: #ffffff;
+  --background-100: #fafafa;
+  --background-200: #f4f4f5;
+  --background-300: #e8e8ec;
+  --background-400: #e4e4e7;
+  --background-500: #d4d4d8;
+  --background-600: #a1a1aa;
+  --background-700: #3f3f46;
+  --background-800: #27272a;
+  --background-900: #18181b;
+
+  /* text */
+  --text-50: #f4f4f5;
+  --text-100: #e4e4e7;
+  --text-200: #d4d4d8;
+  --text-300: #a1a1aa;
+  --text-400: #8b8e98;
+  --text-500: #71717a;
+  --text-600: #3f3f46;
+  --text-700: #3a3a40;
+  --text-800: #18181b;
+  --text-900: #101012;
+
+  /* icon */
+  --icon-50: #f4f4f5;
+  --icon-100: #e4e4e7;
+  --icon-200: #d4d4d8;
+  --icon-300: #a1a1aa;
+  --icon-400: #8b8e98;
+  --icon-500: #71717a;
+  --icon-600: #3f3f46;
+  --icon-700: #3a3a40;
+  --icon-800: #27272a;
+  --icon-900: #18181b;
+
+  /* state-success — original variables.css green */
+  --state-success: #16a34a;
+  --state-success-dark: #4ade80;
+  --state-success-surface: #f0fdf4;
+  --state-success-foreground: #ffffff;
+
+  /* state-error — original variables.css red */
+  --state-error: #dc2626;
+  --state-error-dark: #f87171;
+  --state-error-surface: #fef2f2;
+  --state-error-foreground: #ffffff;
+
+  /* state-warning — original variables.css amber */
+  --state-warning: #d97706;
+  --state-warning-dark: #fbbf24;
+  --state-warning-surface: #fffbeb;
+  --state-warning-foreground: #ffffff;
+
+  /* state-info — original variables.css sky */
+  --state-info: #0284c7;
+  --state-info-dark: #38bdf8;
+  --state-info-surface: #f0f9ff;
+  --state-info-foreground: #ffffff;
+
+  /* ===== SEMANTIC ROLES ===== */
+
+  --background: var(--background-50);
+  --foreground: var(--text-800);
+  --card: var(--background-50);
+  --card-foreground: var(--text-800);
+  --popover: var(--background-50);
+  --popover-foreground: var(--text-900);
+
+  --primary: var(--brand-600);
+  --primary-foreground: var(--background-50);
+  --secondary: var(--background-200);
+  --secondary-foreground: var(--text-800);
+  --muted: var(--background-100);
+  --muted-foreground: var(--text-500);
+  --accent: var(--background-100);
+  --accent-foreground: var(--text-800);
+  --destructive: var(--state-error);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success);
+  --success-foreground: var(--state-success-foreground);
+  --border: #e8e8ec;
+  --input: #e4e4e7;
+  --ring: var(--brand-500);
+
+  --icon: var(--icon-900);
+  --icon-muted: var(--icon-500);
+
+  /* sidebar */
+  --sidebar: var(--background-200);
+  --sidebar-foreground: var(--text-800);
+  --sidebar-primary: var(--brand-600);
+  --sidebar-primary-foreground: var(--background-50);
+  --sidebar-accent: var(--background-300);
+  --sidebar-accent-foreground: var(--text-800);
+  --sidebar-border: var(--background-300);
+  --sidebar-ring: var(--brand-500);
+
+  /* TYPOGRAPHY */
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif, system-ui;
+  --font-serif: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif, system-ui;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --tracking-normal: 0em;
+
+  /* RADIUS */
+  --radius: 1.2rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.2rem;
+  --radius-xl: 1.5rem;
+
+  /* SHADOWS */
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.05);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.10), 0 8px 16px -8px rgba(0, 0, 0, 0.06);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.12);
+
+  /* SPACING */
+  --spacing: 0.24rem;
+}
+
+/* ===== SEMANTIC ROLES - dark (original variables.css body.dark palette) ===== */
+.dark {
+  --background: #131419;
+  --foreground: var(--text-50);
+  --card: #1a1c22;
+  --card-foreground: #f4f4f5;
+  --popover: #22242c;
+  --popover-foreground: var(--text-50);
+
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: #2a2d36;
+  --secondary-foreground: #d4d4d8;
+  --muted: #1a1c22;
+  --muted-foreground: var(--text-400);
+  --accent: #22242c;
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success-dark);
+  --success-foreground: var(--state-success-foreground);
+  --border: #2a2d36;
+  --input: #34373f;
+  --ring: var(--brand-400);
+
+  --icon: var(--icon-50);
+  --icon-muted: var(--icon-400);
+
+  --sidebar: #1a1c22;
+  --sidebar-foreground: var(--text-50);
+  --sidebar-primary: var(--brand-400);
+  --sidebar-primary-foreground: var(--background-900);
+  --sidebar-accent: #2a2d36;
+  --sidebar-accent-foreground: var(--text-50);
+  --sidebar-border: #2a2d36;
+  --sidebar-ring: var(--brand-400);
+
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 8px 16px -8px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.60);
+}
+
+/* ============================================================
+ * Prototype showcase dark instance container
+ * Applied to .showcase.dark wrappers so the light/dark
+ * side-by-side comparison on prototype pages renders with the
+ * real dark semantic tokens instead of inheriting light values.
+ * ============================================================ */
+.showcase.dark,
+.proto-dark {
+  --background: #131419;
+  --foreground: var(--text-50);
+  --card: #1a1c22;
+  --card-foreground: #f4f4f5;
+  --popover: #22242c;
+  --popover-foreground: var(--text-50);
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: #2a2d36;
+  --secondary-foreground: #d4d4d8;
+  --muted: #1a1c22;
+  --muted-foreground: var(--text-400);
+  --accent: #22242c;
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success-dark);
+  --success-foreground: var(--state-success-foreground);
+  --border: #2a2d36;
+  --input: #34373f;
+  --ring: var(--brand-400);
+  --icon: var(--icon-50);
+  --icon-muted: var(--icon-400);
+  --sidebar: #1a1c22;
+  --sidebar-foreground: var(--text-50);
+  --sidebar-accent: #2a2d36;
+  --sidebar-accent-foreground: var(--text-50);
+  --sidebar-border: #2a2d36;
+  --sidebar-ring: var(--brand-400);
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 8px 16px -8px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.60);
+}

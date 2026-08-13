@@ -1,0 +1,1327 @@
+{
+  "schema_version": "1.0",
+  "skillProvenance": {
+    "name": "solo-design",
+    "version": "2026.07.22.00.00.00",
+    "version_source": "skill-release-manifest.json"
+  },
+  "project": {
+    "resolvedLane": "library_bound",
+    "deviceType": "desktop",
+    "selectedIntentWorkflowRead": true,
+    "intentProfile": {
+      "caseFamily": "free_exploration",
+      "sourceType": null,
+      "graphicStrategy": null,
+      "routingReason": "User selected Apple (Pinguo) Design Library as the primary constraint source for redesigning the Quiz Helper browser-extension prototype UI based on docs/demo.html content framework, with light/dark dual-mode support."
+    },
+    "contextRequirementsLoaded": [
+      {
+        "path": "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "delivery-quality/page-rendering-quality-gate.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "delivery-quality/design-artifact-validation.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "delivery-quality/delivery-evidence-contract.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "visual-experience/visual-experience-guidelines.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      }
+    ],
+    "contextReadScope": {
+      "mainAgent": {
+        "forbiddenReads": [
+          "other intent-workflows/**",
+          "Sub-Agent implementation files before dispatch"
+        ]
+      },
+      "pageSubAgent": {
+        "allowedReads": [
+          "current lane page runtime guide",
+          "current lane dispatch contract excerpt",
+          "current Page Packet",
+          "supplementaryReads[] only"
+        ],
+        "forbiddenReads": [
+          "SKILL.md full re-read",
+          "other intent-workflows/**",
+          "full runtime-orchestration-summary.json unless explicitly sliced"
+        ]
+      },
+      "readScopeLedgerWriter": "shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs"
+    },
+    "validationRunDiscipline": {
+      "maxFullValidationRuns": 2,
+      "softWarningsTriggerRepair": false,
+      "blockingRepairMode": "targeted-once",
+      "forbiddenRepairTriggers": [
+        "soft-warning-only",
+        "provenance-warning-only",
+        "style-warning-only"
+      ]
+    },
+    "lowValueCallWatchdog": {
+      "applies": true,
+      "noProgressSignals": [
+        "no_tool_call",
+        "no_artifact_diff",
+        "no_structured_decision"
+      ],
+      "noProgressNextAction": "enter_readiness_or_blocked_summary"
+    },
+    "designSource": {
+      "operatingMode": "library-bound",
+      "libraryIdentity": {
+        "name": "苹果",
+        "id": "dl_builtin_apple",
+        "version": "",
+        "scope": "reference",
+        "path": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple",
+        "versionSource": "metadata.json"
+      },
+      "brandPrefix": "",
+      "cssPath": "colors_and_type.css",
+      "actualTokenNameReference": [
+        "background",
+        "foreground",
+        "card",
+        "card-foreground",
+        "popover",
+        "popover-foreground",
+        "primary",
+        "primary-foreground",
+        "secondary",
+        "secondary-foreground",
+        "muted",
+        "muted-foreground",
+        "accent",
+        "accent-foreground",
+        "destructive",
+        "destructive-foreground",
+        "success",
+        "success-foreground",
+        "border",
+        "input",
+        "ring",
+        "icon",
+        "icon-muted",
+        "sidebar",
+        "sidebar-foreground",
+        "sidebar-primary",
+        "sidebar-primary-foreground",
+        "sidebar-accent",
+        "sidebar-accent-foreground",
+        "sidebar-border",
+        "sidebar-ring",
+        "radius",
+        "radius-sm",
+        "radius-md",
+        "radius-lg",
+        "radius-xl",
+        "shadow-2xs",
+        "shadow-xs",
+        "shadow-sm",
+        "shadow",
+        "shadow-md",
+        "shadow-lg",
+        "shadow-xl",
+        "shadow-2xl",
+        "state-success",
+        "state-success-dark",
+        "state-error",
+        "state-error-dark",
+        "state-warning",
+        "state-warning-dark",
+        "state-info",
+        "state-info-dark",
+        "brand-50",
+        "brand-100",
+        "brand-200",
+        "brand-300",
+        "brand-400",
+        "brand-500",
+        "brand-600",
+        "brand-700",
+        "brand-800",
+        "brand-900",
+        "background-50",
+        "background-100",
+        "background-200",
+        "background-300",
+        "background-400",
+        "background-500",
+        "background-600",
+        "background-700",
+        "background-800",
+        "background-900",
+        "text-50",
+        "text-100",
+        "text-200",
+        "text-300",
+        "text-400",
+        "text-500",
+        "text-600",
+        "text-700",
+        "text-800",
+        "text-900"
+      ],
+      "componentPlan": [
+        {
+          "slug": "button",
+          "previewFile": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple/preview/component-button.html",
+          "contractFile": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple/components/button.json"
+        },
+        {
+          "slug": "card",
+          "previewFile": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple/preview/component-card.html",
+          "contractFile": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple/components/card.json"
+        },
+        {
+          "slug": "input",
+          "previewFile": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple/preview/component-input.html",
+          "contractFile": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple/components/input.json"
+        },
+        {
+          "slug": "navigation",
+          "previewFile": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple/preview/component-navigation.html",
+          "contractFile": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple/components/navigation.json"
+        }
+      ],
+      "uiKitPath": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple/ui_kits/website/index.html",
+      "uiKitSummary": "Apple-store-like merchandising kit: white/black surfaces, hairline borders, capsule pill buttons, generous whitespace, editorial headings.",
+      "allowedComponents": [
+        "button",
+        "card",
+        "input",
+        "navigation",
+        "product-grid",
+        "comparison-table"
+      ],
+      "forbiddenInventedComponents": [
+        "rainbow gradient buttons",
+        "colored icon tile feature grids"
+      ],
+      "tokenFidelity": "strict",
+      "designDecisionSummary": "Redesign Quiz Helper browser extension UI (popup / content answer panel / options page / drawer / toast messages) following Apple-inspired Pinguo design system: Pinguo Blue #007aff primary, Space Black / Silver Mist neutrals, DM Sans + PingFang SC type, 1.2rem soft radius with capsule pill buttons, whisper-light shadows with 1px borders, light/dark dual-mode via semantic tokens. Content framework follows docs/demo.html sections: Popup default + model dropdown states, in-page answer panel with answering/loading/empty states and floating bubble, Options sidebar with 8 sections, right-side drawers for model edit / search provider / parse rule / bank detail, top toast messages."
+    },
+    "cssPreflightEvidence": {
+      "applies": true,
+      "status": "passed",
+      "prefixMode": "prefixless",
+      "command": "node /Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs /Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css /Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/.preflight/preflight.html --title=\"Preflight\" --lang=zh-CN --force-skeleton",
+      "brandPrefix": "",
+      "checks": {
+        "themeVars": "present",
+        "semanticTokenFallback": "present",
+        "themeInline": "present",
+        "tailwindCdn": "present",
+        "htmlClass": "present",
+        "semanticMappings": "resolved"
+      },
+      "retryCount": 1,
+      "blockingReason": null
+    },
+    "pageCompletenessGate": {
+      "applies": true,
+      "pages": [
+        {
+          "nodeId": "page-popup-home",
+          "htmlSrc": "pages/popup-home.html",
+          "sections": [
+            "popup default state",
+            "popup model dropdown state"
+          ]
+        },
+        {
+          "nodeId": "page-content-panel",
+          "htmlSrc": "pages/content-panel.html",
+          "sections": [
+            "answer panel answering state",
+            "answer panel empty state",
+            "floating bubble",
+            "progress copy spec"
+          ]
+        },
+        {
+          "nodeId": "page-options-settings",
+          "htmlSrc": "pages/options-settings.html",
+          "sections": [
+            "sidebar nav",
+            "settings",
+            "models",
+            "search",
+            "rules"
+          ]
+        },
+        {
+          "nodeId": "page-options-data",
+          "htmlSrc": "pages/options-data.html",
+          "sections": [
+            "sidebar nav",
+            "bank",
+            "history",
+            "backup",
+            "about"
+          ]
+        },
+        {
+          "nodeId": "page-drawer",
+          "htmlSrc": "pages/drawer.html",
+          "sections": [
+            "model edit drawer",
+            "search provider drawer",
+            "parse rule drawer",
+            "bank detail drawer"
+          ]
+        },
+        {
+          "nodeId": "page-messages",
+          "htmlSrc": "pages/messages.html",
+          "sections": [
+            "info toast",
+            "success toast",
+            "warning toast",
+            "error toast"
+          ]
+        }
+      ]
+    },
+    "sharedProjectShellContract": {
+      "type": "shared-visual-language",
+      "appliesToPages": [
+        "pages/popup-home.html",
+        "pages/content-panel.html",
+        "pages/options-settings.html",
+        "pages/options-data.html",
+        "pages/drawer.html",
+        "pages/messages.html"
+      ],
+      "designTokens": {
+        "primary": "var(--primary)",
+        "background": "var(--background)",
+        "foreground": "var(--foreground)",
+        "card": "var(--card)",
+        "border": "var(--border)",
+        "muted": "var(--muted)",
+        "ring": "var(--ring)",
+        "radiusBase": "var(--radius)",
+        "radiusMd": "var(--radius-md)",
+        "fontSans": "var(--font-sans)"
+      },
+      "continuityAnchors": [
+        "capsule pill primary buttons (rounded-full, brand blue fill)",
+        "1px hairline borders over shadows for static surfaces",
+        "soft 1.2rem radius cards with whitespace-led hierarchy",
+        "muted foreground for secondary text",
+        "light/dark dual-mode via semantic tokens"
+      ],
+      "mobileNavigation": {
+        "applies": false,
+        "appliesToThisPage": false,
+        "canonicalHtmlIncluded": false
+      }
+    },
+    "expectedDispatches": [
+      {
+        "nodeId": "page-popup-home",
+        "pageId": "page-popup-home",
+        "targetPageId": "page-popup-home",
+        "htmlSrc": "pages/popup-home.html",
+        "packetType": "LibraryBoundPagePacket",
+        "status": "completed",
+        "changedFiles": [
+          "pages/popup-home.html"
+        ],
+        "toolCallLedger": {
+          "source": "main-agent-runtime-trace",
+          "traceDigest": "2c4c8fc0acb4f1a33f87dd3028c9be6f309a50de3c51f6956ae0f2d3d776f15b",
+          "todoWriteCalls": 0,
+          "previewCalls": 0,
+          "validationScriptCalls": 0,
+          "helperScriptWrites": 0
+        },
+        "recordedAt": "2026-08-11T15:36:46.115Z",
+        "source": "record-dispatch-completion.mjs"
+      },
+      {
+        "nodeId": "page-content-panel",
+        "pageId": "page-content-panel",
+        "targetPageId": "page-content-panel",
+        "htmlSrc": "pages/content-panel.html",
+        "packetType": "LibraryBoundPagePacket",
+        "status": "completed",
+        "changedFiles": [
+          "pages/content-panel.html"
+        ],
+        "toolCallLedger": {
+          "source": "main-agent-runtime-trace",
+          "traceDigest": "b9142e613e2cbd165838166533ba79df105116a433a62e88d30b0f896e18635a",
+          "todoWriteCalls": 0,
+          "previewCalls": 0,
+          "validationScriptCalls": 0,
+          "helperScriptWrites": 0
+        },
+        "recordedAt": "2026-08-11T15:37:10.380Z",
+        "source": "record-dispatch-completion.mjs"
+      },
+      {
+        "nodeId": "page-options-settings",
+        "pageId": "page-options-settings",
+        "targetPageId": "page-options-settings",
+        "htmlSrc": "pages/options-settings.html",
+        "packetType": "LibraryBoundPagePacket",
+        "status": "completed",
+        "changedFiles": [
+          "pages/options-settings.html"
+        ],
+        "toolCallLedger": {
+          "source": "main-agent-runtime-trace",
+          "traceDigest": "aef19bf575211449ae2a350871dcb940b27bcf5ff84fa96744d5eeae468145bc",
+          "todoWriteCalls": 0,
+          "previewCalls": 0,
+          "validationScriptCalls": 0,
+          "helperScriptWrites": 0
+        },
+        "recordedAt": "2026-08-11T15:37:10.436Z",
+        "source": "record-dispatch-completion.mjs"
+      },
+      {
+        "nodeId": "page-options-data",
+        "pageId": "page-options-data",
+        "targetPageId": "page-options-data",
+        "htmlSrc": "pages/options-data.html",
+        "packetType": "LibraryBoundPagePacket",
+        "status": "completed",
+        "changedFiles": [
+          "pages/options-data.html"
+        ],
+        "toolCallLedger": {
+          "source": "main-agent-runtime-trace",
+          "traceDigest": "a32360c6be2bdc9a61202ebf45ba1d96127f0873dd28e4e9e04cf56020eb9701",
+          "todoWriteCalls": 0,
+          "previewCalls": 0,
+          "validationScriptCalls": 0,
+          "helperScriptWrites": 0
+        },
+        "recordedAt": "2026-08-11T15:37:10.493Z",
+        "source": "record-dispatch-completion.mjs"
+      },
+      {
+        "nodeId": "page-drawer",
+        "pageId": "page-drawer",
+        "targetPageId": "page-drawer",
+        "htmlSrc": "pages/drawer.html",
+        "packetType": "LibraryBoundPagePacket",
+        "status": "completed",
+        "changedFiles": [
+          "pages/drawer.html"
+        ],
+        "toolCallLedger": {
+          "source": "main-agent-runtime-trace",
+          "traceDigest": "0681736a8dbd8914a4ed9179cb9f66e38e18fcc1252a4b5ae979b791e18c1fd0",
+          "todoWriteCalls": 0,
+          "previewCalls": 0,
+          "validationScriptCalls": 0,
+          "helperScriptWrites": 0
+        },
+        "recordedAt": "2026-08-11T15:37:10.553Z",
+        "source": "record-dispatch-completion.mjs"
+      },
+      {
+        "nodeId": "page-messages",
+        "pageId": "page-messages",
+        "targetPageId": "page-messages",
+        "htmlSrc": "pages/messages.html",
+        "packetType": "LibraryBoundPagePacket",
+        "status": "completed",
+        "changedFiles": [
+          "pages/messages.html"
+        ],
+        "toolCallLedger": {
+          "source": "main-agent-runtime-trace",
+          "traceDigest": "cf292e773983eac747a8006935f6b8ca5d14e02e11353e042b6d0e1d7407bc21",
+          "todoWriteCalls": 0,
+          "previewCalls": 0,
+          "validationScriptCalls": 0,
+          "helperScriptWrites": 0
+        },
+        "recordedAt": "2026-08-11T15:37:10.609Z",
+        "source": "record-dispatch-completion.mjs"
+      }
+    ],
+    "dispatchPreflightManifest": [
+      {
+        "recorded_at": "2026-08-11T14:42:06.197Z",
+        "generatedBy": "build-page-dispatch-manifest.mjs",
+        "packetType": "LibraryBoundPagePacket",
+        "laneContract": {
+          "resolvedLane": "library_bound",
+          "packetType": "LibraryBoundPagePacket",
+          "pageRuntimeGuide": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+          "dispatchContract": "intent-workflows/intent-page-library-bound/dispatch-contract.md"
+        },
+        "taskLinePresent": true,
+        "outputPathPresent": true,
+        "sharedTemplate": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+        "nodeId": "page-popup-home",
+        "htmlSrc": "pages/popup-home.html",
+        "supplementaryReads": [],
+        "allowedWritePaths": [
+          "pages/popup-home.html",
+          "assets/"
+        ],
+        "forbiddenWriteRoots": [
+          "*.design",
+          "runtime-orchestration-summary.json",
+          "validation-report.json",
+          "finish-readiness-report.json",
+          "restore-contract-report.json",
+          "page-generation-summary.json"
+        ],
+        "toolPolicy": {
+          "todoWriteAllowed": false,
+          "validationScriptsAllowed": false,
+          "previewAllowed": false,
+          "helperScriptsAllowed": false,
+          "designFileWriteAllowed": false,
+          "allowedWritePaths": [
+            "pages/popup-home.html",
+            "assets/"
+          ]
+        },
+        "skillRuntime": {
+          "skillDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design",
+          "deterministicToolDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling",
+          "toolPaths": {
+            "applyHtmlHeadContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs",
+            "recordDispatchCompletion": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs",
+            "buildPageDispatchManifest": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs",
+            "validateDesignWorkspace": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-design-workspace.mjs",
+            "validateFinishReadiness": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs",
+            "validateRestoreContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-restore-contract.mjs"
+          },
+          "requiredForPageSubAgent": [
+            "applyHtmlHeadContract",
+            "recordDispatchCompletion"
+          ],
+          "pathInjection": "absolute",
+          "pathContract": "Do not use {SKILL_DIR} placeholders inside Page Sub-Agent packets; use toolPaths.* absolute paths.",
+          "commandTemplates": {
+            "recordDispatchCompletion": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design' --node-id='page-popup-home' --html-src='pages/popup-home.html' --status=completed --changed-files=<comma-separated-project-relative-files> --trace-digest=<main-agent-runtime-trace-digest> --tool-ledger-json=<tool-ledger-json-or-file>"
+          }
+        },
+        "cssFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css",
+        "htmlFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/popup-home.html",
+        "brandPrefix": "",
+        "aestheticsMode": "library-bound",
+        "toolDisciplineBlockPresent": true,
+        "fillHtmlHeadCommand": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/popup-home.html' --title='Popup 弹窗' --lang='zh-CN' --prefix=''",
+        "headFillMode": "skeleton-first",
+        "viewportMode": "document-scroll",
+        "completionSchemaExpected": "full",
+        "restoreFields": null,
+        "restoreContractStatus": null,
+        "restoreCompactPacket": null,
+        "deterministicCommands": null,
+        "sourceAuthorityLock": null,
+        "preDispatchFileHashes": {
+          "quiz-helper-ui-redesign.design": "42bad8e966be65e53bfeff8406f43134a833500592f4eb232fe40f13ec4006d6"
+        },
+        "contextPreflight": {
+          "workflowPath": "intent-workflows/intent-page-library-bound/INTENT_WORKFLOW.md",
+          "requiredContextFiles": [
+            "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+            "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+            "delivery-quality/page-rendering-quality-gate.md",
+            "delivery-quality/design-artifact-validation.md",
+            "delivery-quality/delivery-evidence-contract.md"
+          ],
+          "optionalContextFiles": [
+            "visual-experience/visual-experience-guidelines.md"
+          ],
+          "passed": true
+        },
+        "pageSliceOnly": true,
+        "requiredFieldsPresent": true,
+        "missingFields": [],
+        "fillHtmlHeadCommandValid": true,
+        "mobileNavigation": {
+          "required": false,
+          "appliesToThisPage": false,
+          "canonicalHtmlIncluded": false,
+          "missingFields": []
+        },
+        "persistedToSummary": true,
+        "taskQueryAudited": false,
+        "proofSource": "summary-only",
+        "largeWorkflowFilesInTaskQuery": null
+      },
+      {
+        "recorded_at": "2026-08-11T14:42:06.197Z",
+        "generatedBy": "build-page-dispatch-manifest.mjs",
+        "packetType": "LibraryBoundPagePacket",
+        "laneContract": {
+          "resolvedLane": "library_bound",
+          "packetType": "LibraryBoundPagePacket",
+          "pageRuntimeGuide": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+          "dispatchContract": "intent-workflows/intent-page-library-bound/dispatch-contract.md"
+        },
+        "taskLinePresent": true,
+        "outputPathPresent": true,
+        "sharedTemplate": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+        "nodeId": "page-content-panel",
+        "htmlSrc": "pages/content-panel.html",
+        "supplementaryReads": [],
+        "allowedWritePaths": [
+          "pages/content-panel.html",
+          "assets/"
+        ],
+        "forbiddenWriteRoots": [
+          "*.design",
+          "runtime-orchestration-summary.json",
+          "validation-report.json",
+          "finish-readiness-report.json",
+          "restore-contract-report.json",
+          "page-generation-summary.json"
+        ],
+        "toolPolicy": {
+          "todoWriteAllowed": false,
+          "validationScriptsAllowed": false,
+          "previewAllowed": false,
+          "helperScriptsAllowed": false,
+          "designFileWriteAllowed": false,
+          "allowedWritePaths": [
+            "pages/content-panel.html",
+            "assets/"
+          ]
+        },
+        "skillRuntime": {
+          "skillDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design",
+          "deterministicToolDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling",
+          "toolPaths": {
+            "applyHtmlHeadContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs",
+            "recordDispatchCompletion": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs",
+            "buildPageDispatchManifest": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs",
+            "validateDesignWorkspace": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-design-workspace.mjs",
+            "validateFinishReadiness": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs",
+            "validateRestoreContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-restore-contract.mjs"
+          },
+          "requiredForPageSubAgent": [
+            "applyHtmlHeadContract",
+            "recordDispatchCompletion"
+          ],
+          "pathInjection": "absolute",
+          "pathContract": "Do not use {SKILL_DIR} placeholders inside Page Sub-Agent packets; use toolPaths.* absolute paths.",
+          "commandTemplates": {
+            "recordDispatchCompletion": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design' --node-id='page-content-panel' --html-src='pages/content-panel.html' --status=completed --changed-files=<comma-separated-project-relative-files> --trace-digest=<main-agent-runtime-trace-digest> --tool-ledger-json=<tool-ledger-json-or-file>"
+          }
+        },
+        "cssFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css",
+        "htmlFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/content-panel.html",
+        "brandPrefix": "",
+        "aestheticsMode": "library-bound",
+        "toolDisciplineBlockPresent": true,
+        "fillHtmlHeadCommand": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/content-panel.html' --title='页面内答题面板' --lang='zh-CN' --prefix=''",
+        "headFillMode": "skeleton-first",
+        "viewportMode": "document-scroll",
+        "completionSchemaExpected": "full",
+        "restoreFields": null,
+        "restoreContractStatus": null,
+        "restoreCompactPacket": null,
+        "deterministicCommands": null,
+        "sourceAuthorityLock": null,
+        "preDispatchFileHashes": {
+          "quiz-helper-ui-redesign.design": "42bad8e966be65e53bfeff8406f43134a833500592f4eb232fe40f13ec4006d6"
+        },
+        "contextPreflight": {
+          "workflowPath": "intent-workflows/intent-page-library-bound/INTENT_WORKFLOW.md",
+          "requiredContextFiles": [
+            "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+            "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+            "delivery-quality/page-rendering-quality-gate.md",
+            "delivery-quality/design-artifact-validation.md",
+            "delivery-quality/delivery-evidence-contract.md"
+          ],
+          "optionalContextFiles": [
+            "visual-experience/visual-experience-guidelines.md"
+          ],
+          "passed": true
+        },
+        "pageSliceOnly": true,
+        "requiredFieldsPresent": true,
+        "missingFields": [],
+        "fillHtmlHeadCommandValid": true,
+        "mobileNavigation": {
+          "required": false,
+          "appliesToThisPage": false,
+          "canonicalHtmlIncluded": false,
+          "missingFields": []
+        },
+        "persistedToSummary": true,
+        "taskQueryAudited": false,
+        "proofSource": "summary-only",
+        "largeWorkflowFilesInTaskQuery": null
+      },
+      {
+        "recorded_at": "2026-08-11T14:42:06.197Z",
+        "generatedBy": "build-page-dispatch-manifest.mjs",
+        "packetType": "LibraryBoundPagePacket",
+        "laneContract": {
+          "resolvedLane": "library_bound",
+          "packetType": "LibraryBoundPagePacket",
+          "pageRuntimeGuide": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+          "dispatchContract": "intent-workflows/intent-page-library-bound/dispatch-contract.md"
+        },
+        "taskLinePresent": true,
+        "outputPathPresent": true,
+        "sharedTemplate": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+        "nodeId": "page-options-settings",
+        "htmlSrc": "pages/options-settings.html",
+        "supplementaryReads": [],
+        "allowedWritePaths": [
+          "pages/options-settings.html",
+          "assets/"
+        ],
+        "forbiddenWriteRoots": [
+          "*.design",
+          "runtime-orchestration-summary.json",
+          "validation-report.json",
+          "finish-readiness-report.json",
+          "restore-contract-report.json",
+          "page-generation-summary.json"
+        ],
+        "toolPolicy": {
+          "todoWriteAllowed": false,
+          "validationScriptsAllowed": false,
+          "previewAllowed": false,
+          "helperScriptsAllowed": false,
+          "designFileWriteAllowed": false,
+          "allowedWritePaths": [
+            "pages/options-settings.html",
+            "assets/"
+          ]
+        },
+        "skillRuntime": {
+          "skillDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design",
+          "deterministicToolDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling",
+          "toolPaths": {
+            "applyHtmlHeadContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs",
+            "recordDispatchCompletion": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs",
+            "buildPageDispatchManifest": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs",
+            "validateDesignWorkspace": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-design-workspace.mjs",
+            "validateFinishReadiness": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs",
+            "validateRestoreContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-restore-contract.mjs"
+          },
+          "requiredForPageSubAgent": [
+            "applyHtmlHeadContract",
+            "recordDispatchCompletion"
+          ],
+          "pathInjection": "absolute",
+          "pathContract": "Do not use {SKILL_DIR} placeholders inside Page Sub-Agent packets; use toolPaths.* absolute paths.",
+          "commandTemplates": {
+            "recordDispatchCompletion": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design' --node-id='page-options-settings' --html-src='pages/options-settings.html' --status=completed --changed-files=<comma-separated-project-relative-files> --trace-digest=<main-agent-runtime-trace-digest> --tool-ledger-json=<tool-ledger-json-or-file>"
+          }
+        },
+        "cssFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css",
+        "htmlFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/options-settings.html",
+        "brandPrefix": "",
+        "aestheticsMode": "library-bound",
+        "toolDisciplineBlockPresent": true,
+        "fillHtmlHeadCommand": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/options-settings.html' --title='设置页 · 模型与解析' --lang='zh-CN' --prefix=''",
+        "headFillMode": "skeleton-first",
+        "viewportMode": "document-scroll",
+        "completionSchemaExpected": "full",
+        "restoreFields": null,
+        "restoreContractStatus": null,
+        "restoreCompactPacket": null,
+        "deterministicCommands": null,
+        "sourceAuthorityLock": null,
+        "preDispatchFileHashes": {
+          "quiz-helper-ui-redesign.design": "42bad8e966be65e53bfeff8406f43134a833500592f4eb232fe40f13ec4006d6"
+        },
+        "contextPreflight": {
+          "workflowPath": "intent-workflows/intent-page-library-bound/INTENT_WORKFLOW.md",
+          "requiredContextFiles": [
+            "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+            "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+            "delivery-quality/page-rendering-quality-gate.md",
+            "delivery-quality/design-artifact-validation.md",
+            "delivery-quality/delivery-evidence-contract.md"
+          ],
+          "optionalContextFiles": [
+            "visual-experience/visual-experience-guidelines.md"
+          ],
+          "passed": true
+        },
+        "pageSliceOnly": true,
+        "requiredFieldsPresent": true,
+        "missingFields": [],
+        "fillHtmlHeadCommandValid": true,
+        "mobileNavigation": {
+          "required": false,
+          "appliesToThisPage": false,
+          "canonicalHtmlIncluded": false,
+          "missingFields": []
+        },
+        "persistedToSummary": true,
+        "taskQueryAudited": false,
+        "proofSource": "summary-only",
+        "largeWorkflowFilesInTaskQuery": null
+      },
+      {
+        "recorded_at": "2026-08-11T14:42:06.197Z",
+        "generatedBy": "build-page-dispatch-manifest.mjs",
+        "packetType": "LibraryBoundPagePacket",
+        "laneContract": {
+          "resolvedLane": "library_bound",
+          "packetType": "LibraryBoundPagePacket",
+          "pageRuntimeGuide": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+          "dispatchContract": "intent-workflows/intent-page-library-bound/dispatch-contract.md"
+        },
+        "taskLinePresent": true,
+        "outputPathPresent": true,
+        "sharedTemplate": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+        "nodeId": "page-options-data",
+        "htmlSrc": "pages/options-data.html",
+        "supplementaryReads": [],
+        "allowedWritePaths": [
+          "pages/options-data.html",
+          "assets/"
+        ],
+        "forbiddenWriteRoots": [
+          "*.design",
+          "runtime-orchestration-summary.json",
+          "validation-report.json",
+          "finish-readiness-report.json",
+          "restore-contract-report.json",
+          "page-generation-summary.json"
+        ],
+        "toolPolicy": {
+          "todoWriteAllowed": false,
+          "validationScriptsAllowed": false,
+          "previewAllowed": false,
+          "helperScriptsAllowed": false,
+          "designFileWriteAllowed": false,
+          "allowedWritePaths": [
+            "pages/options-data.html",
+            "assets/"
+          ]
+        },
+        "skillRuntime": {
+          "skillDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design",
+          "deterministicToolDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling",
+          "toolPaths": {
+            "applyHtmlHeadContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs",
+            "recordDispatchCompletion": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs",
+            "buildPageDispatchManifest": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs",
+            "validateDesignWorkspace": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-design-workspace.mjs",
+            "validateFinishReadiness": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs",
+            "validateRestoreContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-restore-contract.mjs"
+          },
+          "requiredForPageSubAgent": [
+            "applyHtmlHeadContract",
+            "recordDispatchCompletion"
+          ],
+          "pathInjection": "absolute",
+          "pathContract": "Do not use {SKILL_DIR} placeholders inside Page Sub-Agent packets; use toolPaths.* absolute paths.",
+          "commandTemplates": {
+            "recordDispatchCompletion": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design' --node-id='page-options-data' --html-src='pages/options-data.html' --status=completed --changed-files=<comma-separated-project-relative-files> --trace-digest=<main-agent-runtime-trace-digest> --tool-ledger-json=<tool-ledger-json-or-file>"
+          }
+        },
+        "cssFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css",
+        "htmlFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/options-data.html",
+        "brandPrefix": "",
+        "aestheticsMode": "library-bound",
+        "toolDisciplineBlockPresent": true,
+        "fillHtmlHeadCommand": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/options-data.html' --title='设置页 · 数据与关于' --lang='zh-CN' --prefix=''",
+        "headFillMode": "skeleton-first",
+        "viewportMode": "document-scroll",
+        "completionSchemaExpected": "full",
+        "restoreFields": null,
+        "restoreContractStatus": null,
+        "restoreCompactPacket": null,
+        "deterministicCommands": null,
+        "sourceAuthorityLock": null,
+        "preDispatchFileHashes": {
+          "quiz-helper-ui-redesign.design": "42bad8e966be65e53bfeff8406f43134a833500592f4eb232fe40f13ec4006d6"
+        },
+        "contextPreflight": {
+          "workflowPath": "intent-workflows/intent-page-library-bound/INTENT_WORKFLOW.md",
+          "requiredContextFiles": [
+            "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+            "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+            "delivery-quality/page-rendering-quality-gate.md",
+            "delivery-quality/design-artifact-validation.md",
+            "delivery-quality/delivery-evidence-contract.md"
+          ],
+          "optionalContextFiles": [
+            "visual-experience/visual-experience-guidelines.md"
+          ],
+          "passed": true
+        },
+        "pageSliceOnly": true,
+        "requiredFieldsPresent": true,
+        "missingFields": [],
+        "fillHtmlHeadCommandValid": true,
+        "mobileNavigation": {
+          "required": false,
+          "appliesToThisPage": false,
+          "canonicalHtmlIncluded": false,
+          "missingFields": []
+        },
+        "persistedToSummary": true,
+        "taskQueryAudited": false,
+        "proofSource": "summary-only",
+        "largeWorkflowFilesInTaskQuery": null
+      },
+      {
+        "recorded_at": "2026-08-11T14:42:06.197Z",
+        "generatedBy": "build-page-dispatch-manifest.mjs",
+        "packetType": "LibraryBoundPagePacket",
+        "laneContract": {
+          "resolvedLane": "library_bound",
+          "packetType": "LibraryBoundPagePacket",
+          "pageRuntimeGuide": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+          "dispatchContract": "intent-workflows/intent-page-library-bound/dispatch-contract.md"
+        },
+        "taskLinePresent": true,
+        "outputPathPresent": true,
+        "sharedTemplate": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+        "nodeId": "page-drawer",
+        "htmlSrc": "pages/drawer.html",
+        "supplementaryReads": [],
+        "allowedWritePaths": [
+          "pages/drawer.html",
+          "assets/"
+        ],
+        "forbiddenWriteRoots": [
+          "*.design",
+          "runtime-orchestration-summary.json",
+          "validation-report.json",
+          "finish-readiness-report.json",
+          "restore-contract-report.json",
+          "page-generation-summary.json"
+        ],
+        "toolPolicy": {
+          "todoWriteAllowed": false,
+          "validationScriptsAllowed": false,
+          "previewAllowed": false,
+          "helperScriptsAllowed": false,
+          "designFileWriteAllowed": false,
+          "allowedWritePaths": [
+            "pages/drawer.html",
+            "assets/"
+          ]
+        },
+        "skillRuntime": {
+          "skillDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design",
+          "deterministicToolDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling",
+          "toolPaths": {
+            "applyHtmlHeadContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs",
+            "recordDispatchCompletion": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs",
+            "buildPageDispatchManifest": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs",
+            "validateDesignWorkspace": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-design-workspace.mjs",
+            "validateFinishReadiness": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs",
+            "validateRestoreContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-restore-contract.mjs"
+          },
+          "requiredForPageSubAgent": [
+            "applyHtmlHeadContract",
+            "recordDispatchCompletion"
+          ],
+          "pathInjection": "absolute",
+          "pathContract": "Do not use {SKILL_DIR} placeholders inside Page Sub-Agent packets; use toolPaths.* absolute paths.",
+          "commandTemplates": {
+            "recordDispatchCompletion": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design' --node-id='page-drawer' --html-src='pages/drawer.html' --status=completed --changed-files=<comma-separated-project-relative-files> --trace-digest=<main-agent-runtime-trace-digest> --tool-ledger-json=<tool-ledger-json-or-file>"
+          }
+        },
+        "cssFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css",
+        "htmlFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/drawer.html",
+        "brandPrefix": "",
+        "aestheticsMode": "library-bound",
+        "toolDisciplineBlockPresent": true,
+        "fillHtmlHeadCommand": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/drawer.html' --title='抽屉 Drawer' --lang='zh-CN' --prefix=''",
+        "headFillMode": "skeleton-first",
+        "viewportMode": "document-scroll",
+        "completionSchemaExpected": "full",
+        "restoreFields": null,
+        "restoreContractStatus": null,
+        "restoreCompactPacket": null,
+        "deterministicCommands": null,
+        "sourceAuthorityLock": null,
+        "preDispatchFileHashes": {
+          "quiz-helper-ui-redesign.design": "42bad8e966be65e53bfeff8406f43134a833500592f4eb232fe40f13ec4006d6"
+        },
+        "contextPreflight": {
+          "workflowPath": "intent-workflows/intent-page-library-bound/INTENT_WORKFLOW.md",
+          "requiredContextFiles": [
+            "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+            "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+            "delivery-quality/page-rendering-quality-gate.md",
+            "delivery-quality/design-artifact-validation.md",
+            "delivery-quality/delivery-evidence-contract.md"
+          ],
+          "optionalContextFiles": [
+            "visual-experience/visual-experience-guidelines.md"
+          ],
+          "passed": true
+        },
+        "pageSliceOnly": true,
+        "requiredFieldsPresent": true,
+        "missingFields": [],
+        "fillHtmlHeadCommandValid": true,
+        "mobileNavigation": {
+          "required": false,
+          "appliesToThisPage": false,
+          "canonicalHtmlIncluded": false,
+          "missingFields": []
+        },
+        "persistedToSummary": true,
+        "taskQueryAudited": false,
+        "proofSource": "summary-only",
+        "largeWorkflowFilesInTaskQuery": null
+      },
+      {
+        "recorded_at": "2026-08-11T14:42:06.197Z",
+        "generatedBy": "build-page-dispatch-manifest.mjs",
+        "packetType": "LibraryBoundPagePacket",
+        "laneContract": {
+          "resolvedLane": "library_bound",
+          "packetType": "LibraryBoundPagePacket",
+          "pageRuntimeGuide": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+          "dispatchContract": "intent-workflows/intent-page-library-bound/dispatch-contract.md"
+        },
+        "taskLinePresent": true,
+        "outputPathPresent": true,
+        "sharedTemplate": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+        "nodeId": "page-messages",
+        "htmlSrc": "pages/messages.html",
+        "supplementaryReads": [],
+        "allowedWritePaths": [
+          "pages/messages.html",
+          "assets/"
+        ],
+        "forbiddenWriteRoots": [
+          "*.design",
+          "runtime-orchestration-summary.json",
+          "validation-report.json",
+          "finish-readiness-report.json",
+          "restore-contract-report.json",
+          "page-generation-summary.json"
+        ],
+        "toolPolicy": {
+          "todoWriteAllowed": false,
+          "validationScriptsAllowed": false,
+          "previewAllowed": false,
+          "helperScriptsAllowed": false,
+          "designFileWriteAllowed": false,
+          "allowedWritePaths": [
+            "pages/messages.html",
+            "assets/"
+          ]
+        },
+        "skillRuntime": {
+          "skillDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design",
+          "deterministicToolDir": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling",
+          "toolPaths": {
+            "applyHtmlHeadContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs",
+            "recordDispatchCompletion": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs",
+            "buildPageDispatchManifest": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs",
+            "validateDesignWorkspace": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-design-workspace.mjs",
+            "validateFinishReadiness": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs",
+            "validateRestoreContract": "/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-restore-contract.mjs"
+          },
+          "requiredForPageSubAgent": [
+            "applyHtmlHeadContract",
+            "recordDispatchCompletion"
+          ],
+          "pathInjection": "absolute",
+          "pathContract": "Do not use {SKILL_DIR} placeholders inside Page Sub-Agent packets; use toolPaths.* absolute paths.",
+          "commandTemplates": {
+            "recordDispatchCompletion": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design' --node-id='page-messages' --html-src='pages/messages.html' --status=completed --changed-files=<comma-separated-project-relative-files> --trace-digest=<main-agent-runtime-trace-digest> --tool-ledger-json=<tool-ledger-json-or-file>"
+          }
+        },
+        "cssFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css",
+        "htmlFilePath": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/messages.html",
+        "brandPrefix": "",
+        "aestheticsMode": "library-bound",
+        "toolDisciplineBlockPresent": true,
+        "fillHtmlHeadCommand": "node '/Users/jiahao/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/colors_and_type.css' '/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design/pages/messages.html' --title='全局消息提示' --lang='zh-CN' --prefix=''",
+        "headFillMode": "skeleton-first",
+        "viewportMode": "document-scroll",
+        "completionSchemaExpected": "full",
+        "restoreFields": null,
+        "restoreContractStatus": null,
+        "restoreCompactPacket": null,
+        "deterministicCommands": null,
+        "sourceAuthorityLock": null,
+        "preDispatchFileHashes": {
+          "quiz-helper-ui-redesign.design": "42bad8e966be65e53bfeff8406f43134a833500592f4eb232fe40f13ec4006d6"
+        },
+        "contextPreflight": {
+          "workflowPath": "intent-workflows/intent-page-library-bound/INTENT_WORKFLOW.md",
+          "requiredContextFiles": [
+            "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+            "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+            "delivery-quality/page-rendering-quality-gate.md",
+            "delivery-quality/design-artifact-validation.md",
+            "delivery-quality/delivery-evidence-contract.md"
+          ],
+          "optionalContextFiles": [
+            "visual-experience/visual-experience-guidelines.md"
+          ],
+          "passed": true
+        },
+        "pageSliceOnly": true,
+        "requiredFieldsPresent": true,
+        "missingFields": [],
+        "fillHtmlHeadCommandValid": true,
+        "mobileNavigation": {
+          "required": false,
+          "appliesToThisPage": false,
+          "canonicalHtmlIncluded": false,
+          "missingFields": []
+        },
+        "persistedToSummary": true,
+        "taskQueryAudited": false,
+        "proofSource": "summary-only",
+        "largeWorkflowFilesInTaskQuery": null
+      }
+    ],
+    "readScopeLedger": [
+      {
+        "actor": "page-sub-agent",
+        "lane": "library_bound",
+        "path": "intent-workflows/intent-page-library-bound/library-bound-page-runtime.md",
+        "reason": "page runtime guide",
+        "scopeClass": "page-runtime",
+        "declaredBeforeRead": true,
+        "recordedAt": "2026-08-11T14:42:06.197Z",
+        "nodeId": "page-popup-home",
+        "htmlSrc": "pages/popup-home.html"
+      },
+      {
+        "actor": "page-sub-agent",
+        "lane": "library_bound",
+        "path": "intent-workflows/intent-page-library-bound/dispatch-contract.md",
+        "reason": "dispatch contract",
+        "scopeClass": "dispatch-contract",
+        "declaredBeforeRead": true,
+        "recordedAt": "2026-08-11T14:42:06.197Z",
+        "nodeId": "page-popup-home",
+        "htmlSrc": "pages/popup-home.html"
+      }
+    ],
+    "validationHistory": [
+      {
+        "reportPath": "validation-report.json",
+        "reportHash": "636c60d5382717f260f600dc5b52ae0a73fb358a884588364ad63006a93149f6",
+        "checkedAt": "2026-08-11T15:32:15.155Z",
+        "success": false,
+        "exitCode": 1,
+        "renderBlockingErrorCount": 2,
+        "repairPlanHints": [
+          "hardcoded-color-in-body"
+        ],
+        "errorSignatures": [
+          {
+            "errorClass": "artifact-readiness",
+            "normalized": "[design-file] Validation failed for .design file batch: ======================================== [FAIL] Validation failed ---------------------------------------- Found 4 issues: 1. [root.config.designLibrary.version] must exist; use null when unavailable 2. [root.config.designLibrary.scope] must exist; use null when unavailable 3. [root.config.designLibrary.path] must exist; use null when unavailable 4. [root.config.designLibrary.versionSource] must exist; use null when unavailable ========================================",
+            "signature": "37d4a273c0b7028cbde420f7c9fea83ffd174e901cfa3d9700b3ba94d94ad860"
+          },
+          {
+            "errorClass": "dispatch-preflight-or-ownership",
+            "normalized": "[dispatch-changed-files] project.expectedDispatches[] is required when dispatchPreflightManifest[] exists",
+            "signature": "1863095a5236c379a633d22a8424261bfcde770ff9ab246147a2326cba87f6fd"
+          }
+        ],
+        "terminalState": null
+      },
+      {
+        "reportPath": "validation-report.json",
+        "reportHash": "569f8441e68de08b8960eaec1dcd88df3cc8815581570a024b0a2733e76a6c16",
+        "checkedAt": "2026-08-11T15:37:34.734Z",
+        "success": true,
+        "exitCode": 0,
+        "renderBlockingErrorCount": 0,
+        "repairPlanHints": [
+          "hardcoded-color-in-body"
+        ],
+        "errorSignatures": [],
+        "terminalState": null
+      }
+    ],
+    "validationRepairLedger": [
+      {
+        "failedReportPath": "validation-report.json",
+        "failedReportHash": "636c60d5382717f260f600dc5b52ae0a73fb358a884588364ad63006a93149f6",
+        "repairWorkflowReadPath": "intent-workflows/intent-project-mutation/main-agent-repair-workflow.md",
+        "repairStartedAt": "2026-08-11T15:32:25.590Z",
+        "repairEntryStatus": "revalidated-success",
+        "ownerTriage": [
+          {
+            "owner": "sub-agent",
+            "errorClass": "hardcoded-color-in-body",
+            "affectedFiles": [
+              "content-panel.html"
+            ],
+            "repairScope": "targeted-token-replace",
+            "strategy": "targeted_token_replace_once"
+          }
+        ],
+        "repairPlanHints": [
+          {
+            "errorClass": "hardcoded-color-in-body",
+            "owner": "sub-agent",
+            "repairScope": "targeted-token-replace",
+            "strategy": "targeted_token_replace_once",
+            "affectedFiles": [
+              "content-panel.html"
+            ],
+            "repairReportPath": null,
+            "repairAlreadyAttempted": false,
+            "allowSourceRead": "no-full-html-read",
+            "maxValidationRuns": 2
+          }
+        ],
+        "repairActions": [
+          {
+            "owner": "main-agent",
+            "errorClass": "artifact-readiness",
+            "affectedFiles": [
+              "quiz-helper-ui-redesign.design",
+              "runtime-orchestration-summary.json"
+            ],
+            "action": "add-design-library-fields",
+            "observedFileHashes": [
+              {
+                "path": "quiz-helper-ui-redesign.design",
+                "hash": "c6687f0d4e8f0e48c7db3d1816647b2b0a345b8bc448f74ffabf5b3696846a2b"
+              },
+              {
+                "path": "runtime-orchestration-summary.json",
+                "hash": "d65534d75f389a8a84493bb2c26b931b572195295588fea6ac9426157f832bdd"
+              }
+            ],
+            "preEditFileHashes": [],
+            "postEditFileHashes": [],
+            "repairOwnedFields": [
+              "artifact-readiness"
+            ],
+            "recordedAt": "2026-08-11T15:35:33.591Z",
+            "repairActionTableRequired": true
+          }
+        ],
+        "revalidationReportPath": "validation-report.json",
+        "revalidationReportHash": "569f8441e68de08b8960eaec1dcd88df3cc8815581570a024b0a2733e76a6c16",
+        "revalidationSuccess": true,
+        "blockedReason": null,
+        "revalidationRecordedAt": "2026-08-11T15:38:17.709Z"
+      }
+    ],
+    "repairEntryEvidence": [
+      {
+        "failedReportPath": "validation-report.json",
+        "failedReportHash": "636c60d5382717f260f600dc5b52ae0a73fb358a884588364ad63006a93149f6",
+        "repairWorkflowReadPath": "intent-workflows/intent-project-mutation/main-agent-repair-workflow.md",
+        "repairStartedAt": "2026-08-11T15:32:25.590Z",
+        "ledgerIndex": 0,
+        "ownerTriageCount": 1,
+        "repairActionCount": 1,
+        "revalidationReportPath": "validation-report.json",
+        "revalidationReportHash": "569f8441e68de08b8960eaec1dcd88df3cc8815581570a024b0a2733e76a6c16",
+        "revalidationSuccess": true
+      }
+    ],
+    "mainAgentPostDispatchMutations": [
+      {
+        "path": "quiz-helper-ui-redesign.design",
+        "reason": "added designLibrary identity fields for library-bound mode",
+        "owner": "main-agent",
+        "recordedAt": "2026-08-11T15:36:46.115Z",
+        "source": "record-dispatch-completion.mjs"
+      },
+      {
+        "path": "runtime-orchestration-summary.json",
+        "reason": "set operatingMode and expectedDispatches",
+        "owner": "main-agent",
+        "recordedAt": "2026-08-11T15:36:46.115Z",
+        "source": "record-dispatch-completion.mjs"
+      }
+    ]
+  },
+  "pages": [
+    {
+      "nodeId": "page-popup-home",
+      "htmlSrc": "pages/popup-home.html",
+      "title": "Popup 弹窗",
+      "deviceType": "desktop",
+      "viewportMode": "document-scroll",
+      "pageType": "task-driven",
+      "themeMode": "light"
+    },
+    {
+      "nodeId": "page-content-panel",
+      "htmlSrc": "pages/content-panel.html",
+      "title": "页面内答题面板",
+      "deviceType": "desktop",
+      "viewportMode": "document-scroll",
+      "pageType": "information-dense",
+      "themeMode": "light"
+    },
+    {
+      "nodeId": "page-options-settings",
+      "htmlSrc": "pages/options-settings.html",
+      "title": "设置页 · 模型与解析",
+      "deviceType": "desktop",
+      "viewportMode": "document-scroll",
+      "pageType": "information-dense",
+      "themeMode": "light"
+    },
+    {
+      "nodeId": "page-options-data",
+      "htmlSrc": "pages/options-data.html",
+      "title": "设置页 · 数据与关于",
+      "deviceType": "desktop",
+      "viewportMode": "document-scroll",
+      "pageType": "information-dense",
+      "themeMode": "light"
+    },
+    {
+      "nodeId": "page-drawer",
+      "htmlSrc": "pages/drawer.html",
+      "title": "抽屉 Drawer",
+      "deviceType": "desktop",
+      "viewportMode": "document-scroll",
+      "pageType": "task-driven",
+      "themeMode": "light"
+    },
+    {
+      "nodeId": "page-messages",
+      "htmlSrc": "pages/messages.html",
+      "title": "全局消息提示",
+      "deviceType": "desktop",
+      "viewportMode": "document-scroll",
+      "pageType": "task-driven",
+      "themeMode": "light"
+    }
+  ]
+}

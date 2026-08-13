@@ -1,0 +1,156 @@
+{
+  "data": [
+    {
+      "id": "page-popup-home",
+      "title": "Popup 弹窗",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1786456010000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0,
+        "layoutSnapshot": {
+          "version": 1,
+          "contentHeight": 998,
+          "viewportWidth": 1440,
+          "sourceHash": "fnv1a-aff8fa14",
+          "measuredAt": 1786509619292
+        }
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/popup-home.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-content-panel",
+      "title": "页面内答题面板",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1786456010000,
+      "canvasData": {
+        "x": 620,
+        "y": 0,
+        "group": 0,
+        "layoutSnapshot": {
+          "version": 1,
+          "contentHeight": 2280,
+          "viewportWidth": 1440,
+          "sourceHash": "fnv1a-7f947a0d",
+          "measuredAt": 1786509619292
+        }
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/content-panel.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-options-settings",
+      "title": "设置页 · 模型与解析",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1786456010000,
+      "canvasData": {
+        "x": 0,
+        "y": 779,
+        "group": 1,
+        "layoutSnapshot": {
+          "version": 1,
+          "contentHeight": 3086,
+          "viewportWidth": 1440,
+          "sourceHash": "fnv1a-766da4e6",
+          "measuredAt": 1786552183760
+        }
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/options-settings.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-options-data",
+      "title": "设置页 · 数据与关于",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1786456010000,
+      "canvasData": {
+        "x": 624,
+        "y": 792,
+        "group": 1,
+        "layoutSnapshot": {
+          "version": 1,
+          "contentHeight": 2550,
+          "viewportWidth": 1440,
+          "sourceHash": "fnv1a-dc67dc6d",
+          "measuredAt": 1786552183760
+        }
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/options-data.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-drawer",
+      "title": "抽屉 Drawer",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1786456010000,
+      "canvasData": {
+        "x": 0,
+        "y": 1774,
+        "group": 2,
+        "layoutSnapshot": {
+          "version": 1,
+          "contentHeight": 2972,
+          "viewportWidth": 1440,
+          "sourceHash": "fnv1a-1b0e4c0c",
+          "measuredAt": 1786509619292
+        }
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/drawer.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-messages",
+      "title": "全局消息提示",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1786456010000,
+      "canvasData": {
+        "x": 620,
+        "y": 1774,
+        "group": 2,
+        "layoutSnapshot": {
+          "version": 1,
+          "contentHeight": 900,
+          "viewportWidth": 1440,
+          "sourceHash": "fnv1a-99f16359",
+          "measuredAt": 1786509619292
+        }
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/messages.html",
+        "interactions": []
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": false,
+    "deviceType": "desktop",
+    "projectName": "题目助手 UI 重设计原型",
+    "designLibrary": {
+      "name": "苹果",
+      "id": "dl_builtin_apple",
+      "version": null,
+      "scope": "built-in-global",
+      "path": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple",
+      "versionSource": "metadata.json"
+    },
+    "visualEditorEnabled": true
+  }
+}

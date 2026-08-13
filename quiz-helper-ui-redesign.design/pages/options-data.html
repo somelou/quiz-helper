@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置页 · 数据与关于</title>
+    <style id="theme-vars">
+/*
+ * Quiz Helper UI Redesign — Design Tokens
+ * Brand: 题目助手 (Quiz Helper)
+ * Theme mode: light-dark
+ * Source language: zh
+ *
+ * Color architecture:
+ *   1. Primitive palette — brand (indigo, from src/shared/variables.css),
+ *      background / text / icon neutral scales, state-success / state-error /
+ *      state-warning / state-info anchored on the original plugin palette.
+ *   2. Semantic tokens — :root (light) and .dark map roles onto primitives.
+ *      Components must only consume the semantic tokens below.
+ */
+
+:root {
+  /* ===== PRIMITIVE PALETTE ===== */
+
+  /* brand — indigo, matching original variables.css primary #4f46e5 */
+  --brand-50: #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-300: #a5b4fc;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+
+  /* background */
+  --background-50: #ffffff;
+  --background-100: #fafafa;
+  --background-200: #f4f4f5;
+  --background-300: #e8e8ec;
+  --background-400: #e4e4e7;
+  --background-500: #d4d4d8;
+  --background-600: #a1a1aa;
+  --background-700: #3f3f46;
+  --background-800: #27272a;
+  --background-900: #18181b;
+
+  /* text */
+  --text-50: #f4f4f5;
+  --text-100: #e4e4e7;
+  --text-200: #d4d4d8;
+  --text-300: #a1a1aa;
+  --text-400: #8b8e98;
+  --text-500: #71717a;
+  --text-600: #3f3f46;
+  --text-700: #3a3a40;
+  --text-800: #18181b;
+  --text-900: #101012;
+
+  /* icon */
+  --icon-50: #f4f4f5;
+  --icon-100: #e4e4e7;
+  --icon-200: #d4d4d8;
+  --icon-300: #a1a1aa;
+  --icon-400: #8b8e98;
+  --icon-500: #71717a;
+  --icon-600: #3f3f46;
+  --icon-700: #3a3a40;
+  --icon-800: #27272a;
+  --icon-900: #18181b;
+
+  /* state-success — original variables.css green */
+  --state-success: #16a34a;
+  --state-success-dark: #4ade80;
+  --state-success-surface: #f0fdf4;
+  --state-success-foreground: #ffffff;
+
+  /* state-error — original variables.css red */
+  --state-error: #dc2626;
+  --state-error-dark: #f87171;
+  --state-error-surface: #fef2f2;
+  --state-error-foreground: #ffffff;
+
+  /* state-warning — original variables.css amber */
+  --state-warning: #d97706;
+  --state-warning-dark: #fbbf24;
+  --state-warning-surface: #fffbeb;
+  --state-warning-foreground: #ffffff;
+
+  /* state-info — original variables.css sky */
+  --state-info: #0284c7;
+  --state-info-dark: #38bdf8;
+  --state-info-surface: #f0f9ff;
+  --state-info-foreground: #ffffff;
+
+  /* ===== SEMANTIC ROLES ===== */
+
+  --background: var(--background-50);
+  --foreground: var(--text-800);
+  --card: var(--background-50);
+  --card-foreground: var(--text-800);
+  --popover: var(--background-50);
+  --popover-foreground: var(--text-900);
+
+  --primary: var(--brand-600);
+  --primary-foreground: var(--background-50);
+  --secondary: var(--background-200);
+  --secondary-foreground: var(--text-800);
+  --muted: var(--background-100);
+  --muted-foreground: var(--text-500);
+  --accent: var(--background-100);
+  --accent-foreground: var(--text-800);
+  --destructive: var(--state-error);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success);
+  --success-foreground: var(--state-success-foreground);
+  --border: #e8e8ec;
+  --input: #e4e4e7;
+  --ring: var(--brand-500);
+
+  --icon: var(--icon-900);
+  --icon-muted: var(--icon-500);
+
+  /* sidebar */
+  --sidebar: var(--background-200);
+  --sidebar-foreground: var(--text-800);
+  --sidebar-primary: var(--brand-600);
+  --sidebar-primary-foreground: var(--background-50);
+  --sidebar-accent: var(--background-300);
+  --sidebar-accent-foreground: var(--text-800);
+  --sidebar-border: var(--background-300);
+  --sidebar-ring: var(--brand-500);
+
+  /* TYPOGRAPHY */
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif, system-ui;
+  --font-serif: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif, system-ui;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --tracking-normal: 0em;
+
+  /* RADIUS */
+  --radius: 1.2rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.2rem;
+  --radius-xl: 1.5rem;
+
+  /* SHADOWS */
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.05);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.10), 0 8px 16px -8px rgba(0, 0, 0, 0.06);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.12);
+
+  /* SPACING */
+  --spacing: 0.24rem;
+}
+
+/* ===== SEMANTIC ROLES - dark (original variables.css body.dark palette) ===== */
+.dark {
+  --background: #131419;
+  --foreground: var(--text-50);
+  --card: #1a1c22;
+  --card-foreground: #f4f4f5;
+  --popover: #22242c;
+  --popover-foreground: var(--text-50);
+
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: #2a2d36;
+  --secondary-foreground: #d4d4d8;
+  --muted: #1a1c22;
+  --muted-foreground: var(--text-400);
+  --accent: #22242c;
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success-dark);
+  --success-foreground: var(--state-success-foreground);
+  --border: #2a2d36;
+  --input: #34373f;
+  --ring: var(--brand-400);
+
+  --icon: var(--icon-50);
+  --icon-muted: var(--icon-400);
+
+  --sidebar: #1a1c22;
+  --sidebar-foreground: var(--text-50);
+  --sidebar-primary: var(--brand-400);
+  --sidebar-primary-foreground: var(--background-900);
+  --sidebar-accent: #2a2d36;
+  --sidebar-accent-foreground: var(--text-50);
+  --sidebar-border: #2a2d36;
+  --sidebar-ring: var(--brand-400);
+
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 8px 16px -8px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.60);
+}
+
+/* ============================================================
+ * Prototype showcase dark instance container
+ * Applied to .showcase.dark wrappers so the light/dark
+ * side-by-side comparison on prototype pages renders with the
+ * real dark semantic tokens instead of inheriting light values.
+ * ============================================================ */
+.showcase.dark,
+.proto-dark {
+  --background: #131419;
+  --foreground: var(--text-50);
+  --card: #1a1c22;
+  --card-foreground: #f4f4f5;
+  --popover: #22242c;
+  --popover-foreground: var(--text-50);
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: #2a2d36;
+  --secondary-foreground: #d4d4d8;
+  --muted: #1a1c22;
+  --muted-foreground: var(--text-400);
+  --accent: #22242c;
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success-dark);
+  --success-foreground: var(--state-success-foreground);
+  --border: #2a2d36;
+  --input: #34373f;
+  --ring: var(--brand-400);
+  --icon: var(--icon-50);
+  --icon-muted: var(--icon-400);
+  --sidebar: #1a1c22;
+  --sidebar-foreground: var(--text-50);
+  --sidebar-accent: #2a2d36;
+  --sidebar-accent-foreground: var(--text-50);
+  --sidebar-border: #2a2d36;
+  --sidebar-ring: var(--brand-400);
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 8px 16px -8px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.60);
+}
+
+    </style>
+    <style id="component-vars">
+/*
+ * components.css - aggregated component CSS
+ * Auto-extracted from preview/component-*.html files.
+ * DO NOT EDIT. Regenerate with extract-components-css.mjs.
+ *
+ * Foundation tokens live in colors_and_type.css.
+ * This file consumes those tokens via var(--*) references.
+ */
+
+/* ============================================================
+ * Button
+ * source: preview/component-button.html
+ * rules: 10
+ */
+/* @anatomy
+   <div class="row"><span class="label">Primary 56</span><button class="btn btn-primary btn-lg">Buy now</button><button class="btn btn-primary btn-lg" disabled>Buy now</button></div>
+*/
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--spacing)*1.5);height:40px;padding:0 20px;border:none;border-radius:calc(var(--radius)*2);background:transparent;color:var(--foreground);font:600 14px/1 var(--font-sans);letter-spacing:var(--tracking-normal);white-space:nowrap;box-shadow:var(--shadow-sm);cursor:pointer;transition:background-color .18s ease,color .18s ease,opacity .18s ease,filter .18s ease}
+.btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-primary:hover{filter:brightness(.96)}
+.btn-secondary{height:48px;padding:0 24px;background:var(--secondary);color:var(--secondary-foreground)}
+.btn-secondary:hover{background:var(--muted)}
+.btn-text{height:48px;padding:0 4px;box-shadow:none}
+.btn-text:hover{color:var(--primary)}
+.btn-lg{height:56px;padding:0 28px;font-size:16px}
+
+/* ============================================================
+ * Card
+ * source: preview/component-card.html
+ * rules: 12
+ */
+/* @anatomy
+   <div class="row">
+   <span class="label">Info</span>
+   <article class="card">
+   <div><div class="eyebrow">Pinguo Apple</div>
+*/
+.card{width:188px;min-height:148px;padding:calc(var(--spacing)*5);display:flex;flex-direction:column;justify-content:space-between;background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);transition:transform .18s ease,box-shadow .18s ease}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.card.disabled,.card.disabled:hover{opacity:.5;transform:none;box-shadow:var(--shadow-md)}
+.eyebrow,.meta{color:var(--muted-foreground);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.title{margin:6px 0 8px;font-size:18px;line-height:1.15}
+.body-copy{margin:0;color:var(--muted-foreground);font-size:13px}
+.cta{display:inline-flex;align-items:center;justify-content:center;width:max-content;margin-top:12px;padding:calc(var(--spacing)*2) calc(var(--spacing)*3.5);border-radius:999px;background:var(--primary);color:var(--primary-foreground);font-size:12px;font-weight:700;text-decoration:none}
+.media{aspect-ratio:4/3;border-radius:calc(var(--radius) - 4px);background:linear-gradient(135deg,var(--secondary),var(--accent));border:1px solid var(--border)}
+.media-card{min-height:212px;padding:calc(var(--spacing)*4)}
+.media-card .title{font-size:16px;margin:10px 0 6px}
+.price{font-size:12px;color:var(--muted-foreground)}
+.dark{background:var(--card);color:var(--card-foreground)}
+
+/* ============================================================
+ * Comparison Table
+ * source: preview/component-comparison-table.html
+ * rules: 13
+ */
+/* @anatomy
+   <div class="row"><span class="label">Default</span><div class="t"><div class="c m">Compare models</div>
+*/
+.t{display:grid;grid-template-columns:96px repeat(3,1fr);overflow:hidden;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--card-foreground);box-shadow:var(--shadow-sm)}
+.q{grid-template-columns:82px repeat(4,1fr)}
+.c{padding:10px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.t>.c:nth-child(4n),.q>.c:nth-child(5n){border-right:0}
+.t>.c:nth-last-child(-n+4),.q>.c:nth-last-child(-n+5){border-bottom:0}
+.m{background:var(--background);color:var(--muted-foreground);font:700 10px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase}
+.h{background:var(--background);font-weight:700}
+.k{display:block;font-size:14px;line-height:1.1}
+.s{display:block;margin-top:4px;color:var(--chart-2);font-size:11px;font-weight:700}
+.b .k{color:var(--chart-2)}
+.v{font-weight:600}
+.n{color:var(--muted-foreground);font-size:12px}
+.x{opacity:.45}
+
+/* ============================================================
+ * Input
+ * source: preview/component-input.html
+ * rules: 10
+ */
+/* @anatomy
+   <div class="row">
+   <span class="label">Search 44</span>
+   <div class="field">
+   <span class="icon">⌕</span>
+   <input class="control" aria-label="Search products" placeholder="Search products">
+   <button class="clear" type="button" aria-label="Clear search">×</button>
+   </div>
+*/
+.surface{display:flex;gap:calc(var(--spacing)*2);padding:calc(var(--spacing)*3);border:1px solid var(--border);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow-sm)}
+.dark{background:var(--background);color:var(--foreground)}
+.field{display:flex;align-items:center;gap:calc(var(--spacing)*2);min-width:240px;height:44px;padding:0 calc(var(--spacing)*3);border:1px solid var(--input);border-radius:var(--radius);background:var(--background);color:var(--foreground);box-shadow:var(--shadow-xs)}
+.field.small{height:40px}
+.field:focus-within{border-color:var(--ring);box-shadow:0 0 0 1px var(--ring)}
+.field.disabled{opacity:.55}
+.icon,.clear{padding:0;border:0;background:transparent;color:var(--icon-muted);font:inherit}
+.icon{font-size:13px}
+.control{flex:1;border:0;outline:0;background:transparent;color:inherit;font:inherit}
+.control::placeholder{color:var(--muted-foreground)}
+
+/* ============================================================
+ * Navigation
+ * source: preview/component-navigation.html
+ * rules: 16
+ */
+/* @anatomy
+   <div class="row"><span class="label">Global 44</span><nav class="webbar dark" aria-label="Pinguo Apple global navigation"><span class="brand">Pinguo Apple</span><div class="rail"><a class="link" href="#">Store</a><a class="link" href="#">Explore</a><a class="link" href="#">Community</a><a class="link" href="#">Support</a></div>
+*/
+.webbar,.mobile{border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.webbar{display:flex;align-items:center;gap:calc(var(--spacing)*2);min-width:320px;height:44px;padding:0 calc(var(--spacing)*3);border-radius:var(--radius);background:var(--sidebar)}
+.brand{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.link,.tab{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;color:inherit;text-decoration:none;white-space:nowrap;transition:background-color .18s ease,color .18s ease,opacity .18s ease}
+.link{height:32px;padding:0 calc(var(--spacing)*2.5)}
+.link:hover,.tab:hover{background:var(--secondary)}
+.link:focus-visible,.tab:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.dark{background:var(--sidebar);color:var(--foreground)}
+.disabled{opacity:.48}
+.disabled .link,.disabled .tab{pointer-events:none}
+.mobile{padding:calc(var(--spacing)*2);border-radius:calc(var(--radius)*1.1);background:var(--card)}
+.screen{display:flex;align-items:flex-end;justify-content:center;width:188px;height:164px;padding:calc(var(--spacing)*3);border-radius:calc(var(--radius)*.9);background:linear-gradient(180deg,var(--background),var(--secondary))}
+.tabbar{display:flex;gap:calc(var(--spacing)*1.5);padding:calc(var(--spacing)*1.5);border:1px solid var(--border);border-radius:999px;background:var(--card);box-shadow:var(--shadow-md)}
+.tab{flex-direction:column;gap:2px;min-width:56px;height:56px;padding:0 calc(var(--spacing)*1.5);font-size:11px;text-align:center}
+.dot{width:18px;height:18px;border-radius:999px;background:var(--secondary);box-shadow:inset 0 0 0 1px var(--border)}
+.tab:hover .dot{background:var(--primary)}
+
+/* ============================================================
+ * Product Grid
+ * source: preview/component-product-grid.html
+ * rules: 12
+ */
+/* @anatomy
+   <div class="row">
+   <span class="label">4-up</span>
+   <div class="grid grid-4">
+   <article class="card"><div class="media"></div>
+*/
+.grid{display:grid;gap:8px;flex:1}
+.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--card-foreground);box-shadow:var(--shadow-xs);transition:border-color .2s ease,transform .2s ease}
+.card:hover{border-color:var(--primary);transform:translateY(-1px)}
+.media{aspect-ratio:1;border-radius:calc(var(--radius) - 4px);background:linear-gradient(135deg,var(--secondary),var(--background));border:1px solid var(--border)}
+.eyebrow{color:var(--muted-foreground);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.title{font-size:15px;line-height:1.25}
+.price{font-variant-numeric:tabular-nums}
+.cta{display:inline-flex;align-self:flex-start;padding:7px 10px;border-radius:999px;background:var(--primary);color:var(--primary-foreground);font-size:12px;text-decoration:none}
+.muted{color:var(--muted-foreground)}
+.is-disabled{opacity:.55}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --radius-sm: var(--radius-sm);
+    --radius-md: var(--radius-md);
+    --radius-lg: var(--radius-lg);
+    --radius-xl: var(--radius-xl);
+  }
+  @layer base {
+    body { background: var(--background); color: var(--foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--background); }
+      .text-background { color: var(--background); }
+      .border-background { border-color: var(--background); }
+      .ring-background { --tw-ring-color: var(--background); }
+      .bg-foreground { background-color: var(--foreground); }
+      .text-foreground { color: var(--foreground); }
+      .border-foreground { border-color: var(--foreground); }
+      .ring-foreground { --tw-ring-color: var(--foreground); }
+      .bg-card { background-color: var(--card); }
+      .text-card { color: var(--card); }
+      .border-card { border-color: var(--card); }
+      .ring-card { --tw-ring-color: var(--card); }
+      .bg-card-foreground { background-color: var(--card-foreground); }
+      .text-card-foreground { color: var(--card-foreground); }
+      .border-card-foreground { border-color: var(--card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--card-foreground); }
+      .bg-popover { background-color: var(--popover); }
+      .text-popover { color: var(--popover); }
+      .border-popover { border-color: var(--popover); }
+      .ring-popover { --tw-ring-color: var(--popover); }
+      .bg-popover-foreground { background-color: var(--popover-foreground); }
+      .text-popover-foreground { color: var(--popover-foreground); }
+      .border-popover-foreground { border-color: var(--popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--popover-foreground); }
+      .bg-primary { background-color: var(--primary); }
+      .text-primary { color: var(--primary); }
+      .border-primary { border-color: var(--primary); }
+      .ring-primary { --tw-ring-color: var(--primary); }
+      .bg-primary-foreground { background-color: var(--primary-foreground); }
+      .text-primary-foreground { color: var(--primary-foreground); }
+      .border-primary-foreground { border-color: var(--primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--primary-foreground); }
+      .bg-secondary { background-color: var(--secondary); }
+      .text-secondary { color: var(--secondary); }
+      .border-secondary { border-color: var(--secondary); }
+      .ring-secondary { --tw-ring-color: var(--secondary); }
+      .bg-secondary-foreground { background-color: var(--secondary-foreground); }
+      .text-secondary-foreground { color: var(--secondary-foreground); }
+      .border-secondary-foreground { border-color: var(--secondary-foreground); }
+      .ring-secondary-foreground { --tw-ring-color: var(--secondary-foreground); }
+      .bg-muted { background-color: var(--muted); }
+      .text-muted { color: var(--muted); }
+      .border-muted { border-color: var(--muted); }
+      .ring-muted { --tw-ring-color: var(--muted); }
+      .bg-muted-foreground { background-color: var(--muted-foreground); }
+      .text-muted-foreground { color: var(--muted-foreground); }
+      .border-muted-foreground { border-color: var(--muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--muted-foreground); }
+      .bg-accent { background-color: var(--accent); }
+      .text-accent { color: var(--accent); }
+      .border-accent { border-color: var(--accent); }
+      .ring-accent { --tw-ring-color: var(--accent); }
+      .bg-accent-foreground { background-color: var(--accent-foreground); }
+      .text-accent-foreground { color: var(--accent-foreground); }
+      .border-accent-foreground { border-color: var(--accent-foreground); }
+      .ring-accent-foreground { --tw-ring-color: var(--accent-foreground); }
+      .bg-destructive { background-color: var(--destructive); }
+      .text-destructive { color: var(--destructive); }
+      .border-destructive { border-color: var(--destructive); }
+      .ring-destructive { --tw-ring-color: var(--destructive); }
+      .bg-destructive-foreground { background-color: var(--destructive-foreground); }
+      .text-destructive-foreground { color: var(--destructive-foreground); }
+      .border-destructive-foreground { border-color: var(--destructive-foreground); }
+      .ring-destructive-foreground { --tw-ring-color: var(--destructive-foreground); }
+      .bg-border { background-color: var(--border); }
+      .text-border { color: var(--border); }
+      .border-border { border-color: var(--border); }
+      .ring-border { --tw-ring-color: var(--border); }
+      .bg-input { background-color: var(--input); }
+      .text-input { color: var(--input); }
+      .border-input { border-color: var(--input); }
+      .ring-input { --tw-ring-color: var(--input); }
+      .bg-ring { background-color: var(--ring); }
+      .text-ring { color: var(--ring); }
+      .border-ring { border-color: var(--ring); }
+      .ring-ring { --tw-ring-color: var(--ring); }
+      .bg-sidebar { background-color: var(--sidebar); }
+      .text-sidebar { color: var(--sidebar); }
+      .border-sidebar { border-color: var(--sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--sidebar); }
+      .bg-sidebar-foreground { background-color: var(--sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--sidebar-foreground); }
+      .bg-sidebar-primary { background-color: var(--sidebar-primary); }
+      .text-sidebar-primary { color: var(--sidebar-primary); }
+      .border-sidebar-primary { border-color: var(--sidebar-primary); }
+      .ring-sidebar-primary { --tw-ring-color: var(--sidebar-primary); }
+      .bg-sidebar-primary-foreground { background-color: var(--sidebar-primary-foreground); }
+      .text-sidebar-primary-foreground { color: var(--sidebar-primary-foreground); }
+      .border-sidebar-primary-foreground { border-color: var(--sidebar-primary-foreground); }
+      .ring-sidebar-primary-foreground { --tw-ring-color: var(--sidebar-primary-foreground); }
+      .bg-sidebar-accent { background-color: var(--sidebar-accent); }
+      .text-sidebar-accent { color: var(--sidebar-accent); }
+      .border-sidebar-accent { border-color: var(--sidebar-accent); }
+      .ring-sidebar-accent { --tw-ring-color: var(--sidebar-accent); }
+      .bg-sidebar-accent-foreground { background-color: var(--sidebar-accent-foreground); }
+      .text-sidebar-accent-foreground { color: var(--sidebar-accent-foreground); }
+      .border-sidebar-accent-foreground { border-color: var(--sidebar-accent-foreground); }
+      .ring-sidebar-accent-foreground { --tw-ring-color: var(--sidebar-accent-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main>
+        <style id="page-styles">
+            /* ===== Prototype showcase page ===== */
+            .page-shell { max-width: 1380px; margin: 0 auto; padding: 48px 24px 40px; }
+            .page-intro { max-width: 60ch; margin: 0 auto 18px; text-align: center; }
+            .page-title { margin: 0; font-size: 30px; line-height: 1.22; font-weight: 700; letter-spacing: -0.01em; color: var(--foreground); }
+            .intro-copy { margin: 10px auto 0; max-width: 52ch; font-size: 14px; line-height: 1.7; color: var(--muted-foreground); }
+
+            .intro-bar { display: flex; align-items: center; justify-content: center; gap: 10px; width: max-content; max-width: 100%; margin: 0 auto 40px; padding: 12px 24px; border: 1px solid var(--border); border-radius: 999px; background: var(--secondary); color: var(--foreground); font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; }
+            .intro-bar svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--primary); }
+
+            .stage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; align-items: start; }
+            .showcase { margin: 0; padding: 28px 24px; display: flex; flex-direction: column; gap: 16px; background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
+            .showcase.dark { background: var(--background); }
+            .showcase-cap { display: flex; align-items: baseline; gap: 10px; }
+            .showcase-cap strong { font-size: 14px; font-weight: 600; color: var(--foreground); }
+            .showcase-cap span { font-size: 12px; color: var(--muted-foreground); }
+
+            /* ===== Options frame ===== */
+            .opt-frame { display: flex; align-items: stretch; width: 100%; max-width: 880px; margin: 0 auto; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--background); box-shadow: var(--shadow-sm); }
+            .opt-sidebar { flex: 0 0 160px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px 12px 16px; background: var(--sidebar); border-right: 1px solid var(--sidebar-border); }
+            .sidebar-brand { display: flex; align-items: center; gap: 8px; padding: 2px 10px 8px; font-size: 14px; font-weight: 700; letter-spacing: 0.01em; color: var(--foreground); white-space: nowrap; }
+            .sidebar-brand svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--primary); }
+            .sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
+            .nav-item { display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 12px; border-radius: 999px; color: var(--sidebar-foreground); font-size: 13px; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color .18s ease, color .18s ease; }
+            .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--icon-muted); transition: color .18s ease; }
+            .nav-item:hover { background: var(--sidebar-accent); color: var(--sidebar-foreground); }
+            .nav-item:hover svg { color: var(--foreground); }
+            .nav-item.active { background: var(--sidebar-accent); color: var(--primary); }
+            .nav-item.active svg { color: var(--primary); }
+            .nav-item:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+            .sidebar-version { margin-top: auto; padding: 10px 12px 0; font: 500 11px/1 var(--font-mono); color: var(--muted-foreground); }
+
+            .opt-main { flex: 1; min-width: 0; width: 100%; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding: 24px; background: var(--background); }
+
+            /* ===== Settings cards ===== */
+            .settings-card { display: flex; flex-direction: column; gap: 18px; padding: 22px 24px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+            .card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+            .head-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+            .card-title { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; color: var(--card-foreground); }
+            .card-sub { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--muted-foreground); }
+            .form-hint { margin: 0; font-size: 12px; line-height: 1.6; color: var(--muted-foreground); }
+            .form-group { display: flex; flex-direction: column; gap: 10px; }
+            .form-label { font-size: 13px; font-weight: 600; color: var(--foreground); }
+
+            /* ===== Segmented control ===== */
+            .segmented { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; width: max-content; max-width: 100%; background: var(--secondary); border-radius: 999px; }
+            .seg-btn { display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 15px; border: 0; border-radius: 999px; background: transparent; color: var(--muted-foreground); font: 500 12px/1 var(--font-sans); cursor: pointer; transition: background-color .18s ease, color .18s ease, box-shadow .18s ease; }
+            .seg-btn:hover { color: var(--foreground); }
+            .seg-btn.active { background: var(--popover); color: var(--foreground); font-weight: 600; box-shadow: var(--shadow-xs); }
+            .seg-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+            /* ===== Chips / small pill buttons ===== */
+            .chip-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--secondary); color: var(--foreground); font: 500 12px/1 var(--font-sans); white-space: nowrap; cursor: pointer; transition: background-color .18s ease, color .18s ease; }
+            .chip-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+            .chip-btn:hover { background: var(--accent); color: var(--foreground); }
+            .chip-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+            .chip-primary { color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); }
+            .chip-primary:hover { background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary); }
+            .chip-danger { color: var(--destructive); background: color-mix(in srgb, var(--destructive) 10%, transparent); }
+            .chip-danger:hover { background: color-mix(in srgb, var(--destructive) 16%, transparent); color: var(--destructive); }
+
+            /* ===== Badges ===== */
+            .badge { display: inline-flex; align-items: center; height: 20px; padding: 0 9px; border-radius: 999px; font: 600 11px/1 var(--font-sans); white-space: nowrap; }
+            .badge-primary { background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary); }
+            .badge-success { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); }
+            .badge-muted { background: var(--secondary); color: var(--muted-foreground); }
+
+            /* ===== Lists ===== */
+            .plain-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+            .list-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; }
+            .plain-list > li + li { border-top: 1px solid var(--border); }
+            .list-info { min-width: 0; }
+            .list-title { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 14px; font-weight: 600; color: var(--foreground); }
+            .list-meta { margin-top: 5px; font-size: 12px; line-height: 1.6; color: var(--muted-foreground); overflow-wrap: anywhere; }
+            .list-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+            .list-row.inactive { opacity: .6; }
+
+            .sub-title { margin: 0; padding-top: 16px; border-top: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--foreground); }
+
+            /* ===== iOS switch ===== */
+            .switch { position: relative; display: inline-block; flex-shrink: 0; width: 46px; height: 28px; }
+            .switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+            .switch-track { position: absolute; inset: 0; border-radius: 999px; background: var(--input); transition: background-color .18s ease; }
+            .switch-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 999px; background: var(--background-50); box-shadow: var(--shadow-xs); transition: transform .18s ease; }
+            .switch input:checked ~ .switch-track { background: var(--success); }
+            .switch input:checked ~ .switch-track::after { transform: translateX(18px); }
+            .switch input:focus-visible ~ .switch-track { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+            /* ===== Toolbar (题库) ===== */
+            .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+            .toolbar-stats { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 12px; color: var(--muted-foreground); }
+            .toolbar-stats svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--primary); }
+
+            /* ===== Parse progress ===== */
+            .progress-block { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--accent); }
+            .progress-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+            .progress-label { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 13px; font-weight: 600; color: var(--foreground); }
+            .progress-label svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--primary); }
+            .progress-file { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .progress-meta { font: 500 12px/1 var(--font-mono); color: var(--muted-foreground); white-space: nowrap; }
+            .progress-track { height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 12%, transparent); overflow: hidden; }
+            .progress-fill { position: relative; height: 100%; border-radius: 999px; background: var(--primary); overflow: hidden; transition: width .3s ease; }
+            .progress-fill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-foreground) 30%, transparent), transparent); transform: translateX(-100%); animation: progress-sheen 2.4s ease-in-out infinite; }
+            @keyframes progress-sheen { to { transform: translateX(100%); } }
+            .spin { animation: spin 1.6s linear infinite; }
+            @keyframes spin { to { transform: rotate(360deg); } }
+
+            /* ===== Backup module grid ===== */
+            .module-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+            .module-check { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--accent); color: var(--foreground); font-size: 13px; font-weight: 500; cursor: pointer; transition: border-color .18s ease, background-color .18s ease; }
+            .module-check input { position: absolute; width: 1px; height: 1px; margin: -1px; opacity: 0; pointer-events: none; }
+            .module-check:hover { border-color: var(--ring); }
+            .module-check:focus-within { outline: 2px solid var(--ring); outline-offset: 1px; }
+            .module-check .check-box { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border: 1px solid var(--input); border-radius: 7px; background: var(--card); color: transparent; flex-shrink: 0; transition: background-color .18s ease, border-color .18s ease, color .18s ease; }
+            .module-check .check-box svg { width: 12px; height: 12px; }
+            .module-check input:checked ~ .check-box { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+            .module-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+            .export-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+            .export-note { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted-foreground); }
+            .export-note svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--success); }
+
+            /* ===== Backup file row ===== */
+            .import-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+            .import-file { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; color: var(--foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+            /* ===== About rows ===== */
+            .about-grid { display: flex; flex-direction: column; gap: 10px; }
+            .about-tile { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--accent); }
+            .about-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 999px; background: var(--secondary); color: var(--icon-muted); flex-shrink: 0; }
+            .about-icon svg { width: 16px; height: 16px; }
+            .about-info { min-width: 0; }
+            .about-label { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: var(--muted-foreground); }
+            .about-value { margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .about-value.ext { display: inline-flex; align-items: center; gap: 5px; min-width: 0; max-width: 100%; color: var(--primary); text-decoration: none; }
+            .about-value.ext span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .about-value.ext svg { width: 12px; height: 12px; flex-shrink: 0; }
+            .about-value.ext:hover { text-decoration: underline; }
+            .about-value.ext:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 4px; }
+
+            /* ===== Pagination ===== */
+            .pagination { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--border); }
+            .page-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 32px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--foreground); font: 500 12px/1 var(--font-sans); cursor: pointer; transition: background-color .18s ease, color .18s ease; }
+            .page-btn svg { width: 14px; height: 14px; }
+            .page-btn:hover:not(:disabled) { background: var(--secondary); }
+            .page-btn.active { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+            .page-btn:disabled { opacity: .42; cursor: not-allowed; }
+            .page-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+            .page-info { margin-left: 2px; font-size: 12px; color: var(--muted-foreground); }
+
+            /* ===== Page footer ===== */
+            .page-footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; }
+            .page-footer p { margin: 0; font-size: 12px; color: var(--muted-foreground); }
+
+            /* ===== Card actions ===== */
+            .card-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+            .opt-main .btn { height: 40px; padding: 0 20px; }
+            .opt-main .btn-secondary:hover { background: var(--accent); }
+            .opt-main .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+            @media (max-width: 1180px) {
+                .stage { grid-template-columns: minmax(0, 1fr); }
+            }
+            @media (max-width: 720px) {
+                .page-shell { padding: 36px 16px 32px; }
+                .intro-bar { font-size: 12px; }
+                .opt-frame { flex-direction: column; }
+                .opt-sidebar { flex: none; width: 100%; padding: 12px; border-right: 0; border-bottom: 1px solid var(--sidebar-border); }
+                .sidebar-nav { flex-direction: row; gap: 4px; overflow-x: auto; }
+                .nav-item { flex: 0 0 auto; height: 34px; padding: 0 14px; }
+                .sidebar-brand, .sidebar-version { display: none; }
+                .opt-main { padding: 20px 16px; }
+                .list-row { align-items: flex-start; flex-direction: column; }
+                .list-actions { justify-content: flex-start; }
+                .settings-card { padding: 18px; }
+                .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            }
+            @media (max-width: 480px) {
+                .module-grid { grid-template-columns: minmax(0, 1fr); }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .nav-item, .nav-item svg, .seg-btn, .switch-track, .switch-track::after, .chip-btn, .btn, .page-btn, .progress-fill, .progress-fill::after, .spin, .module-check, .module-check .check-box { transition: none; animation: none; }
+            }
+        </style>
+
+        <div class="page-shell">
+            <header class="page-intro">
+                <h1 class="page-title">设置页 · 数据与关于</h1>
+                <p class="intro-copy">侧边导航 + 卡片流的配置界面原型，覆盖题库管理、历史记录、备份与恢复与关于。并排展示浅色与深色双模式。</p>
+            </header>
+
+            <div class="intro-bar" role="note">
+                <i data-lucide="database"></i>
+                <span>设置页 · 题库 / 历史 / 备份 / 关于</span>
+            </div>
+
+            <section class="stage" aria-label="设置页浅色与深色实例">
+                <figure class="showcase">
+                    <figcaption class="showcase-cap"><strong>浅色模式</strong><span>默认状态</span></figcaption>
+                    <div class="opt-frame">
+                        <aside class="opt-sidebar">
+                            <div class="sidebar-brand"><i data-lucide="sparkles"></i>题目助手</div>
+                            <nav class="sidebar-nav no-scrollbar" aria-label="设置导航">
+                                <a class="nav-item" href="#"><i data-lucide="settings"></i>基本设置</a>
+                                <a class="nav-item" href="#"><i data-lucide="cpu"></i>大模型管理</a>
+                                <a class="nav-item" href="#"><i data-lucide="globe"></i>联网搜索设置</a>
+                                <a class="nav-item" href="#"><i data-lucide="file-text"></i>解析规则管理</a>
+                                <a class="nav-item active" href="#" aria-current="page"><i data-lucide="database"></i>题库管理</a>
+                                <a class="nav-item" href="#"><i data-lucide="history"></i>历史记录</a>
+                                <a class="nav-item" href="#"><i data-lucide="archive"></i>备份与恢复</a>
+                                <a class="nav-item" href="#"><i data-lucide="info"></i>关于</a>
+                            </nav>
+                            <div class="sidebar-version">v2.4.2</div>
+                        </aside>
+                        <div class="opt-main">
+                            <section class="settings-card" aria-labelledby="bank-title">
+                                <header class="card-head">
+                                    <h3 class="card-title" id="bank-title">题库管理</h3>
+                                    <label class="switch">
+                                        <input type="checkbox" checked aria-label="启用题库匹配">
+                                        <span class="switch-track" aria-hidden="true"></span>
+                                    </label>
+                                </header>
+                                <p class="form-hint">开启后，答题时将自动在已导入题库中检索题目并校验答案。</p>
+                                <div class="form-group">
+                                    <label class="form-label" id="parse-mode-label">导入解析模式</label>
+                                    <div class="segmented" role="group" aria-labelledby="parse-mode-label">
+                                        <button class="seg-btn" type="button">节能</button>
+                                        <button class="seg-btn active" type="button" aria-pressed="true">平衡</button>
+                                        <button class="seg-btn" type="button">精细</button>
+                                    </div>
+                                    <p class="form-hint">并发 10 批 · 每批 50 题</p>
+                                </div>
+                                <div class="toolbar">
+                                    <div class="toolbar-stats"><i data-lucide="database"></i><span>共 2 个题库 · 1,280 题</span></div>
+                                    <button class="btn btn-primary" type="button"><i data-lucide="upload"></i>导入题库</button>
+                                </div>
+                                <div class="progress-block" role="group" aria-label="题库解析进度">
+                                    <div class="progress-head">
+                                        <div class="progress-label"><i data-lucide="loader" class="spin"></i><span>正在解析</span><span class="progress-file">通信原理题库.xlsx</span><span class="progress-meta">31 / 50 批</span></div>
+                                        <button class="chip-btn" type="button"><i data-lucide="x"></i>取消</button>
+                                    </div>
+                                    <div class="progress-track" role="progressbar" aria-label="通信原理题库解析进度" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-fill" style="width: 62%"></div>
+                                    </div>
+                                </div>
+                                <div class="sub-title">题库列表</div>
+                                <ul class="plain-list">
+                                    <li class="list-row">
+                                        <div class="list-info">
+                                            <div class="list-title">计算机网络期末题库.xlsx<span class="badge badge-success">已启用</span></div>
+                                            <p class="list-meta">820 题 · 2026-07-10 导入</p>
+                                        </div>
+                                        <div class="list-actions">
+                                            <label class="switch" title="启用 / 停用">
+                                                <input type="checkbox" checked aria-label="启用 计算机网络期末题库">
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                            </label>
+                                            <button class="chip-btn" type="button"><i data-lucide="download"></i>导出</button>
+                                            <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                        </div>
+                                    </li>
+                                    <li class="list-row inactive">
+                                        <div class="list-info">
+                                            <div class="list-title">通信原理题库.xlsx<span class="badge badge-muted">已停用</span></div>
+                                            <p class="list-meta">460 题 · 2026-07-24 导入</p>
+                                        </div>
+                                        <div class="list-actions">
+                                            <label class="switch" title="启用 / 停用">
+                                                <input type="checkbox" aria-label="启用 通信原理题库">
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                            </label>
+                                            <button class="chip-btn" type="button"><i data-lucide="download"></i>导出</button>
+                                            <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </section>
+
+                            <section class="settings-card" aria-labelledby="history-title">
+                                <header class="card-head">
+                                    <h3 class="card-title" id="history-title">历史记录</h3>
+                                    <div class="head-actions">
+                                        <button class="chip-btn" type="button"><i data-lucide="download"></i>导出</button>
+                                        <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>清空</button>
+                                    </div>
+                                </header>
+                                <p class="form-hint">记录最近 90 天的答题会话，支持导出为 JSON 或一键清空。</p>
+                                <ul class="plain-list">
+                                    <li class="list-row">
+                                        <div class="list-info">
+                                            <div class="list-title">计算机网络期末模拟卷（一）<span class="badge badge-success">已完成 20 题</span></div>
+                                            <p class="list-meta">2026-07-18 14:32 · 20 题</p>
+                                        </div>
+                                        <div class="list-actions">
+                                            <button class="chip-btn" type="button"><i data-lucide="eye"></i>查看</button>
+                                            <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                        </div>
+                                    </li>
+                                    <li class="list-row">
+                                        <div class="list-info">
+                                            <div class="list-title">通信原理在线作业 第 3 章<span class="badge badge-success">已完成 11 题</span></div>
+                                            <p class="list-meta">2026-07-16 09:41 · 12 题</p>
+                                        </div>
+                                        <div class="list-actions">
+                                            <button class="chip-btn" type="button"><i data-lucide="eye"></i>查看</button>
+                                            <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <nav class="pagination" aria-label="历史记录分页">
+                                    <button class="page-btn" type="button" disabled><i data-lucide="chevron-left"></i>上一页</button>
+                                    <button class="page-btn active" type="button" aria-current="page">1</button>
+                                    <button class="page-btn" type="button">2</button>
+                                    <span class="page-info">共 28 条</span>
+                                    <button class="page-btn" type="button"><i data-lucide="chevron-right"></i>下一页</button>
+                                </nav>
+                            </section>
+
+                            <section class="settings-card" aria-labelledby="backup-title">
+                                <h3 class="card-title" id="backup-title">备份与恢复</h3>
+                                <div class="sub-title">导出本地数据</div>
+                                <div class="module-grid" role="group" aria-label="导出模块选择">
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含基本设置">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">基本设置</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含大模型">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">大模型</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含联网搜索">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">联网搜索</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含解析规则">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">解析规则</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含题库">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">题库</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含历史记录">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">历史记录</span>
+                                    </label>
+                                </div>
+                                <div class="export-row">
+                                    <div class="export-note"><i data-lucide="check"></i><span>已准备导出 6 个模块</span></div>
+                                    <button class="btn btn-primary" type="button"><i data-lucide="download"></i>导出备份</button>
+                                </div>
+                                <div class="sub-title">导入备份数据</div>
+                                <div class="import-row">
+                                    <button class="btn btn-secondary" type="button"><i data-lucide="folder-open"></i>选择备份文件</button>
+                                    <span class="import-file">quiz-helper-backup-2026-07-24.json · 2.4 MB 已选择</span>
+                                    <button class="btn btn-primary" type="button"><i data-lucide="upload"></i>导入备份</button>
+                                </div>
+                                <p class="form-hint">导入将覆盖当前同名的设置与题库数据，建议先导出本地备份。</p>
+                            </section>
+
+                            <section class="settings-card" aria-labelledby="about-title">
+                                <header class="card-head">
+                                    <div>
+                                        <h3 class="card-title" id="about-title">关于</h3>
+                                        <p class="card-sub">本地优先的题目辅助扩展</p>
+                                    </div>
+                                </header>
+                                <div class="about-grid">
+                                    <div class="about-tile">
+                                        <span class="about-icon" aria-hidden="true"><i data-lucide="tag"></i></span>
+                                        <div class="about-info">
+                                            <div class="about-label">版本</div>
+                                            <div class="about-value">v2.4.2</div>
+                                        </div>
+                                    </div>
+                                    <div class="about-tile">
+                                        <span class="about-icon" aria-hidden="true"><i data-lucide="code"></i></span>
+                                        <div class="about-info">
+                                            <div class="about-label">仓库</div>
+                                            <a class="about-value ext" href="#"><span>somelou/quiz-helper</span><i data-lucide="external-link"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="about-tile">
+                                        <span class="about-icon" aria-hidden="true"><i data-lucide="shield-check"></i></span>
+                                        <div class="about-info">
+                                            <div class="about-label">隐私</div>
+                                            <a class="about-value ext" href="#"><span>隐私政策</span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </figure>
+
+                <figure class="showcase dark">
+                    <figcaption class="showcase-cap"><strong>深色模式</strong><span>深色背景 · 卡片抬升</span></figcaption>
+                    <div class="opt-frame">
+                        <aside class="opt-sidebar">
+                            <div class="sidebar-brand"><i data-lucide="sparkles"></i>题目助手</div>
+                            <nav class="sidebar-nav no-scrollbar" aria-label="设置导航">
+                                <a class="nav-item" href="#"><i data-lucide="settings"></i>基本设置</a>
+                                <a class="nav-item" href="#"><i data-lucide="cpu"></i>大模型管理</a>
+                                <a class="nav-item" href="#"><i data-lucide="globe"></i>联网搜索设置</a>
+                                <a class="nav-item" href="#"><i data-lucide="file-text"></i>解析规则管理</a>
+                                <a class="nav-item active" href="#" aria-current="page"><i data-lucide="database"></i>题库管理</a>
+                                <a class="nav-item" href="#"><i data-lucide="history"></i>历史记录</a>
+                                <a class="nav-item" href="#"><i data-lucide="archive"></i>备份与恢复</a>
+                                <a class="nav-item" href="#"><i data-lucide="info"></i>关于</a>
+                            </nav>
+                            <div class="sidebar-version">v2.4.2</div>
+                        </aside>
+                        <div class="opt-main">
+                            <section class="settings-card" aria-labelledby="bank-title-dark">
+                                <header class="card-head">
+                                    <h3 class="card-title" id="bank-title-dark">题库管理</h3>
+                                    <label class="switch">
+                                        <input type="checkbox" checked aria-label="启用题库匹配">
+                                        <span class="switch-track" aria-hidden="true"></span>
+                                    </label>
+                                </header>
+                                <p class="form-hint">开启后，答题时将自动在已导入题库中检索题目并校验答案。</p>
+                                <div class="form-group">
+                                    <label class="form-label" id="parse-mode-label-dark">导入解析模式</label>
+                                    <div class="segmented" role="group" aria-labelledby="parse-mode-label-dark">
+                                        <button class="seg-btn" type="button">节能</button>
+                                        <button class="seg-btn active" type="button" aria-pressed="true">平衡</button>
+                                        <button class="seg-btn" type="button">精细</button>
+                                    </div>
+                                    <p class="form-hint">并发 10 批 · 每批 50 题</p>
+                                </div>
+                                <div class="toolbar">
+                                    <div class="toolbar-stats"><i data-lucide="database"></i><span>共 2 个题库 · 1,280 题</span></div>
+                                    <button class="btn btn-primary" type="button"><i data-lucide="upload"></i>导入题库</button>
+                                </div>
+                                <div class="progress-block" role="group" aria-label="题库解析进度">
+                                    <div class="progress-head">
+                                        <div class="progress-label"><i data-lucide="loader" class="spin"></i><span>正在解析</span><span class="progress-file">通信原理题库.xlsx</span><span class="progress-meta">31 / 50 批</span></div>
+                                        <button class="chip-btn" type="button"><i data-lucide="x"></i>取消</button>
+                                    </div>
+                                    <div class="progress-track" role="progressbar" aria-label="通信原理题库解析进度" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-fill" style="width: 62%"></div>
+                                    </div>
+                                </div>
+                                <div class="sub-title">题库列表</div>
+                                <ul class="plain-list">
+                                    <li class="list-row">
+                                        <div class="list-info">
+                                            <div class="list-title">计算机网络期末题库.xlsx<span class="badge badge-success">已启用</span></div>
+                                            <p class="list-meta">820 题 · 2026-07-10 导入</p>
+                                        </div>
+                                        <div class="list-actions">
+                                            <label class="switch" title="启用 / 停用">
+                                                <input type="checkbox" checked aria-label="启用 计算机网络期末题库">
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                            </label>
+                                            <button class="chip-btn" type="button"><i data-lucide="download"></i>导出</button>
+                                            <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                        </div>
+                                    </li>
+                                    <li class="list-row inactive">
+                                        <div class="list-info">
+                                            <div class="list-title">通信原理题库.xlsx<span class="badge badge-muted">已停用</span></div>
+                                            <p class="list-meta">460 题 · 2026-07-24 导入</p>
+                                        </div>
+                                        <div class="list-actions">
+                                            <label class="switch" title="启用 / 停用">
+                                                <input type="checkbox" aria-label="启用 通信原理题库">
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                            </label>
+                                            <button class="chip-btn" type="button"><i data-lucide="download"></i>导出</button>
+                                            <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </section>
+
+                            <section class="settings-card" aria-labelledby="history-title-dark">
+                                <header class="card-head">
+                                    <h3 class="card-title" id="history-title-dark">历史记录</h3>
+                                    <div class="head-actions">
+                                        <button class="chip-btn" type="button"><i data-lucide="download"></i>导出</button>
+                                        <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>清空</button>
+                                    </div>
+                                </header>
+                                <p class="form-hint">记录最近 90 天的答题会话，支持导出为 JSON 或一键清空。</p>
+                                <ul class="plain-list">
+                                    <li class="list-row">
+                                        <div class="list-info">
+                                            <div class="list-title">计算机网络期末模拟卷（一）<span class="badge badge-success">已完成 20 题</span></div>
+                                            <p class="list-meta">2026-07-18 14:32 · 20 题</p>
+                                        </div>
+                                        <div class="list-actions">
+                                            <button class="chip-btn" type="button"><i data-lucide="eye"></i>查看</button>
+                                            <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                        </div>
+                                    </li>
+                                    <li class="list-row">
+                                        <div class="list-info">
+                                            <div class="list-title">通信原理在线作业 第 3 章<span class="badge badge-success">已完成 11 题</span></div>
+                                            <p class="list-meta">2026-07-16 09:41 · 12 题</p>
+                                        </div>
+                                        <div class="list-actions">
+                                            <button class="chip-btn" type="button"><i data-lucide="eye"></i>查看</button>
+                                            <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <nav class="pagination" aria-label="历史记录分页">
+                                    <button class="page-btn" type="button" disabled><i data-lucide="chevron-left"></i>上一页</button>
+                                    <button class="page-btn active" type="button" aria-current="page">1</button>
+                                    <button class="page-btn" type="button">2</button>
+                                    <span class="page-info">共 28 条</span>
+                                    <button class="page-btn" type="button"><i data-lucide="chevron-right"></i>下一页</button>
+                                </nav>
+                            </section>
+
+                            <section class="settings-card" aria-labelledby="backup-title-dark">
+                                <h3 class="card-title" id="backup-title-dark">备份与恢复</h3>
+                                <div class="sub-title">导出本地数据</div>
+                                <div class="module-grid" role="group" aria-label="导出模块选择">
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含基本设置">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">基本设置</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含大模型">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">大模型</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含联网搜索">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">联网搜索</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含解析规则">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">解析规则</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含题库">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">题库</span>
+                                    </label>
+                                    <label class="module-check">
+                                        <input type="checkbox" checked aria-label="包含历史记录">
+                                        <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                        <span class="module-name">历史记录</span>
+                                    </label>
+                                </div>
+                                <div class="export-row">
+                                    <div class="export-note"><i data-lucide="check"></i><span>已准备导出 6 个模块</span></div>
+                                    <button class="btn btn-primary" type="button"><i data-lucide="download"></i>导出备份</button>
+                                </div>
+                                <div class="sub-title">导入备份数据</div>
+                                <div class="import-row">
+                                    <button class="btn btn-secondary" type="button"><i data-lucide="folder-open"></i>选择备份文件</button>
+                                    <span class="import-file">quiz-helper-backup-2026-07-24.json · 2.4 MB 已选择</span>
+                                    <button class="btn btn-primary" type="button"><i data-lucide="upload"></i>导入备份</button>
+                                </div>
+                                <p class="form-hint">导入将覆盖当前同名的设置与题库数据，建议先导出本地备份。</p>
+                            </section>
+
+                            <section class="settings-card" aria-labelledby="about-title-dark">
+                                <header class="card-head">
+                                    <div>
+                                        <h3 class="card-title" id="about-title-dark">关于</h3>
+                                        <p class="card-sub">本地优先的题目辅助扩展</p>
+                                    </div>
+                                </header>
+                                <div class="about-grid">
+                                    <div class="about-tile">
+                                        <span class="about-icon" aria-hidden="true"><i data-lucide="tag"></i></span>
+                                        <div class="about-info">
+                                            <div class="about-label">版本</div>
+                                            <div class="about-value">v2.4.2</div>
+                                        </div>
+                                    </div>
+                                    <div class="about-tile">
+                                        <span class="about-icon" aria-hidden="true"><i data-lucide="code"></i></span>
+                                        <div class="about-info">
+                                            <div class="about-label">仓库</div>
+                                            <a class="about-value ext" href="#"><span>somelou/quiz-helper</span><i data-lucide="external-link"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="about-tile">
+                                        <span class="about-icon" aria-hidden="true"><i data-lucide="shield-check"></i></span>
+                                        <div class="about-info">
+                                            <div class="about-label">隐私</div>
+                                            <a class="about-value ext" href="#"><span>隐私政策</span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </figure>
+            </section>
+
+            <footer class="page-footer">
+                <p>题目助手 · 浏览器扩展 UI 原型 · Pinguo Apple 设计系统 · 浅色 / 深色双主题</p>
+            </footer>
+        </div>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

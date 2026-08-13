@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽屉 Drawer</title>
+    <style id="theme-vars">
+/*
+ * Quiz Helper UI Redesign — Design Tokens
+ * Brand: 题目助手 (Quiz Helper)
+ * Theme mode: light-dark
+ * Source language: zh
+ *
+ * Color architecture:
+ *   1. Primitive palette — brand (indigo, from src/shared/variables.css),
+ *      background / text / icon neutral scales, state-success / state-error /
+ *      state-warning / state-info anchored on the original plugin palette.
+ *   2. Semantic tokens — :root (light) and .dark map roles onto primitives.
+ *      Components must only consume the semantic tokens below.
+ */
+
+:root {
+  /* ===== PRIMITIVE PALETTE ===== */
+
+  /* brand — indigo, matching original variables.css primary #4f46e5 */
+  --brand-50: #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-300: #a5b4fc;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+
+  /* background */
+  --background-50: #ffffff;
+  --background-100: #fafafa;
+  --background-200: #f4f4f5;
+  --background-300: #e8e8ec;
+  --background-400: #e4e4e7;
+  --background-500: #d4d4d8;
+  --background-600: #a1a1aa;
+  --background-700: #3f3f46;
+  --background-800: #27272a;
+  --background-900: #18181b;
+
+  /* text */
+  --text-50: #f4f4f5;
+  --text-100: #e4e4e7;
+  --text-200: #d4d4d8;
+  --text-300: #a1a1aa;
+  --text-400: #8b8e98;
+  --text-500: #71717a;
+  --text-600: #3f3f46;
+  --text-700: #3a3a40;
+  --text-800: #18181b;
+  --text-900: #101012;
+
+  /* icon */
+  --icon-50: #f4f4f5;
+  --icon-100: #e4e4e7;
+  --icon-200: #d4d4d8;
+  --icon-300: #a1a1aa;
+  --icon-400: #8b8e98;
+  --icon-500: #71717a;
+  --icon-600: #3f3f46;
+  --icon-700: #3a3a40;
+  --icon-800: #27272a;
+  --icon-900: #18181b;
+
+  /* state-success — original variables.css green */
+  --state-success: #16a34a;
+  --state-success-dark: #4ade80;
+  --state-success-surface: #f0fdf4;
+  --state-success-foreground: #ffffff;
+
+  /* state-error — original variables.css red */
+  --state-error: #dc2626;
+  --state-error-dark: #f87171;
+  --state-error-surface: #fef2f2;
+  --state-error-foreground: #ffffff;
+
+  /* state-warning — original variables.css amber */
+  --state-warning: #d97706;
+  --state-warning-dark: #fbbf24;
+  --state-warning-surface: #fffbeb;
+  --state-warning-foreground: #ffffff;
+
+  /* state-info — original variables.css sky */
+  --state-info: #0284c7;
+  --state-info-dark: #38bdf8;
+  --state-info-surface: #f0f9ff;
+  --state-info-foreground: #ffffff;
+
+  /* ===== SEMANTIC ROLES ===== */
+
+  --background: var(--background-50);
+  --foreground: var(--text-800);
+  --card: var(--background-50);
+  --card-foreground: var(--text-800);
+  --popover: var(--background-50);
+  --popover-foreground: var(--text-900);
+
+  --primary: var(--brand-600);
+  --primary-foreground: var(--background-50);
+  --secondary: var(--background-200);
+  --secondary-foreground: var(--text-800);
+  --muted: var(--background-100);
+  --muted-foreground: var(--text-500);
+  --accent: var(--background-100);
+  --accent-foreground: var(--text-800);
+  --destructive: var(--state-error);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success);
+  --success-foreground: var(--state-success-foreground);
+  --border: #e8e8ec;
+  --input: #e4e4e7;
+  --ring: var(--brand-500);
+
+  --icon: var(--icon-900);
+  --icon-muted: var(--icon-500);
+
+  /* sidebar */
+  --sidebar: var(--background-200);
+  --sidebar-foreground: var(--text-800);
+  --sidebar-primary: var(--brand-600);
+  --sidebar-primary-foreground: var(--background-50);
+  --sidebar-accent: var(--background-300);
+  --sidebar-accent-foreground: var(--text-800);
+  --sidebar-border: var(--background-300);
+  --sidebar-ring: var(--brand-500);
+
+  /* TYPOGRAPHY */
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif, system-ui;
+  --font-serif: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif, system-ui;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --tracking-normal: 0em;
+
+  /* RADIUS */
+  --radius: 1.2rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.2rem;
+  --radius-xl: 1.5rem;
+
+  /* SHADOWS */
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.05);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.10), 0 8px 16px -8px rgba(0, 0, 0, 0.06);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.12);
+
+  /* SPACING */
+  --spacing: 0.24rem;
+}
+
+/* ===== SEMANTIC ROLES - dark (original variables.css body.dark palette) ===== */
+.dark {
+  --background: #131419;
+  --foreground: var(--text-50);
+  --card: #1a1c22;
+  --card-foreground: #f4f4f5;
+  --popover: #22242c;
+  --popover-foreground: var(--text-50);
+
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: #2a2d36;
+  --secondary-foreground: #d4d4d8;
+  --muted: #1a1c22;
+  --muted-foreground: var(--text-400);
+  --accent: #22242c;
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success-dark);
+  --success-foreground: var(--state-success-foreground);
+  --border: #2a2d36;
+  --input: #34373f;
+  --ring: var(--brand-400);
+
+  --icon: var(--icon-50);
+  --icon-muted: var(--icon-400);
+
+  --sidebar: #1a1c22;
+  --sidebar-foreground: var(--text-50);
+  --sidebar-primary: var(--brand-400);
+  --sidebar-primary-foreground: var(--background-900);
+  --sidebar-accent: #2a2d36;
+  --sidebar-accent-foreground: var(--text-50);
+  --sidebar-border: #2a2d36;
+  --sidebar-ring: var(--brand-400);
+
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 8px 16px -8px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.60);
+}
+
+/* ============================================================
+ * Prototype showcase dark instance container
+ * Applied to .showcase.dark wrappers so the light/dark
+ * side-by-side comparison on prototype pages renders with the
+ * real dark semantic tokens instead of inheriting light values.
+ * ============================================================ */
+.showcase.dark,
+.proto-dark {
+  --background: #131419;
+  --foreground: var(--text-50);
+  --card: #1a1c22;
+  --card-foreground: #f4f4f5;
+  --popover: #22242c;
+  --popover-foreground: var(--text-50);
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: #2a2d36;
+  --secondary-foreground: #d4d4d8;
+  --muted: #1a1c22;
+  --muted-foreground: var(--text-400);
+  --accent: #22242c;
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success-dark);
+  --success-foreground: var(--state-success-foreground);
+  --border: #2a2d36;
+  --input: #34373f;
+  --ring: var(--brand-400);
+  --icon: var(--icon-50);
+  --icon-muted: var(--icon-400);
+  --sidebar: #1a1c22;
+  --sidebar-foreground: var(--text-50);
+  --sidebar-accent: #2a2d36;
+  --sidebar-accent-foreground: var(--text-50);
+  --sidebar-border: #2a2d36;
+  --sidebar-ring: var(--brand-400);
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 8px 16px -8px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.60);
+}
+
+    </style>
+    <style id="component-vars">
+/*
+ * components.css - aggregated component CSS
+ * Auto-extracted from preview/component-*.html files.
+ * DO NOT EDIT. Regenerate with extract-components-css.mjs.
+ *
+ * Foundation tokens live in colors_and_type.css.
+ * This file consumes those tokens via var(--*) references.
+ */
+
+/* ============================================================
+ * Button
+ * source: preview/component-button.html
+ * rules: 10
+ */
+/* @anatomy
+   <div class="row"><span class="label">Primary 56</span><button class="btn btn-primary btn-lg">Buy now</button><button class="btn btn-primary btn-lg" disabled>Buy now</button></div>
+*/
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--spacing)*1.5);height:40px;padding:0 20px;border:none;border-radius:calc(var(--radius)*2);background:transparent;color:var(--foreground);font:600 14px/1 var(--font-sans);letter-spacing:var(--tracking-normal);white-space:nowrap;box-shadow:var(--shadow-sm);cursor:pointer;transition:background-color .18s ease,color .18s ease,opacity .18s ease,filter .18s ease}
+.btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-primary:hover{filter:brightness(.96)}
+.btn-secondary{height:48px;padding:0 24px;background:var(--secondary);color:var(--secondary-foreground)}
+.btn-secondary:hover{background:var(--muted)}
+.btn-text{height:48px;padding:0 4px;box-shadow:none}
+.btn-text:hover{color:var(--primary)}
+.btn-lg{height:56px;padding:0 28px;font-size:16px}
+
+/* ============================================================
+ * Card
+ * source: preview/component-card.html
+ * rules: 12
+ */
+/* @anatomy
+   <div class="row">
+   <span class="label">Info</span>
+   <article class="card">
+   <div><div class="eyebrow">Pinguo Apple</div>
+*/
+.card{width:188px;min-height:148px;padding:calc(var(--spacing)*5);display:flex;flex-direction:column;justify-content:space-between;background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);transition:transform .18s ease,box-shadow .18s ease}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.card.disabled,.card.disabled:hover{opacity:.5;transform:none;box-shadow:var(--shadow-md)}
+.eyebrow,.meta{color:var(--muted-foreground);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.title{margin:6px 0 8px;font-size:18px;line-height:1.15}
+.body-copy{margin:0;color:var(--muted-foreground);font-size:13px}
+.cta{display:inline-flex;align-items:center;justify-content:center;width:max-content;margin-top:12px;padding:calc(var(--spacing)*2) calc(var(--spacing)*3.5);border-radius:999px;background:var(--primary);color:var(--primary-foreground);font-size:12px;font-weight:700;text-decoration:none}
+.media{aspect-ratio:4/3;border-radius:calc(var(--radius) - 4px);background:linear-gradient(135deg,var(--secondary),var(--accent));border:1px solid var(--border)}
+.media-card{min-height:212px;padding:calc(var(--spacing)*4)}
+.media-card .title{font-size:16px;margin:10px 0 6px}
+.price{font-size:12px;color:var(--muted-foreground)}
+.dark{background:var(--card);color:var(--card-foreground)}
+
+/* ============================================================
+ * Comparison Table
+ * source: preview/component-comparison-table.html
+ * rules: 13
+ */
+/* @anatomy
+   <div class="row"><span class="label">Default</span><div class="t"><div class="c m">Compare models</div>
+*/
+.t{display:grid;grid-template-columns:96px repeat(3,1fr);overflow:hidden;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--card-foreground);box-shadow:var(--shadow-sm)}
+.q{grid-template-columns:82px repeat(4,1fr)}
+.c{padding:10px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.t>.c:nth-child(4n),.q>.c:nth-child(5n){border-right:0}
+.t>.c:nth-last-child(-n+4),.q>.c:nth-last-child(-n+5){border-bottom:0}
+.m{background:var(--background);color:var(--muted-foreground);font:700 10px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase}
+.h{background:var(--background);font-weight:700}
+.k{display:block;font-size:14px;line-height:1.1}
+.s{display:block;margin-top:4px;color:var(--chart-2);font-size:11px;font-weight:700}
+.b .k{color:var(--chart-2)}
+.v{font-weight:600}
+.n{color:var(--muted-foreground);font-size:12px}
+.x{opacity:.45}
+
+/* ============================================================
+ * Input
+ * source: preview/component-input.html
+ * rules: 10
+ */
+/* @anatomy
+   <div class="row">
+   <span class="label">Search 44</span>
+   <div class="field">
+   <span class="icon">⌕</span>
+   <input class="control" aria-label="Search products" placeholder="Search products">
+   <button class="clear" type="button" aria-label="Clear search">×</button>
+   </div>
+*/
+.surface{display:flex;gap:calc(var(--spacing)*2);padding:calc(var(--spacing)*3);border:1px solid var(--border);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow-sm)}
+.dark{background:var(--background);color:var(--foreground)}
+.field{display:flex;align-items:center;gap:calc(var(--spacing)*2);min-width:240px;height:44px;padding:0 calc(var(--spacing)*3);border:1px solid var(--input);border-radius:var(--radius);background:var(--background);color:var(--foreground);box-shadow:var(--shadow-xs)}
+.field.small{height:40px}
+.field:focus-within{border-color:var(--ring);box-shadow:0 0 0 1px var(--ring)}
+.field.disabled{opacity:.55}
+.icon,.clear{padding:0;border:0;background:transparent;color:var(--icon-muted);font:inherit}
+.icon{font-size:13px}
+.control{flex:1;border:0;outline:0;background:transparent;color:inherit;font:inherit}
+.control::placeholder{color:var(--muted-foreground)}
+
+/* ============================================================
+ * Navigation
+ * source: preview/component-navigation.html
+ * rules: 16
+ */
+/* @anatomy
+   <div class="row"><span class="label">Global 44</span><nav class="webbar dark" aria-label="Pinguo Apple global navigation"><span class="brand">Pinguo Apple</span><div class="rail"><a class="link" href="#">Store</a><a class="link" href="#">Explore</a><a class="link" href="#">Community</a><a class="link" href="#">Support</a></div>
+*/
+.webbar,.mobile{border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.webbar{display:flex;align-items:center;gap:calc(var(--spacing)*2);min-width:320px;height:44px;padding:0 calc(var(--spacing)*3);border-radius:var(--radius);background:var(--sidebar)}
+.brand{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.link,.tab{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;color:inherit;text-decoration:none;white-space:nowrap;transition:background-color .18s ease,color .18s ease,opacity .18s ease}
+.link{height:32px;padding:0 calc(var(--spacing)*2.5)}
+.link:hover,.tab:hover{background:var(--secondary)}
+.link:focus-visible,.tab:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.dark{background:var(--sidebar);color:var(--foreground)}
+.disabled{opacity:.48}
+.disabled .link,.disabled .tab{pointer-events:none}
+.mobile{padding:calc(var(--spacing)*2);border-radius:calc(var(--radius)*1.1);background:var(--card)}
+.screen{display:flex;align-items:flex-end;justify-content:center;width:188px;height:164px;padding:calc(var(--spacing)*3);border-radius:calc(var(--radius)*.9);background:linear-gradient(180deg,var(--background),var(--secondary))}
+.tabbar{display:flex;gap:calc(var(--spacing)*1.5);padding:calc(var(--spacing)*1.5);border:1px solid var(--border);border-radius:999px;background:var(--card);box-shadow:var(--shadow-md)}
+.tab{flex-direction:column;gap:2px;min-width:56px;height:56px;padding:0 calc(var(--spacing)*1.5);font-size:11px;text-align:center}
+.dot{width:18px;height:18px;border-radius:999px;background:var(--secondary);box-shadow:inset 0 0 0 1px var(--border)}
+.tab:hover .dot{background:var(--primary)}
+
+/* ============================================================
+ * Product Grid
+ * source: preview/component-product-grid.html
+ * rules: 12
+ */
+/* @anatomy
+   <div class="row">
+   <span class="label">4-up</span>
+   <div class="grid grid-4">
+   <article class="card"><div class="media"></div>
+*/
+.grid{display:grid;gap:8px;flex:1}
+.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--card-foreground);box-shadow:var(--shadow-xs);transition:border-color .2s ease,transform .2s ease}
+.card:hover{border-color:var(--primary);transform:translateY(-1px)}
+.media{aspect-ratio:1;border-radius:calc(var(--radius) - 4px);background:linear-gradient(135deg,var(--secondary),var(--background));border:1px solid var(--border)}
+.eyebrow{color:var(--muted-foreground);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.title{font-size:15px;line-height:1.25}
+.price{font-variant-numeric:tabular-nums}
+.cta{display:inline-flex;align-self:flex-start;padding:7px 10px;border-radius:999px;background:var(--primary);color:var(--primary-foreground);font-size:12px;text-decoration:none}
+.muted{color:var(--muted-foreground)}
+.is-disabled{opacity:.55}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --radius-sm: var(--radius-sm);
+    --radius-md: var(--radius-md);
+    --radius-lg: var(--radius-lg);
+    --radius-xl: var(--radius-xl);
+  }
+  @layer base {
+    body { background: var(--background); color: var(--foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--background); }
+      .text-background { color: var(--background); }
+      .border-background { border-color: var(--background); }
+      .ring-background { --tw-ring-color: var(--background); }
+      .bg-foreground { background-color: var(--foreground); }
+      .text-foreground { color: var(--foreground); }
+      .border-foreground { border-color: var(--foreground); }
+      .ring-foreground { --tw-ring-color: var(--foreground); }
+      .bg-card { background-color: var(--card); }
+      .text-card { color: var(--card); }
+      .border-card { border-color: var(--card); }
+      .ring-card { --tw-ring-color: var(--card); }
+      .bg-card-foreground { background-color: var(--card-foreground); }
+      .text-card-foreground { color: var(--card-foreground); }
+      .border-card-foreground { border-color: var(--card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--card-foreground); }
+      .bg-popover { background-color: var(--popover); }
+      .text-popover { color: var(--popover); }
+      .border-popover { border-color: var(--popover); }
+      .ring-popover { --tw-ring-color: var(--popover); }
+      .bg-popover-foreground { background-color: var(--popover-foreground); }
+      .text-popover-foreground { color: var(--popover-foreground); }
+      .border-popover-foreground { border-color: var(--popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--popover-foreground); }
+      .bg-primary { background-color: var(--primary); }
+      .text-primary { color: var(--primary); }
+      .border-primary { border-color: var(--primary); }
+      .ring-primary { --tw-ring-color: var(--primary); }
+      .bg-primary-foreground { background-color: var(--primary-foreground); }
+      .text-primary-foreground { color: var(--primary-foreground); }
+      .border-primary-foreground { border-color: var(--primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--primary-foreground); }
+      .bg-secondary { background-color: var(--secondary); }
+      .text-secondary { color: var(--secondary); }
+      .border-secondary { border-color: var(--secondary); }
+      .ring-secondary { --tw-ring-color: var(--secondary); }
+      .bg-secondary-foreground { background-color: var(--secondary-foreground); }
+      .text-secondary-foreground { color: var(--secondary-foreground); }
+      .border-secondary-foreground { border-color: var(--secondary-foreground); }
+      .ring-secondary-foreground { --tw-ring-color: var(--secondary-foreground); }
+      .bg-muted { background-color: var(--muted); }
+      .text-muted { color: var(--muted); }
+      .border-muted { border-color: var(--muted); }
+      .ring-muted { --tw-ring-color: var(--muted); }
+      .bg-muted-foreground { background-color: var(--muted-foreground); }
+      .text-muted-foreground { color: var(--muted-foreground); }
+      .border-muted-foreground { border-color: var(--muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--muted-foreground); }
+      .bg-accent { background-color: var(--accent); }
+      .text-accent { color: var(--accent); }
+      .border-accent { border-color: var(--accent); }
+      .ring-accent { --tw-ring-color: var(--accent); }
+      .bg-accent-foreground { background-color: var(--accent-foreground); }
+      .text-accent-foreground { color: var(--accent-foreground); }
+      .border-accent-foreground { border-color: var(--accent-foreground); }
+      .ring-accent-foreground { --tw-ring-color: var(--accent-foreground); }
+      .bg-destructive { background-color: var(--destructive); }
+      .text-destructive { color: var(--destructive); }
+      .border-destructive { border-color: var(--destructive); }
+      .ring-destructive { --tw-ring-color: var(--destructive); }
+      .bg-destructive-foreground { background-color: var(--destructive-foreground); }
+      .text-destructive-foreground { color: var(--destructive-foreground); }
+      .border-destructive-foreground { border-color: var(--destructive-foreground); }
+      .ring-destructive-foreground { --tw-ring-color: var(--destructive-foreground); }
+      .bg-border { background-color: var(--border); }
+      .text-border { color: var(--border); }
+      .border-border { border-color: var(--border); }
+      .ring-border { --tw-ring-color: var(--border); }
+      .bg-input { background-color: var(--input); }
+      .text-input { color: var(--input); }
+      .border-input { border-color: var(--input); }
+      .ring-input { --tw-ring-color: var(--input); }
+      .bg-ring { background-color: var(--ring); }
+      .text-ring { color: var(--ring); }
+      .border-ring { border-color: var(--ring); }
+      .ring-ring { --tw-ring-color: var(--ring); }
+      .bg-sidebar { background-color: var(--sidebar); }
+      .text-sidebar { color: var(--sidebar); }
+      .border-sidebar { border-color: var(--sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--sidebar); }
+      .bg-sidebar-foreground { background-color: var(--sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--sidebar-foreground); }
+      .bg-sidebar-primary { background-color: var(--sidebar-primary); }
+      .text-sidebar-primary { color: var(--sidebar-primary); }
+      .border-sidebar-primary { border-color: var(--sidebar-primary); }
+      .ring-sidebar-primary { --tw-ring-color: var(--sidebar-primary); }
+      .bg-sidebar-primary-foreground { background-color: var(--sidebar-primary-foreground); }
+      .text-sidebar-primary-foreground { color: var(--sidebar-primary-foreground); }
+      .border-sidebar-primary-foreground { border-color: var(--sidebar-primary-foreground); }
+      .ring-sidebar-primary-foreground { --tw-ring-color: var(--sidebar-primary-foreground); }
+      .bg-sidebar-accent { background-color: var(--sidebar-accent); }
+      .text-sidebar-accent { color: var(--sidebar-accent); }
+      .border-sidebar-accent { border-color: var(--sidebar-accent); }
+      .ring-sidebar-accent { --tw-ring-color: var(--sidebar-accent); }
+      .bg-sidebar-accent-foreground { background-color: var(--sidebar-accent-foreground); }
+      .text-sidebar-accent-foreground { color: var(--sidebar-accent-foreground); }
+      .border-sidebar-accent-foreground { border-color: var(--sidebar-accent-foreground); }
+      .ring-sidebar-accent-foreground { --tw-ring-color: var(--sidebar-accent-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main>
+        <style id="page-styles">
+            /* ===== Base ===== */
+            body { font-family: var(--font-sans); letter-spacing: var(--tracking-normal); }
+
+            /* ===== Prototype showcase page ===== */
+            .page-shell { max-width: 1240px; margin: 0 auto; padding: 56px 24px 40px; }
+            .page-intro { max-width: 56ch; margin: 0 auto 44px; text-align: center; }
+            .page-title { margin: 0; font-size: 32px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; color: var(--foreground); }
+            .intro-copy { margin: 12px 0 0; font-size: 15px; line-height: 1.7; color: var(--muted-foreground); }
+
+            /* ===== Showcase stage ===== */
+            .stage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; align-items: start; }
+            .showcase { margin: 0; padding: 26px 22px 30px; display: flex; flex-direction: column; gap: 18px; background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
+            .showcase.dark { background: var(--background); }
+            .showcase-cap { display: flex; align-items: baseline; gap: 10px; }
+            .showcase-cap strong { font-size: 14px; font-weight: 600; color: var(--foreground); }
+            .showcase-cap span { font-size: 12px; color: var(--muted-foreground); }
+            .drawer-stack { display: flex; flex-direction: column; gap: 20px; }
+
+            /* ===== Drawer stage: scrim + floating panel ===== */
+            .drawer-stage { position: relative; height: 620px; background-color: var(--card); border-radius: var(--radius-lg); overflow: hidden; }
+            .drawer-stage::before { content: ""; position: absolute; inset: 0; z-index: 1; background: rgba(12, 12, 16, 0.32); animation: scrim-in .3s ease both; }
+            .showcase.dark .drawer-stage::before { background: rgba(0, 0, 0, 0.6); }
+            @keyframes scrim-in { from { opacity: 0; } to { opacity: 1; } }
+
+            .stage-fake { position: absolute; inset: 0; z-index: 0; padding: 30px 26px; display: flex; flex-direction: column; gap: 12px; }
+            .stage-fake span { display: block; height: 12px; border-radius: 999px; background: var(--background-300); }
+            .stage-fake .s-wide { width: 56%; height: 20px; margin-bottom: 10px; }
+            .stage-fake .s-pill { width: 34%; height: 34px; }
+            .stage-fake .s-row { width: 88%; height: 76px; border-radius: var(--radius-md); }
+            .stage-fake .s-short { width: 62%; }
+            .showcase.dark .stage-fake span { background: var(--background-600); }
+
+            .drawer { position: absolute; top: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; width: min(420px, 100%); background: var(--popover); color: var(--popover-foreground); border: 1px solid var(--border); border-right: 0; border-radius: var(--radius-xl) 0 0 var(--radius-xl); box-shadow: var(--shadow-xl); overflow: hidden; animation: drawer-in .38s cubic-bezier(.32, .72, .35, 1) both; }
+            .drawer-stack .drawer-stage:nth-child(2) .drawer { animation-delay: .05s; }
+            .drawer-stack .drawer-stage:nth-child(3) .drawer { animation-delay: .1s; }
+            .drawer-stack .drawer-stage:nth-child(4) .drawer { animation-delay: .15s; }
+            @keyframes drawer-in { from { transform: translateX(28px); opacity: 0.4; } to { transform: translateX(0); opacity: 1; } }
+
+            /* ===== Drawer header ===== */
+            .drawer-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 18px 20px 14px; border-bottom: 1px solid var(--border); }
+            .drawer-heading { min-width: 0; }
+            .drawer-title { margin: 0; font-size: 16px; line-height: 1.3; font-weight: 700; letter-spacing: -0.01em; color: var(--foreground); }
+            .drawer-meta { margin: 5px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted-foreground); }
+            .drawer-meta.mono { font-family: var(--font-mono); font-size: 11.5px; }
+            .drawer-actions { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 2px; }
+            .drawer-header .btn { height: 36px; padding: 0 16px; font-size: 13px; box-shadow: none; }
+            .drawer-header .btn svg { width: 14px; height: 14px; }
+
+            /* ===== Drawer body ===== */
+            .drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 22px; overscroll-behavior: contain; }
+            .drawer-body::-webkit-scrollbar { width: 6px; }
+            .drawer-body::-webkit-scrollbar-thumb { border-radius: 999px; background: var(--border); }
+            .drawer-body::-webkit-scrollbar-track { background: transparent; }
+
+            /* ===== Form primitives ===== */
+            .form-field { margin-top: 16px; }
+            .form-label { display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--foreground); }
+            .req { color: var(--state-error); font-weight: 700; }
+            .form-hint { margin: 6px 0 0; font-size: 12px; line-height: 1.55; color: var(--muted-foreground); }
+            .form-section { display: flex; align-items: center; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--muted-foreground); }
+            .drawer-body > .form-section:first-child { margin-top: 10px; padding-top: 0; border-top: 0; }
+
+            .field-input, .field-textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--input); border-radius: var(--radius-md); background: var(--background); color: var(--foreground); font: 500 13px/1.5 var(--font-sans); transition: border-color .18s ease, box-shadow .18s ease; }
+            .field-input { height: 40px; padding: 0 12px; }
+            .field-textarea { min-height: 64px; padding: 10px 12px; line-height: 1.6; resize: vertical; }
+            .field-input::placeholder, .field-textarea::placeholder { color: var(--muted-foreground); }
+            .field-input:focus, .field-textarea:focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 1px var(--ring); }
+            .field-input:disabled { opacity: 0.55; cursor: not-allowed; }
+            .code-input { font-family: var(--font-mono); font-size: 12px; }
+
+            /* ===== Password field ===== */
+            .pwd { position: relative; }
+            .pwd .field-input { padding-right: 78px; }
+            .pwd-toggle { position: absolute; top: 4px; right: 4px; display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border: 0; border-radius: 999px; background: transparent; color: var(--primary); font: 600 12px/1 var(--font-sans); cursor: pointer; transition: background-color .18s ease; }
+            .pwd-toggle:hover { background: var(--secondary); }
+            .pwd-toggle:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+            .pwd-toggle svg { width: 14px; height: 14px; }
+
+            /* ===== Segmented control ===== */
+            .seg { display: inline-flex; gap: 2px; padding: 3px; background: var(--secondary); border-radius: 999px; }
+            .seg button { height: 30px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: var(--muted-foreground); font: 500 13px/1 var(--font-sans); cursor: pointer; transition: background-color .18s ease, color .18s ease; }
+            .seg button:hover { color: var(--foreground); }
+            .seg button.active { background: var(--popover); color: var(--foreground); font-weight: 600; box-shadow: var(--shadow-xs); }
+            .seg button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+            /* ===== Rule view ===== */
+            .rule-toolbar { display: flex; align-items: center; padding: 8px 0 2px; }
+            .rule-view[hidden] { display: none; }
+            .json-block { margin: 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); font: 500 12px/1.75 var(--font-mono); color: var(--foreground); overflow-x: auto; white-space: pre; }
+            .j-punc { color: var(--muted-foreground); }
+            .j-key { color: var(--state-info); }
+            .j-str { color: var(--state-success); }
+            .j-bool, .j-num { color: var(--state-warning); }
+
+            /* ===== Question list ===== */
+            .q-item { padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); }
+            .q-item + .q-item { margin-top: 12px; }
+            .q-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+            .q-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 600; line-height: 1.55; color: var(--foreground); }
+            .q-title-text { flex: 1 1 auto; min-width: 0; }
+            .q-id { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--secondary); font: 600 11px/1 var(--font-mono); color: var(--muted-foreground); flex-shrink: 0; }
+            .q-type { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; background: var(--secondary); font: 600 11px/1 var(--font-sans); color: var(--muted-foreground); flex-shrink: 0; }
+            .q-text { margin: 10px 0 0; font-size: 12.5px; line-height: 1.7; color: var(--foreground); white-space: pre-line; }
+            .q-label { margin: 12px 0 0; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; color: var(--muted-foreground); }
+            .q-answer { display: inline-flex; align-items: center; margin-top: 6px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--accent); font: 600 12px/1 var(--font-mono); color: var(--foreground); }
+            .copy-btn { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; height: 26px; padding: 0 10px; margin-top: 2px; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--muted-foreground); font: 500 11px/1 var(--font-sans); cursor: pointer; transition: background-color .18s ease, color .18s ease, border-color .18s ease; }
+            .copy-btn:hover { background: var(--secondary); color: var(--foreground); }
+            .copy-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+            .copy-btn svg { width: 13px; height: 13px; }
+            .copy-btn.copied { color: var(--state-success); border-color: transparent; background: var(--state-success-surface); }
+            .showcase.dark .copy-btn.copied { color: var(--state-success-dark); background: rgba(48, 209, 88, 0.16); }
+
+            /* ===== Block CTA ===== */
+            .btn-block { width: 100%; margin-top: 10px; }
+            .btn-block svg { width: 15px; height: 15px; }
+
+            /* ===== Page footer ===== */
+            .page-footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; }
+            .page-footer p { margin: 0; font-size: 12px; color: var(--muted-foreground); }
+
+            /* ===== Responsive ===== */
+            @media (max-width: 980px) {
+                .page-shell { padding: 40px 20px 32px; }
+                .stage { grid-template-columns: minmax(0, 1fr); }
+                .drawer-stage { height: 560px; }
+            }
+            @media (max-width: 480px) {
+                .showcase { padding: 18px 14px 22px; }
+                .drawer-header { padding: 16px 16px 12px; }
+                .drawer-body { padding: 6px 16px 20px; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .drawer, .drawer-stage::before { animation: none; }
+                .btn, .seg button, .pwd-toggle, .copy-btn, .field-input, .field-textarea, .stage-fake span { transition: none; }
+            }
+        </style>
+
+        <div class="page-shell">
+            <header class="page-intro">
+                <h1 class="page-title">抽屉 Drawer</h1>
+                <p class="intro-copy">右侧滑出面板。设置页右侧滑出的四种典型内容：编辑大模型、配置搜索服务商、编辑解析规则（表单 / JSON）、题库详情。浅色与深色双实例并排对照。</p>
+            </header>
+
+            <section class="stage" aria-label="抽屉 Drawer 浅色与深色实例">
+
+                <!-- ============ 浅色实例 ============ -->
+                <figure class="showcase">
+                    <figcaption class="showcase-cap"><strong>浅色模式</strong><span>默认状态</span></figcaption>
+                    <div class="drawer-stack">
+
+                        <!-- 抽屉 1 · 编辑大模型 -->
+                        <div class="drawer-stage">
+                            <div class="stage-fake" aria-hidden="true">
+                                <span class="s-wide"></span>
+                                <span class="s-pill"></span>
+                                <span class="s-row"></span>
+                                <span class="s-row s-short"></span>
+                                <span class="s-pill"></span>
+                            </div>
+                            <div class="drawer" role="dialog" aria-label="编辑大模型" aria-modal="true">
+                                <header class="drawer-header">
+                                    <div class="drawer-heading">
+                                        <h2 class="drawer-title">编辑大模型</h2>
+                                        <p class="drawer-meta">修改模型配置，保存后立即生效</p>
+                                    </div>
+                                    <div class="drawer-actions">
+                                        <button class="btn btn-primary" type="button"><i data-lucide="check"></i>保存</button>
+                                        <button class="btn btn-secondary" type="button">关闭</button>
+                                    </div>
+                                </header>
+                                <div class="drawer-body">
+                                    <div class="form-field">
+                                        <span class="form-label">模型展示名称 <span class="req">*</span></span>
+                                        <input class="field-input" type="text" value="DeepSeek-V3" placeholder="自动生成：主站名/模型ID">
+                                        <p class="form-hint">用于区分不同模型配置，需全局唯一</p>
+                                    </div>
+                                    <div class="form-section">API 配置</div>
+                                    <div class="form-field">
+                                        <span class="form-label">API 格式</span>
+                                        <div class="seg" role="group" aria-label="API 格式">
+                                            <button type="button" class="active">OpenAI</button>
+                                            <button type="button">Anthropic</button>
+                                        </div>
+                                        <p class="form-hint">根据 API 服务商提供的请求格式设置</p>
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">API 基础 URL <span class="req">*</span></span>
+                                        <input class="field-input code-input" type="text" value="https://api.deepseek.com/v1" placeholder="https://api.deepseek.com/v1">
+                                        <p class="form-hint">例如：https://api.deepseek.com/v1、https://api.openai.com/v1</p>
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">API Key <span class="req">*</span></span>
+                                        <div class="pwd">
+                                            <input class="field-input" type="password" value="sk-••••••••••••••••••••">
+                                            <button class="pwd-toggle" type="button" aria-label="显示 API Key"><i data-lucide="eye"></i><span class="pwd-label">显示</span></button>
+                                        </div>
+                                        <p class="form-hint">您的 API 密钥仅存储在本地浏览器中</p>
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">模型 ID <span class="req">*</span></span>
+                                        <input class="field-input code-input" type="text" value="deepseek-chat" placeholder="deepseek-v4-pro">
+                                        <p class="form-hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</p>
+                                    </div>
+                                    <div class="form-section">测试连接</div>
+                                    <div class="form-field">
+                                        <textarea class="field-textarea" rows="3" placeholder="输入测试文本">请回复 OK</textarea>
+                                        <button class="btn btn-primary btn-block" type="button"><i data-lucide="plug"></i>测试连接</button>
+                                        <p class="form-hint">将以当前配置发起一次真实请求，验证连通性</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 抽屉 2 · 配置搜索服务商 -->
+                        <div class="drawer-stage">
+                            <div class="stage-fake" aria-hidden="true">
+                                <span class="s-wide"></span>
+                                <span class="s-pill"></span>
+                                <span class="s-row"></span>
+                                <span class="s-row s-short"></span>
+                                <span class="s-pill"></span>
+                            </div>
+                            <div class="drawer" role="dialog" aria-label="配置搜索服务商" aria-modal="true">
+                                <header class="drawer-header">
+                                    <div class="drawer-heading">
+                                        <h2 class="drawer-title">配置搜索服务商</h2>
+                                        <p class="drawer-meta">Tavily · 面向 AI 的搜索 API · 需要 API Key</p>
+                                    </div>
+                                    <div class="drawer-actions">
+                                        <button class="btn btn-primary" type="button"><i data-lucide="check"></i>保存</button>
+                                        <button class="btn btn-secondary" type="button">关闭</button>
+                                    </div>
+                                </header>
+                                <div class="drawer-body">
+                                    <div class="form-section">服务商信息</div>
+                                    <div class="form-field">
+                                        <span class="form-label">服务商名称</span>
+                                        <input class="field-input" type="text" value="Tavily" disabled>
+                                    </div>
+                                    <div class="form-section">API 配置</div>
+                                    <div class="form-field">
+                                        <span class="form-label">搜索 API URL <span class="req">*</span></span>
+                                        <input class="field-input code-input" type="text" value="https://api.tavily.com/search" placeholder="搜索 API 的请求地址">
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">API Key <span class="req">*</span></span>
+                                        <div class="pwd">
+                                            <input class="field-input" type="password" placeholder="请输入 API Key">
+                                            <button class="pwd-toggle" type="button" aria-label="显示 API Key"><i data-lucide="eye"></i><span class="pwd-label">显示</span></button>
+                                        </div>
+                                        <p class="form-hint">您的 API 密钥仅存储在本地浏览器中</p>
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">每月可执行次数</span>
+                                        <input class="field-input" type="text" inputmode="numeric" value="500">
+                                        <p class="form-hint">达到上限后使用将不再进行搜索服务。设为 0 表示不限制</p>
+                                    </div>
+                                    <div class="form-section">测试搜索</div>
+                                    <div class="form-field">
+                                        <textarea class="field-textarea" rows="2" placeholder="输入测试搜索词">人工智能最新进展</textarea>
+                                        <button class="btn btn-primary btn-block" type="button"><i data-lucide="search"></i>测试搜索</button>
+                                        <p class="form-hint">将向服务商发起一次真实搜索请求</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 抽屉 3 · 编辑解析规则 -->
+                        <div class="drawer-stage">
+                            <div class="stage-fake" aria-hidden="true">
+                                <span class="s-wide"></span>
+                                <span class="s-pill"></span>
+                                <span class="s-row"></span>
+                                <span class="s-row s-short"></span>
+                                <span class="s-pill"></span>
+                            </div>
+                            <div class="drawer" role="dialog" aria-label="编辑解析规则" aria-modal="true">
+                                <header class="drawer-header">
+                                    <div class="drawer-heading">
+                                        <h2 class="drawer-title">编辑解析规则</h2>
+                                        <p class="drawer-meta mono">exam.example.com</p>
+                                    </div>
+                                    <div class="drawer-actions">
+                                        <button class="btn btn-primary" type="button"><i data-lucide="check"></i>保存</button>
+                                        <button class="btn btn-secondary" type="button">关闭</button>
+                                    </div>
+                                </header>
+                                <div class="drawer-body">
+                                    <div class="rule-toolbar">
+                                        <div class="seg" role="group" aria-label="规则视图">
+                                            <button type="button" class="active" data-group="ruleview" data-target="form">表单</button>
+                                            <button type="button" data-group="ruleview" data-target="json">JSON</button>
+                                        </div>
+                                    </div>
+                                    <div class="rule-view" data-view="ruleview" data-value="form">
+                                        <div class="form-field">
+                                            <span class="form-label">生效域名</span>
+                                            <input class="field-input code-input" type="text" value="exam.example.com" placeholder="example.com">
+                                        </div>
+                                        <div class="form-section">CSS 选择器配置</div>
+                                        <div class="form-field">
+                                            <span class="form-label">根容器选择器（每行一个）</span>
+                                            <textarea class="field-textarea code-input" rows="2">.question-item</textarea>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">题目项选择器</span>
+                                            <input class="field-input code-input" type="text" value=".question-item" placeholder=".question-type-item">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">题干选择器（每行一个）</span>
+                                            <textarea class="field-textarea code-input" rows="2">.q-title</textarea>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">选项容器选择器（每行一个）</span>
+                                            <textarea class="field-textarea code-input" rows="2">.option-list</textarea>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">选项元素选择器</span>
+                                            <input class="field-input code-input" type="text" value="li" placeholder="dd">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">选项编号选择器（可选）</span>
+                                            <input class="field-input code-input" type="text" placeholder=".option-num">
+                                        </div>
+                                        <div class="form-section">题型指示器（class 名关键词，逗号分隔）</div>
+                                        <p class="form-hint">题目元素或其父元素的 class 包含这些关键词时，优先据此判断题型</p>
+                                        <div class="form-field">
+                                            <span class="form-label">单选指示器</span>
+                                            <input class="field-input code-input" type="text" placeholder="singleContainer, singleChoice">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">多选指示器</span>
+                                            <input class="field-input code-input" type="text" placeholder="multipleContainer, multipleChoice">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">判断指示器</span>
+                                            <input class="field-input code-input" type="text" placeholder="judgeContainer, true-false">
+                                        </div>
+                                        <div class="form-section">文本降级选择器</div>
+                                        <div class="form-field">
+                                            <span class="form-label">降级文本选择器（每行一个）</span>
+                                            <textarea class="field-textarea code-input" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-section">题型检测关键词</div>
+                                        <div class="form-field">
+                                            <span class="form-label">多选题关键词（逗号分隔）</span>
+                                            <input class="field-input" type="text" placeholder="多选, 以下哪些, 至少选">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">判断题关键词（逗号分隔）</span>
+                                            <input class="field-input" type="text" placeholder="正确, 错误, 对, 错">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">填空题关键词（逗号分隔）</span>
+                                            <input class="field-input" type="text" placeholder="___, 【, 填空">
+                                        </div>
+                                    </div>
+                                    <div class="rule-view" data-view="ruleview" data-value="json" hidden>
+                                        <div class="form-field">
+                                            <span class="form-label">规则 JSON</span>
+                                            <pre class="json-block"><code><span class="j-punc">{</span>
+  <span class="j-key">"domain"</span><span class="j-punc">:</span> <span class="j-str">"exam.example.com"</span><span class="j-punc">,</span>
+  <span class="j-key">"selectors"</span><span class="j-punc">:</span> <span class="j-punc">{</span>
+    <span class="j-key">"rootSelectors"</span><span class="j-punc">:</span> <span class="j-punc">[</span><span class="j-str">".question-item"</span><span class="j-punc">]</span><span class="j-punc">,</span>
+    <span class="j-key">"questionTextSelectors"</span><span class="j-punc">:</span> <span class="j-punc">[</span><span class="j-str">".q-title"</span><span class="j-punc">]</span><span class="j-punc">,</span>
+    <span class="j-key">"optionContainerSelectors"</span><span class="j-punc">:</span> <span class="j-punc">[</span><span class="j-str">".option-list"</span><span class="j-punc">]</span><span class="j-punc">,</span>
+    <span class="j-key">"optionItemSelector"</span><span class="j-punc">:</span> <span class="j-str">"li"</span>
+  <span class="j-punc">}</span><span class="j-punc">,</span>
+  <span class="j-key">"enabled"</span><span class="j-punc">:</span> <span class="j-bool">true</span>
+<span class="j-punc">}</span></code></pre>
+                                            <p class="form-hint">可直接编辑 JSON；切回表单或保存时会校验格式。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 抽屉 4 · 题库详情 -->
+                        <div class="drawer-stage">
+                            <div class="stage-fake" aria-hidden="true">
+                                <span class="s-wide"></span>
+                                <span class="s-pill"></span>
+                                <span class="s-row"></span>
+                                <span class="s-row s-short"></span>
+                                <span class="s-pill"></span>
+                            </div>
+                            <div class="drawer" role="dialog" aria-label="题库详情" aria-modal="true">
+                                <header class="drawer-header">
+                                    <div class="drawer-heading">
+                                        <h2 class="drawer-title">计算机网络期末题库.xlsx</h2>
+                                        <p class="drawer-meta">2026-07-10 导入 · 共 820 题</p>
+                                    </div>
+                                    <div class="drawer-actions">
+                                        <button class="btn btn-secondary" type="button">关闭</button>
+                                    </div>
+                                </header>
+                                <div class="drawer-body">
+                                    <div class="q-item">
+                                        <div class="q-title-row">
+                                            <div class="q-title"><span class="q-id">1</span><span class="q-type">单选</span><span class="q-title-text">以下关于 TCP 三次握手的说法，正确的是？</span></div>
+                                            <button class="copy-btn" type="button" data-copy="1. 以下关于 TCP 三次握手的说法，正确的是？
+A. 第一次握手客户端发送 ACK 包
+B. 第二次握手服务端发送 SYN+ACK 包
+C. 三次握手用于释放连接
+D. 第三次握手必须携带数据
+
+答案：B"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>
+                                        </div>
+                                        <p class="q-label">题目</p>
+                                        <p class="q-text">A. 第一次握手客户端发送 ACK 包
+B. 第二次握手服务端发送 SYN+ACK 包
+C. 三次握手用于释放连接
+D. 第三次握手必须携带数据</p>
+                                        <p class="q-label">答案</p>
+                                        <span class="q-answer">B</span>
+                                    </div>
+                                    <div class="q-item">
+                                        <div class="q-title-row">
+                                            <div class="q-title"><span class="q-id">2</span><span class="q-type">判断</span><span class="q-title-text">IPv6 地址长度为 128 位。</span></div>
+                                            <button class="copy-btn" type="button" data-copy="2. IPv6 地址长度为 128 位。
+
+答案：正确"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>
+                                        </div>
+                                        <p class="q-label">答案</p>
+                                        <span class="q-answer">正确</span>
+                                    </div>
+                                    <div class="q-item">
+                                        <div class="q-title-row">
+                                            <div class="q-title"><span class="q-id">3</span><span class="q-type">填空</span><span class="q-title-text">HTTP 协议默认端口号是 ____。</span></div>
+                                            <button class="copy-btn" type="button" data-copy="3. HTTP 协议默认端口号是 ____。
+
+答案：80"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>
+                                        </div>
+                                        <p class="q-label">答案</p>
+                                        <span class="q-answer">80</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </figure>
+
+                <!-- ============ 深色实例 ============ -->
+                <figure class="showcase dark">
+                    <figcaption class="showcase-cap"><strong>深色模式</strong><span>默认状态</span></figcaption>
+                    <div class="drawer-stack">
+
+                        <!-- 抽屉 1 · 编辑大模型 -->
+                        <div class="drawer-stage">
+                            <div class="stage-fake" aria-hidden="true">
+                                <span class="s-wide"></span>
+                                <span class="s-pill"></span>
+                                <span class="s-row"></span>
+                                <span class="s-row s-short"></span>
+                                <span class="s-pill"></span>
+                            </div>
+                            <div class="drawer" role="dialog" aria-label="编辑大模型" aria-modal="true">
+                                <header class="drawer-header">
+                                    <div class="drawer-heading">
+                                        <h2 class="drawer-title">编辑大模型</h2>
+                                        <p class="drawer-meta">修改模型配置，保存后立即生效</p>
+                                    </div>
+                                    <div class="drawer-actions">
+                                        <button class="btn btn-primary" type="button"><i data-lucide="check"></i>保存</button>
+                                        <button class="btn btn-secondary" type="button">关闭</button>
+                                    </div>
+                                </header>
+                                <div class="drawer-body">
+                                    <div class="form-field">
+                                        <span class="form-label">模型展示名称 <span class="req">*</span></span>
+                                        <input class="field-input" type="text" value="DeepSeek-V3" placeholder="自动生成：主站名/模型ID">
+                                        <p class="form-hint">用于区分不同模型配置，需全局唯一</p>
+                                    </div>
+                                    <div class="form-section">API 配置</div>
+                                    <div class="form-field">
+                                        <span class="form-label">API 格式</span>
+                                        <div class="seg" role="group" aria-label="API 格式">
+                                            <button type="button" class="active">OpenAI</button>
+                                            <button type="button">Anthropic</button>
+                                        </div>
+                                        <p class="form-hint">根据 API 服务商提供的请求格式设置</p>
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">API 基础 URL <span class="req">*</span></span>
+                                        <input class="field-input code-input" type="text" value="https://api.deepseek.com/v1" placeholder="https://api.deepseek.com/v1">
+                                        <p class="form-hint">例如：https://api.deepseek.com/v1、https://api.openai.com/v1</p>
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">API Key <span class="req">*</span></span>
+                                        <div class="pwd">
+                                            <input class="field-input" type="password" value="sk-••••••••••••••••••••">
+                                            <button class="pwd-toggle" type="button" aria-label="显示 API Key"><i data-lucide="eye"></i><span class="pwd-label">显示</span></button>
+                                        </div>
+                                        <p class="form-hint">您的 API 密钥仅存储在本地浏览器中</p>
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">模型 ID <span class="req">*</span></span>
+                                        <input class="field-input code-input" type="text" value="deepseek-chat" placeholder="deepseek-v4-pro">
+                                        <p class="form-hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</p>
+                                    </div>
+                                    <div class="form-section">测试连接</div>
+                                    <div class="form-field">
+                                        <textarea class="field-textarea" rows="3" placeholder="输入测试文本">请回复 OK</textarea>
+                                        <button class="btn btn-primary btn-block" type="button"><i data-lucide="plug"></i>测试连接</button>
+                                        <p class="form-hint">将以当前配置发起一次真实请求，验证连通性</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 抽屉 2 · 配置搜索服务商 -->
+                        <div class="drawer-stage">
+                            <div class="stage-fake" aria-hidden="true">
+                                <span class="s-wide"></span>
+                                <span class="s-pill"></span>
+                                <span class="s-row"></span>
+                                <span class="s-row s-short"></span>
+                                <span class="s-pill"></span>
+                            </div>
+                            <div class="drawer" role="dialog" aria-label="配置搜索服务商" aria-modal="true">
+                                <header class="drawer-header">
+                                    <div class="drawer-heading">
+                                        <h2 class="drawer-title">配置搜索服务商</h2>
+                                        <p class="drawer-meta">Tavily · 面向 AI 的搜索 API · 需要 API Key</p>
+                                    </div>
+                                    <div class="drawer-actions">
+                                        <button class="btn btn-primary" type="button"><i data-lucide="check"></i>保存</button>
+                                        <button class="btn btn-secondary" type="button">关闭</button>
+                                    </div>
+                                </header>
+                                <div class="drawer-body">
+                                    <div class="form-section">服务商信息</div>
+                                    <div class="form-field">
+                                        <span class="form-label">服务商名称</span>
+                                        <input class="field-input" type="text" value="Tavily" disabled>
+                                    </div>
+                                    <div class="form-section">API 配置</div>
+                                    <div class="form-field">
+                                        <span class="form-label">搜索 API URL <span class="req">*</span></span>
+                                        <input class="field-input code-input" type="text" value="https://api.tavily.com/search" placeholder="搜索 API 的请求地址">
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">API Key <span class="req">*</span></span>
+                                        <div class="pwd">
+                                            <input class="field-input" type="password" placeholder="请输入 API Key">
+                                            <button class="pwd-toggle" type="button" aria-label="显示 API Key"><i data-lucide="eye"></i><span class="pwd-label">显示</span></button>
+                                        </div>
+                                        <p class="form-hint">您的 API 密钥仅存储在本地浏览器中</p>
+                                    </div>
+                                    <div class="form-field">
+                                        <span class="form-label">每月可执行次数</span>
+                                        <input class="field-input" type="text" inputmode="numeric" value="500">
+                                        <p class="form-hint">达到上限后使用将不再进行搜索服务。设为 0 表示不限制</p>
+                                    </div>
+                                    <div class="form-section">测试搜索</div>
+                                    <div class="form-field">
+                                        <textarea class="field-textarea" rows="2" placeholder="输入测试搜索词">人工智能最新进展</textarea>
+                                        <button class="btn btn-primary btn-block" type="button"><i data-lucide="search"></i>测试搜索</button>
+                                        <p class="form-hint">将向服务商发起一次真实搜索请求</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 抽屉 3 · 编辑解析规则 -->
+                        <div class="drawer-stage">
+                            <div class="stage-fake" aria-hidden="true">
+                                <span class="s-wide"></span>
+                                <span class="s-pill"></span>
+                                <span class="s-row"></span>
+                                <span class="s-row s-short"></span>
+                                <span class="s-pill"></span>
+                            </div>
+                            <div class="drawer" role="dialog" aria-label="编辑解析规则" aria-modal="true">
+                                <header class="drawer-header">
+                                    <div class="drawer-heading">
+                                        <h2 class="drawer-title">编辑解析规则</h2>
+                                        <p class="drawer-meta mono">exam.example.com</p>
+                                    </div>
+                                    <div class="drawer-actions">
+                                        <button class="btn btn-primary" type="button"><i data-lucide="check"></i>保存</button>
+                                        <button class="btn btn-secondary" type="button">关闭</button>
+                                    </div>
+                                </header>
+                                <div class="drawer-body">
+                                    <div class="rule-toolbar">
+                                        <div class="seg" role="group" aria-label="规则视图">
+                                            <button type="button" class="active" data-group="ruleview" data-target="form">表单</button>
+                                            <button type="button" data-group="ruleview" data-target="json">JSON</button>
+                                        </div>
+                                    </div>
+                                    <div class="rule-view" data-view="ruleview" data-value="form">
+                                        <div class="form-field">
+                                            <span class="form-label">生效域名</span>
+                                            <input class="field-input code-input" type="text" value="exam.example.com" placeholder="example.com">
+                                        </div>
+                                        <div class="form-section">CSS 选择器配置</div>
+                                        <div class="form-field">
+                                            <span class="form-label">根容器选择器（每行一个）</span>
+                                            <textarea class="field-textarea code-input" rows="2">.question-item</textarea>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">题目项选择器</span>
+                                            <input class="field-input code-input" type="text" value=".question-item" placeholder=".question-type-item">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">题干选择器（每行一个）</span>
+                                            <textarea class="field-textarea code-input" rows="2">.q-title</textarea>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">选项容器选择器（每行一个）</span>
+                                            <textarea class="field-textarea code-input" rows="2">.option-list</textarea>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">选项元素选择器</span>
+                                            <input class="field-input code-input" type="text" value="li" placeholder="dd">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">选项编号选择器（可选）</span>
+                                            <input class="field-input code-input" type="text" placeholder=".option-num">
+                                        </div>
+                                        <div class="form-section">题型指示器（class 名关键词，逗号分隔）</div>
+                                        <p class="form-hint">题目元素或其父元素的 class 包含这些关键词时，优先据此判断题型</p>
+                                        <div class="form-field">
+                                            <span class="form-label">单选指示器</span>
+                                            <input class="field-input code-input" type="text" placeholder="singleContainer, singleChoice">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">多选指示器</span>
+                                            <input class="field-input code-input" type="text" placeholder="multipleContainer, multipleChoice">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">判断指示器</span>
+                                            <input class="field-input code-input" type="text" placeholder="judgeContainer, true-false">
+                                        </div>
+                                        <div class="form-section">文本降级选择器</div>
+                                        <div class="form-field">
+                                            <span class="form-label">降级文本选择器（每行一个）</span>
+                                            <textarea class="field-textarea code-input" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-section">题型检测关键词</div>
+                                        <div class="form-field">
+                                            <span class="form-label">多选题关键词（逗号分隔）</span>
+                                            <input class="field-input" type="text" placeholder="多选, 以下哪些, 至少选">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">判断题关键词（逗号分隔）</span>
+                                            <input class="field-input" type="text" placeholder="正确, 错误, 对, 错">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">填空题关键词（逗号分隔）</span>
+                                            <input class="field-input" type="text" placeholder="___, 【, 填空">
+                                        </div>
+                                    </div>
+                                    <div class="rule-view" data-view="ruleview" data-value="json" hidden>
+                                        <div class="form-field">
+                                            <span class="form-label">规则 JSON</span>
+                                            <pre class="json-block"><code><span class="j-punc">{</span>
+  <span class="j-key">"domain"</span><span class="j-punc">:</span> <span class="j-str">"exam.example.com"</span><span class="j-punc">,</span>
+  <span class="j-key">"selectors"</span><span class="j-punc">:</span> <span class="j-punc">{</span>
+    <span class="j-key">"rootSelectors"</span><span class="j-punc">:</span> <span class="j-punc">[</span><span class="j-str">".question-item"</span><span class="j-punc">]</span><span class="j-punc">,</span>
+    <span class="j-key">"questionTextSelectors"</span><span class="j-punc">:</span> <span class="j-punc">[</span><span class="j-str">".q-title"</span><span class="j-punc">]</span><span class="j-punc">,</span>
+    <span class="j-key">"optionContainerSelectors"</span><span class="j-punc">:</span> <span class="j-punc">[</span><span class="j-str">".option-list"</span><span class="j-punc">]</span><span class="j-punc">,</span>
+    <span class="j-key">"optionItemSelector"</span><span class="j-punc">:</span> <span class="j-str">"li"</span>
+  <span class="j-punc">}</span><span class="j-punc">,</span>
+  <span class="j-key">"enabled"</span><span class="j-punc">:</span> <span class="j-bool">true</span>
+<span class="j-punc">}</span></code></pre>
+                                            <p class="form-hint">可直接编辑 JSON；切回表单或保存时会校验格式。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 抽屉 4 · 题库详情 -->
+                        <div class="drawer-stage">
+                            <div class="stage-fake" aria-hidden="true">
+                                <span class="s-wide"></span>
+                                <span class="s-pill"></span>
+                                <span class="s-row"></span>
+                                <span class="s-row s-short"></span>
+                                <span class="s-pill"></span>
+                            </div>
+                            <div class="drawer" role="dialog" aria-label="题库详情" aria-modal="true">
+                                <header class="drawer-header">
+                                    <div class="drawer-heading">
+                                        <h2 class="drawer-title">计算机网络期末题库.xlsx</h2>
+                                        <p class="drawer-meta">2026-07-10 导入 · 共 820 题</p>
+                                    </div>
+                                    <div class="drawer-actions">
+                                        <button class="btn btn-secondary" type="button">关闭</button>
+                                    </div>
+                                </header>
+                                <div class="drawer-body">
+                                    <div class="q-item">
+                                        <div class="q-title-row">
+                                            <div class="q-title"><span class="q-id">1</span><span class="q-type">单选</span><span class="q-title-text">以下关于 TCP 三次握手的说法，正确的是？</span></div>
+                                            <button class="copy-btn" type="button" data-copy="1. 以下关于 TCP 三次握手的说法，正确的是？
+A. 第一次握手客户端发送 ACK 包
+B. 第二次握手服务端发送 SYN+ACK 包
+C. 三次握手用于释放连接
+D. 第三次握手必须携带数据
+
+答案：B"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>
+                                        </div>
+                                        <p class="q-label">题目</p>
+                                        <p class="q-text">A. 第一次握手客户端发送 ACK 包
+B. 第二次握手服务端发送 SYN+ACK 包
+C. 三次握手用于释放连接
+D. 第三次握手必须携带数据</p>
+                                        <p class="q-label">答案</p>
+                                        <span class="q-answer">B</span>
+                                    </div>
+                                    <div class="q-item">
+                                        <div class="q-title-row">
+                                            <div class="q-title"><span class="q-id">2</span><span class="q-type">判断</span><span class="q-title-text">IPv6 地址长度为 128 位。</span></div>
+                                            <button class="copy-btn" type="button" data-copy="2. IPv6 地址长度为 128 位。
+
+答案：正确"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>
+                                        </div>
+                                        <p class="q-label">答案</p>
+                                        <span class="q-answer">正确</span>
+                                    </div>
+                                    <div class="q-item">
+                                        <div class="q-title-row">
+                                            <div class="q-title"><span class="q-id">3</span><span class="q-type">填空</span><span class="q-title-text">HTTP 协议默认端口号是 ____。</span></div>
+                                            <button class="copy-btn" type="button" data-copy="3. HTTP 协议默认端口号是 ____。
+
+答案：80"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>
+                                        </div>
+                                        <p class="q-label">答案</p>
+                                        <span class="q-answer">80</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </figure>
+
+            </section>
+
+            <footer class="page-footer">
+                <p>题目助手 · 浏览器扩展 UI 原型 · Pinguo Apple 设计系统 · 浅色 / 深色双主题</p>
+            </footer>
+        </div>
+
+        <script>
+            (function () {
+                // 分段控件：active 态与表单/JSON 视图切换
+                document.querySelectorAll('.seg').forEach(function (seg) {
+                    seg.addEventListener('click', function (event) {
+                        var btn = event.target.closest('button');
+                        if (!btn || !seg.contains(btn)) return;
+                        seg.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+                        btn.classList.add('active');
+                        if (btn.dataset.group) {
+                            document.querySelectorAll('[data-view="' + btn.dataset.group + '"]').forEach(function (panel) {
+                                panel.hidden = panel.dataset.value !== btn.dataset.target;
+                            });
+                        }
+                    });
+                });
+                // 密码显示/隐藏
+                document.querySelectorAll('.pwd-toggle').forEach(function (toggle) {
+                    toggle.addEventListener('click', function () {
+                        var input = toggle.parentElement.querySelector('input');
+                        var reveal = input.type === 'password';
+                        input.type = reveal ? 'text' : 'password';
+                        var label = toggle.querySelector('.pwd-label');
+                        if (label) label.textContent = reveal ? '隐藏' : '显示';
+                        var icon = toggle.querySelector('[data-lucide]');
+                        if (icon) icon.setAttribute('data-lucide', reveal ? 'eye-off' : 'eye');
+                        lucide.createIcons();
+                    });
+                });
+                // 复制题目反馈
+                document.querySelectorAll('.copy-btn').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var text = btn.getAttribute('data-copy') || '';
+                        var feedback = function () {
+                            btn.classList.add('copied');
+                            var label = btn.querySelector('.copy-label');
+                            if (label) label.textContent = '已复制';
+                            var icon = btn.querySelector('[data-lucide]');
+                            if (icon) icon.setAttribute('data-lucide', 'check');
+                            lucide.createIcons();
+                            setTimeout(function () {
+                                btn.classList.remove('copied');
+                                var label2 = btn.querySelector('.copy-label');
+                                if (label2) label2.textContent = '复制题目';
+                                var icon2 = btn.querySelector('[data-lucide]');
+                                if (icon2) icon2.setAttribute('data-lucide', 'copy');
+                                lucide.createIcons();
+                            }, 1600);
+                        };
+                        try {
+                            if (navigator.clipboard && navigator.clipboard.writeText) {
+                                navigator.clipboard.writeText(text).then(feedback, feedback);
+                            } else {
+                                feedback();
+                            }
+                        } catch (err) {
+                            feedback();
+                        }
+                    });
+                });
+            })();
+        </script>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

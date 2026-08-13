@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup 弹窗</title>
+    <style id="theme-vars">
+/*
+ * Quiz Helper UI Redesign — Design Tokens
+ * Brand: 题目助手 (Quiz Helper)
+ * Theme mode: light-dark
+ * Source language: zh
+ *
+ * Color architecture:
+ *   1. Primitive palette — brand (indigo, from src/shared/variables.css),
+ *      background / text / icon neutral scales, state-success / state-error /
+ *      state-warning / state-info anchored on the original plugin palette.
+ *   2. Semantic tokens — :root (light) and .dark map roles onto primitives.
+ *      Components must only consume the semantic tokens below.
+ */
+
+:root {
+  /* ===== PRIMITIVE PALETTE ===== */
+
+  /* brand — indigo, matching original variables.css primary #4f46e5 */
+  --brand-50: #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-300: #a5b4fc;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+
+  /* background */
+  --background-50: #ffffff;
+  --background-100: #fafafa;
+  --background-200: #f4f4f5;
+  --background-300: #e8e8ec;
+  --background-400: #e4e4e7;
+  --background-500: #d4d4d8;
+  --background-600: #a1a1aa;
+  --background-700: #3f3f46;
+  --background-800: #27272a;
+  --background-900: #18181b;
+
+  /* text */
+  --text-50: #f4f4f5;
+  --text-100: #e4e4e7;
+  --text-200: #d4d4d8;
+  --text-300: #a1a1aa;
+  --text-400: #8b8e98;
+  --text-500: #71717a;
+  --text-600: #3f3f46;
+  --text-700: #3a3a40;
+  --text-800: #18181b;
+  --text-900: #101012;
+
+  /* icon */
+  --icon-50: #f4f4f5;
+  --icon-100: #e4e4e7;
+  --icon-200: #d4d4d8;
+  --icon-300: #a1a1aa;
+  --icon-400: #8b8e98;
+  --icon-500: #71717a;
+  --icon-600: #3f3f46;
+  --icon-700: #3a3a40;
+  --icon-800: #27272a;
+  --icon-900: #18181b;
+
+  /* state-success — original variables.css green */
+  --state-success: #16a34a;
+  --state-success-dark: #4ade80;
+  --state-success-surface: #f0fdf4;
+  --state-success-foreground: #ffffff;
+
+  /* state-error — original variables.css red */
+  --state-error: #dc2626;
+  --state-error-dark: #f87171;
+  --state-error-surface: #fef2f2;
+  --state-error-foreground: #ffffff;
+
+  /* state-warning — original variables.css amber */
+  --state-warning: #d97706;
+  --state-warning-dark: #fbbf24;
+  --state-warning-surface: #fffbeb;
+  --state-warning-foreground: #ffffff;
+
+  /* state-info — original variables.css sky */
+  --state-info: #0284c7;
+  --state-info-dark: #38bdf8;
+  --state-info-surface: #f0f9ff;
+  --state-info-foreground: #ffffff;
+
+  /* ===== SEMANTIC ROLES ===== */
+
+  --background: var(--background-50);
+  --foreground: var(--text-800);
+  --card: var(--background-50);
+  --card-foreground: var(--text-800);
+  --popover: var(--background-50);
+  --popover-foreground: var(--text-900);
+
+  --primary: var(--brand-600);
+  --primary-foreground: var(--background-50);
+  --secondary: var(--background-200);
+  --secondary-foreground: var(--text-800);
+  --muted: var(--background-100);
+  --muted-foreground: var(--text-500);
+  --accent: var(--background-100);
+  --accent-foreground: var(--text-800);
+  --destructive: var(--state-error);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success);
+  --success-foreground: var(--state-success-foreground);
+  --border: #e8e8ec;
+  --input: #e4e4e7;
+  --ring: var(--brand-500);
+
+  --icon: var(--icon-900);
+  --icon-muted: var(--icon-500);
+
+  /* sidebar */
+  --sidebar: var(--background-200);
+  --sidebar-foreground: var(--text-800);
+  --sidebar-primary: var(--brand-600);
+  --sidebar-primary-foreground: var(--background-50);
+  --sidebar-accent: var(--background-300);
+  --sidebar-accent-foreground: var(--text-800);
+  --sidebar-border: var(--background-300);
+  --sidebar-ring: var(--brand-500);
+
+  /* TYPOGRAPHY */
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif, system-ui;
+  --font-serif: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif, system-ui;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --tracking-normal: 0em;
+
+  /* RADIUS */
+  --radius: 1.2rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.2rem;
+  --radius-xl: 1.5rem;
+
+  /* SHADOWS */
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.05);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.10), 0 8px 16px -8px rgba(0, 0, 0, 0.06);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.12);
+
+  /* SPACING */
+  --spacing: 0.24rem;
+}
+
+/* ===== SEMANTIC ROLES - dark (original variables.css body.dark palette) ===== */
+.dark {
+  --background: #131419;
+  --foreground: var(--text-50);
+  --card: #1a1c22;
+  --card-foreground: #f4f4f5;
+  --popover: #22242c;
+  --popover-foreground: var(--text-50);
+
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: #2a2d36;
+  --secondary-foreground: #d4d4d8;
+  --muted: #1a1c22;
+  --muted-foreground: var(--text-400);
+  --accent: #22242c;
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success-dark);
+  --success-foreground: var(--state-success-foreground);
+  --border: #2a2d36;
+  --input: #34373f;
+  --ring: var(--brand-400);
+
+  --icon: var(--icon-50);
+  --icon-muted: var(--icon-400);
+
+  --sidebar: #1a1c22;
+  --sidebar-foreground: var(--text-50);
+  --sidebar-primary: var(--brand-400);
+  --sidebar-primary-foreground: var(--background-900);
+  --sidebar-accent: #2a2d36;
+  --sidebar-accent-foreground: var(--text-50);
+  --sidebar-border: #2a2d36;
+  --sidebar-ring: var(--brand-400);
+
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 8px 16px -8px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.60);
+}
+
+/* ============================================================
+ * Prototype showcase dark instance container
+ * Applied to .showcase.dark wrappers so the light/dark
+ * side-by-side comparison on prototype pages renders with the
+ * real dark semantic tokens instead of inheriting light values.
+ * ============================================================ */
+.showcase.dark,
+.proto-dark {
+  --background: #131419;
+  --foreground: var(--text-50);
+  --card: #1a1c22;
+  --card-foreground: #f4f4f5;
+  --popover: #22242c;
+  --popover-foreground: var(--text-50);
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: #2a2d36;
+  --secondary-foreground: #d4d4d8;
+  --muted: #1a1c22;
+  --muted-foreground: var(--text-400);
+  --accent: #22242c;
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success-dark);
+  --success-foreground: var(--state-success-foreground);
+  --border: #2a2d36;
+  --input: #34373f;
+  --ring: var(--brand-400);
+  --icon: var(--icon-50);
+  --icon-muted: var(--icon-400);
+  --sidebar: #1a1c22;
+  --sidebar-foreground: var(--text-50);
+  --sidebar-accent: #2a2d36;
+  --sidebar-accent-foreground: var(--text-50);
+  --sidebar-border: #2a2d36;
+  --sidebar-ring: var(--brand-400);
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 8px 16px -8px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.60);
+}
+
+    </style>
+    <style id="component-vars">
+/*
+ * components.css - aggregated component CSS
+ * Auto-extracted from preview/component-*.html files.
+ * DO NOT EDIT. Regenerate with extract-components-css.mjs.
+ *
+ * Foundation tokens live in colors_and_type.css.
+ * This file consumes those tokens via var(--*) references.
+ */
+
+/* ============================================================
+ * Button
+ * source: preview/component-button.html
+ * rules: 10
+ */
+/* @anatomy
+   <div class="row"><span class="label">Primary 56</span><button class="btn btn-primary btn-lg">Buy now</button><button class="btn btn-primary btn-lg" disabled>Buy now</button></div>
+*/
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--spacing)*1.5);height:40px;padding:0 20px;border:none;border-radius:calc(var(--radius)*2);background:transparent;color:var(--foreground);font:600 14px/1 var(--font-sans);letter-spacing:var(--tracking-normal);white-space:nowrap;box-shadow:var(--shadow-sm);cursor:pointer;transition:background-color .18s ease,color .18s ease,opacity .18s ease,filter .18s ease}
+.btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-primary:hover{filter:brightness(.96)}
+.btn-secondary{height:48px;padding:0 24px;background:var(--secondary);color:var(--secondary-foreground)}
+.btn-secondary:hover{background:var(--muted)}
+.btn-text{height:48px;padding:0 4px;box-shadow:none}
+.btn-text:hover{color:var(--primary)}
+.btn-lg{height:56px;padding:0 28px;font-size:16px}
+
+/* ============================================================
+ * Card
+ * source: preview/component-card.html
+ * rules: 12
+ */
+/* @anatomy
+   <div class="row">
+   <span class="label">Info</span>
+   <article class="card">
+   <div><div class="eyebrow">Pinguo Apple</div>
+*/
+.card{width:188px;min-height:148px;padding:calc(var(--spacing)*5);display:flex;flex-direction:column;justify-content:space-between;background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);transition:transform .18s ease,box-shadow .18s ease}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.card.disabled,.card.disabled:hover{opacity:.5;transform:none;box-shadow:var(--shadow-md)}
+.eyebrow,.meta{color:var(--muted-foreground);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.title{margin:6px 0 8px;font-size:18px;line-height:1.15}
+.body-copy{margin:0;color:var(--muted-foreground);font-size:13px}
+.cta{display:inline-flex;align-items:center;justify-content:center;width:max-content;margin-top:12px;padding:calc(var(--spacing)*2) calc(var(--spacing)*3.5);border-radius:999px;background:var(--primary);color:var(--primary-foreground);font-size:12px;font-weight:700;text-decoration:none}
+.media{aspect-ratio:4/3;border-radius:calc(var(--radius) - 4px);background:linear-gradient(135deg,var(--secondary),var(--accent));border:1px solid var(--border)}
+.media-card{min-height:212px;padding:calc(var(--spacing)*4)}
+.media-card .title{font-size:16px;margin:10px 0 6px}
+.price{font-size:12px;color:var(--muted-foreground)}
+.dark{background:var(--card);color:var(--card-foreground)}
+
+/* ============================================================
+ * Comparison Table
+ * source: preview/component-comparison-table.html
+ * rules: 13
+ */
+/* @anatomy
+   <div class="row"><span class="label">Default</span><div class="t"><div class="c m">Compare models</div>
+*/
+.t{display:grid;grid-template-columns:96px repeat(3,1fr);overflow:hidden;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--card-foreground);box-shadow:var(--shadow-sm)}
+.q{grid-template-columns:82px repeat(4,1fr)}
+.c{padding:10px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.t>.c:nth-child(4n),.q>.c:nth-child(5n){border-right:0}
+.t>.c:nth-last-child(-n+4),.q>.c:nth-last-child(-n+5){border-bottom:0}
+.m{background:var(--background);color:var(--muted-foreground);font:700 10px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase}
+.h{background:var(--background);font-weight:700}
+.k{display:block;font-size:14px;line-height:1.1}
+.s{display:block;margin-top:4px;color:var(--chart-2);font-size:11px;font-weight:700}
+.b .k{color:var(--chart-2)}
+.v{font-weight:600}
+.n{color:var(--muted-foreground);font-size:12px}
+.x{opacity:.45}
+
+/* ============================================================
+ * Input
+ * source: preview/component-input.html
+ * rules: 10
+ */
+/* @anatomy
+   <div class="row">
+   <span class="label">Search 44</span>
+   <div class="field">
+   <span class="icon">⌕</span>
+   <input class="control" aria-label="Search products" placeholder="Search products">
+   <button class="clear" type="button" aria-label="Clear search">×</button>
+   </div>
+*/
+.surface{display:flex;gap:calc(var(--spacing)*2);padding:calc(var(--spacing)*3);border:1px solid var(--border);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow-sm)}
+.dark{background:var(--background);color:var(--foreground)}
+.field{display:flex;align-items:center;gap:calc(var(--spacing)*2);min-width:240px;height:44px;padding:0 calc(var(--spacing)*3);border:1px solid var(--input);border-radius:var(--radius);background:var(--background);color:var(--foreground);box-shadow:var(--shadow-xs)}
+.field.small{height:40px}
+.field:focus-within{border-color:var(--ring);box-shadow:0 0 0 1px var(--ring)}
+.field.disabled{opacity:.55}
+.icon,.clear{padding:0;border:0;background:transparent;color:var(--icon-muted);font:inherit}
+.icon{font-size:13px}
+.control{flex:1;border:0;outline:0;background:transparent;color:inherit;font:inherit}
+.control::placeholder{color:var(--muted-foreground)}
+
+/* ============================================================
+ * Navigation
+ * source: preview/component-navigation.html
+ * rules: 16
+ */
+/* @anatomy
+   <div class="row"><span class="label">Global 44</span><nav class="webbar dark" aria-label="Pinguo Apple global navigation"><span class="brand">Pinguo Apple</span><div class="rail"><a class="link" href="#">Store</a><a class="link" href="#">Explore</a><a class="link" href="#">Community</a><a class="link" href="#">Support</a></div>
+*/
+.webbar,.mobile{border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.webbar{display:flex;align-items:center;gap:calc(var(--spacing)*2);min-width:320px;height:44px;padding:0 calc(var(--spacing)*3);border-radius:var(--radius);background:var(--sidebar)}
+.brand{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.link,.tab{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;color:inherit;text-decoration:none;white-space:nowrap;transition:background-color .18s ease,color .18s ease,opacity .18s ease}
+.link{height:32px;padding:0 calc(var(--spacing)*2.5)}
+.link:hover,.tab:hover{background:var(--secondary)}
+.link:focus-visible,.tab:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.dark{background:var(--sidebar);color:var(--foreground)}
+.disabled{opacity:.48}
+.disabled .link,.disabled .tab{pointer-events:none}
+.mobile{padding:calc(var(--spacing)*2);border-radius:calc(var(--radius)*1.1);background:var(--card)}
+.screen{display:flex;align-items:flex-end;justify-content:center;width:188px;height:164px;padding:calc(var(--spacing)*3);border-radius:calc(var(--radius)*.9);background:linear-gradient(180deg,var(--background),var(--secondary))}
+.tabbar{display:flex;gap:calc(var(--spacing)*1.5);padding:calc(var(--spacing)*1.5);border:1px solid var(--border);border-radius:999px;background:var(--card);box-shadow:var(--shadow-md)}
+.tab{flex-direction:column;gap:2px;min-width:56px;height:56px;padding:0 calc(var(--spacing)*1.5);font-size:11px;text-align:center}
+.dot{width:18px;height:18px;border-radius:999px;background:var(--secondary);box-shadow:inset 0 0 0 1px var(--border)}
+.tab:hover .dot{background:var(--primary)}
+
+/* ============================================================
+ * Product Grid
+ * source: preview/component-product-grid.html
+ * rules: 12
+ */
+/* @anatomy
+   <div class="row">
+   <span class="label">4-up</span>
+   <div class="grid grid-4">
+   <article class="card"><div class="media"></div>
+*/
+.grid{display:grid;gap:8px;flex:1}
+.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--card-foreground);box-shadow:var(--shadow-xs);transition:border-color .2s ease,transform .2s ease}
+.card:hover{border-color:var(--primary);transform:translateY(-1px)}
+.media{aspect-ratio:1;border-radius:calc(var(--radius) - 4px);background:linear-gradient(135deg,var(--secondary),var(--background));border:1px solid var(--border)}
+.eyebrow{color:var(--muted-foreground);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.title{font-size:15px;line-height:1.25}
+.price{font-variant-numeric:tabular-nums}
+.cta{display:inline-flex;align-self:flex-start;padding:7px 10px;border-radius:999px;background:var(--primary);color:var(--primary-foreground);font-size:12px;text-decoration:none}
+.muted{color:var(--muted-foreground)}
+.is-disabled{opacity:.55}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --radius-sm: var(--radius-sm);
+    --radius-md: var(--radius-md);
+    --radius-lg: var(--radius-lg);
+    --radius-xl: var(--radius-xl);
+  }
+  @layer base {
+    body { background: var(--background); color: var(--foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--background); }
+      .text-background { color: var(--background); }
+      .border-background { border-color: var(--background); }
+      .ring-background { --tw-ring-color: var(--background); }
+      .bg-foreground { background-color: var(--foreground); }
+      .text-foreground { color: var(--foreground); }
+      .border-foreground { border-color: var(--foreground); }
+      .ring-foreground { --tw-ring-color: var(--foreground); }
+      .bg-card { background-color: var(--card); }
+      .text-card { color: var(--card); }
+      .border-card { border-color: var(--card); }
+      .ring-card { --tw-ring-color: var(--card); }
+      .bg-card-foreground { background-color: var(--card-foreground); }
+      .text-card-foreground { color: var(--card-foreground); }
+      .border-card-foreground { border-color: var(--card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--card-foreground); }
+      .bg-popover { background-color: var(--popover); }
+      .text-popover { color: var(--popover); }
+      .border-popover { border-color: var(--popover); }
+      .ring-popover { --tw-ring-color: var(--popover); }
+      .bg-popover-foreground { background-color: var(--popover-foreground); }
+      .text-popover-foreground { color: var(--popover-foreground); }
+      .border-popover-foreground { border-color: var(--popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--popover-foreground); }
+      .bg-primary { background-color: var(--primary); }
+      .text-primary { color: var(--primary); }
+      .border-primary { border-color: var(--primary); }
+      .ring-primary { --tw-ring-color: var(--primary); }
+      .bg-primary-foreground { background-color: var(--primary-foreground); }
+      .text-primary-foreground { color: var(--primary-foreground); }
+      .border-primary-foreground { border-color: var(--primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--primary-foreground); }
+      .bg-secondary { background-color: var(--secondary); }
+      .text-secondary { color: var(--secondary); }
+      .border-secondary { border-color: var(--secondary); }
+      .ring-secondary { --tw-ring-color: var(--secondary); }
+      .bg-secondary-foreground { background-color: var(--secondary-foreground); }
+      .text-secondary-foreground { color: var(--secondary-foreground); }
+      .border-secondary-foreground { border-color: var(--secondary-foreground); }
+      .ring-secondary-foreground { --tw-ring-color: var(--secondary-foreground); }
+      .bg-muted { background-color: var(--muted); }
+      .text-muted { color: var(--muted); }
+      .border-muted { border-color: var(--muted); }
+      .ring-muted { --tw-ring-color: var(--muted); }
+      .bg-muted-foreground { background-color: var(--muted-foreground); }
+      .text-muted-foreground { color: var(--muted-foreground); }
+      .border-muted-foreground { border-color: var(--muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--muted-foreground); }
+      .bg-accent { background-color: var(--accent); }
+      .text-accent { color: var(--accent); }
+      .border-accent { border-color: var(--accent); }
+      .ring-accent { --tw-ring-color: var(--accent); }
+      .bg-accent-foreground { background-color: var(--accent-foreground); }
+      .text-accent-foreground { color: var(--accent-foreground); }
+      .border-accent-foreground { border-color: var(--accent-foreground); }
+      .ring-accent-foreground { --tw-ring-color: var(--accent-foreground); }
+      .bg-destructive { background-color: var(--destructive); }
+      .text-destructive { color: var(--destructive); }
+      .border-destructive { border-color: var(--destructive); }
+      .ring-destructive { --tw-ring-color: var(--destructive); }
+      .bg-destructive-foreground { background-color: var(--destructive-foreground); }
+      .text-destructive-foreground { color: var(--destructive-foreground); }
+      .border-destructive-foreground { border-color: var(--destructive-foreground); }
+      .ring-destructive-foreground { --tw-ring-color: var(--destructive-foreground); }
+      .bg-border { background-color: var(--border); }
+      .text-border { color: var(--border); }
+      .border-border { border-color: var(--border); }
+      .ring-border { --tw-ring-color: var(--border); }
+      .bg-input { background-color: var(--input); }
+      .text-input { color: var(--input); }
+      .border-input { border-color: var(--input); }
+      .ring-input { --tw-ring-color: var(--input); }
+      .bg-ring { background-color: var(--ring); }
+      .text-ring { color: var(--ring); }
+      .border-ring { border-color: var(--ring); }
+      .ring-ring { --tw-ring-color: var(--ring); }
+      .bg-sidebar { background-color: var(--sidebar); }
+      .text-sidebar { color: var(--sidebar); }
+      .border-sidebar { border-color: var(--sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--sidebar); }
+      .bg-sidebar-foreground { background-color: var(--sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--sidebar-foreground); }
+      .bg-sidebar-primary { background-color: var(--sidebar-primary); }
+      .text-sidebar-primary { color: var(--sidebar-primary); }
+      .border-sidebar-primary { border-color: var(--sidebar-primary); }
+      .ring-sidebar-primary { --tw-ring-color: var(--sidebar-primary); }
+      .bg-sidebar-primary-foreground { background-color: var(--sidebar-primary-foreground); }
+      .text-sidebar-primary-foreground { color: var(--sidebar-primary-foreground); }
+      .border-sidebar-primary-foreground { border-color: var(--sidebar-primary-foreground); }
+      .ring-sidebar-primary-foreground { --tw-ring-color: var(--sidebar-primary-foreground); }
+      .bg-sidebar-accent { background-color: var(--sidebar-accent); }
+      .text-sidebar-accent { color: var(--sidebar-accent); }
+      .border-sidebar-accent { border-color: var(--sidebar-accent); }
+      .ring-sidebar-accent { --tw-ring-color: var(--sidebar-accent); }
+      .bg-sidebar-accent-foreground { background-color: var(--sidebar-accent-foreground); }
+      .text-sidebar-accent-foreground { color: var(--sidebar-accent-foreground); }
+      .border-sidebar-accent-foreground { border-color: var(--sidebar-accent-foreground); }
+      .ring-sidebar-accent-foreground { --tw-ring-color: var(--sidebar-accent-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main>
+        <style id="page-styles">
+            /* ===== Prototype showcase page ===== */
+            .page-shell { max-width: 920px; margin: 0 auto; padding: 56px 24px 40px; }
+            .page-intro { max-width: 52ch; margin: 0 auto 44px; text-align: center; }
+            .page-title { margin: 0; font-size: 32px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; color: var(--foreground); }
+            .intro-copy { margin: 12px 0 0; font-size: 15px; line-height: 1.7; color: var(--muted-foreground); }
+
+            /* ===== Showcase stage ===== */
+            .stage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; align-items: start; }
+            .showcase { margin: 0; padding: 30px 22px; display: flex; flex-direction: column; align-items: center; gap: 18px; background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
+            .showcase.dark { background: var(--background); }
+            .showcase-cap { display: flex; align-items: baseline; gap: 10px; }
+            .showcase-cap strong { font-size: 14px; font-weight: 600; color: var(--foreground); }
+            .showcase-cap span { font-size: 12px; color: var(--muted-foreground); }
+            .showcase-stack { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; }
+            .popup-demo { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+
+            /* ===== Popup window (300px) ===== */
+            .popup { box-sizing: border-box; width: 300px; max-width: 100%; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
+            .popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+            .popup-title { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; color: var(--foreground); }
+            .popup .btn { width: 100%; border-radius: var(--radius-md); }
+            .popup .btn-primary { height: 38px; padding: 0 14px; font-size: 14px; }
+            .popup .btn-secondary { height: 38px; padding: 0 14px; font-size: 14px; }
+            .popup .btn + .btn { margin-top: 10px; }
+            .popup .btn svg { width: 16px; height: 16px; flex-shrink: 0; transition: transform .18s ease; }
+            .popup .btn-primary:hover svg { transform: scale(1.08); }
+
+            /* ===== Theme toggle ===== */
+            .theme-toggle { position: relative; display: inline-flex; gap: 1px; padding: 2px; background: var(--secondary); border-radius: 999px; }
+            .theme-toggle::before { content: ""; position: absolute; top: 2px; left: 2px; width: 28px; height: 26px; border-radius: 999px; background: var(--popover); box-shadow: var(--shadow-sm); transition: transform .18s ease; }
+            .theme-toggle[data-active="1"]::before { transform: translateX(29px); }
+            .theme-toggle[data-active="2"]::before { transform: translateX(58px); }
+            .theme-btn { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 26px; border: 0; border-radius: 999px; background: transparent; color: var(--icon-muted); cursor: pointer; transition: color .18s ease; }
+            .theme-btn:hover { color: var(--foreground); }
+            .theme-btn.active { color: var(--primary); }
+            .theme-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+            .theme-btn svg { width: 14px; height: 14px; }
+
+            /* ===== Model dropdown (unified style, centered) ===== */
+            .model-dropdown { position: relative; margin-top: 10px; }
+            .model-dropdown:not(.open) .model-menu { display: none; }
+            .model-btn { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 38px; padding: 0 14px; background: var(--secondary); border: 0; border-radius: var(--radius-md); color: var(--foreground); font: 500 13px/1 var(--font-sans); text-align: center; transition: background-color .18s ease; }
+            .model-btn:hover { background: var(--muted); }
+            .model-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+            .model-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .model-chevron { flex-shrink: 0; width: 15px; height: 15px; color: var(--icon-muted); transition: transform .18s ease; }
+            .model-dropdown.open .model-chevron { transform: rotate(180deg); }
+            .model-menu { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30; display: flex; flex-direction: column; gap: 2px; padding: 6px; background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); transform-origin: top center; animation: model-menu-in .18s cubic-bezier(.32, .72, 0, 1); }
+            .model-option { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 34px; padding: 0 10px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--foreground); font: 400 13px/1 var(--font-sans); text-align: center; cursor: pointer; transition: background-color .18s ease, color .18s ease; }
+            .model-option:hover { background: var(--secondary); }
+            .model-option.selected { font-weight: 600; }
+            .model-option.selected:hover { background: var(--secondary); }
+            .model-option.selected svg { position: absolute; right: 10px; width: 15px; height: 15px; color: var(--primary); }
+            @keyframes model-menu-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+            /* ===== Popup footer ===== */
+            .popup-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px; }
+            .popup-hint { margin: 0; min-width: 0; font-size: 12px; color: var(--muted-foreground); }
+            .popup-hint kbd { display: inline-block; margin-left: 4px; padding: 3px 7px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--secondary); color: var(--foreground); font: 600 10px/1.2 var(--font-mono); white-space: nowrap; }
+            .popup-version { flex-shrink: 0; font: 500 11px/1 var(--font-mono); color: var(--muted-foreground); }
+
+            /* ===== Page footer ===== */
+            .page-footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; }
+            .page-footer p { margin: 0; font-size: 12px; color: var(--muted-foreground); }
+
+            @media (max-width: 720px) {
+                .page-shell { padding: 40px 20px 32px; }
+                .stage { grid-template-columns: minmax(0, 1fr); }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .theme-toggle::before, .theme-btn, .model-chevron, .model-btn, .model-menu, .model-option, .popup .btn svg { transition: none; }
+                .model-menu { animation: none; }
+            }
+        </style>
+
+        <div class="page-shell">
+            <header class="page-intro">
+                <h1 class="page-title">Popup 弹窗</h1>
+                <p class="intro-copy">点击浏览器工具栏的扩展图标后弹出的操作面板，宽度 300px 模拟真实尺寸。下方并排展示浅色与深色两种主题下的完整状态，包含主题切换、快捷操作与模型下拉。</p>
+            </header>
+
+            <section class="stage" aria-label="Popup 弹窗浅色与深色实例">
+                <figure class="showcase">
+                    <div class="showcase-stack">
+                        <div class="popup-demo">
+                            <div class="showcase-cap"><strong>浅色模式</strong><span>默认状态</span></div>
+                            <div class="popup">
+                                <header class="popup-header">
+                                    <h2 class="popup-title">题目助手</h2>
+                                    <div class="theme-toggle" data-active="0" role="group" aria-label="主题切换">
+                                        <button class="theme-btn active" type="button" title="浅色模式" aria-label="浅色模式"><i data-lucide="sun"></i></button>
+                                        <button class="theme-btn" type="button" title="深色模式" aria-label="深色模式"><i data-lucide="moon"></i></button>
+                                        <button class="theme-btn" type="button" title="跟随系统" aria-label="跟随系统"><i data-lucide="monitor"></i></button>
+                                    </div>
+                                </header>
+                                <button class="btn btn-primary" type="button"><i data-lucide="sparkles"></i>分析当前页面题目</button>
+                                <button class="btn btn-secondary" type="button"><i data-lucide="settings"></i>打开设置</button>
+                                <div class="model-dropdown">
+                                    <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu">
+                                        <span class="model-label">DeepSeek-V3（默认）</span>
+                                        <i data-lucide="chevron-down" class="model-chevron"></i>
+                                    </button>
+                                </div>
+                                <footer class="popup-footer">
+                                    <p class="popup-hint">唤起助手快捷键：<kbd>Ctrl+Shift+Y</kbd></p>
+                                    <span class="popup-version">v3.0.0</span>
+                                </footer>
+                            </div>
+                        </div>
+                        <div class="popup-demo">
+                            <div class="showcase-cap"><strong>浅色模式</strong><span>下拉菜单展开</span></div>
+                            <div class="popup">
+                                <header class="popup-header">
+                                    <h2 class="popup-title">题目助手</h2>
+                                    <div class="theme-toggle" data-active="0" role="group" aria-label="主题切换">
+                                        <button class="theme-btn active" type="button" title="浅色模式" aria-label="浅色模式"><i data-lucide="sun"></i></button>
+                                        <button class="theme-btn" type="button" title="深色模式" aria-label="深色模式"><i data-lucide="moon"></i></button>
+                                        <button class="theme-btn" type="button" title="跟随系统" aria-label="跟随系统"><i data-lucide="monitor"></i></button>
+                                    </div>
+                                </header>
+                                <button class="btn btn-primary" type="button"><i data-lucide="sparkles"></i>分析当前页面题目</button>
+                                <button class="btn btn-secondary" type="button"><i data-lucide="settings"></i>打开设置</button>
+                                <div class="model-dropdown open">
+                                    <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu" aria-expanded="true">
+                                        <span class="model-label">DeepSeek-V3（默认）</span>
+                                        <i data-lucide="chevron-down" class="model-chevron"></i>
+                                    </button>
+                                    <div class="model-menu" role="menu">
+                                        <button class="model-option selected" type="button" role="menuitem" aria-current="true">DeepSeek-V3（默认）<i data-lucide="check"></i></button>
+                                        <button class="model-option" type="button" role="menuitem">Qwen-Max</button>
+                                        <button class="model-option" type="button" role="menuitem">GLM-4-Air</button>
+                                    </div>
+                                </div>
+                                <footer class="popup-footer">
+                                    <p class="popup-hint">唤起助手快捷键：<kbd>Ctrl+Shift+Y</kbd></p>
+                                    <span class="popup-version">v3.0.0</span>
+                                </footer>
+                            </div>
+                        </div>
+                    </div>
+                </figure>
+
+                <figure class="showcase dark">
+                    <figcaption class="showcase-cap"><strong>深色模式</strong><span>下拉菜单展开</span></figcaption>
+                    <div class="popup">
+                        <header class="popup-header">
+                            <h2 class="popup-title">题目助手</h2>
+                            <div class="theme-toggle" data-active="1" role="group" aria-label="主题切换">
+                                <button class="theme-btn" type="button" title="浅色模式" aria-label="浅色模式"><i data-lucide="sun"></i></button>
+                                <button class="theme-btn active" type="button" title="深色模式" aria-label="深色模式"><i data-lucide="moon"></i></button>
+                                <button class="theme-btn" type="button" title="跟随系统" aria-label="跟随系统"><i data-lucide="monitor"></i></button>
+                            </div>
+                        </header>
+                        <button class="btn btn-primary" type="button"><i data-lucide="sparkles"></i>分析当前页面题目</button>
+                        <button class="btn btn-secondary" type="button"><i data-lucide="settings"></i>打开设置</button>
+                        <div class="model-dropdown open">
+                            <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu" aria-expanded="true">
+                                <span class="model-label">DeepSeek-V3（默认）</span>
+                                <i data-lucide="chevron-down" class="model-chevron"></i>
+                            </button>
+                            <div class="model-menu" role="menu">
+                                <button class="model-option selected" type="button" role="menuitem" aria-current="true">DeepSeek-V3（默认）<i data-lucide="check"></i></button>
+                                <button class="model-option" type="button" role="menuitem">Qwen-Max</button>
+                                <button class="model-option" type="button" role="menuitem">GLM-4-Air</button>
+                            </div>
+                        </div>
+                        <footer class="popup-footer">
+                            <p class="popup-hint">唤起助手快捷键：<kbd>Ctrl+Shift+Y</kbd></p>
+                            <span class="popup-version">v3.0.0</span>
+                        </footer>
+                    </div>
+                </figure>
+            </section>
+
+            <footer class="page-footer">
+                <p>题目助手 · 浏览器扩展 UI 原型 · Pinguo Apple 设计系统 · 浅色 / 深色双主题</p>
+            </footer>
+        </div>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
