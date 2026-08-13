@@ -846,9 +846,6 @@ html[data-theme-style="apple"].dark,
 }
 
 /* ---- 4.18 题库工具栏 / 进度条（对齐 demo2 .toolbar / .progress-block） ---- */
-[data-theme-style="apple"] .bank-toolbar .btn {
-  border-radius: 999px;
-}
 [data-theme-style="apple"] #bankProgress {
   padding: 14px 16px;
   border: 1px solid var(--color-border);
@@ -1388,7 +1385,8 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
 /* 三个按钮：40px 高 + 2.4rem 胶囊（demo2 .btn） */
 [data-theme-style="apple"] .backup-action-row .action-btn,
 [data-theme-style="apple"] .export-row .action-btn,
-[data-theme-style="apple"] .backup-import-row .action-btn {
+[data-theme-style="apple"] .backup-import-row .action-btn,
+[data-theme-style="apple"] .bank-toolbar .action-btn {
   height: 40px;
   padding: 0 20px;
   border-radius: 2.4rem;
@@ -1399,13 +1397,16 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
 /* 导出 / 导入备份 = demo2 .btn-primary（蓝底白字） */
 [data-theme-style="apple"] .backup-action-row .action-btn.action-export,
 [data-theme-style="apple"] .export-row .action-btn.action-export,
-[data-theme-style="apple"] .backup-import-row .action-btn.action-edit {
+[data-theme-style="apple"] .backup-import-row .action-btn.action-edit,
+[data-theme-style="apple"] .bank-toolbar .action-btn.action-edit {
   background: var(--color-primary);
   color: #fff;
 }
 [data-theme-style="apple"] .backup-action-row .action-btn.action-export:hover,
-[data-theme-style="apple"] .backup-import-row .action-btn.action-edit:hover {
-  background: var(--color-primary-dark);
+[data-theme-style="apple"] .export-row .action-btn.action-export:hover,
+[data-theme-style="apple"] .backup-import-row .action-btn.action-edit:hover,
+[data-theme-style="apple"] .bank-toolbar .action-btn.action-edit:hover {
+  background: var(--color-primary-light);
   opacity: 1;
 }
 /* 选择备份文件 = demo2 .btn-secondary（灰底深字） */
@@ -1431,7 +1432,8 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
 /* 按钮图标 15px（demo2 .opt-main .btn svg） */
 [data-theme-style="apple"] .backup-action-row .action-btn svg,
 [data-theme-style="apple"] .export-row .action-btn svg,
-[data-theme-style="apple"] .backup-import-row .action-btn svg {
+[data-theme-style="apple"] .backup-import-row .action-btn svg,
+[data-theme-style="apple"] .bank-toolbar .action-btn svg {
   width: 15px;
   height: 15px;
 }

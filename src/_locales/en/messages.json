@@ -365,6 +365,12 @@
   "optionsBackupSelectModule": {
     "message": "Select at least one module to export"
   },
+  "optionsBackupRestoreFormat": {
+    "message": "Will restore: $1"
+  },
+  "optionsBackupClearFile": {
+    "message": "Clear selection"
+  },
   "optionsBankCancelling": {
     "message": "Cancelling..."
   },

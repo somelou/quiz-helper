@@ -485,9 +485,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   initBackup({
     moduleListEl: document.getElementById('backupModuleList'),
+    exportNoteEl: document.getElementById('backupExportNote'),
     exportBtn: document.getElementById('exportBackupBtn'),
     fileInputEl: document.getElementById('backupFileInput'),
     fileNameEl: document.getElementById('backupFileName'),
+    clearFileBtn: document.getElementById('backupFileClearBtn'),
+    restoreHintEl: document.getElementById('backupRestoreHint'),
     importBtn: document.getElementById('importBackupBtn'),
     onImportComplete: reloadOptionModulesAfterImport
   });

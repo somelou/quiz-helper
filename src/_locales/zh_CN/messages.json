@@ -365,6 +365,12 @@
   "optionsBackupSelectModule": {
     "message": "请至少选择一个导出模块"
   },
+  "optionsBackupRestoreFormat": {
+    "message": "将恢复：$1"
+  },
+  "optionsBackupClearFile": {
+    "message": "取消选择"
+  },
   "optionsBankCancelling": {
     "message": "正在取消..."
   },

@@ -2,9 +2,12 @@
 
 function initBackup({
   moduleListEl,
+  exportNoteEl,
   exportBtn,
   fileInputEl,
   fileNameEl,
+  clearFileBtn,
+  restoreHintEl,
   importBtn,
   onImportComplete
 }) {
@@ -88,9 +91,39 @@ function initBackup({
       .filter(id => MODULE_MAP[id]);
   }
 
+  function updateExportNote() {
+    if (!exportNoteEl) return;
+    exportNoteEl.textContent = getMessage('optionsExportReadyFormat', [getSelectedModules().length]);
+  }
+
   function updateFileName() {
     const file = fileInputEl.files && fileInputEl.files[0];
     fileNameEl.textContent = file ? file.name : getMessage('optionsBackupNoFile');
+    if (clearFileBtn) clearFileBtn.style.display = file ? '' : 'none';
+    if (!file && restoreHintEl) {
+      restoreHintEl.style.display = 'none';
+      restoreHintEl.textContent = '';
+    }
+  }
+
+  // 选择文件后解析备份内容，提示将恢复的模块
+  async function updateRestoreHint() {
+    const file = fileInputEl.files && fileInputEl.files[0];
+    if (!file || !restoreHintEl) return;
+    try {
+      const moduleIds = validateBackupPayload(JSON.parse(await file.text()));
+      if (!moduleIds || moduleIds.length === 0) {
+        restoreHintEl.style.display = 'none';
+        restoreHintEl.textContent = '';
+        return;
+      }
+      const names = moduleIds.map(id => getMessage(MODULE_MAP[id].labelKey)).join('、');
+      restoreHintEl.textContent = getMessage('optionsBackupRestoreFormat', [names]);
+      restoreHintEl.style.display = '';
+    } catch (_) {
+      restoreHintEl.style.display = 'none';
+      restoreHintEl.textContent = '';
+    }
   }
 
   async function buildBackupPayload(moduleIds) {
@@ -188,7 +221,18 @@ function initBackup({
     }
   });
 
-  fileInputEl.addEventListener('change', updateFileName);
+  fileInputEl.addEventListener('change', () => {
+    updateFileName();
+    updateRestoreHint();
+  });
+  if (clearFileBtn) {
+    clearFileBtn.addEventListener('click', () => {
+      fileInputEl.value = '';
+      updateFileName();
+      updateRestoreHint();
+    });
+  }
+  moduleListEl.addEventListener('change', updateExportNote);
 
   importBtn.addEventListener('click', async () => {
     const file = fileInputEl.files && fileInputEl.files[0];
@@ -231,6 +275,7 @@ function initBackup({
   });
 
   updateFileName();
+  updateExportNote();
 
   return {
     getSelectedModules
