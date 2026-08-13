@@ -360,7 +360,8 @@ button:hover,
   flex-shrink: 0;
 }
 .action-view,
-.action-edit {
+.action-edit,
+.action-primary {
   background: var(--color-btn-action-bg);
   color: var(--color-btn-action-text);
 }
@@ -455,6 +456,27 @@ button:hover,
   display: flex;
   align-items: center;
   gap: 8px;
+}
+/* 备份导出：提示 + 按钮并排（与 demo2 .export-row 一致） */
+.export-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.export-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+.export-note svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--color-success);
 }
 .backup-import-row {
   display: flex;
@@ -574,6 +596,8 @@ button:hover,
   min-width: 0;
 }
 .list-item-title {
+  display: flex;
+  align-items: center;
   font-size: var(--font-md);
   font-weight: 600;
   color: var(--color-text);
@@ -728,18 +752,20 @@ button:hover,
   gap: 12px;
   flex-wrap: nowrap;
 }
-.bank-toolbar-left {
+.bank-toolbar-stats {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   min-height: 38px;
+  min-width: 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
 }
-.bank-toolbar-right {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-height: 38px;
-  text-align: right;
+.bank-toolbar-stats svg {
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
+  color: var(--color-primary);
 }
 .setting-row {
   display: flex;
@@ -1301,6 +1327,16 @@ button:hover,
 .model-inactive {
   opacity: 0.6;
 }
+/* 未激活模型隐藏用途切换（已停用无需指派任务） */
+.model-inactive .task-toggles {
+  display: none;
+}
+/* 经典主题只保留「默认」徽章（激活态由 .list-item.active 边框背景体现，用途由 task-toggle 颜色体现） */
+[data-theme-style="classic"] .model-active,
+[data-theme-style="classic"] .model-task-bank,
+[data-theme-style="classic"] .model-task-extract {
+  display: none;
+}
 .model-badge {
   display: inline-block;
   font-size: 10px;
@@ -1310,7 +1346,8 @@ button:hover,
   font-weight: 500;
   vertical-align: middle;
 }
-.model-preferred {
+.model-preferred,
+.model-enabled-badge {
   background: var(--color-primary-bg);
   color: var(--color-primary);
 }
@@ -1332,7 +1369,8 @@ button:hover,
 }
 
 /* --- 模型 badge 暗色模式 --- */
-body.dark .model-preferred {
+body.dark .model-preferred,
+body.dark .model-enabled-badge {
   background: var(--color-primary-bg);
   color: var(--color-primary-light);
 }
@@ -1399,7 +1437,8 @@ body.dark .model-inactive-badge {
   outline: none;
   border-color: var(--color-border-focus);
 }
-.rule-form-section {
+.rule-form-section,
+.sub-title {
   font-weight: 600;
   font-size: var(--font-md);
   color: var(--color-text);
@@ -1432,6 +1471,11 @@ body.dark .model-inactive-badge {
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+.page-btn svg {
+  width: 14px;
+  height: 14px;
+  display: block;
 }
 .page-btn:hover:not(:disabled):not(.active) {
   border-color: var(--color-primary);

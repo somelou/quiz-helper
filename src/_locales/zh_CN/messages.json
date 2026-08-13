@@ -107,6 +107,12 @@
   "optionsModels": {
     "message": "大模型管理"
   },
+  "optionsModelListTitle": {
+    "message": "模型列表"
+  },
+  "optionsModelActiveBadge": {
+    "message": "已激活"
+  },
   "optionsSearch": {
     "message": "联网搜索设置"
   },
@@ -115,6 +121,9 @@
   },
   "optionsBank": {
     "message": "题库管理"
+  },
+  "optionsBankListTitle": {
+    "message": "题库列表"
   },
   "optionsHistory": {
     "message": "历史记录"
@@ -129,7 +138,7 @@
     "message": "系统提示词"
   },
   "optionsPromptHint": {
-    "message": "每种题型可单独设置自定义提示词，留空则使用默认提示词。灰色占位符即为当前题型的默认提示词。"
+    "message": "每种题型可单独设置自定义提示词，留空则使用默认提示词。"
   },
   "optionsExtraContext": {
     "message": "补充提示词 / 领域背景"
@@ -165,7 +174,7 @@
     "message": "添加"
   },
   "optionsModelsHint": {
-    "message": "管理多个大模型配置，可激活/停用，设置首选模型。点击下方按钮可为各任务指定专用模型。"
+    "message": "管理多个大模型配置，可激活/停用，并为不同任务指定专用模型。"
   },
   "optionsStreamOutput": {
     "message": "流式输出"
@@ -271,6 +280,9 @@
   },
   "optionsExportBackup": {
     "message": "导出备份"
+  },
+  "optionsExportReadyFormat": {
+    "message": "已准备导出 $1 个模块"
   },
   "optionsBackupImportTitle": {
     "message": "导入备份数据"
@@ -498,7 +510,7 @@
     "message": "模型已激活"
   },
   "optionsModelBadgeAnswer": {
-    "message": "答题"
+    "message": "默认"
   },
   "optionsModelBadgeBank": {
     "message": "题库解析"
@@ -777,7 +789,7 @@
     "message": "已激活「$1」"
   },
   "optionsSearchActiveBadge": {
-    "message": "当前使用"
+    "message": "已启用"
   },
   "optionsSearchAnswerHint": {
     "message": "启用后 Tavily 将返回一个 LLM 生成的查询摘要答案"
@@ -831,7 +843,7 @@
     "message": "搜索失败：$1"
   },
   "optionsSearchInactiveBadge": {
-    "message": "未激活"
+    "message": "未启用"
   },
   "optionsSearchLangDe": {
     "message": "德文"

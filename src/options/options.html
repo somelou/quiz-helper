@@ -71,7 +71,7 @@
           <textarea id="systemPrompt-judge" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
           <textarea id="systemPrompt-fill" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
           <textarea id="systemPrompt-unknown" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
-          <div class="hint" data-i18n="optionsPromptHint">每种题型可单独设置自定义提示词，留空则使用默认提示词。灰色占位符即为当前题型的默认提示词。</div>
+          <div class="hint" data-i18n="optionsPromptHint">每种题型可单独设置自定义提示词，留空则使用默认提示词。</div>
         </div>
 
         <div class="form-group">
@@ -115,7 +115,7 @@ exam.example.com"></textarea>
           <h2 style="margin:0;" data-i18n="optionsModels">大模型管理</h2>
           <button class="action-btn action-primary" id="addModelBtn"><span data-icon="plus" aria-hidden="true"></span><span data-i18n="optionsAddModel">添加</span></button>
         </div>
-        <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsModelsHint">管理多个大模型配置，可激活/停用，设置首选模型。点击下方按钮可为各任务指定专用模型。</div>
+        <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsModelsHint">管理多个大模型配置，可激活/停用，并为不同任务指定专用模型。</div>
         <div class="rule-form-group">
           <label for="streamOutputEnabled" data-i18n="optionsStreamOutput">流式输出</label>
           <label class="switch">
@@ -124,6 +124,7 @@ exam.example.com"></textarea>
           </label>
           <div class="hint" data-i18n="optionsStreamOutputHint">开启后，大模型测试与答题时逐字返回结果；关闭后一次性返回完整结果。</div>
         </div>
+        <div class="sub-title" data-i18n="optionsModelListTitle">模型列表</div>
         <div id="modelList"></div>
       </div>
 
@@ -184,17 +185,17 @@ exam.example.com"></textarea>
           <div class="hint" id="importModeHint" data-i18n="optionsImportModeHint">并发 10 批 · 每批 50 题</div>
         </div>
         <div class="bank-toolbar">
-          <div class="bank-toolbar-left">
-            <label class="btn btn-secondary">
-              <input type="file" id="questionBankFile" accept=".xlsx,.xls,.docx" style="display: none;">
-              <span data-icon="upload" aria-hidden="true"></span>
-              <span data-i18n="optionsImportBank">导入题库</span>
-            </label>
-          </div>
-          <div class="bank-toolbar-right">
+          <div class="bank-toolbar-stats">
+            <span data-icon="database" aria-hidden="true"></span>
             <span id="bankCountHint" class="hint" style="margin-top: 0;"></span>
           </div>
+          <label class="btn btn-primary">
+            <input type="file" id="questionBankFile" accept=".xlsx,.xls,.docx" style="display: none;">
+            <span data-icon="upload" aria-hidden="true"></span>
+            <span data-i18n="optionsImportBank">导入题库</span>
+          </label>
         </div>
+        <div class="sub-title" data-i18n="optionsBankListTitle">题库列表</div>
         <div id="questionBankList"></div>
         <div id="bankProgress" style="display:none; margin-top: 12px;">
           <div class="bank-progress-bar">
@@ -256,7 +257,11 @@ exam.example.com"></textarea>
               <span data-i18n="optionsModuleHistory">历史记录</span>
             </label>
           </div>
-          <div class="backup-action-row">
+          <div class="export-row">
+            <div class="export-note">
+              <span data-icon="check" aria-hidden="true"></span>
+              <span data-i18n="optionsExportReadyFormat">已准备导出 6 个模块</span>
+            </div>
             <button type="button" class="action-btn action-export" id="exportBackupBtn">
               <span data-icon="export"></span>
               <span data-i18n="optionsExportBackup">导出备份</span>

@@ -67,7 +67,7 @@ function initBank({
       const date = new Date(bank.timestamp).toLocaleString();
 
       const enabledBadge = enabled
-        ? '<span class="model-badge model-preferred">' + getMessage('optionsBankEnabledBadge') + '</span>'
+        ? '<span class="model-badge model-enabled-badge">' + getMessage('optionsBankEnabledBadge') + '</span>'
         : '<span class="model-badge model-inactive-badge">' + getMessage('optionsBankDisabledBadge') + '</span>';
 
       item.innerHTML = `
@@ -167,7 +167,7 @@ function initBank({
     const titleEl = item.querySelector('.list-item-title');
     if (titleEl) {
       const badge = enabled
-        ? '<span class="model-badge model-preferred">' + getMessage('optionsBankEnabledBadge') + '</span>'
+        ? '<span class="model-badge model-enabled-badge">' + getMessage('optionsBankEnabledBadge') + '</span>'
         : '<span class="model-badge model-inactive-badge">' + getMessage('optionsBankDisabledBadge') + '</span>';
       titleEl.innerHTML = escapeHtml(bank.name || getMessage('optionsBankUnnamed')) + badge;
     }

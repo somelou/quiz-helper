@@ -765,8 +765,8 @@
         .sec-panel .qh-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 13px; border: 0; border-radius: 999px; font: 600 12px/1 var(--font-sans); white-space: nowrap; cursor: pointer; transition: background-color .18s ease, color .18s ease, filter .18s ease; }
         .sec-panel .qh-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
         .sec-panel .qh-btn svg { width: 12px; height: 12px; }
-        .sec-panel .qh-btn-primary { background: var(--primary); color: var(--primary-foreground); }
-        .sec-panel .qh-btn-primary:hover { filter: brightness(0.96); }
+        .sec-panel .qh-btn-primary { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+        .sec-panel .qh-btn-primary:hover { opacity: 0.85; }
         .sec-panel .qh-btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
         .sec-panel .qh-btn-secondary:hover { background: var(--muted); }
 
@@ -868,6 +868,8 @@
         .badge { display: inline-flex; align-items: center; height: 20px; padding: 0 9px; border-radius: 999px; font: 600 11px/1 var(--font-sans); white-space: nowrap; }
         .badge-primary { background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary); }
         .badge-success { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); }
+        .badge-warning { background: color-mix(in srgb, var(--state-warning) 14%, transparent); color: var(--state-warning); }
+        .badge-info { background: color-mix(in srgb, var(--state-info) 14%, transparent); color: var(--state-info); }
         .badge-error { background: color-mix(in srgb, var(--destructive) 12%, transparent); color: var(--destructive); }
         .badge-muted { background: var(--secondary); color: var(--muted-foreground); }
 
@@ -879,6 +881,7 @@
         .list-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; }
         .plain-list > li + li { border-top: 1px solid var(--border); }
         .list-row.inactive { opacity: .6; }
+        .list-row.inactive .task-toggles { display: none; }
         .list-info { min-width: 0; }
         .list-title { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 14px; font-weight: 600; color: var(--foreground); }
         .list-meta { margin-top: 5px; font-size: 12px; line-height: 1.6; color: var(--muted-foreground); overflow-wrap: anywhere; }
@@ -1026,6 +1029,12 @@
         .sec-drawer .field-input:focus, .sec-drawer .field-textarea:focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 1px var(--ring); }
         .sec-drawer .field-input:disabled { opacity: 0.55; cursor: not-allowed; }
         .sec-drawer .code-input { font-family: var(--font-mono); font-size: 12px; }
+        .sec-drawer .tools-select-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 0 8px; border: 1px solid var(--input); border-radius: var(--radius-md); background: var(--background); min-height: 40px; cursor: text; transition: border-color .18s ease, box-shadow .18s ease; }
+        .sec-drawer .tools-select:focus-within .tools-select-inner { outline: none; border-color: var(--ring); box-shadow: 0 0 0 1px var(--ring); }
+        .sec-drawer .tools-tag { display: inline-flex; align-items: center; gap: 2px; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary); font: 500 12px/22px var(--font-sans); user-select: none; }
+        .sec-drawer .tools-tag-close { border: 0; background: transparent; color: inherit; font-size: 14px; line-height: 1; cursor: pointer; padding: 0 2px; opacity: .5; }
+        .sec-drawer .tools-tag-close:hover { opacity: 1; }
+        .sec-drawer .tools-select-input { flex: 1; min-width: 100px; border: none !important; outline: none !important; box-shadow: none !important; background: transparent; font-family: var(--font-sans); font-size: 13px; line-height: 26px; padding: 0 2px; margin: 0; }
         .sec-drawer .pwd { position: relative; }
         .sec-drawer .pwd .field-input { padding-right: 78px; }
         .sec-drawer .pwd-toggle { position: absolute; top: 4px; right: 4px; display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border: 0; border-radius: 999px; background: transparent; color: var(--primary); font: 600 12px/1 var(--font-sans); cursor: pointer; transition: background-color .18s ease; }
@@ -1051,9 +1060,18 @@
         .sec-drawer .q-title-text { flex: 1 1 auto; min-width: 0; }
         .sec-drawer .q-id { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--secondary); font: 600 11px/1 var(--font-mono); color: var(--muted-foreground); flex-shrink: 0; }
         .sec-drawer .q-type { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; background: var(--secondary); font: 600 11px/1 var(--font-sans); color: var(--muted-foreground); flex-shrink: 0; }
-        .sec-drawer .q-text { margin: 10px 0 0; font-size: 12.5px; line-height: 1.7; color: var(--foreground); white-space: pre-line; }
+        /* 抽屉题型多色（与面板 qh-type-* 一致） */
+        .sec-drawer .q-type.q-type-single { color: var(--primary); background: rgba(79, 70, 229, 0.10); }
+        .sec-drawer .showcase.dark .q-type.q-type-single { background: rgba(129, 140, 248, 0.16); }
+        .sec-drawer .q-type.q-type-multiple { color: #9333ea; background: rgba(147, 51, 234, 0.10); }
+        .sec-drawer .showcase.dark .q-type.q-type-multiple { color: #d8b4fe; background: rgba(216, 180, 254, 0.16); }
+        .sec-drawer .q-type.q-type-judge { color: var(--state-success); background: rgba(22, 163, 74, 0.10); }
+        .sec-drawer .showcase.dark .q-type.q-type-judge { color: #4ade80; background: rgba(74, 222, 128, 0.16); }
+        .sec-drawer .q-type.q-type-fill { color: var(--state-warning); background: rgba(217, 119, 6, 0.10); }
+        .sec-drawer .showcase.dark .q-type.q-type-fill { color: #fbbf24; background: rgba(251, 191, 36, 0.16); }
+        .sec-drawer .q-text { margin: 10px 0 0; font-size: 12.5px; line-height: 1.7; color: var(--foreground); white-space: pre-line; background: none; border: none; padding: 0; }
         .sec-drawer .q-label { margin: 12px 0 0; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; color: var(--muted-foreground); }
-        .sec-drawer .q-answer { display: inline-flex; align-items: center; margin-top: 6px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--accent); font: 600 12px/1 var(--font-mono); color: var(--foreground); }
+        .sec-drawer .q-answer { display: inline-flex; align-items: center; margin-top: 6px; background: none; border: none; /* border-radius: var(--radius-sm); */ padding: 0; color: inherit; font: 600 12px/1 var(--font-mono); }
         .sec-drawer .copy-btn { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; height: 26px; padding: 0 10px; margin-top: 2px; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--muted-foreground); font: 500 11px/1 var(--font-sans); cursor: pointer; transition: background-color .18s ease, color .18s ease, border-color .18s ease; }
         .sec-drawer .copy-btn:hover { background: var(--secondary); color: var(--foreground); }
         .sec-drawer .copy-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
@@ -1064,7 +1082,7 @@
         .sec-drawer .btn-block svg { width: 15px; height: 15px; }
 
         /* 测试结果：状态条 + 深度思考 + 响应（布局参考实际代码 test-status / test-thinking / test-response） */
-        .sec-drawer .test-result { display: flex; flex-direction: column; margin-top: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card); overflow: hidden; }
+        .sec-drawer .test-result { display: flex; flex-direction: column; margin-top: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); overflow: hidden; }
         .sec-drawer .test-status { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--background); font-size: 12px; line-height: 1.5; }
         .sec-drawer .test-status-success { color: var(--state-success); }
         .sec-drawer .test-status-error { color: var(--state-error); }
@@ -1307,7 +1325,7 @@
                                                 </div>
                                             </details>
                                             <div>
-                                                <button class="qh-btn qh-btn-secondary" type="button"><i data-lucide="refresh-cw"></i>重新作答</button>
+                                                <button class="qh-btn qh-btn-primary" type="button"><i data-lucide="refresh-cw"></i>重新作答</button>
                                             </div>
                                         </div>
                                     </div>
@@ -1443,7 +1461,7 @@
                                                 </div>
                                             </details>
                                             <div>
-                                                <button class="qh-btn qh-btn-secondary" type="button"><i data-lucide="refresh-cw"></i>重新作答</button>
+                                                <button class="qh-btn qh-btn-primary" type="button"><i data-lucide="refresh-cw"></i>重新作答</button>
                                             </div>
                                         </div>
                                     </div>
@@ -1650,7 +1668,7 @@
                                     <ul class="plain-list">
                                         <li class="list-row">
                                             <div class="list-info">
-                                                <div class="list-title">DeepSeek-V3<span class="badge badge-primary">默认</span><span class="badge badge-success">题库导入</span></div>
+                                                <div class="list-title">DeepSeek-V3<span class="badge badge-primary">默认</span><span class="badge badge-success">已激活</span></div>
                                                 <p class="list-meta">https://api.deepseek.com · deepseek-chat</p>
                                                 <div class="task-toggles" role="group" aria-label="模型用途">
                                                     <button class="task-toggle active" type="button">用于答题</button>
@@ -1863,7 +1881,7 @@
                                     <ul class="plain-list">
                                         <li class="list-row">
                                             <div class="list-info">
-                                                <div class="list-title">DeepSeek-V3<span class="badge badge-primary">默认</span><span class="badge badge-success">题库导入</span></div>
+                                                <div class="list-title">DeepSeek-V3<span class="badge badge-primary">默认</span><span class="badge badge-success">已激活</span></div>
                                                 <p class="list-meta">https://api.deepseek.com · deepseek-chat</p>
                                                 <div class="task-toggles" role="group" aria-label="模型用途">
                                                     <button class="task-toggle active" type="button">用于答题</button>
@@ -2445,6 +2463,7 @@
                                             <div class="seg" role="group" aria-label="API 格式">
                                                 <button type="button" class="active">OpenAI</button>
                                                 <button type="button">Anthropic</button>
+                                                <button type="button">Responses</button>
                                             </div>
                                             <p class="form-hint">根据 API 服务商提供的请求格式设置</p>
                                         </div>
@@ -2465,6 +2484,36 @@
                                             <span class="form-label">模型 ID <span class="req">*</span></span>
                                             <input class="field-input code-input" type="text" value="deepseek-chat" placeholder="deepseek-v4-pro">
                                             <p class="form-hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</p>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">内置工具</span>
+                                            <div class="tools-select">
+                                                <div class="tools-select-inner">
+                                                    <span class="tools-tag">web_search<button class="tools-tag-close" type="button">×</button></span>
+                                                    <input class="tools-select-input" type="text" placeholder="输入内置工具名称后按回车添加" autocomplete="off">
+                                                </div>
+                                            </div>
+                                            <p class="form-hint">例如 web_search；输入后按回车添加，点击 × 移除</p>
+                                        </div>
+                                        <div class="form-section">思考模式</div>
+                                        <div class="form-field">
+                                            <span class="form-label">思考模式</span>
+                                            <label class="switch" title="开启 / 关闭">
+                                                <input type="checkbox" checked aria-label="思考模式">
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                            </label>
+                                            <p class="form-hint">启用后强制开启思考模式，未启用则由模型自己判断</p>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">思考强度</span>
+                                            <div class="seg" role="group" aria-label="思考强度">
+                                                <button type="button">Low</button>
+                                                <button type="button">Medium</button>
+                                                <button type="button" class="active">High</button>
+                                                <button type="button">X-High</button>
+                                                <button type="button">Max</button>
+                                            </div>
+                                            <p class="form-hint">Low 响应最快；Medium 均衡；High 适合多数场景；X-High / Max 适合复杂推理任务</p>
                                         </div>
                                         <div class="form-section">测试连接</div>
                                         <div class="form-field">
@@ -2680,7 +2729,7 @@
                                     <div class="drawer-body">
                                         <div class="q-item">
                                             <div class="q-title-row">
-                                                <div class="q-title"><span class="q-id">1</span><span class="q-type">单选</span><span class="q-title-text">以下关于 TCP 三次握手的说法，正确的是？</span></div>
+                                                <div class="q-title"><span class="q-id">1</span><span class="q-type q-type-single">单选</span><span class="q-title-text">以下关于 TCP 三次握手的说法，正确的是？</span></div>
                                                 <button class="copy-btn" type="button" data-copy="1. 以下关于 TCP 三次握手的说法，正确的是？
 A. 第一次握手客户端发送 ACK 包
 B. 第二次握手服务端发送 SYN+ACK 包
@@ -2699,7 +2748,7 @@ D. 第三次握手必须携带数据</p>
                                         </div>
                                         <div class="q-item">
                                             <div class="q-title-row">
-                                                <div class="q-title"><span class="q-id">2</span><span class="q-type">判断</span><span class="q-title-text">IPv6 地址长度为 128 位。</span></div>
+                                                <div class="q-title"><span class="q-id">2</span><span class="q-type q-type-judge">判断</span><span class="q-title-text">IPv6 地址长度为 128 位。</span></div>
                                                 <button class="copy-btn" type="button" data-copy="2. IPv6 地址长度为 128 位。
 
 答案：正确"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>
@@ -2709,7 +2758,7 @@ D. 第三次握手必须携带数据</p>
                                         </div>
                                         <div class="q-item">
                                             <div class="q-title-row">
-                                                <div class="q-title"><span class="q-id">3</span><span class="q-type">填空</span><span class="q-title-text">HTTP 协议默认端口号是 ____。</span></div>
+                                                <div class="q-title"><span class="q-id">3</span><span class="q-type q-type-fill">填空</span><span class="q-title-text">HTTP 协议默认端口号是 ____。</span></div>
                                                 <button class="copy-btn" type="button" data-copy="3. HTTP 协议默认端口号是 ____。
 
 答案：80"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>
@@ -2760,6 +2809,7 @@ D. 第三次握手必须携带数据</p>
                                             <div class="seg" role="group" aria-label="API 格式">
                                                 <button type="button" class="active">OpenAI</button>
                                                 <button type="button">Anthropic</button>
+                                                <button type="button">Responses</button>
                                             </div>
                                             <p class="form-hint">根据 API 服务商提供的请求格式设置</p>
                                         </div>
@@ -2780,6 +2830,36 @@ D. 第三次握手必须携带数据</p>
                                             <span class="form-label">模型 ID <span class="req">*</span></span>
                                             <input class="field-input code-input" type="text" value="deepseek-chat" placeholder="deepseek-v4-pro">
                                             <p class="form-hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</p>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">内置工具</span>
+                                            <div class="tools-select">
+                                                <div class="tools-select-inner">
+                                                    <span class="tools-tag">web_search<button class="tools-tag-close" type="button">×</button></span>
+                                                    <input class="tools-select-input" type="text" placeholder="输入内置工具名称后按回车添加" autocomplete="off">
+                                                </div>
+                                            </div>
+                                            <p class="form-hint">例如 web_search；输入后按回车添加，点击 × 移除</p>
+                                        </div>
+                                        <div class="form-section">思考模式</div>
+                                        <div class="form-field">
+                                            <span class="form-label">思考模式</span>
+                                            <label class="switch" title="开启 / 关闭">
+                                                <input type="checkbox" checked aria-label="思考模式">
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                            </label>
+                                            <p class="form-hint">启用后强制开启思考模式，未启用则由模型自己判断</p>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">思考强度</span>
+                                            <div class="seg" role="group" aria-label="思考强度">
+                                                <button type="button">Low</button>
+                                                <button type="button">Medium</button>
+                                                <button type="button" class="active">High</button>
+                                                <button type="button">X-High</button>
+                                                <button type="button">Max</button>
+                                            </div>
+                                            <p class="form-hint">Low 响应最快；Medium 均衡；High 适合多数场景；X-High / Max 适合复杂推理任务</p>
                                         </div>
                                         <div class="form-section">测试连接</div>
                                         <div class="form-field">
@@ -2991,7 +3071,7 @@ D. 第三次握手必须携带数据</p>
                                     <div class="drawer-body">
                                         <div class="q-item">
                                             <div class="q-title-row">
-                                                <div class="q-title"><span class="q-id">1</span><span class="q-type">单选</span><span class="q-title-text">以下关于 TCP 三次握手的说法，正确的是？</span></div>
+                                                <div class="q-title"><span class="q-id">1</span><span class="q-type q-type-single">单选</span><span class="q-title-text">以下关于 TCP 三次握手的说法，正确的是？</span></div>
                                                 <button class="copy-btn" type="button" data-copy="1. 以下关于 TCP 三次握手的说法，正确的是？
 A. 第一次握手客户端发送 ACK 包
 B. 第二次握手服务端发送 SYN+ACK 包
@@ -3010,7 +3090,7 @@ D. 第三次握手必须携带数据</p>
                                         </div>
                                         <div class="q-item">
                                             <div class="q-title-row">
-                                                <div class="q-title"><span class="q-id">2</span><span class="q-type">判断</span><span class="q-title-text">IPv6 地址长度为 128 位。</span></div>
+                                                <div class="q-title"><span class="q-id">2</span><span class="q-type q-type-judge">判断</span><span class="q-title-text">IPv6 地址长度为 128 位。</span></div>
                                                 <button class="copy-btn" type="button" data-copy="2. IPv6 地址长度为 128 位。
 
 答案：正确"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>
@@ -3020,7 +3100,7 @@ D. 第三次握手必须携带数据</p>
                                         </div>
                                         <div class="q-item">
                                             <div class="q-title-row">
-                                                <div class="q-title"><span class="q-id">3</span><span class="q-type">填空</span><span class="q-title-text">HTTP 协议默认端口号是 ____。</span></div>
+                                                <div class="q-title"><span class="q-id">3</span><span class="q-type q-type-fill">填空</span><span class="q-title-text">HTTP 协议默认端口号是 ____。</span></div>
                                                 <button class="copy-btn" type="button" data-copy="3. HTTP 协议默认端口号是 ____。
 
 答案：80"><i data-lucide="copy"></i><span class="copy-label">复制题目</span></button>

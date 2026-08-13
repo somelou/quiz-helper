@@ -56,6 +56,7 @@ function initModels({
       // 构建 badge 列表
       const badges = [];
       if (isAnswerModel) badges.push('<span class="model-badge model-preferred">' + getMessage('optionsModelBadgeAnswer') + '</span>');
+      if (model.isActive) badges.push('<span class="model-badge model-active">' + getMessage('optionsModelActiveBadge') + '</span>');
       if (isExtract) badges.push('<span class="model-badge model-task-extract">' + getMessage('optionsModelBadgeExtract') + '</span>');
       if (isBank) badges.push('<span class="model-badge model-task-bank">' + getMessage('optionsModelBadgeBank') + '</span>');
 
@@ -230,6 +231,7 @@ function initModels({
       const nameText = escapeHtml(model.name || getMessage('optionsUnnamed'));
       let badgeHtml = '';
       if (isAnswerModel) badgeHtml += '<span class="model-badge model-preferred">' + getMessage('optionsModelBadgeAnswer') + '</span>';
+      if (model.isActive) badgeHtml += '<span class="model-badge model-active">' + getMessage('optionsModelActiveBadge') + '</span>';
       if (isExtract) badgeHtml += '<span class="model-badge model-task-extract">' + getMessage('optionsModelBadgeExtract') + '</span>';
       if (isBank) badgeHtml += '<span class="model-badge model-task-bank">' + getMessage('optionsModelBadgeBank') + '</span>';
       titleEl.innerHTML = nameText + badgeHtml;

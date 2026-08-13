@@ -77,7 +77,10 @@
   color: var(--color-primary);
 }
 
-/* 经典主题隐藏苹果专用的任务用途 chips（改用经典 .list-item-footer 操作链接） */
-[data-theme-style="classic"] .task-toggles {
+/* 经典主题与苹果主题一致：用途切换使用 task-toggles（选中态以颜色体现），隐藏旧页脚链接 */
+[data-theme-style="classic"] .list-item-footer {
   display: none;
+}
+[data-theme-style="classic"] .task-toggle {
+  border-radius: var(--radius-sm);
 }

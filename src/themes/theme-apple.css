@@ -566,12 +566,14 @@ html[data-theme-style="apple"].dark,
 [data-theme-style="apple"] .qh-btn-icon-only {
   border-radius: 999px;
 }
+/* 主按钮：浅色底 + 主色文字（与 demo2 重新作答同款） */
 [data-theme-style="apple"] .qh-btn-primary {
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
 }
+/* hover 与 qh-btn-warning 等一致：仅透明度变化 */
 [data-theme-style="apple"] .qh-btn-primary:hover {
-  background: var(--color-primary-dark);
+  opacity: 0.85;
 }
 [data-theme-style="apple"] .qh-copy-btn,
 [data-theme-style="apple"] .q-copy-btn {
@@ -649,6 +651,18 @@ html[data-theme-style="apple"].dark,
 /* ---- 4.13 抽屉 ---- */
 [data-theme-style="apple"] .drawer {
   border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+  /* 裁剪子元素背景，保证左下角圆角与 demo2 一致 */
+  overflow: hidden;
+}
+/* 内置工具选择器（对齐 demo2 .tools-select-inner：输入框边框 + focus 1px ring） */
+[data-theme-style="apple"] .tools-select-inner {
+  border-color: var(--color-input-border);
+  background: var(--color-input-bg);
+  min-height: 40px;
+}
+[data-theme-style="apple"] .tools-select:focus-within .tools-select-inner {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 1px var(--color-border-focus);
 }
 /* 抽屉头部「保存 / 关闭」按钮：demo2 .drawer-header .btn → 36px 高 + 胶囊 */
 [data-theme-style="apple"] .drawer-header-actions .btn-primary,
@@ -681,15 +695,34 @@ html[data-theme-style="apple"].dark,
   display: inline-flex;
   align-items: center;
   padding: 0 8px;
+  font-weight: 600;
+  line-height: 1;
+  /* 颜色由 .q-type.q-type-single 等多色变量提供（与面板题型一致） */
   background: var(--color-surface-hover);
   color: var(--color-text-muted);
 }
+[data-theme-style="apple"] .drawer-body .q-type.q-type-single { background: var(--color-type-single-bg); color: var(--color-type-single-text); }
+[data-theme-style="apple"] .drawer-body .q-type.q-type-multiple { background: var(--color-type-multiple-bg); color: var(--color-type-multiple-text); }
+[data-theme-style="apple"] .drawer-body .q-type.q-type-judge { background: var(--color-type-judge-bg); color: var(--color-type-judge-text); }
+[data-theme-style="apple"] .drawer-body .q-type.q-type-fill { background: var(--color-type-fill-bg); color: var(--color-type-fill-text); }
+[data-theme-style="apple"] .drawer-body .q-type.q-type-unknown { background: var(--color-type-unknown-bg); color: var(--color-type-unknown-text); }
+[data-theme-style="apple"] .drawer-body .q-text {
+  background: none;
+  border: none;
+  /* border-radius: var(--radius-sm); */
+  padding: 0;
+}
 [data-theme-style="apple"] .drawer-body .q-answer {
-  padding: 5px 12px;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-secondary);
-  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  margin-top: 6px;
+  background: none;
+  border: none;
+  /* border-radius: var(--radius-sm); */
+  padding: 0;
+  color: inherit;
   font-weight: 600;
+  line-height: inherit;
 }
 /* 密码显示按钮：胶囊 + 眼睛图标 */
 [data-theme-style="apple"] .toggle-visible {
@@ -855,7 +888,7 @@ html[data-theme-style="apple"].dark,
 
 /* ---- 4.20 测试结果 / 深度思考折叠 ---- */
 [data-theme-style="apple"] .test-result {
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
 }
 [data-theme-style="apple"] .test-thinking summary {
   border-radius: 0;
@@ -881,7 +914,8 @@ html[data-theme-style="apple"].dark,
 
 /* 抽屉内表单字段（rule-form-group 结构） */
 /* 区块标题（demo2 主页面 .sub-title：13px/600 前景色） */
-[data-theme-style="apple"] .rule-form-section {
+[data-theme-style="apple"] .rule-form-section,
+[data-theme-style="apple"] .sub-title {
   display: flex;
   align-items: center;
   margin: 0;
@@ -945,11 +979,7 @@ html[data-theme-style="apple"].dark,
   border-color: var(--color-border);
   background: var(--color-surface);
 }
-[data-theme-style="apple"] .drawer-body .q-text {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
+
 [data-theme-style="apple"] .drawer-body .q-label {
   color: var(--color-text-muted);
   font-weight: 600;
@@ -1246,19 +1276,37 @@ html[data-theme-style="apple"].dark,
   background-color: #f2f2f7;
   color: #3c3c43;
 }
+/* 未启用的搜索服务商项整体淡显（同大模型未激活状态） */
+[data-theme-style="apple"] #searchList .list-item:not(.search-item-active) {
+  opacity: 0.6;
+}
 /* 徽标 */
-[data-theme-style="apple"] .model-badge.model-preferred,
-[data-theme-style="apple"] .search-provider-badge.search-badge-active {
+[data-theme-style="apple"] .model-badge.model-preferred {
   background-color: rgba(0, 122, 255, 0.12);
   color: #007aff;
 }
+/* 搜索服务商「已启用」= demo2 .badge-success（绿色），与模型「已激活」同款 */
+[data-theme-style="apple"] .search-provider-badge.search-badge-active {
+  background-color: rgba(52, 199, 89, 0.14);
+  color: #34c759;
+}
 [data-theme-style="apple"] .model-badge.model-active {
+  background-color: rgba(52, 199, 89, 0.14);
+  color: #34c759;
+}
+/* 题库「已启用」= demo2 .badge-success（绿色），与模型「已激活」同款 */
+[data-theme-style="apple"] .model-badge.model-enabled-badge {
   background-color: rgba(52, 199, 89, 0.14);
   color: #34c759;
 }
 [data-theme-style="apple"] .model-badge.model-task-bank {
   background-color: rgba(255, 149, 0, 0.14);
   color: #ff9500;
+}
+/* 苹果主题只保留「默认」「已激活」徽章（用途由 task-toggle 颜色体现） */
+[data-theme-style="apple"] .model-badge.model-task-bank,
+[data-theme-style="apple"] .model-badge.model-task-extract {
+  display: none;
 }
 [data-theme-style="apple"] .model-badge.model-inactive-badge,
 [data-theme-style="apple"] .search-provider-badge.search-badge-inactive {
@@ -1293,14 +1341,22 @@ html[data-theme-style="apple"].dark .action-btn.action-secondary,
   color: #f5f5f7;
 }
 html[data-theme-style="apple"].dark .model-badge.model-preferred,
-html[data-theme-style="apple"].dark .search-provider-badge.search-badge-active,
-[data-theme-style="apple"] .dark .model-badge.model-preferred,
-[data-theme-style="apple"] .dark .search-provider-badge.search-badge-active {
+[data-theme-style="apple"] .dark .model-badge.model-preferred {
   background-color: rgba(10, 132, 255, 0.16);
   color: #66abff;
 }
+html[data-theme-style="apple"].dark .search-provider-badge.search-badge-active,
+[data-theme-style="apple"] .dark .search-provider-badge.search-badge-active {
+  background-color: rgba(48, 209, 88, 0.16);
+  color: #30d158;
+}
 html[data-theme-style="apple"].dark .model-badge.model-active,
 [data-theme-style="apple"] .dark .model-badge.model-active {
+  background-color: rgba(48, 209, 88, 0.16);
+  color: #30d158;
+}
+html[data-theme-style="apple"].dark .model-badge.model-enabled-badge,
+[data-theme-style="apple"] .dark .model-badge.model-enabled-badge {
   background-color: rgba(48, 209, 88, 0.16);
   color: #30d158;
 }
@@ -1318,7 +1374,8 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
 }
 
 /* ---- 4.28 备份区按钮 / 文件名（demo2 .export-row / .import-row / .opt-main .btn） ---- */
-[data-theme-style="apple"] .backup-action-row {
+[data-theme-style="apple"] .backup-action-row,
+[data-theme-style="apple"] .export-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1330,6 +1387,7 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
 }
 /* 三个按钮：40px 高 + 2.4rem 胶囊（demo2 .btn） */
 [data-theme-style="apple"] .backup-action-row .action-btn,
+[data-theme-style="apple"] .export-row .action-btn,
 [data-theme-style="apple"] .backup-import-row .action-btn {
   height: 40px;
   padding: 0 20px;
@@ -1340,6 +1398,7 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
 }
 /* 导出 / 导入备份 = demo2 .btn-primary（蓝底白字） */
 [data-theme-style="apple"] .backup-action-row .action-btn.action-export,
+[data-theme-style="apple"] .export-row .action-btn.action-export,
 [data-theme-style="apple"] .backup-import-row .action-btn.action-edit {
   background: var(--color-primary);
   color: #fff;
@@ -1371,6 +1430,7 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
 }
 /* 按钮图标 15px（demo2 .opt-main .btn svg） */
 [data-theme-style="apple"] .backup-action-row .action-btn svg,
+[data-theme-style="apple"] .export-row .action-btn svg,
 [data-theme-style="apple"] .backup-import-row .action-btn svg {
   width: 15px;
   height: 15px;

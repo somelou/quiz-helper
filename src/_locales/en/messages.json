@@ -107,6 +107,12 @@
   "optionsModels": {
     "message": "Model Management"
   },
+  "optionsModelListTitle": {
+    "message": "Model List"
+  },
+  "optionsModelActiveBadge": {
+    "message": "Active"
+  },
   "optionsSearch": {
     "message": "Web Search Settings"
   },
@@ -115,6 +121,9 @@
   },
   "optionsBank": {
     "message": "Question Bank"
+  },
+  "optionsBankListTitle": {
+    "message": "Question Bank List"
   },
   "optionsHistory": {
     "message": "History"
@@ -129,7 +138,7 @@
     "message": "System Prompt"
   },
   "optionsPromptHint": {
-    "message": "Each question type can have its own custom prompt; leave blank to use the default. The gray placeholder is the default prompt for the current type."
+    "message": "Each question type can have its own custom prompt; leave blank to use the default."
   },
   "optionsExtraContext": {
     "message": "Extra Prompt / Domain Context"
@@ -165,7 +174,7 @@
     "message": "Add"
   },
   "optionsModelsHint": {
-    "message": "Manage multiple model configs; enable or disable them and set a preferred model. Use the buttons below to assign a dedicated model to each task."
+    "message": "Manage multiple model configs; enable or disable them and assign a dedicated model to different tasks."
   },
   "optionsStreamOutput": {
     "message": "Stream Output"
@@ -271,6 +280,9 @@
   },
   "optionsExportBackup": {
     "message": "Export Backup"
+  },
+  "optionsExportReadyFormat": {
+    "message": "Ready to export $1 modules"
   },
   "optionsBackupImportTitle": {
     "message": "Import Backup Data"
@@ -498,7 +510,7 @@
     "message": "Model activated"
   },
   "optionsModelBadgeAnswer": {
-    "message": "Answering"
+    "message": "Default"
   },
   "optionsModelBadgeBank": {
     "message": "Bank Parsing"
@@ -777,7 +789,7 @@
     "message": "Activated “$1”"
   },
   "optionsSearchActiveBadge": {
-    "message": "Active"
+    "message": "Enabled"
   },
   "optionsSearchAnswerHint": {
     "message": "When enabled, Tavily returns an LLM-generated summary answer for the query"
@@ -831,7 +843,7 @@
     "message": "Search failed: $1"
   },
   "optionsSearchInactiveBadge": {
-    "message": "Inactive"
+    "message": "Disabled"
   },
   "optionsSearchLangDe": {
     "message": "German"

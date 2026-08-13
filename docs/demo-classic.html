@@ -838,7 +838,7 @@ body {
   background: var(--color-primary-bg);
   color: var(--color-primary);
 }
-.qh-btn-primary:hover { opacity: 0.85; }
+.qh-btn-primary:hover { background: var(--color-primary-dark); color: #fff; }
 .qh-btn-secondary { background: var(--color-btn-secondary-bg); color: var(--color-btn-secondary-text); }
 .qh-btn-secondary:hover { background: var(--color-surface-hover); color: var(--color-text); }
 .qh-btn-warning { background: var(--color-warning-bg); color: var(--color-warning); }
@@ -1043,7 +1043,7 @@ body {
 }
 .action-btn:active { }
 .action-btn svg { width: 13px; height: 13px; display: block; }
-.action-view, .action-edit { background: var(--color-btn-action-bg); color: var(--color-btn-action-text); }
+.action-view, .action-edit, .action-primary { background: var(--color-btn-action-bg); color: var(--color-btn-action-text); }
 .action-export { background: var(--color-btn-export-bg); color: var(--color-btn-export-text); }
 .action-delete { background: var(--color-btn-danger-bg); color: var(--color-btn-danger-text); }
 .action-secondary { background: var(--color-btn-secondary-bg); color: var(--color-btn-secondary-text); }
@@ -1117,6 +1117,27 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+/* 备份导出：提示 + 按钮并排（与 demo2 .export-row 一致） */
+.options-preview .export-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.options-preview .export-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+.options-preview .export-note svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--color-success);
 }
 .options-preview .backup-import-row {
   display: flex;
@@ -1229,6 +1250,8 @@ body {
 .list-item-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .list-item-info { flex: 1; min-width: 0; }
 .list-item-title {
+  display: flex;
+  align-items: center;
   font-size: var(--font-md);
   font-weight: 600;
   color: var(--color-text);
@@ -1238,7 +1261,25 @@ body {
 }
 .list-item-meta { font-size: var(--font-sm); color: var(--color-text-muted); margin-top: 2px; }
 .list-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.list-item-footer { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--color-border); text-align: right; }
+.list-item-footer {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--color-border);
+  text-align: right;
+}
+/* 用途切换 chips（与苹果主题一致，选中态以颜色体现） */
+.task-toggles { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.task-toggle {
+  display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 10px;
+  border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: transparent;
+  color: var(--color-text-muted); font-size: 11px; font-weight: 500; line-height: 1; cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+.task-toggle:hover { color: var(--color-text); border-color: var(--color-input-border); }
+.task-toggle::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; opacity: .4; }
+.task-toggle.active { border-color: transparent; background: var(--color-primary-bg); color: var(--color-primary); }
+.task-toggle.active::before { opacity: 1; }
 .action-link {
   background: none;
   border: none;
@@ -1264,12 +1305,72 @@ body {
   font-weight: 500;
   vertical-align: middle;
 }
-.model-preferred, .search-badge-active { background: var(--color-primary-bg); color: var(--color-primary); }
+.model-preferred, .model-enabled-badge, .search-badge-active { background: var(--color-primary-bg); color: var(--color-primary); }
 .model-active { background: var(--color-success-bg); color: var(--color-success); }
 .model-inactive-badge, .search-badge-inactive { background: var(--color-surface-hover); color: var(--color-text-muted); }
 .model-task-bank { background: var(--color-warning-bg); color: var(--color-warning); }
 .model-task-extract { background: var(--color-info-bg); color: var(--color-info); }
 .model-inactive { opacity: 0.6; }
+/* 未激活模型隐藏用途切换（已停用无需指派任务） */
+.model-inactive .task-toggles { display: none; }
+/* 经典主题只保留「默认」徽章（激活态由 .list-item.active 边框背景体现，用途由 task-toggle 颜色体现） */
+.model-active, .model-task-bank, .model-task-extract { display: none; }
+
+/* 工具选择器（内置工具，Responses 格式） */
+.tools-select-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-input-bg);
+  min-height: 34px;
+  cursor: text;
+  transition: border-color 0.2s;
+}
+.tools-select:focus-within .tools-select-inner {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+.tools-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: var(--font-sm);
+  line-height: 22px;
+  user-select: none;
+}
+.tools-tag-close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.tools-tag-close:hover { opacity: 1; }
+.tools-select-input {
+  flex: 1;
+  min-width: 100px;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  font-size: var(--font-sm) !important;
+  line-height: 26px !important;
+  padding: 0 2px !important;
+  margin: 0;
+}
 
 /* 规则/模型表单 */
 .rule-form-group { margin-bottom: 16px; }
@@ -1280,7 +1381,8 @@ body {
   font-size: var(--font-sm);
   color: var(--color-text-label);
 }
-.rule-form-section {
+.rule-form-section,
+.sub-title {
   font-weight: 600;
   font-size: var(--font-md);
   color: var(--color-text);
@@ -1306,6 +1408,7 @@ body {
   transition: border-color var(--transition-fast), color var(--transition-fast);
 }
 .page-btn:hover:not(:disabled):not(.active) { border-color: var(--color-primary); color: var(--color-primary); }
+.page-btn svg { width: 14px; height: 14px; display: block; }
 .page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
 .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .page-info { font-size: var(--font-xs); color: var(--color-text-muted); margin: 0 8px; }
@@ -1479,6 +1582,8 @@ body {
 
 /* 题库工具栏 & 进度条 */
 .bank-toolbar { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
+.bank-toolbar-stats { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: var(--font-sm); color: var(--color-text-muted); }
+.bank-toolbar-stats svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--color-primary); }
 .bank-progress-bar { height: 6px; background: var(--color-surface-hover); border-radius: var(--radius-full); overflow: hidden; }
 .bank-progress-fill {
   height: 100%;
@@ -1958,7 +2063,7 @@ body {
                 <div class="setting-row">
                   <div class="shortcut-value">Alt + Q</div>
                   <div class="shortcut-actions" style="margin-top:0;">
-                    <button type="button" class="action-btn action-view">录制</button>
+                    <button type="button" class="action-btn action-primary">录制</button>
                     <button type="button" class="action-btn action-secondary action-clear">清空</button>
                     <button type="button" class="action-btn action-secondary">默认</button>
                   </div>
@@ -1980,7 +2085,7 @@ body {
           <div class="card">
             <div class="switch-row" style="margin-bottom: 12px;">
               <h2>大模型管理</h2>
-              <button class="action-btn action-edit">添加</button>
+              <button class="action-btn action-primary">添加</button>
             </div>
             <div class="hint" style="margin-bottom: 12px;">管理多个大模型配置，可激活/停用，设置首选模型。</div>
             <div class="form-group">
@@ -1991,27 +2096,45 @@ body {
               </label>
               <div class="hint">开启后，大模型测试与答题时逐字返回结果；关闭后一次性返回完整结果。</div>
             </div>
+            <div class="sub-title">模型列表</div>
             <div class="list-item active">
               <div class="list-item-header">
                 <div class="list-item-info">
-                  <div class="list-item-title">DeepSeek-V3<span class="model-badge model-preferred">默认</span><span class="model-badge model-active">已激活</span><span class="model-badge model-task-bank">题库导入</span></div>
+                  <div class="list-item-title">DeepSeek-V3<span class="model-badge model-preferred">默认</span></div>
                   <div class="list-item-meta">https://api.deepseek.com · deepseek-chat</div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-view">编辑</button>
+                  <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="switch-slider"></span>
+                  </label>
+                  <button class="action-btn action-edit">编辑</button>
                   <button class="action-btn action-delete">删除</button>
                 </div>
               </div>
-              <div class="list-item-footer"><button class="action-link">为各任务指定专用模型</button></div>
+              <div class="task-toggles" role="group" aria-label="模型用途">
+                <button class="task-toggle active" type="button">用于答题</button>
+                <button class="task-toggle" type="button">用于页面解析</button>
+                <button class="task-toggle active" type="button">用于题库解析</button>
+              </div>
             </div>
             <div class="list-item model-inactive">
               <div class="list-item-header">
                 <div class="list-item-info">
                   <div class="list-item-title">Qwen-Max<span class="model-badge model-inactive-badge">已停用</span></div>
                   <div class="list-item-meta">https://dashscope.aliyuncs.com · qwen-max</div>
+                  <div class="task-toggles" role="group" aria-label="模型用途">
+                    <button class="task-toggle" type="button" disabled>用于答题</button>
+                    <button class="task-toggle" type="button" disabled>用于页面解析</button>
+                    <button class="task-toggle" type="button" disabled>用于题库解析</button>
+                  </div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-view">编辑</button>
+                  <label class="switch">
+                    <input type="checkbox">
+                    <span class="switch-slider"></span>
+                  </label>
+                  <button class="action-btn action-edit">编辑</button>
                   <button class="action-btn action-delete">删除</button>
                 </div>
               </div>
@@ -2052,7 +2175,11 @@ body {
                   <div class="list-item-meta">本月 0/100 · 微软必应搜索 · 结果稳定，支持时间范围过滤</div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-view">配置</button>
+                  <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="switch-slider"></span>
+                  </label>
+                  <button class="action-btn action-edit">配置</button>
                 </div>
               </div>
             </div>
@@ -2063,7 +2190,11 @@ body {
                   <div class="list-item-meta">本月 0/500 · 面向 AI 的搜索 API · 需要 API Key</div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-view">配置</button>
+                  <label class="switch">
+                    <input type="checkbox">
+                    <span class="switch-slider"></span>
+                  </label>
+                  <button class="action-btn action-edit">配置</button>
                 </div>
               </div>
             </div>
@@ -2097,12 +2228,12 @@ body {
               </div>
             </div>
             <div class="pagination">
-              <button class="page-btn" disabled>上一页</button>
+              <button class="page-btn" disabled aria-label="上一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
               <button class="page-btn active">1</button>
               <button class="page-btn">2</button>
               <button class="page-btn">3</button>
               <span class="page-info">共 24 条</span>
-              <button class="page-btn">下一页</button>
+              <button class="page-btn" aria-label="下一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
             </div>
           </div>
 
@@ -2125,8 +2256,8 @@ body {
               <div class="hint">并发 10 批 · 每批 50 题</div>
             </div>
             <div class="bank-toolbar">
-              <button class="btn btn-secondary">导入题库</button>
-              <span class="hint" style="margin-top:0;">共 2 个题库 · 1,280 题</span>
+              <span class="bank-toolbar-stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>共 2 个题库 · 1,280 题</span>
+              <button class="btn btn-primary">导入题库</button>
             </div>
             <div style="margin-top: 4px;">
               <div class="bank-progress-bar"><div class="bank-progress-fill"></div></div>
@@ -2135,15 +2266,20 @@ body {
                 <button class="bank-progress-cancel">取消</button>
               </div>
             </div>
+            <div class="sub-title">题库列表</div>
             <div class="list-item" style="margin-top: 12px;">
               <div class="list-item-header">
                 <div class="list-item-info">
-                  <div class="list-item-title">计算机网络期末题库.xlsx</div>
+                  <div class="list-item-title">计算机网络期末题库.xlsx<span class="model-badge model-enabled-badge">已启用</span></div>
                   <div class="list-item-meta">820 题 · 2026-07-10 导入</div>
                 </div>
                 <div class="list-item-actions">
-                  <button class="action-btn action-export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>导出</button>
-                  <button class="action-btn action-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>删除</button>
+                  <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="switch-slider"></span>
+                  </label>
+                  <button class="action-btn action-view">查看</button>
+                  <button class="action-btn action-delete">删除</button>
                 </div>
               </div>
             </div>
@@ -2181,11 +2317,11 @@ body {
               </div>
             </div>
             <div class="pagination">
-              <button class="page-btn" disabled>上一页</button>
+              <button class="page-btn" disabled aria-label="上一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
               <button class="page-btn active">1</button>
               <button class="page-btn">2</button>
               <span class="page-info">共 28 条</span>
-              <button class="page-btn">下一页</button>
+              <button class="page-btn" aria-label="下一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
             </div>
           </div>
 
@@ -2203,7 +2339,11 @@ body {
                 <label class="backup-module-item"><input type="checkbox" checked><span>题库</span></label>
                 <label class="backup-module-item"><input type="checkbox" checked><span>历史记录</span></label>
               </div>
-              <div class="backup-action-row">
+              <div class="export-row">
+                <div class="export-note">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  <span>已准备导出 6 个模块</span>
+                </div>
                 <button class="action-btn action-export">
                   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M8 2v8M5 7l3 3 3-3M3 13h10"/>
@@ -2211,7 +2351,6 @@ body {
                   导出备份
                 </button>
               </div>
-              <div class="hint" style="margin-top: 10px;">已准备导出 6 个模块</div>
             </div>
 
             <div class="backup-section-block">
@@ -2293,6 +2432,7 @@ body {
               <div class="segmented-control">
                 <button class="seg-active">OpenAI</button>
                 <button>Anthropic</button>
+                <button>Responses</button>
               </div>
               <div class="hint">根据 API 服务商提供的请求格式设置</div>
             </div>
@@ -2316,6 +2456,38 @@ body {
               <label>模型 ID <span style="color:var(--color-error-text);">*</span></label>
               <input type="text" value="deepseek-chat" placeholder="deepseek-v4-pro">
               <div class="hint">例如：gpt-5、deepseek-v4-pro、deepseek-v4-flash</div>
+            </div>
+
+            <div class="rule-form-group">
+              <label>内置工具</label>
+              <div class="tools-select">
+                <div class="tools-select-inner">
+                  <span class="tools-tag">web_search<button type="button" class="tools-tag-close">&times;</button></span>
+                  <input type="text" class="tools-select-input" placeholder="输入内置工具名称后按回车添加" autocomplete="off">
+                </div>
+              </div>
+              <div class="hint">例如 web_search；输入后按回车添加，点击 × 移除</div>
+            </div>
+
+            <div class="rule-form-section">思考模式</div>
+            <div class="rule-form-group">
+              <label>思考模式</label>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="switch-slider"></span>
+              </label>
+              <div class="hint">启用后强制开启思考模式，未启用则由模型自己判断</div>
+            </div>
+            <div class="rule-form-group">
+              <label>思考强度</label>
+              <div class="segmented-control">
+                <button>Low</button>
+                <button>Medium</button>
+                <button class="seg-active">High</button>
+                <button>X-High</button>
+                <button>Max</button>
+              </div>
+              <div class="hint">Low 响应最快；Medium 均衡；High 适合多数场景；X-High / Max 适合复杂推理任务</div>
             </div>
 
             <div class="rule-form-section">测试连接</div>
