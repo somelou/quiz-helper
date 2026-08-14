@@ -107,84 +107,246 @@ body {
   color: var(--color-text);
 }
 
-/* ===== 模型切换自定义下拉 ===== */
-.model-dropdown {
-  position: relative;
+/* ===== 状态面板 ===== */
+.status-panel {
   margin-bottom: 10px;
+  background: var(--color-bg-secondary);
+  padding: 10px 12px 12px;
 }
-.model-dropdown-btn {
-  position: relative;
-  text-align: center;
+/* 状态面板组件圆角与各主题按钮保持一致（经典 10px / 苹果 radius-md） */
+.status-panel,
+.status-group,
+.status-mini,
+#statusRedetect,
+.status-dropdown-menu {
+  border-radius: var(--radius-md);
 }
-.model-dropdown-arrow {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 15px;
-  height: 15px;
+[data-theme-style="classic"] .status-panel,
+[data-theme-style="classic"] .status-group,
+[data-theme-style="classic"] .status-mini,
+[data-theme-style="classic"] #statusRedetect,
+[data-theme-style="classic"] .status-dropdown-menu {
+  border-radius: 10px;
+}
+/* 苹果主题：popup 按钮 margin-bottom 归零，面板自行补上间距 */
+[data-theme-style="apple"] .status-panel {
+  margin-top: 10px;
+}
+/* 经典主题深色：面板与内部卡片按 demo 定稿分层（面板 surface、卡片 surface-hover） */
+[data-theme-style="classic"] body.dark .status-panel {
+  background: var(--color-surface);
+}
+[data-theme-style="classic"] body.dark .status-group,
+[data-theme-style="classic"] body.dark .status-mini {
+  background: var(--color-surface-hover);
+}
+.status-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.status-panel-header .status-icon svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+.status-panel-title {
+  font-size: var(--font-xs);
+  font-weight: 600;
   color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+}
+/* 标题行内「重新检测」：无边框，hover 仅背景微变（ID 选择器确保覆盖主题层 .btn 规则） */
+#statusRedetect {
+  width: auto;
+  height: 26px;
+  padding: 0 12px;
+  margin: 0 0 0 auto;
+  font-size: var(--font-xs);
+  line-height: 1;
+  background: transparent;
+  color: var(--color-text-secondary);
+  box-shadow: none;
+}
+#statusRedetect:hover {
+  background: var(--color-surface-hover);
+}
+/* 苹果主题 hover：--color-surface-hover 与面板底同色，改用 surface 形成轻微变化 */
+[data-theme-style="apple"] #statusRedetect:hover {
+  background: var(--color-surface);
+}
+#statusRedetect svg { width: 14px; height: 14px; display: block; }
+/* 重新检测：检测中图标旋转反馈 + 禁用态（检测完成前禁止再次点击） */
+#statusRedetect.is-loading svg {
+  animation: status-spin 0.8s linear infinite;
+}
+@keyframes status-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+#statusRedetect:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 服务组卡片：单行「名称 | 状态点按钮」 */
+.status-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  padding: 5px 8px 5px 12px;
+  margin-bottom: 8px;
+  height: 40px; /* 与统计格严格等高：按钮 24px + 上下内边距 5px×2 + 边框 2px + 上下余量各 2px */
+}
+.status-group-label {
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* 服务切换：透明文字按钮（状态点 + 名称 + 箭头） */
+.status-dropdown {
+  position: relative;
+  flex-shrink: 1;
+  min-width: 0;
+}
+.status-dropdown.open { z-index: 30; }
+.status-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  max-width: 100%;
+  border: none;
+  background: none;
+  box-shadow: none;
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.4;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.status-dropdown-btn:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+.status-dropdown-btn .status-dot { margin-right: 5px; }
+.status-dropdown-btn .status-dropdown-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.status-dropdown-btn .status-dropdown-arrow { flex-shrink: 0; }
+.status-dropdown-arrow {
+  width: 12px;
+  height: 12px;
+  color: var(--color-text-muted);
+  opacity: 0.6;
   display: inline-flex;
   transition: transform var(--transition-normal);
 }
-.model-dropdown-arrow svg {
-  width: 15px;
-  height: 15px;
-  display: block;
-}
-.model-dropdown.open .model-dropdown-arrow {
-  transform: translateY(-50%) rotate(180deg);
-}
-
-/* 下拉菜单 */
-.model-dropdown-menu {
+.status-dropdown-arrow svg { width: 12px; height: 12px; display: block; }
+.status-dropdown.open .status-dropdown-arrow { transform: rotate(180deg); }
+.status-dropdown-menu {
   display: none;
-  margin-top: 6px;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 148px;
+  max-width: 240px;
   padding: 4px;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
   box-shadow: var(--shadow-lg);
+  z-index: 30;
 }
-.model-dropdown.open .model-dropdown-menu {
-  display: block;
-}
-
-/* 下拉选项 */
-.model-dropdown-option {
-  position: relative;
-  display: block;
+.status-dropdown.open .status-dropdown-menu { display: block; }
+.status-dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
-  height: 34px;
+  height: 30px;
   padding: 0 10px;
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: var(--font-md);
+  font-size: var(--font-sm);
   font-family: inherit;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
-  text-align: center;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
-.model-dropdown-check {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 14px;
-  height: 14px;
-  color: var(--color-primary);
-  display: inline-flex;
+.status-dropdown-option:not(:last-child) { margin-bottom: 2px; } /* 选项间留缝，避免 hover 背景粘连 */
+.status-dropdown-option:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.status-dropdown-option.selected { background: var(--color-primary-bg); color: var(--color-primary); font-weight: 500; }
+
+/* 状态点 */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-border);
 }
-.model-dropdown-check svg { width: 14px; height: 14px; display: block; }
-.model-dropdown-option:not(:last-child) { margin-bottom: 2px; }
-.model-dropdown-option:hover { background: var(--color-surface-hover); color: var(--color-text); }
-.model-dropdown-option.selected {
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
+.status-dot.ok { background: var(--color-success); }
+.status-dot.err { background: var(--color-error); }
+
+/* 统计栅格：启用题库 / 解析规则 */
+.status-mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.status-mini {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  padding: 5px 12px;
+  height: 40px; /* 与服务组严格等高（内容垂直居中，视觉留白与 demo 一致） */
+}
+.status-mini .status-group-value {
+  font-size: var(--font-sm);
   font-weight: 500;
+  color: var(--color-text);
 }
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.status-tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-tag.on { color: var(--color-success); }
+.status-tag.off { color: var(--color-text-muted); font-weight: 400; }
 
 /* ===== 提示 ===== */
 .hint {

@@ -80,6 +80,39 @@
   "popupShortcutHint": {
     "message": "Assistant shortcut: <strong>$1</strong>"
   },
+  "statusPanelTitle": {
+    "message": "Status"
+  },
+  "statusRedetect": {
+    "message": "Re-check"
+  },
+  "statusLLM": {
+    "message": "LLM API"
+  },
+  "statusSearch": {
+    "message": "Search"
+  },
+  "statusBank": {
+    "message": "Banks"
+  },
+  "statusRule": {
+    "message": "Rules"
+  },
+  "statusNotConfigured": {
+    "message": "Not configured"
+  },
+  "statusActive": {
+    "message": "Active"
+  },
+  "statusNone": {
+    "message": "None"
+  },
+  "statusTooltipOk": {
+    "message": "OK · $1ms"
+  },
+  "statusTooltipErr": {
+    "message": "Error · $1"
+  },
   "popupSelectModel": {
     "message": "Select model"
   },

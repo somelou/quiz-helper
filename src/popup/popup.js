@@ -1,4 +1,4 @@
-// Popup 逻辑：向当前标签页发送分析指令 + 主题切换 + 模型选择
+// Popup 逻辑：向当前标签页发送分析指令 + 主题切换 + 状态面板（模型/搜索切换与检测）
 
 window.QuizHelperIcons?.replaceIcons(document);
 const { DEFAULT_SHORTCUT, STORAGE_KEYS } = globalThis.QuizHelperConstants;
@@ -11,10 +11,6 @@ globalThis.QuizHelperI18n.localizePage(document);
 
 const popupHint = document.getElementById('popupHint');
 const themeToggle = document.getElementById('themeToggle');
-const modelDropdown = document.getElementById('modelDropdown');
-const modelDropdownBtn = document.getElementById('modelDropdownBtn');
-const modelDropdownLabel = modelDropdownBtn.querySelector('.model-dropdown-label');
-const modelDropdownMenu = document.getElementById('modelDropdownMenu');
 
 // 版本号：与设置页"关于"一致，从 manifest 读取
 const popupVersion = document.getElementById('popupVersion');
@@ -30,7 +26,7 @@ const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 loadTheme();
 loadShortcutDisplay();
-loadModelSelector();
+loadStatusPanel();
 
 // 主题切换按钮事件
 themeToggle.addEventListener('click', event => {
@@ -117,91 +113,233 @@ async function loadShortcutDisplay() {
   popupHint.innerHTML = getMessage('popupShortcutHint', [shortcutText]);
 }
 
-// ===== 模型选择 =====
+// ===== 状态面板 =====
+// 打开时读取上次检测的状态（status_cache）并渲染，零网络请求；
+// 仅手动「重新检测」触发后台真实探测（detectStatus）。
 
-let activeModelId = '';
+const statusRedetect = document.getElementById('statusRedetect');
+const llmDropdown = document.getElementById('llmDropdown');
+const llmDropdownBtn = document.getElementById('llmDropdownBtn');
+const llmDot = document.getElementById('llmDot');
+const llmDropdownLabel = document.getElementById('llmDropdownLabel');
+const llmDropdownMenu = document.getElementById('llmDropdownMenu');
+const searchDropdown = document.getElementById('searchDropdown');
+const searchDropdownBtn = document.getElementById('searchDropdownBtn');
+const searchDot = document.getElementById('searchDot');
+const searchDropdownLabel = document.getElementById('searchDropdownLabel');
+const searchDropdownMenu = document.getElementById('searchDropdownMenu');
+const bankCount = document.getElementById('bankCount');
+const ruleStatus = document.getElementById('ruleStatus');
 
-async function loadModelSelector() {
-  const result = await chrome.storage.local.get([STORAGE_KEYS.LLM_MODELS, STORAGE_KEYS.ACTIVE_MODEL_ID]);
-  const models = result[STORAGE_KEYS.LLM_MODELS] || [];
-  activeModelId = result[STORAGE_KEYS.ACTIVE_MODEL_ID] || '';
+let statusModels = [];
+let statusActiveModelId = '';
+let statusSearchProviders = [];
+let statusActiveSearchProviderId = '';
+let statusCache = { llm: {}, search: {} };
 
-  const activeModels = models.filter(m => m.isActive);
+/** 设置状态点样式：ok 绿 / err 红 / 其余灰 */
+function applyDot(el, status) {
+  el.classList.toggle('ok', status === 'ok');
+  el.classList.toggle('err', status === 'err');
+}
 
-  if (activeModels.length === 0) {
-    modelDropdownLabel.textContent = getMessage('commonNoModels');
-    modelDropdownBtn.disabled = true;
-    modelDropdownMenu.innerHTML = '';
-    return;
+/** 构造按钮/选项的 title 提示（面板上不渲染状态文字） */
+function statusTitle(entry) {
+  if (!entry) return '';
+  if (entry.status === 'ok' && entry.latencyMs != null) {
+    return getMessage('statusTooltipOk', [entry.latencyMs]);
   }
+  if (entry.status === 'err') {
+    return getMessage('statusTooltipErr', [entry.error || getMessage('commonUnknownError')]);
+  }
+  return '';
+}
 
-  modelDropdownBtn.disabled = false;
-  const currentModel = activeModels.find(m => m.id === activeModelId);
-  modelDropdownLabel.textContent = currentModel ? (currentModel.name || currentModel.modelId) : getMessage('popupSelectModel');
+/** 渲染单个下拉菜单项（带状态点） */
+function buildStatusOption({ id, label, status, title, onPick }) {
+  const opt = document.createElement('button');
+  opt.type = 'button';
+  opt.className = 'status-dropdown-option';
+  const dot = document.createElement('i');
+  dot.className = 'status-dot' + (status ? ` ${status}` : '');
+  dot.setAttribute('aria-hidden', 'true');
+  opt.appendChild(dot);
+  opt.appendChild(document.createTextNode(label));
+  if (title) opt.title = title;
+  opt.addEventListener('mousedown', async e => {
+    e.preventDefault();
+    await onPick(id, label);
+  });
+  return opt;
+}
 
-  modelDropdownMenu.innerHTML = '';
-  activeModels.forEach(m => {
-    const opt = document.createElement('button');
-    opt.className = 'model-dropdown-option';
-    const isSelected = m.id === activeModelId;
-    if (isSelected) opt.classList.add('selected');
-    // 选中态按显示文本（name）判断：name 在保存时被强制唯一（见 model-section.js saveModelFromDrawer），不会误选
-    opt.textContent = m.name || m.modelId;
-    // 选中项追加对勾图标（图标统一来自 src/icons/check.svg）
-    if (isSelected) {
-      const check = document.createElement('span');
-      check.className = 'model-dropdown-check';
-      check.setAttribute('data-icon', 'check');
-      check.setAttribute('aria-hidden', 'true');
-      opt.appendChild(check);
-    }
-    opt.addEventListener('mousedown', async e => {
-      e.preventDefault();
-      await selectModel(m.id, m.name || m.modelId);
+async function loadStatusPanel() {
+  const result = await chrome.storage.local.get([
+    STORAGE_KEYS.LLM_MODELS,
+    STORAGE_KEYS.ACTIVE_MODEL_ID,
+    STORAGE_KEYS.WEB_SEARCH_PROVIDERS,
+    STORAGE_KEYS.ACTIVE_SEARCH_PROVIDER_ID,
+    STORAGE_KEYS.QUESTION_BANKS,
+    STORAGE_KEYS.ACTIVE_BANK_IDS,
+    STORAGE_KEYS.QUESTION_BANK_ENABLED,
+    STORAGE_KEYS.PARSE_RULES,
+    STORAGE_KEYS.DEFAULT_PARSE_RULE_SEEDED,
+    STORAGE_KEYS.STATUS_CACHE
+  ]);
+
+  statusModels = result[STORAGE_KEYS.LLM_MODELS] || [];
+  statusActiveModelId = result[STORAGE_KEYS.ACTIVE_MODEL_ID] || '';
+  statusSearchProviders = result[STORAGE_KEYS.WEB_SEARCH_PROVIDERS] || [];
+  statusActiveSearchProviderId = result[STORAGE_KEYS.ACTIVE_SEARCH_PROVIDER_ID] || '';
+  statusCache = result[STORAGE_KEYS.STATUS_CACHE] || { llm: {}, search: {} };
+
+  renderLlmStatus();
+  renderSearchStatus();
+  renderBankStatus(result);
+  renderRuleStatus(result);
+}
+
+/**
+ * 渲染单个服务下拉：当前项 label/状态点/title + 重建菜单（选中态）
+ * @param {object} cfg - { items, current, cacheMap, labelEl, dotEl, btnEl, menuEl, getLabel, onPick }
+ */
+function renderStatusDropdown({ items, current, cacheMap, labelEl, dotEl, btnEl, menuEl, getLabel, onPick }) {
+  const currentEntry = current ? cacheMap[current.id] : null;
+  labelEl.textContent = current ? getLabel(current) : getMessage('statusNotConfigured');
+  applyDot(dotEl, currentEntry ? currentEntry.status : '');
+  btnEl.title = statusTitle(currentEntry);
+
+  menuEl.innerHTML = '';
+  items.forEach(item => {
+    const entry = cacheMap[item.id] ? cacheMap[item.id] : null;
+    const opt = buildStatusOption({
+      id: item.id,
+      label: getLabel(item),
+      status: entry ? entry.status : '',
+      title: statusTitle(entry),
+      onPick
     });
-    modelDropdownMenu.appendChild(opt);
+    if (current && item.id === current.id) opt.classList.add('selected');
+    menuEl.appendChild(opt);
   });
-  window.QuizHelperIcons?.replaceIcons(modelDropdownMenu);
 }
 
-async function selectModel(id, label) {
-  activeModelId = id;
-  await chrome.storage.local.set({ [STORAGE_KEYS.ACTIVE_MODEL_ID]: id });
-  modelDropdownLabel.textContent = label;
-  // 与初始渲染保持一致：显示文本即 name（唯一），按文本比较选中态，并同步对勾图标
-  modelDropdownMenu.querySelectorAll('.model-dropdown-option').forEach(opt => {
-    const isSelected = opt.textContent === label;
-    opt.classList.toggle('selected', isSelected);
-    let check = opt.querySelector('.model-dropdown-check');
-    if (isSelected && !check) {
-      check = document.createElement('span');
-      check.className = 'model-dropdown-check';
-      check.setAttribute('data-icon', 'check');
-      check.setAttribute('aria-hidden', 'true');
-      opt.appendChild(check);
-      // 注意：replaceIcons 只处理目标元素的子节点，需传入 opt 而非 check 本身
-      window.QuizHelperIcons?.replaceIcons(opt);
-    } else if (!isSelected && check) {
-      check.remove();
-    }
+/** 选择服务：写生效项到 storage 并刷新选中态 */
+async function selectStatusItem({ id, label, setActiveId, storageKey, labelEl, menuEl }) {
+  setActiveId(id);
+  await chrome.storage.local.set({ [storageKey]: id });
+  labelEl.textContent = label;
+  menuEl.querySelectorAll('.status-dropdown-option').forEach(opt => {
+    opt.classList.toggle('selected', opt.textContent.trim() === label);
   });
-  closeModelDropdown();
+  closeDropdowns();
 }
 
-function toggleModelDropdown() {
-  if (modelDropdownBtn.disabled) return;
-  modelDropdown.classList.toggle('open');
+function renderLlmStatus() {
+  const activeModels = statusModels.filter(m => m.isActive);
+  const current = activeModels.find(m => m.id === statusActiveModelId) || activeModels[0] || null;
+  renderStatusDropdown({
+    items: activeModels,
+    current,
+    cacheMap: statusCache.llm,
+    labelEl: llmDropdownLabel,
+    dotEl: llmDot,
+    btnEl: llmDropdownBtn,
+    menuEl: llmDropdownMenu,
+    getLabel: m => m.name || m.modelId,
+    onPick: selectModel
+  });
 }
 
-function closeModelDropdown() {
-  modelDropdown.classList.remove('open');
+function renderSearchStatus() {
+  const configured = statusSearchProviders.filter(p => p.apiKey);
+  const current = configured.find(p => p.id === statusActiveSearchProviderId) || configured[0] || null;
+  renderStatusDropdown({
+    items: configured,
+    current,
+    cacheMap: statusCache.search,
+    labelEl: searchDropdownLabel,
+    dotEl: searchDot,
+    btnEl: searchDropdownBtn,
+    menuEl: searchDropdownMenu,
+    getLabel: p => p.name || p.id,
+    onPick: selectSearchProvider
+  });
 }
 
-modelDropdownBtn.addEventListener('click', e => {
+function renderBankStatus(result) {
+  const banks = result[STORAGE_KEYS.QUESTION_BANKS] || [];
+  const activeIds = Array.isArray(result[STORAGE_KEYS.ACTIVE_BANK_IDS]) ? result[STORAGE_KEYS.ACTIVE_BANK_IDS] : [];
+  const enabled = result[STORAGE_KEYS.QUESTION_BANK_ENABLED] !== false;
+  bankCount.textContent = enabled ? banks.filter(b => activeIds.includes(b.id)).length : 0;
+}
+
+function renderRuleStatus(result) {
+  const rules = result[STORAGE_KEYS.PARSE_RULES] || [];
+  const active = rules.length > 0 || result[STORAGE_KEYS.DEFAULT_PARSE_RULE_SEEDED] === true;
+  ruleStatus.classList.toggle('on', active);
+  ruleStatus.classList.toggle('off', !active);
+  const label = ruleStatus.querySelector('span');
+  if (label) label.textContent = getMessage(active ? 'statusActive' : 'statusNone');
+}
+
+function selectModel(id, label) {
+  return selectStatusItem({
+    id,
+    label,
+    setActiveId: v => { statusActiveModelId = v; },
+    storageKey: STORAGE_KEYS.ACTIVE_MODEL_ID,
+    labelEl: llmDropdownLabel,
+    menuEl: llmDropdownMenu
+  });
+}
+
+function selectSearchProvider(id, label) {
+  return selectStatusItem({
+    id,
+    label,
+    setActiveId: v => { statusActiveSearchProviderId = v; },
+    storageKey: STORAGE_KEYS.ACTIVE_SEARCH_PROVIDER_ID,
+    labelEl: searchDropdownLabel,
+    menuEl: searchDropdownMenu
+  });
+}
+
+function toggleDropdown(dd) {
+  const wasOpen = dd.classList.contains('open');
+  closeDropdowns();
+  if (!wasOpen) dd.classList.add('open');
+}
+
+function closeDropdowns() {
+  [llmDropdown, searchDropdown].forEach(dd => dd.classList.remove('open'));
+}
+
+llmDropdownBtn.addEventListener('click', e => {
   e.stopPropagation();
-  toggleModelDropdown();
+  toggleDropdown(llmDropdown);
 });
+searchDropdownBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  toggleDropdown(searchDropdown);
+});
+document.addEventListener('click', closeDropdowns);
 
-document.addEventListener('click', () => {
-  closeModelDropdown();
+// 重新检测：触发后台全量探测，结果写回缓存并刷新渲染
+statusRedetect.addEventListener('click', async () => {
+  statusRedetect.disabled = true;
+  statusRedetect.classList.add('is-loading');
+  try {
+    const res = await chrome.runtime.sendMessage({ action: 'detectStatus' });
+    if (res && res.success) {
+      await loadStatusPanel();
+    } else if (res && res.error) {
+      console.error('状态检测失败:', res.error);
+    }
+  } catch (err) {
+    console.error('状态检测调用失败:', err);
+  } finally {
+    statusRedetect.classList.remove('is-loading');
+    statusRedetect.disabled = false;
+  }
 });

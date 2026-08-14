@@ -18,6 +18,7 @@
     PARSE_RULES: 'parse_rules',
     QUESTION_BANK_ENABLED: 'question_bank_enabled',
     QUESTION_BANKS: 'question_banks',
+    STATUS_CACHE: 'status_cache',
     SYSTEM_PROMPT: 'system_prompt',
     THEME_MODE: 'theme_mode',
     WEB_SEARCH_ENABLED: 'web_search_enabled',

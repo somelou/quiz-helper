@@ -88,8 +88,12 @@ function convertTimeRange(unifiedValue, providerId) {
 
 /**
  * 执行搜索请求（fetch 不带自定义头，认证头由 DNR 注入）
+ * @param {object} provider - 服务商配置
+ * @param {object} settings - 搜索设置
+ * @param {string} query - 搜索词
+ * @param {AbortSignal} [signal] - 可选中止信号（调用方用于超时控制）
  */
-export async function executeWebSearch(provider, settings, query) {
+export async function executeWebSearch(provider, settings, query, signal) {
   const params = buildSearchRequest(provider, settings, query);
   console.log('[search-proxy] 搜索请求:', { provider: provider.id, endpoint: provider.endpoint, query, params });
 
@@ -103,6 +107,7 @@ export async function executeWebSearch(provider, settings, query) {
     method: isGet ? 'GET' : 'POST',
     headers: { 'Accept': 'application/json' }
   };
+  if (signal) fetchOptions.signal = signal;
 
   if (!isGet) {
     fetchOptions.body = JSON.stringify(params);

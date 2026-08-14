@@ -610,6 +610,10 @@ function initModels({
     const { stream_output } = await chrome.storage.local.get(['stream_output']);
     const streamEnabled = stream_output !== false;
 
+    // 测试计时 + 同步状态缓存（仅已保存的模型；新建未保存模型不写缓存）
+    const testStartTs = performance.now();
+    const cacheModelId = currentModelEditingBase ? currentModelEditingBase.id : '';
+
     try {
       if (apiFormat === 'anthropic') {
         await streamAnthropicTest(apiUrl, apiKey, modelId, userContent, enableThinking, thinkingEffort, {
@@ -624,9 +628,21 @@ function initModels({
           statusEl, thinkingEl, thinkingBodyEl, thinkingHeaderEl, responseEl
         }, streamEnabled);
       }
+      if (cacheModelId) {
+        globalThis.QuizHelperStatusUtils?.updateLlmStatus(cacheModelId, {
+          status: 'ok',
+          latencyMs: Math.round(performance.now() - testStartTs)
+        });
+      }
     } catch (err) {
       statusEl.innerHTML = `<span class="test-status-error">${getMessage('optionsModelFormTestConnFail', [escapeHtml(err.message)])}</span>`;
       thinkingEl.style.display = 'none';
+      if (cacheModelId) {
+        globalThis.QuizHelperStatusUtils?.updateLlmStatus(cacheModelId, {
+          status: 'err',
+          error: err.message || String(err)
+        });
+      }
     }
   }
 

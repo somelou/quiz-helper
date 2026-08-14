@@ -7,8 +7,8 @@
   <!-- 主题引导：独立文件（MV3 扩展 CSP 禁止内联脚本），尽早设置 data-theme-style -->
   <script src="../shared/theme-boot.js"></script>
   <!-- 主题覆盖层：必须位于组件 CSS 之后；?v=5 用于强制刷新浏览器缓存 -->
-  <link rel="stylesheet" href="../themes/theme-classic.css?v=10">
-  <link rel="stylesheet" href="../themes/theme-apple.css?v=10">
+  <link rel="stylesheet" href="../themes/theme-classic.css?v=12">
+  <link rel="stylesheet" href="../themes/theme-apple.css?v=12">
 </head>
 <body class="popup-page">
   <div class="header">
@@ -27,12 +27,46 @@
   </div>
   <button class="btn btn-primary" id="analyzeBtn"><span data-icon="sparkles"></span><span data-i18n="popupAnalyzeBtn">分析当前页面题目</span></button>
   <button class="btn btn-secondary" id="optionsBtn"><span data-icon="settings"></span><span data-i18n="popupOptionsBtn">打开设置</span></button>
-  <div class="model-dropdown" id="modelDropdown">
-    <button class="btn btn-secondary model-dropdown-btn" id="modelDropdownBtn">
-      <span class="model-dropdown-label" data-i18n="commonNoModels">无可用模型</span>
-      <span class="model-dropdown-arrow" data-icon="chevron-down" aria-hidden="true"></span>
-    </button>
-    <div class="model-dropdown-menu" id="modelDropdownMenu"></div>
+  <div class="status-panel" id="statusPanel">
+    <div class="status-panel-header">
+      <span class="status-icon" data-icon="activity" aria-hidden="true"></span>
+      <span class="status-panel-title" data-i18n="statusPanelTitle">状态面板</span>
+      <button class="btn btn-secondary status-redetect" id="statusRedetect" type="button">
+        <span data-icon="refresh-cw" aria-hidden="true"></span><span data-i18n="statusRedetect">重新检测</span>
+      </button>
+    </div>
+    <div class="status-group">
+      <span class="status-group-label" data-i18n="statusLLM">大模型API</span>
+      <div class="status-dropdown" id="llmDropdown">
+        <button class="status-dropdown-btn" id="llmDropdownBtn" type="button">
+          <i class="status-dot" id="llmDot" aria-hidden="true"></i>
+          <span class="status-dropdown-label" id="llmDropdownLabel">--</span>
+          <span class="status-dropdown-arrow" data-icon="chevron-down" aria-hidden="true"></span>
+        </button>
+        <div class="status-dropdown-menu" id="llmDropdownMenu"></div>
+      </div>
+    </div>
+    <div class="status-group">
+      <span class="status-group-label" data-i18n="statusSearch">搜索服务</span>
+      <div class="status-dropdown" id="searchDropdown">
+        <button class="status-dropdown-btn" id="searchDropdownBtn" type="button">
+          <i class="status-dot" id="searchDot" aria-hidden="true"></i>
+          <span class="status-dropdown-label" id="searchDropdownLabel">--</span>
+          <span class="status-dropdown-arrow" data-icon="chevron-down" aria-hidden="true"></span>
+        </button>
+        <div class="status-dropdown-menu" id="searchDropdownMenu"></div>
+      </div>
+    </div>
+    <div class="status-mini-grid">
+      <div class="status-mini">
+        <span class="status-group-label" data-i18n="statusBank">启用题库</span>
+        <span class="status-group-value" id="bankCount">0</span>
+      </div>
+      <div class="status-mini">
+        <span class="status-group-label" data-i18n="statusRule">解析规则</span>
+        <span class="status-tag off" id="ruleStatus"><span data-i18n="statusNone">暂无</span></span>
+      </div>
+    </div>
   </div>
   <div class="popup-footer">
     <div class="hint" id="popupHint" data-i18n="popupInitialHint">提示：选中题目文本后分析效果更佳</div>
@@ -43,6 +77,7 @@
   <script src="../shared/constants.js"></script>
   <script src="../shared/shortcut-utils.js"></script>
   <script src="../shared/theme-utils.js"></script>
+  <script src="../shared/status-utils.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

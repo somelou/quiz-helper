@@ -80,6 +80,39 @@
   "popupShortcutHint": {
     "message": "唤起助手快捷键：<strong>$1</strong>"
   },
+  "statusPanelTitle": {
+    "message": "状态面板"
+  },
+  "statusRedetect": {
+    "message": "重新检测"
+  },
+  "statusLLM": {
+    "message": "大模型API"
+  },
+  "statusSearch": {
+    "message": "搜索服务"
+  },
+  "statusBank": {
+    "message": "启用题库"
+  },
+  "statusRule": {
+    "message": "解析规则"
+  },
+  "statusNotConfigured": {
+    "message": "未配置"
+  },
+  "statusActive": {
+    "message": "生效"
+  },
+  "statusNone": {
+    "message": "暂无"
+  },
+  "statusTooltipOk": {
+    "message": "正常 · 延时$1ms"
+  },
+  "statusTooltipErr": {
+    "message": "异常 · $1"
+  },
   "popupSelectModel": {
     "message": "选择模型"
   },

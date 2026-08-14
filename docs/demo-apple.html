@@ -616,7 +616,7 @@
         .popup { box-sizing: border-box; width: 300px; max-width: 100%; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
         .popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .popup-title { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; color: var(--foreground); }
-        .popup .btn { width: 100%; border-radius: var(--radius-md); }
+        .popup .btn { width: 100%; border-radius: 20px; }
         .popup .btn-primary { height: 38px; padding: 0 14px; font-size: 14px; }
         .popup .btn-secondary { height: 38px; padding: 0 14px; font-size: 14px; }
         .popup .btn + .btn { margin-top: 10px; }
@@ -660,6 +660,43 @@
         .popup-hint { margin: 0; min-width: 0; font-size: 12px; color: var(--muted-foreground); }
         .popup-hint kbd { display: inline-block; margin-left: 4px; padding: 3px 7px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--secondary); color: var(--foreground); font: 600 10px/1.2 var(--font-mono); white-space: nowrap; }
         .popup-version { flex-shrink: 0; font: 500 11px/1 var(--font-mono); color: var(--muted-foreground); }
+
+        /* ===== Popup 状态面板（同步 classic） ===== */
+        .status-panel { margin-top: 10px; padding: 10px 12px 12px; background: var(--secondary); border-radius: 20px; box-shadow: var(--shadow-sm); }
+        .status-panel-header { display: flex; align-items: center; gap: 6px; }
+        .status-panel-header > svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--primary); }
+        .status-panel-title { font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--muted-foreground); }
+        .status-panel-header .status-redetect { width: auto; height: 26px; margin-left: auto; padding: 0 12px; font-size: 12px; border-radius: 20px; background: transparent; color: var(--foreground); box-shadow: none; }
+        .status-panel-header .status-redetect:hover { background: var(--accent); }
+        .status-panel-header .status-redetect svg { width: 14px; height: 14px; }
+
+        .status-group { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding: 5px 8px 5px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; height: 40px; /* 与统计格严格等高（含「未配置」等无按钮场景） */ }
+        .status-group-label { font-size: 12px; color: var(--muted-foreground); white-space: nowrap; }
+
+        /* 组内下拉：紧凑按钮 + 右对齐浮层 */
+        .status-dd { margin: 0 !important; }
+        .status-dd .model-btn { width: auto; height: 26px; justify-content: flex-start; padding: 0 10px; background: transparent; font-size: 12px; line-height: 1.4; box-shadow: none; border-radius: 20px; }
+        .status-dd .model-btn:hover { color: var(--primary); background: var(--muted); }
+        .status-dd .model-chevron { width: 13px; height: 13px; color: var(--muted-foreground); }
+        .status-dd .model-menu { left: auto; right: 0; width: max-content; min-width: 160px; max-width: 220px; border-radius: 20px; }
+        .status-dd .model-option { justify-content: flex-start; gap: 8px; padding: 0 12px; border-radius: 20px; }
+        .status-dd .model-option:not(:last-child) { margin-bottom: 2px; } /* 选项间留缝，避免 hover 背景粘连 */
+        .status-dd .model-option.selected svg { right: 10px; }
+
+        /* 状态点：随主题自适应语义色 */
+        .status-dot { width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; background: var(--border); }
+        .status-dot.ok { background: var(--success); }
+        .status-dot.err { background: var(--destructive); }
+        .status-dot.none { background: var(--border); }
+
+        /* 统计栅格 */
+        .status-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .status-mini { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; padding: 10px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; height: 40px; /* 与服务组严格等高 */ }
+        .status-mini .status-group-value { font-size: 13px; font-weight: 600; color: var(--foreground); }
+        .status-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+        .status-tag::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+        .status-tag.on { color: var(--success); }
+        .status-tag.off { color: var(--muted-foreground); font-weight: 400; }
     </style>
     <style id="demo2-sec-panel">
         /* ===== Section 02 · 页面内答题面板 ===== */
@@ -1167,11 +1204,51 @@
                                     </header>
                                     <button class="btn btn-primary" type="button"><i data-lucide="sparkles"></i>分析当前页面题目</button>
                                     <button class="btn btn-secondary" type="button"><i data-lucide="settings"></i>打开设置</button>
-                                    <div class="model-dropdown">
-                                        <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu">
-                                            <span class="model-label">DeepSeek-V3（默认）</span>
-                                            <i data-lucide="chevron-down" class="model-chevron"></i>
-                                        </button>
+                                    <div class="status-panel">
+                                        <div class="status-panel-header">
+                                            <i data-lucide="activity"></i>
+                                            <span class="status-panel-title">状态面板</span>
+                                            <button class="btn btn-secondary status-redetect" type="button"><i data-lucide="refresh-cw"></i>重新检测</button>
+                                        </div>
+                                        <div class="status-group">
+                                            <span class="status-group-label">大模型API</span>
+                                            <div class="model-dropdown status-dd">
+                                                <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu">
+                                                    <i class="status-dot ok"></i>
+                                                    <span class="model-label">DeepSeek-V3</span>
+                                                    <i data-lucide="chevron-down" class="model-chevron"></i>
+                                                </button>
+                                                <div class="model-menu" role="menu">
+                                                    <button class="model-option selected" type="button" role="menuitem" aria-current="true"><i class="status-dot ok"></i>DeepSeek-V3<i data-lucide="check"></i></button>
+                                                    <button class="model-option" type="button" role="menuitem"><i class="status-dot ok"></i>Qwen-Max</button>
+                                                    <button class="model-option" type="button" role="menuitem"><i class="status-dot ok"></i>GLM-4-Air</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="status-group">
+                                            <span class="status-group-label">搜索服务</span>
+                                            <div class="model-dropdown status-dd">
+                                                <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu">
+                                                    <i class="status-dot ok"></i>
+                                                    <span class="model-label">Bing</span>
+                                                    <i data-lucide="chevron-down" class="model-chevron"></i>
+                                                </button>
+                                                <div class="model-menu" role="menu">
+                                                    <button class="model-option selected" type="button" role="menuitem" aria-current="true"><i class="status-dot ok"></i>Bing<i data-lucide="check"></i></button>
+                                                    <button class="model-option" type="button" role="menuitem"><i class="status-dot none"></i>Tavily</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="status-mini-grid">
+                                            <div class="status-mini">
+                                                <span class="status-group-label">启用题库</span>
+                                                <span class="status-group-value">2</span>
+                                            </div>
+                                            <div class="status-mini">
+                                                <span class="status-group-label">解析规则</span>
+                                                <span class="status-tag on">生效</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <footer class="popup-footer">
                                         <p class="popup-hint">唤起助手快捷键：<kbd>Ctrl+Shift+Y</kbd></p>
@@ -1180,7 +1257,7 @@
                                 </div>
                             </div>
                             <div class="popup-demo">
-                                <div class="showcase-cap"><strong>浅色模式</strong><span>下拉菜单展开</span></div>
+                                <div class="showcase-cap"><strong>浅色模式</strong><span>异常状态</span></div>
                                 <div class="popup">
                                     <header class="popup-header">
                                         <h2 class="popup-title">题目助手</h2>
@@ -1192,15 +1269,39 @@
                                     </header>
                                     <button class="btn btn-primary" type="button"><i data-lucide="sparkles"></i>分析当前页面题目</button>
                                     <button class="btn btn-secondary" type="button"><i data-lucide="settings"></i>打开设置</button>
-                                    <div class="model-dropdown open">
-                                        <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu" aria-expanded="true">
-                                            <span class="model-label">DeepSeek-V3（默认）</span>
-                                            <i data-lucide="chevron-down" class="model-chevron"></i>
-                                        </button>
-                                        <div class="model-menu" role="menu">
-                                            <button class="model-option selected" type="button" role="menuitem" aria-current="true">DeepSeek-V3（默认）<i data-lucide="check"></i></button>
-                                            <button class="model-option" type="button" role="menuitem">Qwen-Max</button>
-                                            <button class="model-option" type="button" role="menuitem">GLM-4-Air</button>
+                                    <div class="status-panel">
+                                        <div class="status-panel-header">
+                                            <i data-lucide="activity"></i>
+                                            <span class="status-panel-title">状态面板</span>
+                                            <button class="btn btn-secondary status-redetect" type="button"><i data-lucide="refresh-cw"></i>重新检测</button>
+                                        </div>
+                                        <div class="status-group">
+                                            <span class="status-group-label">大模型API</span>
+                                            <div class="model-dropdown status-dd open">
+                                                <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu" aria-expanded="true">
+                                                    <i class="status-dot err"></i>
+                                                    <span class="model-label">DeepSeek-V3</span>
+                                                    <i data-lucide="chevron-down" class="model-chevron"></i>
+                                                </button>
+                                                <div class="model-menu" role="menu">
+                                                    <button class="model-option selected" type="button" role="menuitem" aria-current="true"><i class="status-dot err"></i>DeepSeek-V3<i data-lucide="check"></i></button>
+                                                    <button class="model-option" type="button" role="menuitem"><i class="status-dot ok"></i>Qwen-Max</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="status-group">
+                                            <span class="status-group-label">搜索服务</span>
+                                            <span class="status-tag off">未配置</span>
+                                        </div>
+                                        <div class="status-mini-grid">
+                                            <div class="status-mini">
+                                                <span class="status-group-label">启用题库</span>
+                                                <span class="status-group-value">1</span>
+                                            </div>
+                                            <div class="status-mini">
+                                                <span class="status-group-label">解析规则</span>
+                                                <span class="status-tag off">暂无</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <footer class="popup-footer">
@@ -1225,15 +1326,50 @@
                             </header>
                             <button class="btn btn-primary" type="button"><i data-lucide="sparkles"></i>分析当前页面题目</button>
                             <button class="btn btn-secondary" type="button"><i data-lucide="settings"></i>打开设置</button>
-                            <div class="model-dropdown open">
-                                <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu" aria-expanded="true">
-                                    <span class="model-label">DeepSeek-V3（默认）</span>
-                                    <i data-lucide="chevron-down" class="model-chevron"></i>
-                                </button>
-                                <div class="model-menu" role="menu">
-                                    <button class="model-option selected" type="button" role="menuitem" aria-current="true">DeepSeek-V3（默认）<i data-lucide="check"></i></button>
-                                    <button class="model-option" type="button" role="menuitem">Qwen-Max</button>
-                                    <button class="model-option" type="button" role="menuitem">GLM-4-Air</button>
+                            <div class="status-panel">
+                                <div class="status-panel-header">
+                                    <i data-lucide="activity"></i>
+                                    <span class="status-panel-title">状态面板</span>
+                                    <button class="btn btn-secondary status-redetect" type="button"><i data-lucide="refresh-cw"></i>重新检测</button>
+                                </div>
+                                <div class="status-group">
+                                    <span class="status-group-label">大模型API</span>
+                                    <div class="model-dropdown status-dd open">
+                                        <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu" aria-expanded="true">
+                                            <i class="status-dot ok"></i>
+                                            <span class="model-label">DeepSeek-V3</span>
+                                            <i data-lucide="chevron-down" class="model-chevron"></i>
+                                        </button>
+                                        <div class="model-menu" role="menu">
+                                            <button class="model-option selected" type="button" role="menuitem" aria-current="true"><i class="status-dot ok"></i>DeepSeek-V3<i data-lucide="check"></i></button>
+                                            <button class="model-option" type="button" role="menuitem"><i class="status-dot ok"></i>Qwen-Max</button>
+                                            <button class="model-option" type="button" role="menuitem"><i class="status-dot ok"></i>GLM-4-Air</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="status-group">
+                                    <span class="status-group-label">搜索服务</span>
+                                    <div class="model-dropdown status-dd">
+                                        <button class="btn btn-secondary model-btn" type="button" aria-haspopup="menu">
+                                            <i class="status-dot ok"></i>
+                                            <span class="model-label">Bing</span>
+                                            <i data-lucide="chevron-down" class="model-chevron"></i>
+                                        </button>
+                                        <div class="model-menu" role="menu">
+                                            <button class="model-option selected" type="button" role="menuitem" aria-current="true"><i class="status-dot ok"></i>Bing<i data-lucide="check"></i></button>
+                                            <button class="model-option" type="button" role="menuitem"><i class="status-dot none"></i>Tavily</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="status-mini-grid">
+                                    <div class="status-mini">
+                                        <span class="status-group-label">启用题库</span>
+                                        <span class="status-group-value">2</span>
+                                    </div>
+                                    <div class="status-mini">
+                                        <span class="status-group-label">解析规则</span>
+                                        <span class="status-tag on">生效</span>
+                                    </div>
                                 </div>
                             </div>
                             <footer class="popup-footer">

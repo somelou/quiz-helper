@@ -489,6 +489,13 @@ function initSearch({
       timeRange: getSegValue(timeRangeEl)
     };
 
+    // 测试计时（同步状态缓存用）
+    const testStartTs = performance.now();
+    const providerId = currentEditingProvider.id;
+    const syncStatus = (status, extra) => {
+      globalThis.QuizHelperStatusUtils?.updateSearchProviderStatus(providerId, { status, ...extra });
+    };
+
     // 先保存 API Key 到 storage，确保 DNR 规则同步后再发请求
     const result = await chrome.storage.local.get(['web_search_providers']);
     const providers = result.web_search_providers || [];
@@ -514,6 +521,7 @@ function initSearch({
         const lastError = chrome.runtime.lastError;
         const errMsg = lastError?.message || getMessage('optionsSearchSwNoResponse');
         resultEl.innerHTML = getMessage('optionsSearchTestErrorNoResponse', [escapeHtml(errMsg)]);
+        syncStatus('err', { error: errMsg });
         return;
       }
 
@@ -525,10 +533,14 @@ function initSearch({
 ${stack ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-muted);white-space:pre-wrap;">${escapeHtml(stack.slice(0, 500))}</div>` : ''}
 ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-muted);white-space:pre-wrap;">${getMessage('optionsSearchDetailFormat', [escapeHtml(details.slice(0, 300))])}</div>` : ''}`;
         resultEl.style.color = 'var(--color-error-text)';
+        syncStatus('err', { error: errorMsg });
         return;
       }
 
       const data = response.data;
+
+      // 测试成功：同步状态缓存
+      syncStatus('ok', { latencyMs: Math.round(performance.now() - testStartTs) });
 
       // 提取搜索结果摘要
       let summaryHtml = `<span style="color:var(--color-success)">${getMessage('optionsSearchSuccess')}</span>\n`;
@@ -554,6 +566,7 @@ ${details ? `<div style="margin-top:4px;font-size:11px;color:var(--color-text-mu
     } catch (err) {
       resultEl.textContent = getMessage('optionsSearchFailFormat', [err.message]);
       resultEl.style.color = 'var(--color-error-text)';
+      syncStatus('err', { error: err.message || String(err) });
     }
 
     // 刷新服务商列表以更新用量显示

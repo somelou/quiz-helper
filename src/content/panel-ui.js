@@ -787,7 +787,7 @@
       // 主题样式注入（经典 + 苹果，由 data-theme-style 属性决定生效者）。
       // 必须位于 panel.css <link> 之后，保证同优先级时主题覆盖生效。
       // ?v=5 用于强制刷新浏览器缓存。
-      for (const themeFile of ['themes/theme-classic.css?v=10', 'themes/theme-apple.css?v=10']) {
+      for (const themeFile of ['themes/theme-classic.css?v=12', 'themes/theme-apple.css?v=12']) {
         try {
           const resp = await fetch(chrome.runtime.getURL(themeFile));
           if (!isActiveRender(host, renderToken)) return;

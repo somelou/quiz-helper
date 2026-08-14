@@ -436,14 +436,6 @@ html[data-theme-style="apple"].dark,
   border-radius: var(--radius-lg);
 }
 
-/* 模型下拉菜单（demo2 .model-menu → --radius-md 12px） */
-[data-theme-style="apple"] .model-dropdown-menu {
-  border-radius: var(--radius-md);
-}
-[data-theme-style="apple"] .model-dropdown-option {
-  border-radius: var(--radius-sm);
-}
-
 /* ---- 4.10 分页 ---- */
 [data-theme-style="apple"] .page-btn {
   border-radius: 999px;
@@ -1447,6 +1439,7 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
 [data-theme-style="apple"] .popup-page .btn {
   font-size: 14px;
   box-shadow: var(--shadow-sm);
+  border-radius: 20px; /* 状态面板最外层圆角以此为基准（调大） */
 }
 [data-theme-style="apple"] .popup-page .btn svg {
   transition: transform var(--transition-normal);
@@ -1465,43 +1458,9 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
 [data-theme-style="apple"] .popup-page .btn-primary {
   box-shadow: var(--shadow-sm), var(--shadow-primary);
 }
-/* 模型下拉容器：demo2 margin-top 10px */
-[data-theme-style="apple"] .popup-page .model-dropdown {
-  margin-bottom: 0;
-  margin-top: 10px;
-}
 /* 标题字号 17px（demo2 .popup-title） */
 [data-theme-style="apple"] .popup-page .header h2 {
   font-size: 17px;
-}
-/* 模型下拉箭头：CSS 三角 → demo2 chevron 图标（mask），保留 base 的 translateY 居中 */
-[data-theme-style="apple"] .popup-page .model-dropdown-arrow {
-  width: 15px;
-  height: 15px;
-  border: 0;
-  background-color: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
-  opacity: 0.5;
-}
-[data-theme-style="apple"] .popup-page .model-dropdown.open .model-dropdown-arrow {
-  transform: translateY(-50%) rotate(180deg);
-}
-/* 模型下拉菜单：内边距 + 入场动画（demo2 .model-menu） */
-[data-theme-style="apple"] .popup-page .model-dropdown-menu {
-  padding: 6px;
-  animation: qh-menu-in 0.18s cubic-bezier(0.32, 0.72, 0, 1);
-  transform-origin: top center;
-}
-[data-theme-style="apple"] .popup-page .model-dropdown-option:hover {
-  background: var(--color-surface-hover);
-}
-[data-theme-style="apple"] .popup-page .model-dropdown-option.selected {
-  font-weight: 600;
-}
-@keyframes qh-menu-in {
-  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 /* Popup Footer：顶部间距加大（demo2 .popup-footer margin-top:14px） */
 [data-theme-style="apple"] .popup-page .popup-footer {
@@ -1512,6 +1471,27 @@ html[data-theme-style="apple"].dark .search-provider-badge.search-badge-inactive
   font-family: var(--font-code);
   font-size: 11px;
   font-weight: 500;
+}
+
+/* ---- 4.24b 状态面板圆角（最外层以按钮圆角 20px 为基础，全部统一 20px） ---- */
+[data-theme-style="apple"] .status-panel {
+  border-radius: 20px;
+}
+/* 苹果深色：面板背景与次按钮一致（--color-btn-secondary-bg/#2c2c2e），保持面板与按钮同色 */
+[data-theme-style="apple"] body.dark .status-panel {
+  background: var(--color-btn-secondary-bg);
+}
+[data-theme-style="apple"] .status-group,
+[data-theme-style="apple"] .status-mini,
+[data-theme-style="apple"] .status-dropdown-menu {
+  border-radius: 20px;
+}
+[data-theme-style="apple"] .status-dropdown-option {
+  border-radius: 20px;
+}
+/* 重测按钮：ID 选择器确保覆盖 base 复合规则（base 的 ID 优先级高于主题层 .btn） */
+[data-theme-style="apple"] #statusRedetect {
+  border-radius: 20px;
 }
 
 /* ============================================================

@@ -4,6 +4,7 @@ import { buildExtractPrompt, buildSystemPrompt, buildVerifyPrompt, buildSearchAw
 import { handleParseQuestionBank, handleParseQuestionBankBatched, handleSearchQuestionBank } from './question-bank.js';
 import { executeWebSearch, extractSearchResults, formatSearchResultsForLLM } from './search-proxy.js';
 import { checkMonthlySearchLimit, incrementMonthlySearchCount } from './search-usage.js';
+import { handleDetectStatus } from './status.js';
 
 const { getMessage } = globalThis.QuizHelperI18n;
 
@@ -314,6 +315,13 @@ export function registerBackgroundRouter() {
 
     if (request.action === 'searchQuestionBank') {
       handleSearchQuestionBank(request.questionText)
+        .then(sendResponse)
+        .catch(err => sendResponse({ success: false, error: err.message }));
+      return true;
+    }
+
+    if (request.action === 'detectStatus') {
+      handleDetectStatus()
         .then(sendResponse)
         .catch(err => sendResponse({ success: false, error: err.message }));
       return true;
