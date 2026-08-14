@@ -12,10 +12,10 @@
         "group": 0,
         "layoutSnapshot": {
           "version": 1,
-          "contentHeight": 998,
+          "contentHeight": 1345,
           "viewportWidth": 1440,
-          "sourceHash": "fnv1a-71c1d559",
-          "measuredAt": 1786668125648
+          "sourceHash": "fnv1a-258bb99e",
+          "measuredAt": 1786717938255
         }
       },
       "devMetadata": {
@@ -37,8 +37,8 @@
           "version": 1,
           "contentHeight": 2280,
           "viewportWidth": 1440,
-          "sourceHash": "fnv1a-7f947a0d",
-          "measuredAt": 1786509619292
+          "sourceHash": "fnv1a-b87ed567",
+          "measuredAt": 1786717938255
         }
       },
       "devMetadata": {
@@ -58,10 +58,10 @@
         "group": 1,
         "layoutSnapshot": {
           "version": 1,
-          "contentHeight": 3086,
+          "contentHeight": 3134,
           "viewportWidth": 1440,
-          "sourceHash": "fnv1a-1f535378",
-          "measuredAt": 1786668125648
+          "sourceHash": "fnv1a-f213cacb",
+          "measuredAt": 1786717938255
         }
       },
       "devMetadata": {
@@ -83,8 +83,8 @@
           "version": 1,
           "contentHeight": 2550,
           "viewportWidth": 1440,
-          "sourceHash": "fnv1a-dc67dc6d",
-          "measuredAt": 1786552183760
+          "sourceHash": "fnv1a-ee1adf8f",
+          "measuredAt": 1786717938255
         }
       },
       "devMetadata": {
@@ -151,6 +151,6 @@
       "path": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple",
       "versionSource": "metadata.json"
     },
-    "visualEditorEnabled": false
+    "visualEditorEnabled": true
   }
 }

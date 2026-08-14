@@ -10,16 +10,17 @@
     "version_source": "skill-release-manifest.json",
     "runtime_skill_dir": null,
     "recorded_at": null,
-    "expected_version": "2026.07.22.00.00.00",
-    "status": "matched",
+    "expected_version": "2026.08.06.19.15.08",
+    "status": "mismatch",
     "read_status": "ok"
   },
   "operatingMode": "free-explore",
   "renderBlockingErrorCount": 0,
-  "softWarningCount": 12,
+  "softWarningCount": 14,
   "renderBlockingErrors": [],
   "errorSignatures": [],
   "softWarnings": [
+    "[html-head-style] options-settings.html: found 13 custom <style> block(s) in <head>. The <head> is owned by apply-html-head-contract.mjs; move custom styles before </body> or re-run apply-html-head-contract.mjs <css-path> <html-file> --replace-head to relocate them.",
     "[repair-ledger] validationRepairLedger[0].repairActions[0].preEditFileHashes[] is missing (legacy optional evidence)",
     "[repair-ledger] validationRepairLedger[0].repairActions[0].postEditFileHashes[] is missing (legacy optional evidence)",
     "[html-quality] colors_and_type.css: free-explore brand CSS must use one primary hue only; forbidden secondary/accent brand variables found (--secondary, --secondary-foreground, --accent, --accent-foreground, --sidebar-accent, --sidebar-accent-foreground). Use --state-success/warning/error/info only for semantic states.",
@@ -30,6 +31,7 @@
     "[html-quality] drawer.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states.",
     "[html-quality] messages.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states.",
     "[html-quality] options-data.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states.",
+    "[html-quality] options-settings.html: hardcoded colors are forbidden outside <style id=\"theme-vars\">. Use brand CSS variables from the token reference.",
     "[html-quality] options-settings.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states.",
     "[html-quality] popup-home.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states."
   ],
@@ -46,13 +48,27 @@
       "repairAlreadyAttempted": false,
       "allowSourceRead": "no-full-html-read",
       "maxValidationRuns": 2
+    },
+    {
+      "errorClass": "hardcoded-color-in-body",
+      "owner": "sub-agent",
+      "repairScope": "targeted-token-replace",
+      "strategy": "targeted_token_replace_once",
+      "affectedFiles": [
+        "options-settings.html"
+      ],
+      "repairReportPath": null,
+      "repairAlreadyAttempted": false,
+      "allowSourceRead": "no-full-html-read",
+      "maxValidationRuns": 2
     }
   ],
   "repairActionTable": [],
   "errorCount": 0,
-  "warningCount": 12,
+  "warningCount": 14,
   "errors": [],
   "warnings": [
+    "[html-head-style] options-settings.html: found 13 custom <style> block(s) in <head>. The <head> is owned by apply-html-head-contract.mjs; move custom styles before </body> or re-run apply-html-head-contract.mjs <css-path> <html-file> --replace-head to relocate them.",
     "[repair-ledger] validationRepairLedger[0].repairActions[0].preEditFileHashes[] is missing (legacy optional evidence)",
     "[repair-ledger] validationRepairLedger[0].repairActions[0].postEditFileHashes[] is missing (legacy optional evidence)",
     "[html-quality] colors_and_type.css: free-explore brand CSS must use one primary hue only; forbidden secondary/accent brand variables found (--secondary, --secondary-foreground, --accent, --accent-foreground, --sidebar-accent, --sidebar-accent-foreground). Use --state-success/warning/error/info only for semantic states.",
@@ -63,6 +79,7 @@
     "[html-quality] drawer.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states.",
     "[html-quality] messages.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states.",
     "[html-quality] options-data.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states.",
+    "[html-quality] options-settings.html: hardcoded colors are forbidden outside <style id=\"theme-vars\">. Use brand CSS variables from the token reference.",
     "[html-quality] options-settings.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states.",
     "[html-quality] popup-home.html: free-explore pages must not use secondary/accent brand variables. Use the single primary hue, neutral tints, or --state-success/warning/error/info for real semantic states."
   ],
@@ -97,12 +114,12 @@
       "version_source": "skill-release-manifest.json",
       "runtime_skill_dir": null,
       "recorded_at": null,
-      "expected_version": "2026.07.22.00.00.00",
-      "status": "matched",
+      "expected_version": "2026.08.06.19.15.08",
+      "status": "mismatch",
       "read_status": "ok"
     },
     "renderBlockingErrorCount": 0,
-    "softWarningCount": 12,
+    "softWarningCount": 14,
     "renderBlockingErrors": [],
     "repairActionTable": [],
     "nextCheck": {
@@ -119,14 +136,14 @@
     ]
   },
   "projectFileHashes": {
-    "quiz-helper-ui-redesign.design": "6a7351254c9e768f0ca0061f6337f0434ede824a021ac1e8233c3adc11c358f9",
+    "quiz-helper-ui-redesign.design": "6bc694c26e6181a81b03de03382fd7e8d9211bcb5dad58c9db7a619b58169f2b",
     "colors_and_type.css": "80c1a5c26c6e1b30f5ce58b85f2ccbfa27125ad352f1047578bd5f280a35eb99",
     "runtime-orchestration-summary.json": "7f31d878f4ed1d19b440c6469f9fa9fb80c902dca9019f13126539626d6c1970",
     "pages/content-panel.html": "85250abbf23ca17e116c9930b0aeb9bc553276ecfcf0d9c1f0cec6bec979f29b",
     "pages/drawer.html": "e0c1bab0c95d677174aa751a5c7b0d4a009ddf6dc76b361bc0e72a9bbdc1c253",
     "pages/messages.html": "99753738d15e24568d43d9adae74fefad655ac10e5d72372d813b3c6711b65be",
     "pages/options-data.html": "513191a3539b8d5f1350ad7c26d9b184061449b24f997b86db9b0f4adb09251c",
-    "pages/options-settings.html": "8d872a7c0f0dd2807ab119abd076b5526faca76a31cf2cb90d36454afe9e0a6b",
+    "pages/options-settings.html": "efe8aa18b3b6ee28ee7561995861e4aaa1c1402b3508f91b26823d05f365ac9b",
     "pages/popup-home.html": "43fe7f817a85aae4af769c946e4b5918d58f7e9c15a36b5a516596ae1257fe5e",
     "assets/icons/dl_builtin_apple/arrow-down.svg": "0ba482e989813473fb7b1c8da6081a84ce399367f70dbee0a448deeeaeb5d9d4",
     "assets/icons/dl_builtin_apple/arrow-left.svg": "ea2b7505ca9d8d2ab540075c3df561ed6a9c54e5b903d373daab015d0b79342d",
@@ -172,5 +189,5 @@
   "designDir": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design",
   "expectedPages": null,
   "requireInteractions": null,
-  "checkedAt": "2026-08-14T05:40:56.354Z"
+  "checkedAt": "2026-08-14T14:58:46.267Z"
 }
