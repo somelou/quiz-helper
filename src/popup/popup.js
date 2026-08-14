@@ -4,6 +4,7 @@ window.QuizHelperIcons?.replaceIcons(document);
 const { DEFAULT_SHORTCUT, STORAGE_KEYS } = globalThis.QuizHelperConstants;
 const { getMessage } = globalThis.QuizHelperI18n;
 const { normalizeShortcutConfig, formatShortcutDisplay } = globalThis.QuizHelperShortcutUtils;
+const { isDomainMatch } = globalThis.QuizHelperTextUtils;
 const { applyBodyTheme, loadThemeMode, saveThemeMode, updateThemeToggleUI } = globalThis.QuizHelperThemeUtils;
 
 // 兜底本地化：处理 Chrome 未自动替换的 __MSG_xxx__ 静态文案
@@ -274,9 +275,19 @@ function renderBankStatus(result) {
   bankCount.textContent = enabled ? banks.filter(b => activeIds.includes(b.id)).length : 0;
 }
 
-function renderRuleStatus(result) {
+async function renderRuleStatus(result) {
   const rules = result[STORAGE_KEYS.PARSE_RULES] || [];
-  const active = rules.length > 0 || result[STORAGE_KEYS.DEFAULT_PARSE_RULE_SEEDED] === true;
+  // 仅当当前页面域名在解析规则中有对应匹配时才视为"生效"，否则显示"暂无"
+  let active = false;
+  if (rules.length > 0) {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const hostname = tab?.url ? new URL(tab.url).hostname : '';
+      active = !!hostname && rules.some(rule => isDomainMatch(hostname, rule.domain));
+    } catch (e) {
+      active = false;
+    }
+  }
   ruleStatus.classList.toggle('on', active);
   ruleStatus.classList.toggle('off', !active);
   const label = ruleStatus.querySelector('span');
