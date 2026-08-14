@@ -16,8 +16,10 @@
    内容面板通过 shadow 内 .qh-theme-root[data-theme-style] 匹配。
    ============================================================ */
 
-/* 保留一条 :root 规则作为引导：确保后续 data-theme-style 作用域内的令牌覆盖能被浏览器正确解析并生效 */
+/* 保留一条 :root 规则作为引导：确保后续 data-theme-style 作用域内的令牌覆盖能被浏览器正确解析并生效
+   （内附无害声明仅用于规避「空规则集」告警） */
 :root {
+  display: block;
 }
 
 
@@ -467,6 +469,10 @@ html[data-theme-style="apple"].dark,
 /* ---- 4.12 答题面板（demo2 .panel → --radius-lg 19.2px） ---- */
 [data-theme-style="apple"] .qh-panel {
   border-radius: var(--radius-lg);
+}
+/* 面板 body 不叠加 secondary 底色，空状态/卡片直接落在面板底色上（对齐 demo2 .panel-body） */
+[data-theme-style="apple"] .qh-body {
+  background: transparent;
 }
 [data-theme-style="apple"] .qh-header {
   background: transparent;

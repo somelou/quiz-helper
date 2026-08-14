@@ -394,8 +394,8 @@
   }
   @layer base {
     body { background: var(--background); color: var(--foreground); }
-    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
-    th { @apply whitespace-nowrap; }
+    td, th { overflow-wrap: break-word; word-break: break-all; word-break: auto-phrase; }
+    th { white-space: nowrap; }
   }
     </style>
     <style id="semantic-token-fallback">
@@ -701,7 +701,7 @@
     <style id="demo2-sec-panel">
         /* ===== Section 02 · 页面内答题面板 ===== */
         .sec-panel .panel { box-sizing: border-box; width: 420px; max-width: 100%; display: flex; flex-direction: column; background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
-        .sec-panel .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 14px 10px; }
+        .sec-panel .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 14px 10px; border-bottom: 1px solid var(--border); }
         .sec-panel .panel-title-wrap { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
         .sec-panel .panel-title { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; color: var(--foreground); white-space: nowrap; }
         .sec-panel .panel-progress { font: 500 12px/1 var(--font-sans); color: var(--muted-foreground); white-space: nowrap; }
@@ -816,35 +816,25 @@
         .sec-panel .seg-btn.active { background: var(--popover); color: var(--foreground); box-shadow: var(--shadow-xs); font-weight: 600; }
         .sec-panel .seg-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
         .sec-panel .panel-foot-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-        .sec-panel .qh-foot-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 0; border-radius: 999px; background: var(--secondary); color: var(--foreground); cursor: pointer; transition: background-color .18s ease, filter .18s ease; }
-        .sec-panel .qh-foot-btn svg { width: 14px; height: 14px; }
-        .sec-panel .qh-foot-btn:hover { background: var(--accent); }
-        .sec-panel .qh-foot-btn.warning { background: color-mix(in srgb, var(--state-warning) 16%, transparent); color: var(--state-warning); }
-        .sec-panel .qh-foot-btn.warning:hover { background: color-mix(in srgb, var(--state-warning) 26%, transparent); }
-        .sec-panel .qh-foot-btn.primary { background: var(--primary); color: var(--primary-foreground); }
-        .sec-panel .qh-foot-btn.primary:hover { filter: brightness(.94); }
-        .sec-panel .qh-foot-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+        /* 底栏纯图标按钮：沿用真实 .qh-btn-icon-only（胶囊，主/警告均为浅色底 + 彩色图标） */
+        .sec-panel .qh-btn-icon-only { width: 30px; height: 30px; padding: 0; }
+        .sec-panel .qh-btn-icon-only svg { width: 14px; height: 14px; }
+        .sec-panel .qh-btn-warning { background: color-mix(in srgb, var(--state-warning) 16%, transparent); color: var(--state-warning); }
+        .sec-panel .qh-btn-warning:hover { opacity: 0.85; }
+        .sec-panel .qh-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
 
         /* 附属展示 */
         .sec-panel .sub-sec { margin-top: 48px; }
         .sec-panel .sub-head { margin-bottom: 20px; }
         .sec-panel .sub-title { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 700; color: var(--foreground); }
         .sec-panel .sub-copy { margin: 8px 0 0; font-size: 14px; line-height: 1.7; color: var(--muted-foreground); }
-        .sec-panel .sub-cap { margin: 28px 0 10px; font: 600 11px/1 var(--font-mono); letter-spacing: 0.12em; color: var(--muted-foreground); }
-        .sec-panel .mini-ball { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); box-shadow: var(--shadow-lg); cursor: pointer; transition: transform .18s ease, filter .18s ease; }
-        .sec-panel .mini-ball:hover { transform: scale(1.06); filter: brightness(0.96); }
-        .sec-panel .mini-ball:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
-        .sec-panel .mini-ball svg { width: 20px; height: 20px; }
+        /* 最小化悬浮球：插件图标 + 苹果蓝光晕（对齐真实 .qh-mini-bar） */
+        .sec-panel .qh-mini-bar { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; cursor: pointer; }
+        .sec-panel .qh-mini-bar img { width: 44px; height: 44px; display: block; border-radius: 50%; object-fit: cover; pointer-events: none; box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35); transition: box-shadow .18s ease; }
+        .sec-panel .qh-mini-bar:hover img { box-shadow: 0 6px 20px rgba(0, 122, 255, 0.5); }
         .sec-panel .qh-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 30px 22px 32px; text-align: center; }
         .sec-panel .qh-empty svg { width: 28px; height: 28px; color: var(--icon-muted); }
         .sec-panel .qh-empty p { margin: 0; font-size: 12px; line-height: 1.75; color: var(--muted-foreground); }
-        .sec-panel .spec-wrap { max-width: 560px; }
-        .sec-panel .spec { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); box-shadow: var(--shadow-sm); overflow: hidden; }
-        .sec-panel .spec-row { display: flex; align-items: center; gap: 16px; padding: 12px 16px; }
-        .sec-panel .spec-row + .spec-row { border-top: 1px solid var(--border); }
-        .sec-panel .spec-tag { min-width: 64px; font: 600 11px/1 var(--font-mono); color: var(--muted-foreground); }
-        .sec-panel .spec-val { font-size: 13px; font-weight: 500; color: var(--foreground); }
-        .sec-panel .spec-val.muted { color: var(--muted-foreground); }
 
         @media (max-width: 760px) {
             .sec-panel .panel { width: 100%; }
@@ -1515,8 +1505,8 @@
                                     <button class="seg-btn" type="button">规则解析</button>
                                 </div>
                                 <div class="panel-foot-actions">
-                                    <button class="qh-foot-btn warning" type="button" aria-label="暂停"><i data-lucide="pause"></i></button>
-                                    <button class="qh-foot-btn primary" type="button" aria-label="重新作答"><i data-lucide="refresh-cw"></i></button>
+                                    <button class="qh-btn qh-btn-icon-only qh-btn-warning" type="button" aria-label="暂停"><i data-lucide="pause"></i></button>
+                                    <button class="qh-btn qh-btn-icon-only qh-btn-primary" type="button" aria-label="重新作答"><i data-lucide="refresh-cw"></i></button>
                                 </div>
                             </footer>
                         </div>
@@ -1651,8 +1641,8 @@
                                     <button class="seg-btn" type="button">规则解析</button>
                                 </div>
                                 <div class="panel-foot-actions">
-                                    <button class="qh-foot-btn warning" type="button" aria-label="暂停"><i data-lucide="pause"></i></button>
-                                    <button class="qh-foot-btn primary" type="button" aria-label="重新作答"><i data-lucide="refresh-cw"></i></button>
+                                    <button class="qh-btn qh-btn-icon-only qh-btn-warning" type="button" aria-label="暂停"><i data-lucide="pause"></i></button>
+                                    <button class="qh-btn qh-btn-icon-only qh-btn-primary" type="button" aria-label="重新作答"><i data-lucide="refresh-cw"></i></button>
                                 </div>
                             </footer>
                         </div>
@@ -1662,12 +1652,12 @@
                 <div class="sub-sec sec-panel" aria-label="附属展示">
                     <header class="sub-head">
                         <h2 class="sub-title">附属展示</h2>
-                        <p class="sub-copy">最小化悬浮球、空状态面板与进度文案规格说明，随主题明暗联动。</p>
+                        <p class="sub-copy">最小化悬浮球与空状态面板规格说明，随主题明暗联动。</p>
                     </header>
                     <div class="stage">
                         <figure class="showcase">
                             <figcaption class="showcase-cap"><strong>浅色模式</strong><span>悬浮球 · 空状态</span></figcaption>
-                            <button class="mini-ball" type="button" aria-label="展开答题面板"><i data-lucide="sparkles"></i></button>
+                            <div class="qh-mini-bar"><img src="../src/icons/icon.svg" alt="题目助手"></div>
                             <div class="panel">
                                 <header class="panel-head">
                                     <div class="panel-title-wrap">
@@ -1684,11 +1674,22 @@
                                         <p>未提取到题目。可先尝试规则解析，或点击「AI 选区解析」后在页面中点选一块题目区域。</p>
                                     </div>
                                 </div>
+                                <footer class="panel-foot">
+                                    <span class="panel-model">DeepSeek-V3</span>
+                                    <div class="seg" role="group" aria-label="解析方式">
+                                        <button class="seg-btn active" type="button">AI 选区</button>
+                                        <button class="seg-btn" type="button">规则解析</button>
+                                    </div>
+                                    <div class="panel-foot-actions">
+                                        <button class="qh-btn qh-btn-icon-only qh-btn-warning" type="button" aria-label="暂停"><i data-lucide="pause"></i></button>
+                                        <button class="qh-btn qh-btn-icon-only qh-btn-primary" type="button" aria-label="重新作答"><i data-lucide="refresh-cw"></i></button>
+                                    </div>
+                                </footer>
                             </div>
                         </figure>
                         <figure class="showcase dark">
                             <figcaption class="showcase-cap"><strong>深色模式</strong><span>悬浮球 · 空状态</span></figcaption>
-                            <button class="mini-ball" type="button" aria-label="展开答题面板"><i data-lucide="sparkles"></i></button>
+                            <div class="qh-mini-bar"><img src="../src/icons/icon.svg" alt="题目助手"></div>
                             <div class="panel">
                                 <header class="panel-head">
                                     <div class="panel-title-wrap">
@@ -1705,17 +1706,19 @@
                                         <p>未提取到题目。可先尝试规则解析，或点击「AI 选区解析」后在页面中点选一块题目区域。</p>
                                     </div>
                                 </div>
+                                <footer class="panel-foot">
+                                    <span class="panel-model">DeepSeek-V3</span>
+                                    <div class="seg" role="group" aria-label="解析方式">
+                                        <button class="seg-btn active" type="button">AI 选区</button>
+                                        <button class="seg-btn" type="button">规则解析</button>
+                                    </div>
+                                    <div class="panel-foot-actions">
+                                        <button class="qh-btn qh-btn-icon-only qh-btn-warning" type="button" aria-label="暂停"><i data-lucide="pause"></i></button>
+                                        <button class="qh-btn qh-btn-icon-only qh-btn-primary" type="button" aria-label="重新作答"><i data-lucide="refresh-cw"></i></button>
+                                    </div>
+                                </footer>
                             </div>
                         </figure>
-                    </div>
-                    <p class="sub-cap">进度文案规格 · 仅已完成数 · 无进度不显示</p>
-                    <div class="spec-wrap">
-                        <div class="spec">
-                            <div class="spec-row"><span class="spec-tag">解析中</span><span class="spec-val">已完成 3/5</span></div>
-                            <div class="spec-row"><span class="spec-tag">作答中</span><span class="spec-val">已完成 3/5</span></div>
-                            <div class="spec-row"><span class="spec-tag">已暂停</span><span class="spec-val">已完成 3/5</span></div>
-                            <div class="spec-row"><span class="spec-tag">选区</span><span class="spec-val muted">不显示</span></div>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -1750,16 +1753,32 @@
                                 <section class="settings-card" aria-labelledby="basic-title">
                                     <h3 class="card-title" id="basic-title">基本设置</h3>
                                     <div class="form-group">
+                                        <label class="form-label" id="theme-style-label">界面主题</label>
+                                        <div class="segmented" role="group" aria-labelledby="theme-style-label">
+                                            <button class="seg-btn" type="button">经典</button>
+                                            <button class="seg-btn active" type="button">苹果</button>
+                                        </div>
+                                        <p class="form-hint">选择整套界面的视觉风格，可随时切换。</p>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="form-label" for="sys-prompt">系统提示词</label>
-                                        <div class="segmented" role="group" aria-label="题型分段控件">
-                                            <button class="seg-btn active" type="button">单选</button>
-                                            <button class="seg-btn" type="button">多选</button>
-                                            <button class="seg-btn" type="button">判断</button>
-                                            <button class="seg-btn" type="button">填空</button>
-                                            <button class="seg-btn" type="button">其他</button>
+                                        <div class="toolbar">
+                                            <div class="segmented" role="group" aria-label="题型分段控件">
+                                                <button class="seg-btn active" type="button">单选</button>
+                                                <button class="seg-btn" type="button">多选</button>
+                                                <button class="seg-btn" type="button">判断</button>
+                                                <button class="seg-btn" type="button">填空</button>
+                                                <button class="seg-btn" type="button">其他</button>
+                                            </div>
+                                            <button class="chip-btn" type="button"><i data-lucide="eraser"></i>清空</button>
                                         </div>
                                         <textarea class="textarea" id="sys-prompt" rows="4" placeholder="你是一位专业、严谨、高效的答题助手。请根据题目内容给出准确答案……"></textarea>
                                         <p class="form-hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="extra-context">补充提示词 / 领域背景</label>
+                                        <textarea class="textarea" id="extra-context" rows="3" placeholder="例如：你是一名通信领域与 AI 大模型方向的专业助手。回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
+                                        <p class="form-hint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</p>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" id="shortcut-label">面板快捷键</label>
@@ -1963,16 +1982,32 @@
                                 <section class="settings-card" aria-labelledby="basic-title-dark">
                                     <h3 class="card-title" id="basic-title-dark">基本设置</h3>
                                     <div class="form-group">
+                                        <label class="form-label" id="theme-style-label-dark">界面主题</label>
+                                        <div class="segmented" role="group" aria-labelledby="theme-style-label-dark">
+                                            <button class="seg-btn" type="button">经典</button>
+                                            <button class="seg-btn active" type="button">苹果</button>
+                                        </div>
+                                        <p class="form-hint">选择整套界面的视觉风格，可随时切换。</p>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="form-label" for="sys-prompt-dark">系统提示词</label>
-                                        <div class="segmented" role="group" aria-label="题型分段控件">
-                                            <button class="seg-btn active" type="button">单选</button>
-                                            <button class="seg-btn" type="button">多选</button>
-                                            <button class="seg-btn" type="button">判断</button>
-                                            <button class="seg-btn" type="button">填空</button>
-                                            <button class="seg-btn" type="button">其他</button>
+                                        <div class="toolbar">
+                                            <div class="segmented" role="group" aria-label="题型分段控件">
+                                                <button class="seg-btn active" type="button">单选</button>
+                                                <button class="seg-btn" type="button">多选</button>
+                                                <button class="seg-btn" type="button">判断</button>
+                                                <button class="seg-btn" type="button">填空</button>
+                                                <button class="seg-btn" type="button">其他</button>
+                                            </div>
+                                            <button class="chip-btn" type="button"><i data-lucide="eraser"></i>清空</button>
                                         </div>
                                         <textarea class="textarea" id="sys-prompt-dark" rows="4" placeholder="你是一位专业、严谨、高效的答题助手。请根据题目内容给出准确答案……"></textarea>
                                         <p class="form-hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="extra-context-dark">补充提示词 / 领域背景</label>
+                                        <textarea class="textarea" id="extra-context-dark" rows="3" placeholder="例如：你是一名通信领域与 AI 大模型方向的专业助手。回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
+                                        <p class="form-hint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</p>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" id="shortcut-label-dark">面板快捷键</label>

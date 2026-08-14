@@ -725,8 +725,8 @@
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   display: none;
   align-items: center;
   justify-content: center;
@@ -740,8 +740,8 @@
   box-shadow: 0 6px 20px rgba(79, 110, 247, 0.5);
 }
 .qh-mini-bar img {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   display: block;
   border-radius: 50%;
   object-fit: cover;

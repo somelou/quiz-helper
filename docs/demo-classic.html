@@ -359,7 +359,6 @@ body {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast),
               background var(--transition-fast), opacity var(--transition-fast);
 }
-.popup-preview .btn:active { }
 .popup-preview .btn-primary {
   background: var(--color-primary-gradient);
   color: #fff;
@@ -967,6 +966,7 @@ body {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-clamp: 3;
 }
 .qh-footer {
   padding: 10px 12px;
@@ -1053,14 +1053,14 @@ body {
   transition: transform var(--transition-fast), opacity var(--transition-fast),
               background var(--transition-fast), box-shadow var(--transition-fast);
 }
-.qh-btn:active { }
 .qh-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 /* 主按钮：浅色底 + 主色文字/图标，明暗模式一致（与卡片内"重新作答"同款） */
 .qh-btn-primary {
   background: var(--color-primary-bg);
   color: var(--color-primary);
 }
-.qh-btn-primary:hover { background: var(--color-primary-dark); color: #fff; }
+/* hover 与 qh-btn-warning 等一致：仅透明度变化 */
+.qh-btn-primary:hover { opacity: 0.85; }
 .qh-btn-secondary { background: var(--color-btn-secondary-bg); color: var(--color-btn-secondary-text); }
 .qh-btn-secondary:hover { background: var(--color-surface-hover); color: var(--color-text); }
 .qh-btn-warning { background: var(--color-warning-bg); color: var(--color-warning); }
@@ -1080,8 +1080,8 @@ body {
 .qh-empty { text-align: center; padding: 28px 20px; color: var(--color-text-muted); font-size: var(--font-md); line-height: 1.7; }
 .qh-mini-bar {
   position: relative; /* 真实环境中为 fixed 右下角 */
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1092,8 +1092,8 @@ body {
   box-shadow: 0 6px 20px rgba(79, 110, 247, 0.5);
 }
 .qh-mini-bar img {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   display: block;
   border-radius: 50%;
   object-fit: cover;
@@ -1186,7 +1186,6 @@ body {
   line-height: 1.2;
   transition: opacity var(--transition-normal);
 }
-.options-preview .btn:active { }
 .options-preview .btn-primary { background: var(--color-primary-gradient); color: #fff; }
 .options-preview .btn-secondary { background: var(--color-btn-secondary-bg); color: var(--color-btn-secondary-text); }
 .options-preview .btn-secondary:hover { opacity: 0.9; }
@@ -1263,7 +1262,6 @@ body {
   gap: 4px;
   transition: filter var(--transition-fast), transform var(--transition-fast);
 }
-.action-btn:active { }
 .action-btn svg { width: 13px; height: 13px; display: block; }
 .action-view, .action-edit, .action-primary { background: var(--color-btn-action-bg); color: var(--color-btn-action-text); }
 .action-export { background: var(--color-btn-export-bg); color: var(--color-btn-export-text); }
@@ -2301,6 +2299,17 @@ body {
           <div class="qh-body">
             <div class="qh-empty">未提取到题目。可先尝试规则解析，或点击"AI 选区解析"后在页面中点选一块题目区域。</div>
           </div>
+          <div class="qh-footer">
+            <span class="qh-model-name">DeepSeek-V3</span>
+            <div class="qh-footer-actions">
+              <div class="qh-seg" data-active="ai">
+                <button class="qh-seg-btn active">AI 选区</button>
+                <button class="qh-seg-btn">规则解析</button>
+              </div>
+              <button class="qh-btn qh-btn-warning qh-btn-icon" title="暂停"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></button>
+              <button class="qh-btn qh-btn-primary qh-btn-icon" title="重新作答"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2336,8 +2345,16 @@ body {
               </div>
             </div>
             <div class="form-group">
+              <label>界面主题</label>
+              <div class="segmented-control">
+                <button type="button" class="seg-active">经典</button>
+                <button type="button">苹果</button>
+              </div>
+              <div class="hint">选择整套界面的视觉风格，可随时切换。</div>
+            </div>
+            <div class="form-group">
               <label>系统提示词</label>
-              <div style="margin-bottom:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
                 <div class="segmented-control">
                   <button type="button" class="seg-active">单选</button>
                   <button type="button">多选</button>
@@ -2345,9 +2362,15 @@ body {
                   <button type="button">填空</button>
                   <button type="button">其他</button>
                 </div>
+                <button type="button" class="action-btn action-secondary">清空</button>
               </div>
               <textarea rows="4" placeholder="你是一位专业、严谨、高效的答题助手。请根据题目内容给出准确答案……"></textarea>
               <div class="hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。</div>
+            </div>
+            <div class="form-group">
+              <label>补充提示词 / 领域背景</label>
+              <textarea rows="4" placeholder="例如：&#10;你是一名通信领域与 AI 大模型方向的专业助手。&#10;回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
+              <div class="hint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</div>
             </div>
             <div class="form-group">
               <label>面板快捷键</label>
@@ -2366,7 +2389,7 @@ body {
             <div class="form-group">
               <label>生效域名白名单</label>
               <textarea rows="2" placeholder="example.com&#10;exam.example.com"></textarea>
-              <div class="hint">插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效。；留空则默认对所有网站生效。</div>
+              <div class="hint">插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效。</div>
             </div>
             <div class="actions">
               <button class="btn btn-primary">保存设置</button>
