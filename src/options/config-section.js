@@ -82,7 +82,7 @@ function initConfig({
       btn.addEventListener('click', () => {
         const type = btn.dataset.type || currentPromptType;
         if (systemPromptTextareas[type]) {
-          systemPromptTextareas[type].value = '';
+          systemPromptTextareas[type].value = defaultPrompts[type] || '';
           autoSave(); // 点击「默认」后立即生效
           showStatus(getMessage('optionsPromptResetDone', [TYPE_LABELS[type] || type]));
         }
