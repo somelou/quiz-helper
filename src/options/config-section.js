@@ -2,7 +2,7 @@
 
 function initConfig({
   extraContextPromptInput, allowedDomainsInput,
-  systemPromptTextareas, promptTypeTabs, promptClearBtns,
+  systemPromptTextareas, promptTypeTabs, promptResetBtns,
   saveBtn, resetBtn,
   questionBankEnabledInput, getCurrentShortcut, resetShortcut,
   loadQuestionBanks
@@ -41,8 +41,8 @@ function initConfig({
         systemPromptTextareas[key].style.display = key === type ? '' : 'none';
       }
     });
-    if (promptClearBtns && promptClearBtns.length) {
-      promptClearBtns.forEach(btn => {
+    if (promptResetBtns && promptResetBtns.length) {
+      promptResetBtns.forEach(btn => {
         btn.dataset.type = type;
       });
     }
@@ -77,19 +77,28 @@ function initConfig({
     });
   });
 
-  if (promptClearBtns && promptClearBtns.length) {
-    promptClearBtns.forEach(btn => {
+  if (promptResetBtns && promptResetBtns.length) {
+    promptResetBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const type = btn.dataset.type || currentPromptType;
         if (systemPromptTextareas[type]) {
           systemPromptTextareas[type].value = '';
-          showStatus(getMessage('optionsPromptCleared', [TYPE_LABELS[type] || type]));
+          autoSave(); // 点击「默认」后立即生效
+          showStatus(getMessage('optionsPromptResetDone', [TYPE_LABELS[type] || type]));
         }
       });
     });
   }
 
-  saveBtn.addEventListener('click', async () => {
+  // 输入区失焦自动保存：提示词 / 补充提示词 / 白名单
+  Object.values(systemPromptTextareas).forEach(textarea => {
+    if (textarea) textarea.addEventListener('blur', autoSave);
+  });
+  extraContextPromptInput.addEventListener('blur', autoSave);
+  allowedDomainsInput.addEventListener('blur', autoSave);
+
+  // 收集表单值并写入存储（「保存设置」与自动保存共用）
+  async function persistSettings() {
     const domains = allowedDomainsInput.value
       .split('\n')
       .map(d => d.trim())
@@ -109,7 +118,15 @@ function initConfig({
       allowed_domains: domains,
       panel_shortcut: getCurrentShortcut()
     });
+  }
 
+  // 失焦自动保存：静默写入，不弹提示
+  function autoSave() {
+    persistSettings().catch(() => {});
+  }
+
+  saveBtn.addEventListener('click', async () => {
+    await persistSettings();
     showStatus(getMessage('optionsSettingsSaved'));
   });
 

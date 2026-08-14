@@ -41,6 +41,12 @@
   "statusError": {
     "message": "Error"
   },
+  "statusActive": {
+    "message": "Active"
+  },
+  "statusNone": {
+    "message": "None"
+  },
   "importModeEcoLabel": {
     "message": "5 concurrent batches of 100 questions each, slower but suitable when tokens are limited or API rate limits are strict"
   },
@@ -79,39 +85,6 @@
   },
   "popupShortcutHint": {
     "message": "Assistant shortcut: <strong>$1</strong>"
-  },
-  "statusPanelTitle": {
-    "message": "Status"
-  },
-  "statusRedetect": {
-    "message": "Re-check"
-  },
-  "statusLLM": {
-    "message": "LLM API"
-  },
-  "statusSearch": {
-    "message": "Search"
-  },
-  "statusBank": {
-    "message": "Banks"
-  },
-  "statusRule": {
-    "message": "Rules"
-  },
-  "statusNotConfigured": {
-    "message": "Not configured"
-  },
-  "statusActive": {
-    "message": "Active"
-  },
-  "statusNone": {
-    "message": "None"
-  },
-  "statusTooltipOk": {
-    "message": "OK · $1ms"
-  },
-  "statusTooltipErr": {
-    "message": "Error · $1"
   },
   "popupSelectModel": {
     "message": "Select model"
@@ -397,12 +370,6 @@
   },
   "optionsBackupSelectModule": {
     "message": "Select at least one module to export"
-  },
-  "optionsBackupRestoreFormat": {
-    "message": "Will restore: $1"
-  },
-  "optionsBackupClearFile": {
-    "message": "Clear selection"
   },
   "optionsBankCancelling": {
     "message": "Cancelling..."
@@ -691,6 +658,9 @@
   },
   "optionsPromptCleared": {
     "message": "Cleared the custom prompt for $1"
+  },
+  "optionsPromptResetDone": {
+    "message": "Restored the default prompt for $1"
   },
   "optionsQuestionCopyFormat": {
     "message": "[$1] $2"
@@ -1026,16 +996,16 @@
     "message": "Not set"
   },
   "optionsShortcutRecorded": {
-    "message": "Shortcut recorded; it takes effect after clicking “Save Settings”"
+    "message": "Shortcut recorded successfully"
   },
   "optionsShortcutRecording": {
-    "message": "Press a new shortcut combination..."
+    "message": "Press the shortcut"
   },
   "optionsShortcutRecordingCancelled": {
     "message": "Shortcut recording cancelled"
   },
   "optionsShortcutReset": {
-    "message": "Default shortcut restored; it takes effect after saving"
+    "message": "Default shortcut restored"
   },
   "optionsShow": {
     "message": "Show"

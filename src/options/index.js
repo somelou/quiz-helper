@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const shortcutMod = initShortcut({
     shortcutDisplayEl: document.getElementById('shortcutDisplay'),
     shortcutHintEl: document.getElementById('shortcutHint'),
-    recordBtn: document.getElementById('recordShortcutBtn'),
+    recordBtn: document.getElementById('shortcutDisplay'),
     clearBtn: document.getElementById('clearShortcutBtn'),
     resetBtn: document.getElementById('resetShortcutBtn')
   });
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       unknown: document.getElementById('systemPrompt-unknown')
     },
     promptTypeTabs: Array.from(document.querySelectorAll('.prompt-type-tabs button')),
-    promptClearBtns: Array.from(document.querySelectorAll('.prompt-clear-btn')),
+    promptResetBtns: Array.from(document.querySelectorAll('.prompt-reset-btn')),
     saveBtn: document.getElementById('saveBtn'),
     resetBtn: document.getElementById('resetBtn'),
     questionBankEnabledInput: document.getElementById('questionBankEnabled'),

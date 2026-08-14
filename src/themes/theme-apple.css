@@ -817,24 +817,57 @@ html[data-theme-style="apple"].dark,
 [data-theme-style="apple"] .shortcut-key {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 40px;
+  gap: 12px;
+  height: 36px;
   padding: 0 16px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--color-btn-secondary-bg);
+  /* 胶囊填充用抬升面（--color-drawer-bg 即 demo2 --popover）：浅色为白、深色为抬升灰 */
+  background: var(--color-drawer-bg);
   color: var(--color-text);
   font-size: 13px;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0;
   box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
+}
+[data-theme-style="apple"] .shortcut-key:hover {
+  border-color: var(--color-border-focus);
+}
+[data-theme-style="apple"] .shortcut-key:active {
+  transform: scale(0.98);
 }
 [data-theme-style="apple"] .shortcut-key-icon {
   color: var(--color-primary);
 }
 [data-theme-style="apple"] .shortcut-key.recording {
   color: var(--color-primary);
+}
+/* 胶囊内部清除 ✕ */
+[data-theme-style="apple"] .shortcut-key .shortcut-clear {
+  width: 18px;
+  height: 18px;
+  margin-left: 1px;
+  color: var(--color-text-muted);
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+[data-theme-style="apple"] .shortcut-key .shortcut-clear svg {
+  width: 12px;
+  height: 12px;
+}
+[data-theme-style="apple"] .shortcut-key .shortcut-clear:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+/* 胶囊外的重置按钮：与胶囊同高 36px 的圆形图标钮（action-btn 默认 32px，此处显式对齐） */
+[data-theme-style="apple"] .shortcut-reset {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 999px;
+  justify-content: center;
 }
 
 /* ---- 4.17 关于信息条目（CSS 近似：圆角卡片化） ---- */
@@ -1014,19 +1047,24 @@ html[data-theme-style="apple"].dark,
   border-radius: 999px;
 }
 
-/* 系统提示词工具栏：清空按钮 → 胶囊 chip */
-[data-theme-style="apple"] .prompt-clear-btn {
+/* 系统提示词工具栏：默认按钮 → 胶囊 chip */
+[data-theme-style="apple"] .prompt-reset-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
   height: 32px;
   padding: 0 14px;
   border-radius: 999px;
+  font-weight: 500;
   background: var(--color-btn-secondary-bg);
   color: var(--color-text-secondary);
 }
-[data-theme-style="apple"] .prompt-clear-btn:hover {
-  background: var(--color-error-bg);
-  color: var(--color-error-text);
+[data-theme-style="apple"] .prompt-reset-btn svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  flex-shrink: 0;
 }
 
 /* 设置页顶部开关行 */

@@ -41,6 +41,12 @@
   "statusError": {
     "message": "出错"
   },
+  "statusActive": {
+    "message": "生效"
+  },
+  "statusNone": {
+    "message": "暂无"
+  },
   "importModeEcoLabel": {
     "message": "并发 5 批 · 每批 100 题，速度较慢，适合 token 不足或 API 限流严格的场景"
   },
@@ -79,39 +85,6 @@
   },
   "popupShortcutHint": {
     "message": "唤起助手快捷键：<strong>$1</strong>"
-  },
-  "statusPanelTitle": {
-    "message": "状态面板"
-  },
-  "statusRedetect": {
-    "message": "重新检测"
-  },
-  "statusLLM": {
-    "message": "大模型API"
-  },
-  "statusSearch": {
-    "message": "搜索服务"
-  },
-  "statusBank": {
-    "message": "启用题库"
-  },
-  "statusRule": {
-    "message": "解析规则"
-  },
-  "statusNotConfigured": {
-    "message": "未配置"
-  },
-  "statusActive": {
-    "message": "生效"
-  },
-  "statusNone": {
-    "message": "暂无"
-  },
-  "statusTooltipOk": {
-    "message": "正常 · 延时$1ms"
-  },
-  "statusTooltipErr": {
-    "message": "异常 · $1"
   },
   "popupSelectModel": {
     "message": "选择模型"
@@ -397,12 +370,6 @@
   },
   "optionsBackupSelectModule": {
     "message": "请至少选择一个导出模块"
-  },
-  "optionsBackupRestoreFormat": {
-    "message": "将恢复：$1"
-  },
-  "optionsBackupClearFile": {
-    "message": "取消选择"
   },
   "optionsBankCancelling": {
     "message": "正在取消..."
@@ -690,7 +657,10 @@
     "message": "$1/$2 页 · 共 $3 条"
   },
   "optionsPromptCleared": {
-    "message": "已清空$1自定义提示词"
+    "message": "已清空「$1」题型的自定义提示词"
+  },
+  "optionsPromptResetDone": {
+    "message": "已恢复「$1」题型的默认提示词"
   },
   "optionsQuestionCopyFormat": {
     "message": "【$1】$2"
@@ -1026,16 +996,16 @@
     "message": "未设置"
   },
   "optionsShortcutRecorded": {
-    "message": "快捷键已录制，点击\"保存设置\"后生效"
+    "message": "快捷键录制成功"
   },
   "optionsShortcutRecording": {
-    "message": "请按下新的快捷键组合..."
+    "message": "按下快捷键"
   },
   "optionsShortcutRecordingCancelled": {
     "message": "已取消快捷键录制"
   },
   "optionsShortcutReset": {
-    "message": "已恢复默认快捷键，保存后生效"
+    "message": "已恢复默认快捷键"
   },
   "optionsShow": {
     "message": "显示"

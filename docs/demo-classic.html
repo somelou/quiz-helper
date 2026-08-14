@@ -1832,29 +1832,68 @@ body {
 }
 .bank-progress-cancel:hover { background: var(--color-error-bg); }
 
-/* 快捷键展示 */
+/* 快捷键展示：shortcut-row > shortcut-key（图标 + 按键文本 + 清除）+ shortcut-reset，
+   结构与设置页 / Apple 版同构，样式沿用经典主题 */
 .shortcut-box {
   border: none;
   background: none;
   padding: 0;
 }
-.shortcut-value {
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.shortcut-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md);
   font-size: var(--font-lg);
   font-weight: 600;
   color: var(--color-text);
   letter-spacing: 2px;
+  /* 作为按钮时的重置 */
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color var(--transition-fast);
 }
-.setting-row {
-  display: flex;
+.shortcut-key:hover {
+  border-color: var(--color-primary);
+}
+.shortcut-key svg {
+  width: 15px;
+  height: 15px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+/* 按键文本旁的清除按钮 ✕ */
+.shortcut-key .shortcut-clear {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  border: 1px solid var(--color-input-border);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
-.shortcut-actions { display: flex; gap: 6px; }
+.shortcut-key .shortcut-clear svg {
+  width: 11px;
+  height: 11px;
+  display: block;
+}
+.shortcut-key .shortcut-clear:hover {
+  color: var(--color-error-text);
+  background: var(--color-surface-hover);
+}
 
 /* 全局消息 Toast 预览：与 Popup / Options 共用轻量卡片语言 */
 .demo-message-stage {
@@ -2353,6 +2392,20 @@ body {
               <div class="hint">选择整套界面的视觉风格，可随时切换。</div>
             </div>
             <div class="form-group">
+              <label id="shortcut-label">面板快捷键</label>
+              <div class="shortcut-box">
+                <div class="shortcut-row" role="group" aria-labelledby="shortcut-label">
+                  <button type="button" class="shortcut-key" title="点击录制快捷键" aria-label="点击录制快捷键">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M6 8h.01"/><path d="M8 12h.01"/><path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M7 16h10"/></svg>
+                    <span class="shortcut-key-text">Alt + Q</span>
+                    <span class="shortcut-clear" title="清除快捷键"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>
+                  </button>
+                  <button type="button" class="action-btn action-secondary shortcut-reset" title="恢复默认快捷键" aria-label="恢复默认快捷键"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                </div>
+                <div class="hint" style="margin-top:8px;">按下快捷键</div>
+              </div>
+            </div>
+            <div class="form-group">
               <label>系统提示词</label>
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
                 <div class="segmented-control">
@@ -2371,20 +2424,6 @@ body {
               <label>补充提示词 / 领域背景</label>
               <textarea rows="4" placeholder="例如：&#10;你是一名通信领域与 AI 大模型方向的专业助手。&#10;回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
               <div class="hint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</div>
-            </div>
-            <div class="form-group">
-              <label>面板快捷键</label>
-              <div class="shortcut-box">
-                <div class="setting-row">
-                  <div class="shortcut-value">Alt + Q</div>
-                  <div class="shortcut-actions" style="margin-top:0;">
-                    <button type="button" class="action-btn action-primary">录制</button>
-                    <button type="button" class="action-btn action-secondary action-clear">清空</button>
-                    <button type="button" class="action-btn action-secondary">默认</button>
-                  </div>
-                </div>
-                <div class="hint" style="margin-top:8px;">在任意页面按下快捷键即可唤起答题面板</div>
-              </div>
             </div>
             <div class="form-group">
               <label>生效域名白名单</label>
@@ -2572,7 +2611,14 @@ body {
             </div>
             <div class="bank-toolbar">
               <span class="bank-toolbar-stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>共 2 个题库 · 1,280 题</span>
-              <button class="btn btn-primary">导入题库</button>
+              <button class="action-btn action-edit">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 2v6"/>
+                  <path d="M5.5 6.5 8 9l2.5-2.5"/>
+                  <path d="M3 10.5v1.2A1.3 1.3 0 0 0 4.3 13h7.4a1.3 1.3 0 0 0 1.3-1.3v-1.2"/>
+                </svg>
+                导入题库
+              </button>
             </div>
             <div style="margin-top: 4px;">
               <div class="bank-progress-bar"><div class="bank-progress-fill"></div></div>

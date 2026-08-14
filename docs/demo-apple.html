@@ -878,9 +878,15 @@
         .seg-btn.active { background: var(--popover); color: var(--foreground); font-weight: 600; box-shadow: var(--shadow-xs); }
         .seg-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
 
-        .shortcut-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-        .shortcut-key { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid var(--border); border-radius: 999px; background: var(--secondary); color: var(--foreground); font: 600 13px/1 var(--font-sans); box-shadow: var(--shadow-xs); }
+        .shortcut-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .shortcut-key { display: inline-flex; align-items: center; gap: 12px; height: 36px; padding: 0 16px; border: 1px solid var(--border); border-radius: 999px; background: var(--popover); color: var(--foreground); font: 600 13px/1 var(--font-sans); box-shadow: var(--shadow-xs); cursor: pointer; transition: border-color .18s ease, transform .1s ease; }
         .shortcut-key svg { width: 15px; height: 15px; color: var(--primary); }
+        .shortcut-key:hover { border-color: var(--primary); }
+        .shortcut-key:active { transform: scale(0.98); }
+        .shortcut-key .shortcut-clear { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-left: 1px; border-radius: 999px; color: var(--muted-foreground); transition: background-color .18s ease, color .18s ease; }
+        .shortcut-key .shortcut-clear svg { width: 12px; height: 12px; color: var(--muted-foreground); }
+        .shortcut-key .shortcut-clear:hover { background: var(--border); color: var(--foreground); }
+        .chip-btn.shortcut-reset { width: 36px; height: 36px; padding: 0; border-radius: 999px; }
         .shortcut-actions { display: flex; align-items: center; gap: 8px; }
 
         .chip-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--secondary); color: var(--foreground); font: 500 12px/1 var(--font-sans); white-space: nowrap; cursor: pointer; transition: background-color .18s ease, color .18s ease; }
@@ -1751,7 +1757,14 @@
                             </aside>
                             <div class="opt-main">
                                 <section class="settings-card" aria-labelledby="basic-title">
-                                    <h3 class="card-title" id="basic-title">基本设置</h3>
+                                    <header class="card-head">
+                                        <h3 class="card-title" id="basic-title">基本设置</h3>
+                                        <div class="theme-toggle" data-active="0" role="group" aria-label="主题切换">
+                                            <button class="theme-btn active" type="button" data-theme="light" title="浅色模式" aria-label="浅色模式"><i data-lucide="sun"></i></button>
+                                            <button class="theme-btn" type="button" data-theme="dark" title="深色模式" aria-label="深色模式"><i data-lucide="moon"></i></button>
+                                            <button class="theme-btn" type="button" data-theme="system" title="跟随系统" aria-label="跟随系统"><i data-lucide="monitor"></i></button>
+                                        </div>
+                                    </header>
                                     <div class="form-group">
                                         <label class="form-label" id="theme-style-label">界面主题</label>
                                         <div class="segmented" role="group" aria-labelledby="theme-style-label">
@@ -1759,6 +1772,18 @@
                                             <button class="seg-btn active" type="button">苹果</button>
                                         </div>
                                         <p class="form-hint">选择整套界面的视觉风格，可随时切换。</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" id="shortcut-label">面板快捷键</label>
+                                        <div class="shortcut-row" role="group" aria-labelledby="shortcut-label">
+                                            <button class="shortcut-key" type="button" title="点击录制快捷键" aria-label="点击录制快捷键">
+                                                <i data-lucide="keyboard" aria-hidden="true"></i>
+                                                <span class="shortcut-key-text">Alt + Q</span>
+                                                <span class="shortcut-clear" title="清除快捷键"><i data-lucide="x" aria-hidden="true"></i></span>
+                                            </button>
+                                            <button class="chip-btn shortcut-reset" type="button" title="恢复默认快捷键" aria-label="恢复默认快捷键"><i data-lucide="rotate-ccw"></i></button>
+                                        </div>
+                                        <p class="form-hint">按下快捷键</p>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="sys-prompt">系统提示词</label>
@@ -1770,7 +1795,7 @@
                                                 <button class="seg-btn" type="button">填空</button>
                                                 <button class="seg-btn" type="button">其他</button>
                                             </div>
-                                            <button class="chip-btn" type="button"><i data-lucide="eraser"></i>清空</button>
+                                            <button class="chip-btn" type="button"><i data-lucide="rotate-ccw"></i>默认</button>
                                         </div>
                                         <textarea class="textarea" id="sys-prompt" rows="4" placeholder="你是一位专业、严谨、高效的答题助手。请根据题目内容给出准确答案……"></textarea>
                                         <p class="form-hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。</p>
@@ -1779,18 +1804,6 @@
                                         <label class="form-label" for="extra-context">补充提示词 / 领域背景</label>
                                         <textarea class="textarea" id="extra-context" rows="3" placeholder="例如：你是一名通信领域与 AI 大模型方向的专业助手。回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
                                         <p class="form-hint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" id="shortcut-label">面板快捷键</label>
-                                        <div class="shortcut-row" role="group" aria-labelledby="shortcut-label">
-                                            <span class="shortcut-key"><i data-lucide="key-round"></i>Alt + Q</span>
-                                            <div class="shortcut-actions">
-                                                <button class="chip-btn chip-primary" type="button"><i data-lucide="circle-dot"></i>录制</button>
-                                                <button class="chip-btn" type="button"><i data-lucide="eraser"></i>清空</button>
-                                                <button class="chip-btn" type="button"><i data-lucide="rotate-ccw"></i>默认</button>
-                                            </div>
-                                        </div>
-                                        <p class="form-hint">在任意页面按下快捷键即可唤起答题面板。</p>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="whitelist">生效域名白名单</label>
@@ -1980,7 +1993,14 @@
                             </aside>
                             <div class="opt-main">
                                 <section class="settings-card" aria-labelledby="basic-title-dark">
-                                    <h3 class="card-title" id="basic-title-dark">基本设置</h3>
+                                    <header class="card-head">
+                                        <h3 class="card-title" id="basic-title-dark">基本设置</h3>
+                                        <div class="theme-toggle" data-active="0" role="group" aria-label="主题切换">
+                                            <button class="theme-btn active" type="button" data-theme="light" title="浅色模式" aria-label="浅色模式"><i data-lucide="sun"></i></button>
+                                            <button class="theme-btn" type="button" data-theme="dark" title="深色模式" aria-label="深色模式"><i data-lucide="moon"></i></button>
+                                            <button class="theme-btn" type="button" data-theme="system" title="跟随系统" aria-label="跟随系统"><i data-lucide="monitor"></i></button>
+                                        </div>
+                                    </header>
                                     <div class="form-group">
                                         <label class="form-label" id="theme-style-label-dark">界面主题</label>
                                         <div class="segmented" role="group" aria-labelledby="theme-style-label-dark">
@@ -1988,6 +2008,18 @@
                                             <button class="seg-btn active" type="button">苹果</button>
                                         </div>
                                         <p class="form-hint">选择整套界面的视觉风格，可随时切换。</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" id="shortcut-label-dark">面板快捷键</label>
+                                        <div class="shortcut-row" role="group" aria-labelledby="shortcut-label-dark">
+                                            <button class="shortcut-key" type="button" title="点击录制快捷键" aria-label="点击录制快捷键">
+                                                <i data-lucide="keyboard" aria-hidden="true"></i>
+                                                <span class="shortcut-key-text">Alt + Q</span>
+                                                <span class="shortcut-clear" title="清除快捷键"><i data-lucide="x" aria-hidden="true"></i></span>
+                                            </button>
+                                            <button class="chip-btn shortcut-reset" type="button" title="恢复默认快捷键" aria-label="恢复默认快捷键"><i data-lucide="rotate-ccw"></i></button>
+                                        </div>
+                                        <p class="form-hint">按下快捷键</p>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="sys-prompt-dark">系统提示词</label>
@@ -1999,7 +2031,7 @@
                                                 <button class="seg-btn" type="button">填空</button>
                                                 <button class="seg-btn" type="button">其他</button>
                                             </div>
-                                            <button class="chip-btn" type="button"><i data-lucide="eraser"></i>清空</button>
+                                            <button class="chip-btn" type="button"><i data-lucide="rotate-ccw"></i>默认</button>
                                         </div>
                                         <textarea class="textarea" id="sys-prompt-dark" rows="4" placeholder="你是一位专业、严谨、高效的答题助手。请根据题目内容给出准确答案……"></textarea>
                                         <p class="form-hint">每种题型可单独设置自定义提示词，留空则使用默认提示词。</p>
@@ -2008,18 +2040,6 @@
                                         <label class="form-label" for="extra-context-dark">补充提示词 / 领域背景</label>
                                         <textarea class="textarea" id="extra-context-dark" rows="3" placeholder="例如：你是一名通信领域与 AI 大模型方向的专业助手。回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。"></textarea>
                                         <p class="form-hint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</p>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" id="shortcut-label-dark">面板快捷键</label>
-                                        <div class="shortcut-row" role="group" aria-labelledby="shortcut-label-dark">
-                                            <span class="shortcut-key"><i data-lucide="key-round"></i>Alt + Q</span>
-                                            <div class="shortcut-actions">
-                                                <button class="chip-btn chip-primary" type="button"><i data-lucide="circle-dot"></i>录制</button>
-                                                <button class="chip-btn" type="button"><i data-lucide="eraser"></i>清空</button>
-                                                <button class="chip-btn" type="button"><i data-lucide="rotate-ccw"></i>默认</button>
-                                            </div>
-                                        </div>
-                                        <p class="form-hint">在任意页面按下快捷键即可唤起答题面板。</p>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="whitelist-dark">生效域名白名单</label>
@@ -3366,20 +3386,29 @@ D. 第三次握手必须携带数据</p>
             // 顶部栏主题切换：驱动页面外框与下方 showcase 实例的浅色 / 深色切换
             var html = document.documentElement;
             var toggle = document.getElementById('demoThemeToggle');
+            // 功能主题切换控件：顶部栏 + 设置页卡片右上角（浅/深/系统）
+            function getFunctionalToggles() {
+                return document.querySelectorAll('.demo2-topbar .theme-toggle, .sec-options .theme-toggle');
+            }
             function applyTheme(theme) {
                 var resolved = theme === 'system'
                     ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
                     : theme;
                 html.className = resolved;
-                toggle.setAttribute('data-active', resolved === 'dark' ? '1' : (theme === 'system' ? '2' : '0'));
-                toggle.querySelectorAll('.theme-btn').forEach(function (b) {
-                    b.classList.toggle('active', b.dataset.theme === theme);
+                getFunctionalToggles().forEach(function (t) {
+                    // 滑块位置跟随「选中项」而非解析结果：浅=0 / 深=1 / 系统=2
+                    t.setAttribute('data-active', theme === 'dark' ? '1' : (theme === 'system' ? '2' : '0'));
+                    t.querySelectorAll('.theme-btn').forEach(function (b) {
+                        b.classList.toggle('active', b.dataset.theme === theme);
+                    });
                 });
             }
-            toggle.addEventListener('click', function (e) {
-                var btn = e.target.closest('.theme-btn');
-                if (!btn) return;
-                applyTheme(btn.dataset.theme);
+            getFunctionalToggles().forEach(function (t) {
+                t.addEventListener('click', function (e) {
+                    var btn = e.target.closest('.theme-btn');
+                    if (!btn) return;
+                    applyTheme(btn.dataset.theme);
+                });
             });
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
                 var active = toggle.querySelector('.theme-btn.active');

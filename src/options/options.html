@@ -5,13 +5,13 @@
   <title data-i18n="optionsPageTitle">题目助手 - 设置</title>
   <link rel="stylesheet" href="../shared/variables.css">
   <link rel="stylesheet" href="../shared/toggle.css">
-  <link rel="stylesheet" href="options.css?v=10">
+  <link rel="stylesheet" href="options.css?v=14">
   <link rel="stylesheet" href="../lib/katex.min.css">
   <!-- 主题引导：独立文件（MV3 扩展 CSP 禁止内联脚本），尽早设置 data-theme-style -->
   <script src="../shared/theme-boot.js"></script>
   <!-- 主题覆盖层：必须位于组件 CSS 之后；?v=10 用于强制刷新浏览器缓存 -->
   <link rel="stylesheet" href="../themes/theme-classic.css?v=10">
-  <link rel="stylesheet" href="../themes/theme-apple.css?v=12">
+  <link rel="stylesheet" href="../themes/theme-apple.css?v=16">
 </head>
 <body>
   <div class="page-layout">
@@ -55,6 +55,21 @@
         </div>
 
         <div class="form-group">
+          <label data-i18n="optionsShortcut" id="shortcut-label">面板快捷键</label>
+          <div class="shortcut-box">
+            <div class="shortcut-row" role="group" aria-labelledby="shortcut-label">
+              <button type="button" class="shortcut-key" id="shortcutDisplay" data-i18n-title="optionsRecordShortcut" title="录制" aria-label="录制快捷键">
+                <span class="shortcut-key-icon" data-icon="keyboard" aria-hidden="true"></span>
+                <span class="shortcut-key-text" id="shortcutText">--</span>
+                <span class="shortcut-clear" id="clearShortcutBtn" role="button" tabindex="-1" data-i18n-title="commonClear" title="清空" aria-label="清除快捷键"><span data-icon="close" aria-hidden="true"></span></span>
+              </button>
+              <button type="button" class="action-btn action-secondary shortcut-reset" id="resetShortcutBtn" data-i18n-title="optionsResetShortcut" title="默认" aria-label="恢复默认快捷键"><span data-icon="rotate-ccw" aria-hidden="true"></span></button>
+            </div>
+            <div class="hint" id="shortcutHint" style="margin-top:8px;">--</div>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label data-i18n="optionsSystemPrompt">系统提示词</label>
           <div class="prompt-toolbar">
             <div class="segmented-control prompt-type-tabs" data-active="single">
@@ -64,7 +79,7 @@
             <button type="button" data-value="fill" data-i18n="typeFill">填空</button>
             <button type="button" data-value="unknown" data-i18n="typeUnknown">其他</button>
             </div>
-            <button type="button" class="prompt-clear-btn" data-type="single" data-i18n="commonClear">清空</button>
+            <button type="button" class="prompt-reset-btn" data-type="single"><span data-icon="rotate-ccw" aria-hidden="true"></span><span data-i18n="optionsPromptReset">默认</span></button>
           </div>
           <textarea id="systemPrompt-single" class="system-prompt-textarea" rows="6"></textarea>
           <textarea id="systemPrompt-multiple" class="system-prompt-textarea" rows="6" style="display:none;"></textarea>
@@ -80,21 +95,6 @@
 你是一名通信领域与 AI 大模型方向的专业助手。
 回答时优先结合通信运维、网络安全、模型应用等背景知识，给出简洁结论与必要解析。" data-i18n-placeholder="optionsExtraContextPlaceholder"></textarea>
           <div class="hint" data-i18n="optionsExtraContextHint">用于补充领域知识、人设或回答偏好，不影响题库导入和网页抽题。</div>
-        </div>
-
-        <div class="form-group">
-          <label data-i18n="optionsShortcut">面板快捷键</label>
-          <div class="shortcut-box">
-            <div class="shortcut-row">
-              <span class="shortcut-key" id="shortcutDisplay"><span class="shortcut-key-icon" data-icon="key-round" aria-hidden="true"></span><span id="shortcutText">--</span></span>
-              <div class="shortcut-actions">
-                <button type="button" class="action-btn action-primary" id="recordShortcutBtn"><span data-icon="circle-dot" aria-hidden="true"></span><span data-i18n="optionsRecordShortcut">录制</span></button>
-                <button type="button" class="action-btn action-secondary action-clear" id="clearShortcutBtn"><span data-icon="eraser" aria-hidden="true"></span><span data-i18n="commonClear">清空</span></button>
-                <button type="button" class="action-btn action-secondary" id="resetShortcutBtn"><span data-icon="rotate-ccw" aria-hidden="true"></span><span data-i18n="optionsResetShortcut">默认</span></button>
-              </div>
-            </div>
-            <div class="hint" id="shortcutHint" style="margin-top:8px;">--</div>
-          </div>
         </div>
 
         <div class="form-group">

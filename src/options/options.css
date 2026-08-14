@@ -344,7 +344,9 @@ button:hover,
   cursor: pointer;
   font-size: var(--font-sm);
   font-family: inherit;
+  font-weight: 400;
   line-height: 1;
+  margin-bottom: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -503,6 +505,11 @@ button:hover,
   flex: 1 1 220px;
   min-width: 0;
   word-break: break-all;
+}
+.backup-file-clear {
+  width: 28px;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 /* 关于 */
@@ -777,17 +784,13 @@ button:hover,
   border-radius: var(--radius-md);
   padding: 10px 12px;
 }
-/* 快捷键行（demo2 同构：shortcut-row > shortcut-key + shortcut-actions），
-   经典主题下呈现为描边行 */
+/* 快捷键行（与 demo-classic 同构：shortcut-row 透明 + shortcut-key 键帽描边），
+   经典主题下仅保留按钮自身的键帽边框 */
 .shortcut-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  border: 1px solid var(--color-input-border);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
 }
 .shortcut-box {
   border: none;
@@ -798,11 +801,23 @@ button:hover,
 .shortcut-key {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md);
   font-size: var(--font-lg);
   font-weight: 600;
   color: var(--color-text);
   letter-spacing: 2px;
+  /* 作为按钮时的重置 */
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color var(--transition-fast);
+}
+.shortcut-key:hover {
+  border-color: var(--color-primary);
 }
 .shortcut-key-icon {
   display: inline-flex;
@@ -817,6 +832,40 @@ button:hover,
 }
 .shortcut-key.recording {
   color: var(--color-primary);
+}
+/* 快捷键辅助文本统一 12px（与苹果主题一致）：
+   录制提示「按下快捷键」与未设置占位「未设置」 */
+.shortcut-key.recording #shortcutText,
+.shortcut-key.is-empty #shortcutText {
+  font-size: 12px;
+}
+.shortcut-key.is-empty #shortcutText {
+  color: var(--color-text-muted);
+}
+/* 胶囊内部清除按钮 ✕ */
+.shortcut-key .shortcut-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.shortcut-key .shortcut-clear svg {
+  width: 11px;
+  height: 11px;
+  display: block;
+}
+.shortcut-key .shortcut-clear:hover {
+  color: var(--color-error-text);
+  background: var(--color-surface-hover);
+}
+.shortcut-key .shortcut-clear[hidden],
+.shortcut-key.recording .shortcut-clear {
+  display: none;
 }
 .shortcut-row .shortcut-actions {
   margin-top: 0;
@@ -1297,23 +1346,35 @@ button:hover,
   gap: 0;
 }
 
-/* 清空按钮（提示词区域） */
-.prompt-clear-btn {
-  flex-shrink: 0;
-  padding: 9px 12px;
-  font-size: var(--font-sm);
-  line-height: 1.2;
-  background: var(--color-toggle-bg);
-  color: var(--color-toggle-btn);
+/* 默认按钮（提示词区域）：点击清除自定义提示词，恢复系统默认提示词；经典主题样式与 .action-btn.action-secondary 一致 */
+.prompt-reset-btn {
+  height: 28px;
+  padding: 0 10px;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   white-space: nowrap;
+  transition: filter var(--transition-fast);
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
 }
-.prompt-clear-btn:hover {
-  color: var(--color-error-text);
-  background: var(--color-error-bg);
+.prompt-reset-btn svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+  flex-shrink: 0;
+}
+.prompt-reset-btn:hover {
+  filter: brightness(0.97);
+  color: var(--color-text);
   opacity: 1;
 }
 

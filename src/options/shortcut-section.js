@@ -12,6 +12,7 @@ function initShortcut({
   shortcutDisplayEl, shortcutHintEl,
   recordBtn, clearBtn, resetBtn
 }) {
+  const { safeSet } = globalThis.QuizHelperStorageUtils;
   let currentShortcut = getDefaultShortcut();
   let isRecordingShortcut = false;
 
@@ -34,7 +35,10 @@ function initShortcut({
 
   function updateShortcutDisplay() {
     shortcutDisplayEl.classList.remove('recording');
+    shortcutDisplayEl.classList.toggle('is-empty', !currentShortcut); // 未设置时弱化为 12px 描述文本
     setShortcutText(currentShortcut ? currentShortcut.display : getMessage('optionsShortcutNotSet'));
+    // 未设置快捷键时隐藏胶囊内的清除按钮
+    if (clearBtn) clearBtn.hidden = !currentShortcut;
     const defaultLabel = sharedIsMacOS() ? '⌥ Q' : 'Alt+Q';
     shortcutHintEl.textContent = currentShortcut
       ? getMessage('optionsShortcutDefaultFormat', [defaultLabel])
@@ -48,6 +52,11 @@ function initShortcut({
     else shortcutDisplayEl.textContent = text;
   }
 
+  // 自动保存：操作后立即写入存储，无需再点「保存设置」即可生效
+  function persistShortcut() {
+    safeSet({ panel_shortcut: currentShortcut }).catch(() => {});
+  }
+
   recordBtn.addEventListener('click', () => {
     isRecordingShortcut = true;
     setShortcutText(getMessage('optionsShortcutRecording'));
@@ -56,10 +65,13 @@ function initShortcut({
     shortcutHintEl.textContent = getMessage('optionsShortcutModifierHintFormat', [mods]);
   });
 
-  clearBtn.addEventListener('click', () => {
+  clearBtn.addEventListener('click', event => {
+    event.stopPropagation(); // 清除按钮位于胶囊内部，避免触发胶囊的录制
     isRecordingShortcut = false;
     currentShortcut = null;
     updateShortcutDisplay();
+    shortcutDisplayEl.blur();
+    persistShortcut(); // 清空后立即生效
     showStatus(getMessage('optionsShortcutCleared'));
   });
 
@@ -71,6 +83,7 @@ function initShortcut({
         event.preventDefault();
         isRecordingShortcut = false;
         updateShortcutDisplay();
+        recordBtn.blur(); // 退出录制时移除焦点，避免键盘交互触发 :focus-visible 焦点环
         showStatus(getMessage('optionsShortcutRecordingCancelled'));
       }
       return;
@@ -100,6 +113,8 @@ function initShortcut({
 
     isRecordingShortcut = false;
     updateShortcutDisplay();
+    recordBtn.blur(); // 同上：键盘完成录制后移除焦点
+    persistShortcut(); // 录制成功后立即生效
     showStatus(getMessage('optionsShortcutRecorded'));
   }, true);
 
@@ -118,6 +133,7 @@ function initShortcut({
     isRecordingShortcut = false;
     currentShortcut = getDefaultShortcut();
     updateShortcutDisplay();
+    persistShortcut(); // 恢复默认后立即生效
     showStatus(getMessage('optionsShortcutReset'));
   }
 
