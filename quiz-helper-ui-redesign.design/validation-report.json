@@ -119,15 +119,15 @@
     ]
   },
   "projectFileHashes": {
-    "quiz-helper-ui-redesign.design": "943fd77fbf8064c4eb5cf071c295e8bde5f35ef8995feb7bd289ba2e5af157cd",
-    "colors_and_type.css": "b42619c29e5046e7532d5a351dd53bc2692e041850460258b8b4ed29703b12a8",
+    "quiz-helper-ui-redesign.design": "6a7351254c9e768f0ca0061f6337f0434ede824a021ac1e8233c3adc11c358f9",
+    "colors_and_type.css": "80c1a5c26c6e1b30f5ce58b85f2ccbfa27125ad352f1047578bd5f280a35eb99",
     "runtime-orchestration-summary.json": "7f31d878f4ed1d19b440c6469f9fa9fb80c902dca9019f13126539626d6c1970",
-    "pages/content-panel.html": "3e88a24f8139c569c8a5b97126b43bcdcf9f894a715e219228011104ff9c135e",
+    "pages/content-panel.html": "85250abbf23ca17e116c9930b0aeb9bc553276ecfcf0d9c1f0cec6bec979f29b",
     "pages/drawer.html": "e0c1bab0c95d677174aa751a5c7b0d4a009ddf6dc76b361bc0e72a9bbdc1c253",
     "pages/messages.html": "99753738d15e24568d43d9adae74fefad655ac10e5d72372d813b3c6711b65be",
-    "pages/options-data.html": "6b0e8b0d21bf4a1e69eed265eddb9646469e64590eb3c40da85919a4d1640e77",
-    "pages/options-settings.html": "7145fe1f3d8615c1edcc1bbcd4ab14f780368ace008803e2100ea7769078d5cc",
-    "pages/popup-home.html": "8e10827e2409ba8322d78820d9396dfff8056e21368062b4f20dc03011170cd2",
+    "pages/options-data.html": "513191a3539b8d5f1350ad7c26d9b184061449b24f997b86db9b0f4adb09251c",
+    "pages/options-settings.html": "8d872a7c0f0dd2807ab119abd076b5526faca76a31cf2cb90d36454afe9e0a6b",
+    "pages/popup-home.html": "43fe7f817a85aae4af769c946e4b5918d58f7e9c15a36b5a516596ae1257fe5e",
     "assets/icons/dl_builtin_apple/arrow-down.svg": "0ba482e989813473fb7b1c8da6081a84ce399367f70dbee0a448deeeaeb5d9d4",
     "assets/icons/dl_builtin_apple/arrow-left.svg": "ea2b7505ca9d8d2ab540075c3df561ed6a9c54e5b903d373daab015d0b79342d",
     "assets/icons/dl_builtin_apple/arrow-right.svg": "03e8f44a4b87f3710bf316c5ed18f16025448ffe9652a229c974df98341c8d78",
@@ -170,7 +170,7 @@
     "assets/icons/dl_builtin_apple/user.svg": "4bdceb57f2eeca2020dde928173734d68d905932e75a8ab4acfaa0f40945eaa0"
   },
   "designDir": "/Users/jiahao/Projects/demo/quiz-helper/quiz-helper-ui-redesign.design",
-  "expectedPages": 6,
+  "expectedPages": null,
   "requireInteractions": null,
-  "checkedAt": "2026-08-12T16:29:30.913Z"
+  "checkedAt": "2026-08-14T05:40:56.354Z"
 }

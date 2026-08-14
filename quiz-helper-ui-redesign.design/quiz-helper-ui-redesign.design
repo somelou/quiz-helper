@@ -14,8 +14,8 @@
           "version": 1,
           "contentHeight": 998,
           "viewportWidth": 1440,
-          "sourceHash": "fnv1a-aff8fa14",
-          "measuredAt": 1786509619292
+          "sourceHash": "fnv1a-71c1d559",
+          "measuredAt": 1786668125648
         }
       },
       "devMetadata": {
@@ -60,8 +60,8 @@
           "version": 1,
           "contentHeight": 3086,
           "viewportWidth": 1440,
-          "sourceHash": "fnv1a-766da4e6",
-          "measuredAt": 1786552183760
+          "sourceHash": "fnv1a-1f535378",
+          "measuredAt": 1786668125648
         }
       },
       "devMetadata": {
@@ -151,6 +151,6 @@
       "path": "/Users/jiahao/.trae-cn/design_libraries/dl_builtin_apple",
       "versionSource": "metadata.json"
     },
-    "visualEditorEnabled": true
+    "visualEditorEnabled": false
   }
 }
