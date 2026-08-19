@@ -1,5 +1,11 @@
 // 联网搜索设置模块
 
+// 将 Tavily 搜索深度档位映射为提示文案的 locale key 后缀
+function tavilyDepthKey(depth) {
+  const map = { basic: 'Basic', advanced: 'Advanced', fast: 'Fast', 'ultra-fast': 'UltraFast' };
+  return (depth && map[depth]) || 'Basic';
+}
+
 // 内联常量（不再依赖 shared/search-params.js，防止选项页有任何直接 fetch 路径）
 const DEFAULT_WEB_SEARCH_PROVIDERS = [
   {
@@ -388,7 +394,7 @@ function initSearch({
             <button data-value="fast"${depthVal === 'fast' ? ' class="seg-active"' : ''}>Fast</button>
             <button data-value="ultra-fast"${depthVal === 'ultra-fast' ? ' class="seg-active"' : ''}>Ultra-Fast</button>
           </div>
-          <div class="hint">${getMessage('optionsSearchTavilyDepthHint')}</div>
+          <div class="hint" id="drawer-tavily-depthHint">${getMessage('optionsSearchTavilyDepthHint' + tavilyDepthKey(depthVal))}</div>
         </div>
         <div class="rule-form-group">
           <label>${getMessage('optionsSearchAnswerLabel')}</label>
@@ -455,6 +461,16 @@ function initSearch({
     // 测试搜索
     const testBtn = drawerBodyEl.querySelector('#search-testBtn');
     testBtn.addEventListener('click', testSearchConnection);
+
+    // Tavily：根据所选搜索深度更新提示文案
+    const tavilyDepthEl = drawerBodyEl.querySelector('#drawer-tavily-depth');
+    const tavilyDepthHint = drawerBodyEl.querySelector('#drawer-tavily-depthHint');
+    if (tavilyDepthEl && tavilyDepthHint) {
+      tavilyDepthEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-value]');
+        if (btn) tavilyDepthHint.textContent = getMessage('optionsSearchTavilyDepthHint' + tavilyDepthKey(btn.dataset.value));
+      });
+    }
   }
 
   async function testSearchConnection() {

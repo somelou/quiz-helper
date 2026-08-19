@@ -195,7 +195,7 @@
     "message": "Stream Output"
   },
   "optionsStreamOutputHint": {
-    "message": "When enabled, results stream word by word during model tests and answering; when disabled, the full result is returned at once."
+    "message": "When enabled, results are returned word by word during answering; when disabled, the full result is returned at once."
   },
   "optionsSearchHint": {
     "message": "When enabled, the model retrieves web information as a reference while answering (only one search service is active at a time)."
@@ -569,6 +569,21 @@
   "optionsModelFormEffortHint": {
     "message": "Low is fastest; Medium is balanced; High fits most use cases; X-High / Max are for complex reasoning tasks. Falls back automatically if the model does not support the selected level"
   },
+  "optionsModelFormEffortHintLow": {
+    "message": "Fastest response, best for simple and direct tasks. Falls back automatically if the model does not support the selected level"
+  },
+  "optionsModelFormEffortHintMedium": {
+    "message": "Balanced thinking and response speed, good for everyday tasks"
+  },
+  "optionsModelFormEffortHintHigh": {
+    "message": "Fits most use cases, balancing speed and quality (default)"
+  },
+  "optionsModelFormEffortHintXHigh": {
+    "message": "More thorough thinking, suitable for complex reasoning tasks"
+  },
+  "optionsModelFormEffortHintMax": {
+    "message": "Deepest reasoning with the slowest response, for the most complex tasks. Falls back automatically if the model does not support the selected level"
+  },
   "optionsModelFormEffortLabel": {
     "message": "Thinking Effort"
   },
@@ -937,6 +952,18 @@
   },
   "optionsSearchTavilyDepthHint": {
     "message": "Basic balances relevance and latency; Advanced is high-precision deep search (2 credits); Fast is low latency; Ultra-Fast returns instantly (summary only)"
+  },
+  "optionsSearchTavilyDepthHintBasic": {
+    "message": "Balances search relevance and response latency, ideal for everyday queries"
+  },
+  "optionsSearchTavilyDepthHintAdvanced": {
+    "message": "High-precision deep search, more comprehensive results (costs 2 credits)"
+  },
+  "optionsSearchTavilyDepthHintFast": {
+    "message": "Low latency for faster responses"
+  },
+  "optionsSearchTavilyDepthHintUltraFast": {
+    "message": "Returns instantly, summary only"
   },
   "optionsSearchTavilySection": {
     "message": "Tavily Search Parameters"

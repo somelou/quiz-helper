@@ -1,5 +1,11 @@
 // 大模型管理模块
 
+// 将思考强度档位映射为提示文案的 locale key 后缀
+function effortHintKey(effort) {
+  const map = { low: 'Low', medium: 'Medium', high: 'High', xhigh: 'XHigh', max: 'Max' };
+  return (effort && map[effort]) || 'High';
+}
+
 function initModels({
   modelListEl,
   drawerBodyEl, drawerTitleEl, drawerMetaEl,
@@ -396,7 +402,7 @@ function initModels({
           <button type="button" class="${model.thinkingEffort === 'xhigh' ? 'seg-active' : ''}" data-value="xhigh">X-High</button>
           <button type="button" class="${model.thinkingEffort === 'max' ? 'seg-active' : ''}" data-value="max">Max</button>
         </div>
-        <div class="hint">${getMessage('optionsModelFormEffortHint')}</div>
+        <div class="hint" id="model-thinkingEffortHint">${getMessage('optionsModelFormEffortHint' + effortHintKey(model.thinkingEffort))}</div>
       </div>
 
       <div class="rule-form-section">${getMessage('optionsModelTestConnection')}</div>
@@ -465,10 +471,22 @@ function initModels({
 
     // 初始化思考强度分段控件
     const thinkingEffortSeg = drawerBodyEl.querySelector('#model-thinkingEffort');
+    const thinkingEffortHint = drawerBodyEl.querySelector('#model-thinkingEffortHint');
+    // 根据所选强度更新下方提示文案
+    function updateEffortHint(effort) {
+      if (thinkingEffortHint) {
+        thinkingEffortHint.textContent = getMessage('optionsModelFormEffortHint' + effortHintKey(effort));
+      }
+    }
     if (thinkingEffortSeg) {
       const activeBtn = thinkingEffortSeg.querySelector('.seg-active');
       if (activeBtn) setSegValue(thinkingEffortSeg, activeBtn.dataset.value);
+      thinkingEffortSeg.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-value]');
+        if (btn) updateEffortHint(btn.dataset.value);
+      });
     }
+    updateEffortHint(model.thinkingEffort);
 
     // 思考过程折叠/展开
     const thinkingHeader = drawerBodyEl.querySelector('#model-testThinkingHeader');

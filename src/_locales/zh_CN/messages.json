@@ -195,7 +195,7 @@
     "message": "流式输出"
   },
   "optionsStreamOutputHint": {
-    "message": "开启后，大模型测试与答题时逐字返回结果；关闭后一次性返回完整结果。"
+    "message": "开启后，大模型答题时将逐字返回结果；关闭后，作答结束后才返回完整结果。"
   },
   "optionsSearchHint": {
     "message": "开启后，大模型答题时将检索联网信息作为辅助参考（仅一种搜索服务同时生效）。"
@@ -569,6 +569,21 @@
   "optionsModelFormEffortHint": {
     "message": "Low 响应最快；Medium 均衡；High 适合多数场景；X-High / Max 适合复杂推理任务。不支持高档位的模型将自动降级"
   },
+  "optionsModelFormEffortHintLow": {
+    "message": "响应最快，适合简单直接的任务。不支持高档位的模型将自动降级"
+  },
+  "optionsModelFormEffortHintMedium": {
+    "message": "思考与响应均衡，适合常规任务"
+  },
+  "optionsModelFormEffortHintHigh": {
+    "message": "适合多数场景，兼顾速度与质量（默认）"
+  },
+  "optionsModelFormEffortHintXHigh": {
+    "message": "思考更充分，适合复杂推理任务"
+  },
+  "optionsModelFormEffortHintMax": {
+    "message": "最充分的深度推理，响应最慢，适合最复杂的推理任务。不支持高档位的模型将自动降级"
+  },
   "optionsModelFormEffortLabel": {
     "message": "思考强度"
   },
@@ -937,6 +952,18 @@
   },
   "optionsSearchTavilyDepthHint": {
     "message": "Basic 平衡相关性与延迟，Advanced 高精度深度搜索（2 积分），Fast 低延迟，Ultra-Fast 极速返回（仅返回一条摘要）"
+  },
+  "optionsSearchTavilyDepthHintBasic": {
+    "message": "平衡搜索相关性与响应延迟，适合日常查询"
+  },
+  "optionsSearchTavilyDepthHintAdvanced": {
+    "message": "高精度深度搜索，结果更全面（消耗 2 积分）"
+  },
+  "optionsSearchTavilyDepthHintFast": {
+    "message": "低延迟，响应更快的搜索"
+  },
+  "optionsSearchTavilyDepthHintUltraFast": {
+    "message": "极速返回，仅返回一条摘要"
   },
   "optionsSearchTavilySection": {
     "message": "Tavily 搜索参数"
