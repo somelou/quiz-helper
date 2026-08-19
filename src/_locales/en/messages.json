@@ -47,6 +47,15 @@
   "statusNone": {
     "message": "None"
   },
+  "statusNotConfigured": {
+    "message": "Not configured"
+  },
+  "statusTooltipOk": {
+    "message": "OK · $1 ms latency"
+  },
+  "statusTooltipErr": {
+    "message": "Error: {0}"
+  },
   "importModeEcoLabel": {
     "message": "5 concurrent batches of 100 questions each, slower but suitable when tokens are limited or API rate limits are strict"
   },

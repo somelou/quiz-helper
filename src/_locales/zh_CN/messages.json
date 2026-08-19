@@ -47,6 +47,15 @@
   "statusNone": {
     "message": "暂无"
   },
+  "statusNotConfigured": {
+    "message": "未配置"
+  },
+  "statusTooltipOk": {
+    "message": "状态正常 · 延迟 $1 ms"
+  },
+  "statusTooltipErr": {
+    "message": "状态异常：{0}"
+  },
   "importModeEcoLabel": {
     "message": "并发 5 批 · 每批 100 题，速度较慢，适合 token 不足或 API 限流严格的场景"
   },

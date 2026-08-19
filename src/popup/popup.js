@@ -148,7 +148,7 @@ function applyDot(el, status) {
 function statusTitle(entry) {
   if (!entry) return '';
   if (entry.status === 'ok' && entry.latencyMs != null) {
-    return getMessage('statusTooltipOk', [entry.latencyMs]);
+    return getMessage('statusTooltipOk', [String(entry.latencyMs)]);
   }
   if (entry.status === 'err') {
     return getMessage('statusTooltipErr', [entry.error || getMessage('commonUnknownError')]);
