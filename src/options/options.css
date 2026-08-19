@@ -213,6 +213,10 @@ textarea {
   margin-top: 6px;
   line-height: 1.6;
 }
+.hint a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
 .actions {
   margin-top: 24px;
   display: flex;
