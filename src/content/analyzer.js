@@ -7,6 +7,9 @@
   const UI = globalThis.QuizHelperPanelUI;
   const { getMessage } = globalThis.QuizHelperI18n;
 
+  // 当前正在进行的流式答题通道（暂停时用于立即中断）
+  let activeStreamPort = null;
+
   /**
    * 校验 CSS 选择器是否有效
    * @param {string} selector
@@ -85,16 +88,31 @@
   }
 
   /**
+   * 将未作答完毕的题目重置为待分析状态（暂停中断时使用，恢复后会重新作答）
+   * @param {Object} question - 题目对象（原地修改状态与答案）
+   */
+  function resetQuestionToPending(question) {
+    question.status = 'pending';
+    question.answer = null;
+    question.thinkingText = null;
+    question.webSearchRefs = null;
+    question.bankMatches = null;
+    question.searchProviderName = '';
+  }
+
+  /**
    * 单题流式答题（port 通道），返回 Promise 在完成/出错时 resolve
    */
   function streamQuestion(question, index, runId, forceSearch = false) {
     return new Promise((resolve) => {
       const port = chrome.runtime.connect({ name: 'streamAnswer' });
+      activeStreamPort = port;
       let thinkingText = '';
       let answerText = '';
 
       port.onMessage.addListener((msg) => {
         if (!msg || !msg.type) return;
+        // runId 变化（含暂停中断）时丢弃后续消息，防止陈旧流数据覆盖已重置的题目
         if (runId !== state.analysisRunId) { port.disconnect(); resolve(); return; }
 
         if (msg.type === 'connected') return;
@@ -123,6 +141,7 @@
       });
 
       port.onDisconnect.addListener(() => {
+        if (activeStreamPort === port) activeStreamPort = null;
         if (runId === state.analysisRunId && question.status === 'loading') {
           question.status = 'error';
           UI.updateCardBody(index, getMessage('panelConnectionLost'), true);
@@ -318,6 +337,22 @@
 
     if (!state.isAnalyzing) return;
     state.isPaused = true;
+
+    // 立即中断当前正在作答的题目（流式通道），未作答完毕的题目视为未作答
+    if (activeStreamPort) {
+      activeStreamPort.disconnect();
+      activeStreamPort = null;
+    }
+    const currentQuestion = state.questionsData.find(q => q.status === 'loading');
+    if (currentQuestion) {
+      resetQuestionToPending(currentQuestion);
+    }
+
+    // 使进行中的分析流程立即失效并同步收尾，避免点击"继续"时旧流程仍占用状态而无法触发答题
+    state.analysisRunId += 1;
+    state.isAnalyzing = false;
+    saveHistory();
+
     UI.updateControls();
     UI.updateProgress();
     UI.renderCards();
