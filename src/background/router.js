@@ -60,7 +60,7 @@ async function handleFetchAnswer(questionText, questionType, sendChunk) {
         sendChunk(data);
       }
     };
-    const answer = await callLLM(messages, {
+    const answer = await callAnswerWithFallback(messages, {
       apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
       sendChunk: collectChunk
     });
@@ -68,7 +68,7 @@ async function handleFetchAnswer(questionText, questionType, sendChunk) {
     return;
   }
 
-  const answer = await callLLM(messages, {
+  const answer = await callAnswerWithFallback(messages, {
     apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
     temperature: 0.3
   });
@@ -95,6 +95,48 @@ async function callLLM(messages, { sendChunk, temperature, ...rest }) {
     return streamChatCompletion({ ...rest, messages, onChunk: sendChunk });
   }
   return postChatCompletion({ ...rest, messages, temperature });
+}
+
+/**
+ * 判断工具列表中是否包含内置联网搜索工具（web_search）
+ * @param {Array} tools
+ * @returns {boolean}
+ */
+function hasBuiltinWebSearchTool(tools) {
+  return Array.isArray(tools) && tools.some(t => t && t.type === 'web_search');
+}
+
+/**
+ * 过滤掉内置联网搜索工具
+ * @param {Array} tools
+ * @returns {Array}
+ */
+function stripBuiltinWebSearchTool(tools) {
+  return (tools || []).filter(t => !(t && t.type === 'web_search'));
+}
+
+/**
+ * 大模型作答（带内置搜索循环兜底）
+ * 内置 web_search 工具下，模型可能陷入「思考→搜索」循环，直到服务端截断且不输出任何文本；
+ * 此时去掉搜索工具重试一次，强制模型直接输出最终答案
+ * @param {Array} messages - 消息数组
+ * @param {Object} params - 同 callLLM 的参数
+ * @returns {Promise<string>} 完整回答文本
+ */
+async function callAnswerWithFallback(messages, { apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools, sendChunk, temperature }) {
+  const first = await callLLM(messages, {
+    apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
+    sendChunk, temperature
+  });
+  // 无任何文本输出且原请求携带内置 web_search 工具 → 去工具重试一次
+  if (!String(first || '').trim() && hasBuiltinWebSearchTool(tools)) {
+    return callLLM(messages, {
+      apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort,
+      tools: stripBuiltinWebSearchTool(tools),
+      sendChunk, temperature
+    });
+  }
+  return first;
 }
 
 async function handleVerifyBankAnswer(questionText, bankMatches) {
@@ -180,7 +222,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
   ];
 
   // 第一次 LLM 调用
-  const firstFull = await callLLM(messages, {
+  const firstFull = await callAnswerWithFallback(messages, {
     apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
     sendChunk: effectiveSendChunk, temperature: 0.3
   });
@@ -212,7 +254,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
     { role: 'user', content: searchResultPrompt.user }
   ];
 
-  const finalAnswer = await callLLM(resultMessages, {
+  const finalAnswer = await callAnswerWithFallback(resultMessages, {
     apiKey, apiUrl, apiFormat, model, enableThinking, thinkingEffort, tools,
     sendChunk: effectiveSendChunk, temperature: 0.3
   });
