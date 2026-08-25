@@ -201,7 +201,7 @@
     "message": "开启后，大模型答题时将检索联网信息作为辅助参考（仅一种搜索服务同时生效）。"
   },
   "optionsSearchCommonParams": {
-    "message": "公共参数"
+    "message": "通用搜索设置"
   },
   "optionsSearchResultCount": {
     "message": "结果数量"

@@ -224,7 +224,7 @@ quiz-helper/
 
 3. 联网搜索设置卡片（`#section-search`）
    - 启用开关：`#webSearchEnabled`
-   - 公共参数：
+   - 通用搜索设置：
      - 结果数量：`#searchCount`
      - 时间范围：`#searchTimeRange`（分段滑块）
    - 搜索服务商列表容器：`#searchList`

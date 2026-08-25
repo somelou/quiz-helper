@@ -185,7 +185,7 @@ function initSearch({
     // 回填总开关
     searchEnabledInput.checked = enabled;
 
-    // 回填公共参数
+    // 回填通用搜索设置
     countInput.value = settings.count || 10;
     setSegValue(timeRangeEl, settings.timeRange || '');
 
@@ -284,7 +284,7 @@ function initSearch({
     });
   }
 
-  // ===== 公共参数保存 =====
+  // ===== 通用搜索设置保存 =====
 
   async function saveSearchSettings() {
     const count = Math.max(1, Math.min(50, parseInt(countInput.value, 10) || 10));
@@ -305,7 +305,7 @@ function initSearch({
     showStatus(getMessage('optionsSettingsSaved'));
   }
 
-  // 监听公共参数变更自动保存
+  // 监听通用搜索设置变更自动保存
   const publicEls = [countInput, searchEnabledInput];
   publicEls.forEach(el => {
     if (el) el.addEventListener('change', () => saveSearchSettings());
@@ -498,7 +498,7 @@ function initSearch({
     resultEl.textContent = getMessage('optionsSearchSearching');
     resultEl.style.color = 'var(--color-text-muted)';
 
-    // 读取当前公共参数
+    // 读取当前通用搜索设置
     const count = Math.max(1, Math.min(50, parseInt(countInput.value, 10) || 10));
     const settings = {
       count,

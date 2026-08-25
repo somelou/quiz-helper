@@ -201,7 +201,7 @@
     "message": "When enabled, the model retrieves web information as a reference while answering (only one search service is active at a time)."
   },
   "optionsSearchCommonParams": {
-    "message": "Common Parameters"
+    "message": "General Search Settings"
   },
   "optionsSearchResultCount": {
     "message": "Result Count"
