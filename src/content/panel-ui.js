@@ -407,10 +407,14 @@
     // 避免每次状态流转都整卡 innerHTML 重建
     const existingQuestionSection = bodyEl.querySelector('.qh-question-section');
     const existingAnswerEl = bodyEl.querySelector('.qh-answer-text, .qh-error-text');
-    const hasThinkingSection = !!bodyEl.querySelector('.qh-thinking-section');
     const existingRefs = !!bodyEl.querySelector('.qh-bank-refs, .qh-search-ref');
+    // 是否需要渲染思考区：存在思考内容时必须全量重建，保证深度思考在作答结束后继续展示
+    const needThinking = !!question.thinkingText;
 
-    if (existingQuestionSection && existingAnswerEl && !hasThinkingSection && !existingRefs && !needRefs) {
+    if (existingQuestionSection && existingAnswerEl && !needThinking && !existingRefs && !needRefs) {
+      // 若 DOM 中残留思考区（如重答开始清空了 thinkingText），先移除，保持"问题+答案"结构
+      const leftoverThinking = bodyEl.querySelector('.qh-thinking-section');
+      if (leftoverThinking) leftoverThinking.remove();
       const newCls = isError ? 'qh-error-text' : 'qh-answer-text';
       if (existingAnswerEl.className !== newCls) existingAnswerEl.className = newCls;
       existingAnswerEl.innerHTML = content;
@@ -474,6 +478,19 @@
       searchRefsHtml += '</div></details>';
     }
 
+    // 作答结束后的思考区：保留流式期间的深度思考内容（默认折叠，点击可展开）
+    const thinkingHtml = question.thinkingText
+      ? `
+        <div class="qh-thinking-section">
+          <div class="qh-thinking-header qh-thinking-collapsed">
+            <span class="qh-thinking-dot"></span>
+            <span>${getMessage('panelDeepThinking')}</span>
+            <svg class="qh-thinking-chevron" width="12" height="12" viewBox="0 0 12 12"><path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          </div>
+          <div class="qh-thinking-body" style="display:none">${escapeHtml(question.thinkingText)}</div>
+        </div>`
+      : '';
+
     bodyEl.innerHTML = `
       <div class="qh-question-section">
         <div class="qh-section-title-row">
@@ -482,6 +499,7 @@
         </div>
         <div class="qh-question-text">${escapeHtml(question.text).replace(/\n/g, '<br>')}</div>
       </div>
+      ${thinkingHtml}
       <div class="qh-answer-section">
         <div class="qh-section-title">${getMessage('panelReferenceAnswer')}</div>
         <div class="${isError ? 'qh-error-text' : 'qh-answer-text'}">${content}</div>
@@ -491,6 +509,17 @@
     `;
 
     syncActionButton(bodyEl, index, question);
+
+    // 绑定思考区折叠（与流式期间 updateAnswerStream 的交互保持一致）
+    const thinkingHeader = bodyEl.querySelector('.qh-thinking-header');
+    if (thinkingHeader) {
+      thinkingHeader.addEventListener('click', () => {
+        const thinkingBody = bodyEl.querySelector('.qh-thinking-body');
+        const collapsed = thinkingBody.style.display === 'none';
+        thinkingBody.style.display = collapsed ? '' : 'none';
+        thinkingHeader.classList.toggle('qh-thinking-collapsed', !collapsed);
+      });
+    }
 
     const copyBtn = bodyEl.querySelector('[data-role="copy-question"]');
     if (copyBtn) {

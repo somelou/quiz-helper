@@ -1,0 +1,8 @@
+{
+  "id": "us-default-unlock-restrictions",
+  "name": "解除页面限制（默认）",
+  "matches": ["<all_urls>"],
+  "runAt": "document_start",
+  "enabled": true,
+  "code": "(function () {\n    let addEventListener_ = unsafeWindow.addEventListener;\n    unsafeWindow.addEventListener = function (tipo, listener, useCapture) {\n        if (tipo != 'blur' && tipo != 'focus') {\n            addEventListener_(tipo, listener, useCapture);\n        }\n    }\n    unsafeWindow.addEventListener('load', function () {\n        (function aa() {\n            'use strict';\n            try {\n                jQuery('*').each((i, el) => {\n                    el.removeAttribute('oncontextmenu');\n                    el.removeAttribute('oncut');\n                    el.removeAttribute('oncopy');\n                    el.removeAttribute('onpaste');\n                });\n            } catch (e) {}\n            unsafeWindow.onblur = unsafeWindow.onfocus = unsafeWindow.oncopy = unsafeWindow.oncontextmenu = unsafeWindow.oncut = unsafeWindow.onpaste = unsafeWindow.onkeydown = unsafeWindow.onkeyup = unsafeWindow.onkeypress = null;\n            setTimeout(aa, 1000);\n        })();\n    });\n})();"
+}

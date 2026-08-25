@@ -1845,3 +1845,81 @@ body.dark .search-badge-active {
     margin-right: 6px;
     pointer-events: none;
   }
+
+/* ===== 用户脚本 ===== */
+.userscript-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  flex-wrap: wrap;
+}
+.userscript-status-icon {
+  flex-shrink: 0;
+  color: var(--color-warning);
+  display: inline-flex;
+  align-items: center;
+}
+.userscript-status-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.userscript-status-text {
+  flex: 1;
+  min-width: 200px;
+}
+.userscript-status-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.userscript-enable-switch {
+  margin: 0;
+}
+/* 用户脚本代码编辑器（CodeMirror） */
+.userscript-code-editor .CodeMirror {
+  height: 100%;
+  clip-path: none !important; /* 去掉 CodeMirror 库自带的裁剪，避免影响边框与聚焦阴影 */
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-toggle); /* 与「匹配页面」等表单输入框圆角保持一致 */
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+  font-family: var(--font-code);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.userscript-code-editor .CodeMirror:focus-within {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px var(--color-primary-bg); /* 与其它输入框聚焦阴影一致（苹果主题另行覆盖为 1px） */
+}
+/* CodeMirror 文本内容与输入框边缘保持一点内边距（默认紧贴边框） */
+.userscript-code-editor .CodeMirror-lines {
+  padding: 6px 8px;
+}
+/* 去掉每行默认的 4px 内边距，避免与上方内边距叠加导致左右边距过大 */
+.userscript-code-editor .CodeMirror pre.CodeMirror-line,
+.userscript-code-editor .CodeMirror pre.CodeMirror-line-like {
+  padding: 0;
+}
+/* JS 语法高亮 token 颜色（与解析规则 JSON 编辑器配色一致） */
+.cm-s-quiz-helper .CodeMirror-cursor { border-left-color: var(--color-input-text); }
+.cm-s-quiz-helper .CodeMirror-selected { background: var(--color-surface-hover, rgba(0, 0, 0, 0.08)); }
+.cm-s-quiz-helper .CodeMirror-scroll { scrollbar-width: thin; }
+.cm-s-quiz-helper .cm-keyword { color: #e06c75; }
+.cm-s-quiz-helper .cm-string,
+.cm-s-quiz-helper .cm-string-2 { color: #98c379; }
+.cm-s-quiz-helper .cm-number,
+.cm-s-quiz-helper .cm-atom { color: #d19a66; }
+.cm-s-quiz-helper .cm-comment { color: #7f848e; }
+.cm-s-quiz-helper .cm-builtin,
+.cm-s-quiz-helper .cm-variable-2,
+.cm-s-quiz-helper .cm-property { color: #56b6c2; }
+.cm-s-quiz-helper .cm-def,
+.cm-s-quiz-helper .cm-qualifier { color: #61afef; }

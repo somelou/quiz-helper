@@ -129,7 +129,7 @@ const searchDropdownBtn = document.getElementById('searchDropdownBtn');
 const searchDot = document.getElementById('searchDot');
 const searchDropdownLabel = document.getElementById('searchDropdownLabel');
 const searchDropdownMenu = document.getElementById('searchDropdownMenu');
-const bankCount = document.getElementById('bankCount');
+const scriptStatus = document.getElementById('scriptStatus');
 const ruleStatus = document.getElementById('ruleStatus');
 
 let statusModels = [];
@@ -185,7 +185,8 @@ async function loadStatusPanel() {
     STORAGE_KEYS.QUESTION_BANK_ENABLED,
     STORAGE_KEYS.PARSE_RULES,
     STORAGE_KEYS.DEFAULT_PARSE_RULE_SEEDED,
-    STORAGE_KEYS.STATUS_CACHE
+    STORAGE_KEYS.STATUS_CACHE,
+    STORAGE_KEYS.USER_SCRIPTS
   ]);
 
   statusModels = result[STORAGE_KEYS.LLM_MODELS] || [];
@@ -196,7 +197,7 @@ async function loadStatusPanel() {
 
   renderLlmStatus();
   renderSearchStatus();
-  renderBankStatus(result);
+  renderScriptStatus(result);
   renderRuleStatus(result);
 }
 
@@ -268,11 +269,49 @@ function renderSearchStatus() {
   });
 }
 
-function renderBankStatus(result) {
-  const banks = result[STORAGE_KEYS.QUESTION_BANKS] || [];
-  const activeIds = Array.isArray(result[STORAGE_KEYS.ACTIVE_BANK_IDS]) ? result[STORAGE_KEYS.ACTIVE_BANK_IDS] : [];
-  const enabled = result[STORAGE_KEYS.QUESTION_BANK_ENABLED] !== false;
-  bankCount.textContent = enabled ? banks.filter(b => activeIds.includes(b.id)).length : 0;
+// Chrome match pattern 简单匹配：判断当前页面 URL 是否命中脚本的「匹配页面」
+function matchUrlAgainstPattern(url, pattern) {
+  if (!url || !pattern) return false;
+  const p = String(pattern).trim();
+  if (p === '<all_urls>') return true;
+  const m = /^(\*|https?|file|ftp):\/\/([^/]*)(\/.*)?$/.exec(p);
+  if (!m) return false;
+  const scheme = m[1];
+  const host = m[2];
+  const pathGlob = m[3] || '/';
+  if (scheme !== '*' && url.protocol.replace(/:$/, '') !== scheme) return false;
+  if (host !== '*') {
+    if (host.startsWith('*.')) {
+      const base = host.slice(2);
+      if (url.hostname !== base && !url.hostname.endsWith('.' + base)) return false;
+    } else if (url.hostname !== host) {
+      return false;
+    }
+  }
+  const pathRegex = new RegExp('^' + pathGlob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$');
+  return pathRegex.test(url.pathname + url.search);
+}
+
+async function renderScriptStatus(result) {
+  const scripts = result[STORAGE_KEYS.USER_SCRIPTS] || [];
+  const enabled = scripts.filter(s => s && s.enabled);
+  let activeCount = 0;
+  if (enabled.length > 0) {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const url = tab?.url ? new URL(tab.url) : null;
+      if (url) {
+        // 命中当前页面 URL 的启用脚本数
+        activeCount = enabled.filter(s => (s.matches || []).some(p => matchUrlAgainstPattern(url, p))).length;
+      }
+    } catch (e) {
+      activeCount = 0;
+    }
+  }
+  // 状态标签直接显示命中当前页面的启用脚本数（0 灰色 / 大于 0 绿色）
+  scriptStatus.classList.toggle('on', activeCount > 0);
+  scriptStatus.classList.toggle('off', activeCount === 0);
+  scriptStatus.textContent = String(activeCount);
 }
 
 async function renderRuleStatus(result) {

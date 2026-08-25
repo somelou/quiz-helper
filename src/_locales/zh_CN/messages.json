@@ -56,6 +56,9 @@
   "statusTooltipErr": {
     "message": "状态异常：{0}"
   },
+  "statusScripts": {
+    "message": "生效脚本"
+  },
   "importModeEcoLabel": {
     "message": "并发 5 批 · 每批 100 题，速度较慢，适合 token 不足或 API 限流严格的场景"
   },
@@ -292,6 +295,105 @@
   },
   "optionsModuleHistory": {
     "message": "历史记录"
+  },
+  "optionsModuleUserScripts": {
+    "message": "用户脚本"
+  },
+  "optionsUserScripts": {
+    "message": "用户脚本"
+  },
+  "optionsUserScriptsHint": {
+    "message": "编写自定义脚本注入到匹配的页面，请仅添加可信代码。"
+  },
+  "userscriptStatusUnsupported": {
+    "message": "当前 Chrome 版本过低（需 120+），用户脚本功能不可用，其余功能不受影响。"
+  },
+  "userscriptStatusPermissionNeeded": {
+    "message": "使用用户脚本功能需要额外的「用户脚本」权限。"
+  },
+  "userscriptReadyMsg": {
+    "message": "用户脚本功能已启用"
+  },
+  "userscriptEnableBtn": {
+    "message": "启用"
+  },
+  "userscriptRedetectBtn": {
+    "message": "重新检测"
+  },
+  "userscriptStatusToggleHintAllow": {
+    "message": "请在浏览器扩展详情页开启「允许用户脚本」开关，然后点击重新检测。"
+  },
+  "userscriptStatusToggleHintDev": {
+    "message": "请在浏览器扩展详情页开启「开发者模式」，然后点击重新检测。"
+  },
+  "userscriptAddBtn": {
+    "message": "添加"
+  },
+  "userscriptEmpty": {
+    "message": "暂无用户脚本"
+  },
+  "userscriptDisabledBadge": {
+    "message": "未启用"
+  },
+  "userscriptEnabledBadge": {
+    "message": "已启用"
+  },
+  "userscriptDeleteConfirm": {
+    "message": "确定要删除该用户脚本吗？"
+  },
+  "userscriptDeleted": {
+    "message": "用户脚本已删除"
+  },
+  "userscriptSaved": {
+    "message": "用户脚本已保存"
+  },
+  "userscriptNameLabel": {
+    "message": "脚本名称"
+  },
+  "userscriptMatchesLabel": {
+    "message": "匹配页面"
+  },
+  "userscriptMatchesHint": {
+    "message": "每行匹配一个地址，如 https://example.com/*；填写 &lt;all_urls&gt; 表示所有页面"
+  },
+  "userscriptRunAtLabel": {
+    "message": "运行时机"
+  },
+  "userscriptRunAtStart": {
+    "message": "页面脚本前"
+  },
+  "userscriptRunAtEnd": {
+    "message": "DOM 解析后"
+  },
+  "userscriptRunAtIdle": {
+    "message": "页面空闲"
+  },
+  "userscriptCodeLabel": {
+    "message": "脚本"
+  },
+  "userscriptEnabledLabel": {
+    "message": "启用"
+  },
+  "userscriptEditTitle": {
+    "message": "编辑用户脚本"
+  },
+  "userscriptNewTitle": {
+    "message": "新增用户脚本"
+  },
+  "userscriptValidationName": {
+    "message": "请输入脚本名称"
+  },
+  "userscriptValidationMatches": {
+    "message": "请至少填写一个匹配页面"
+  },
+  "userscriptValidationCode": {
+    "message": "请输入脚本代码"
+  },
+  "userscriptMatchesInvalid": {
+    "message": "匹配地址格式无效，请使用如 https://example.com/* 的地址格式"
+  },
+  "userscriptRegFailedFormat": {
+    "message": "脚本「$1」注册失败：$2"
   },
   "optionsExportBackup": {
     "message": "导出备份"

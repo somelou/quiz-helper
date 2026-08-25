@@ -1385,6 +1385,43 @@ body {
   min-width: 0;
   word-break: break-all;
 }
+/* 用户脚本 */
+.options-preview .userscript-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  flex-wrap: wrap;
+}
+.options-preview .userscript-status-icon {
+  flex-shrink: 0;
+  color: var(--color-warning);
+  display: inline-flex;
+  align-items: center;
+}
+.options-preview .userscript-status-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.options-preview .userscript-status-text {
+  flex: 1;
+  min-width: 200px;
+}
+.options-preview .userscript-status-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.options-preview .userscript-enable-switch {
+  margin: 0;
+}
 .options-preview .about-subtitle {
   margin: 0 0 12px;
   font-size: var(--font-sm);
@@ -1799,6 +1836,12 @@ body {
 .json-number { color: #d19a66; }
 .json-boolean { color: #56b6c2; }
 .json-punctuation { color: var(--color-text-muted); }
+.userscript-code-editor { min-height: 260px; }
+.js-keyword { color: #e06c75; }
+.js-string { color: #98c379; }
+.js-number { color: #d19a66; }
+.js-comment { color: #7f848e; }
+.js-builtin { color: #56b6c2; }
 
 /* 题库工具栏 & 进度条 */
 .bank-toolbar { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
@@ -2113,8 +2156,8 @@ body {
           </div>
           <div class="status-mini-grid">
             <div class="status-mini">
-              <span class="status-group-label">启用题库</span>
-              <span class="status-group-value">2</span>
+              <span class="status-group-label">生效脚本</span>
+              <span class="status-tag on">2</span>
             </div>
             <div class="status-mini">
               <span class="status-group-label">解析规则</span>
@@ -2169,8 +2212,8 @@ body {
           </div>
           <div class="status-mini-grid">
             <div class="status-mini">
-              <span class="status-group-label">启用题库</span>
-              <span class="status-group-value">1</span>
+              <span class="status-group-label">生效脚本</span>
+              <span class="status-tag off">0</span>
             </div>
             <div class="status-mini">
               <span class="status-group-label">解析规则</span>
@@ -2366,6 +2409,7 @@ body {
             <li><a class="nav-item" href="#section-models">大模型管理</a></li>
             <li><a class="nav-item" href="#section-search">联网搜索设置</a></li>
             <li><a class="nav-item" href="#section-rules">解析规则管理</a></li>
+            <li><a class="nav-item" href="#section-userscripts">用户脚本</a></li>
             <li><a class="nav-item" href="#section-bank">题库管理</a></li>
             <li><a class="nav-item" href="#section-history">历史记录</a></li>
             <li><a class="nav-item" href="#section-backup">备份与恢复</a></li>
@@ -2593,6 +2637,48 @@ body {
 
           <div class="card">
             <div class="switch-row" style="margin-bottom: 12px;">
+              <h2>用户脚本</h2>
+              <button class="action-btn action-primary">添加</button>
+            </div>
+            <div class="hint" style="margin-bottom: 12px;">编写自定义脚本注入到匹配的页面，请仅添加可信代码。</div>
+            <div class="userscript-status-banner userscript-status-permission">
+              <span class="userscript-status-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.6 14.4 13H1.6Z"/><path d="M8 7v2.6"/><path d="M8 11.6h.01"/></svg></span>
+              <span class="userscript-status-text">使用用户脚本功能需要额外的「用户脚本」权限。</span>
+              <div class="userscript-status-actions">
+                <button class="action-btn action-edit">启用</button>
+                <button class="action-btn action-secondary">重新检测</button>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">解除复制粘贴限制<span class="model-badge model-enabled-badge">已启用</span></div>
+                  <div class="list-item-meta">https://exam.example.com/* · 页面脚本前</div>
+                </div>
+                <div class="list-item-actions">
+                  <label class="switch userscript-enable-switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                  <button class="action-btn action-edit">编辑</button>
+                  <button class="action-btn action-delete">删除</button>
+                </div>
+              </div>
+            </div>
+            <div class="list-item model-inactive">
+              <div class="list-item-header">
+                <div class="list-item-info">
+                  <div class="list-item-title">自动点击「下一题」<span class="model-badge model-inactive-badge">未启用</span></div>
+                  <div class="list-item-meta">https://quiz.example.com/* · 页面空闲</div>
+                </div>
+                <div class="list-item-actions">
+                  <label class="switch userscript-enable-switch"><input type="checkbox"><span class="switch-slider"></span></label>
+                  <button class="action-btn action-edit">编辑</button>
+                  <button class="action-btn action-delete">删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="switch-row" style="margin-bottom: 12px;">
               <h2>题库管理</h2>
               <label class="switch">
                 <input type="checkbox" checked>
@@ -2699,11 +2785,12 @@ body {
                 <label class="backup-module-item"><input type="checkbox" checked><span>解析规则</span></label>
                 <label class="backup-module-item"><input type="checkbox" checked><span>题库</span></label>
                 <label class="backup-module-item"><input type="checkbox" checked><span>历史记录</span></label>
+                <label class="backup-module-item"><input type="checkbox" checked><span>用户脚本</span></label>
               </div>
               <div class="export-row">
                 <div class="export-note">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-                  <span>已准备导出 6 个模块</span>
+                  <span>已准备导出 7 个模块</span>
                 </div>
                 <button class="action-btn action-export">
                   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -2763,7 +2850,7 @@ body {
   <!-- ================= Section 4 · 抽屉 ================= -->
   <section class="demo-section">
     <div class="demo-section-title"><span class="demo-num">04</span><h2>抽屉 Drawer</h2></div>
-    <p class="demo-section-desc">设置页右侧滑出抽屉的四种典型内容：模型编辑、搜索服务商配置、解析规则编辑（JSON 视图）、题库/历史详情。</p>
+    <p class="demo-section-desc">设置页右侧滑出抽屉的典型内容：模型编辑、搜索服务商配置、解析规则编辑（JSON 视图）、题库/历史详情、用户脚本编辑。</p>
     <div class="demo-stage" style="justify-content: center;">
       <div class="options-preview drawer-demo">
 
@@ -3078,6 +3165,48 @@ D. 第三次握手必须携带数据</div>
               </div>
               <div class="q-label">答案</div>
               <div class="q-answer">80</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="drawer">
+          <div class="drawer-header">
+            <div>
+              <div class="drawer-title">编辑用户脚本</div>
+              <div class="drawer-meta">运行于页面 MAIN world，可访问 unsafeWindow</div>
+            </div>
+            <div class="drawer-header-actions">
+              <button class="btn btn-primary">保存</button>
+              <button class="btn btn-secondary">关闭</button>
+            </div>
+          </div>
+          <div class="drawer-body">
+            <div class="rule-form-group">
+              <label>脚本名称</label>
+              <input type="text" value="解除复制粘贴限制" placeholder="脚本名称">
+            </div>
+            <div class="rule-form-group">
+              <label>匹配页面（每行匹配一个地址）</label>
+              <textarea rows="2">https://exam.example.com/*</textarea>
+            </div>
+            <div class="rule-form-group">
+              <label>运行时机</label>
+              <div class="segmented-control">
+                <button class="seg-active">页面脚本前</button>
+                <button>DOM 解析后</button>
+                <button>页面空闲</button>
+              </div>
+            </div>
+            <div class="rule-form-section">脚本</div>
+            <div class="rule-form-group">
+              <label>脚本内容（可使用 unsafeWindow）</label>
+              <div class="rule-json-editor userscript-code-editor"><span class="js-keyword">(function</span> () {
+    <span class="js-string">'use strict'</span>;
+    <span class="js-comment">// 在这里编写你的脚本，unsafeWindow 指向页面真实 window</span>
+    unsafeWindow.addEventListener(<span class="js-string">'load'</span>, () =&gt; {
+        console.log(<span class="js-string">'用户脚本已运行'</span>);
+    });
+})();</div>
             </div>
           </div>
         </div>

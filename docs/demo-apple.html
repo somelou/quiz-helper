@@ -1086,6 +1086,13 @@
         .sec-drawer .j-key { color: var(--state-info); }
         .sec-drawer .j-str { color: var(--state-success); }
         .sec-drawer .j-bool, .sec-drawer .j-num { color: var(--state-warning); }
+        /* JS 代码块高亮（用户脚本编辑器） */
+        .sec-drawer .js-keyword { color: var(--state-info); }
+        .sec-drawer .js-string { color: var(--state-success); }
+        .sec-drawer .js-number { color: var(--state-warning); }
+        .sec-drawer .js-comment { color: var(--muted-foreground); }
+        .sec-drawer .js-builtin { color: var(--primary); }
+        .sec-drawer .js-code-block { max-height: 280px; overflow: auto; }
         .sec-drawer .q-item { padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); }
         .sec-drawer .q-item + .q-item { margin-top: 12px; }
         .sec-drawer .q-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
@@ -1162,6 +1169,12 @@
         .toast-error .toast-icon { color: var(--state-error); background: color-mix(in srgb, var(--state-error) 12%, transparent); }
         .toast-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
         .toast-msg { margin: 0; font-size: 14px; line-height: 1.6; color: var(--foreground); }
+        /* 用户脚本状态横幅 */
+        .userscript-banner { display: flex; align-items: center; gap: 10px; width: 100%; margin: 0 0 14px; padding: 12px 14px; background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius); }
+        .userscript-banner-icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; flex-shrink: 0; border-radius: 999px; color: var(--state-warning); background: color-mix(in srgb, var(--state-warning) 14%, transparent); }
+        .userscript-banner-icon svg { width: 16px; height: 16px; }
+        .userscript-banner-text { flex: 1; font-size: 13px; line-height: 1.6; color: var(--foreground); min-width: 200px; }
+        .userscript-banner-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     </style>
 </head>
 <body class="min-h-screen font-sans antialiased">
@@ -1237,8 +1250,8 @@
                                         </div>
                                         <div class="status-mini-grid">
                                             <div class="status-mini">
-                                                <span class="status-group-label">启用题库</span>
-                                                <span class="status-group-value">2</span>
+                                                <span class="status-group-label">生效脚本</span>
+                                                <span class="status-tag on">2</span>
                                             </div>
                                             <div class="status-mini">
                                                 <span class="status-group-label">解析规则</span>
@@ -1291,8 +1304,8 @@
                                         </div>
                                         <div class="status-mini-grid">
                                             <div class="status-mini">
-                                                <span class="status-group-label">启用题库</span>
-                                                <span class="status-group-value">1</span>
+                                                <span class="status-group-label">生效脚本</span>
+                                                <span class="status-tag off">0</span>
                                             </div>
                                             <div class="status-mini">
                                                 <span class="status-group-label">解析规则</span>
@@ -1359,8 +1372,8 @@
                                 </div>
                                 <div class="status-mini-grid">
                                     <div class="status-mini">
-                                        <span class="status-group-label">启用题库</span>
-                                        <span class="status-group-value">2</span>
+                                        <span class="status-group-label">生效脚本</span>
+                                        <span class="status-tag on">2</span>
                                     </div>
                                     <div class="status-mini">
                                         <span class="status-group-label">解析规则</span>
@@ -1735,7 +1748,7 @@
                 <p class="demo2-section-desc">侧边导航 + 卡片流的配置界面原型，覆盖基本设置、大模型管理、联网搜索设置与解析规则管理。并排展示浅色与深色双模式。</p>
                 <div class="intro-bar" role="note">
                     <i data-lucide="settings"></i>
-                    <span>设置页 · 基本 / 模型 / 搜索 / 解析规则</span>
+                    <span>设置页 · 基本 / 模型 / 搜索 / 解析规则 / 用户脚本</span>
                 </div>
                 <div class="stage" aria-label="设置页浅色与深色实例">
                     <figure class="showcase">
@@ -1748,6 +1761,7 @@
                                     <a class="nav-item" href="#"><i data-lucide="cpu"></i>大模型管理</a>
                                     <a class="nav-item" href="#"><i data-lucide="globe"></i>联网搜索设置</a>
                                     <a class="nav-item" href="#"><i data-lucide="file-text"></i>解析规则管理</a>
+                                    <a class="nav-item" href="#"><i data-lucide="code-2"></i>用户脚本</a>
                                     <a class="nav-item" href="#"><i data-lucide="database"></i>题库管理</a>
                                     <a class="nav-item" href="#"><i data-lucide="history"></i>历史记录</a>
                                     <a class="nav-item" href="#"><i data-lucide="archive"></i>备份与恢复</a>
@@ -1984,6 +1998,7 @@
                                     <a class="nav-item" href="#"><i data-lucide="cpu"></i>大模型管理</a>
                                     <a class="nav-item" href="#"><i data-lucide="globe"></i>联网搜索设置</a>
                                     <a class="nav-item" href="#"><i data-lucide="file-text"></i>解析规则管理</a>
+                                    <a class="nav-item" href="#"><i data-lucide="code-2"></i>用户脚本</a>
                                     <a class="nav-item" href="#"><i data-lucide="database"></i>题库管理</a>
                                     <a class="nav-item" href="#"><i data-lucide="history"></i>历史记录</a>
                                     <a class="nav-item" href="#"><i data-lucide="archive"></i>备份与恢复</a>
@@ -2218,7 +2233,7 @@
                 <p class="demo2-section-desc">侧边导航 + 卡片流的配置界面原型，覆盖题库管理、历史记录、备份与恢复与关于。并排展示浅色与深色双模式。</p>
                 <div class="intro-bar" role="note">
                     <i data-lucide="database"></i>
-                    <span>设置页 · 题库 / 历史 / 备份 / 关于</span>
+                    <span>设置页 · 用户脚本 / 题库 / 历史 / 备份 / 关于</span>
                 </div>
                 <div class="stage" aria-label="设置页浅色与深色实例">
                     <figure class="showcase">
@@ -2231,6 +2246,7 @@
                                     <a class="nav-item" href="#"><i data-lucide="cpu"></i>大模型管理</a>
                                     <a class="nav-item" href="#"><i data-lucide="globe"></i>联网搜索设置</a>
                                     <a class="nav-item" href="#"><i data-lucide="file-text"></i>解析规则管理</a>
+                                    <a class="nav-item" href="#"><i data-lucide="code-2"></i>用户脚本</a>
                                     <a class="nav-item active" href="#" aria-current="page"><i data-lucide="database"></i>题库管理</a>
                                     <a class="nav-item" href="#"><i data-lucide="history"></i>历史记录</a>
                                     <a class="nav-item" href="#"><i data-lucide="archive"></i>备份与恢复</a>
@@ -2239,6 +2255,54 @@
                                 <div class="sidebar-version">v2.4.2</div>
                             </aside>
                             <div class="opt-main">
+                                <section class="settings-card" aria-labelledby="userscript-title">
+                                    <header class="card-head">
+                                        <h3 class="card-title" id="userscript-title">用户脚本</h3>
+                                        <div class="head-actions">
+                                            <button class="chip-btn" type="button"><i data-lucide="plus"></i>添加</button>
+                                        </div>
+                                    </header>
+                                    <p class="form-hint">编写自定义脚本注入到匹配的页面，请仅添加可信代码。</p>
+                                    <div class="userscript-banner" role="status">
+                                        <span class="userscript-banner-icon" aria-hidden="true"><i data-lucide="triangle-alert"></i></span>
+                                        <span class="userscript-banner-text">使用用户脚本功能需要额外的「用户脚本」权限。</span>
+                                        <div class="userscript-banner-actions">
+                                            <button class="chip-btn" type="button"><i data-lucide="plug"></i>启用</button>
+                                            <button class="chip-btn" type="button"><i data-lucide="refresh-cw"></i>重新检测</button>
+                                        </div>
+                                    </div>
+                                    <ul class="plain-list">
+                                        <li class="list-row">
+                                            <div class="list-info">
+                                                <div class="list-title">解除复制粘贴限制<span class="badge badge-success">已启用</span></div>
+                                                <p class="list-meta">https://exam.example.com/* · 页面脚本前</p>
+                                            </div>
+                                            <div class="list-actions">
+                                                <label class="switch" title="启用 / 停用">
+                                                    <input type="checkbox" checked aria-label="启用 解除复制粘贴限制">
+                                                    <span class="switch-track" aria-hidden="true"></span>
+                                                </label>
+                                                <button class="chip-btn" type="button"><i data-lucide="pencil"></i>编辑</button>
+                                                <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                            </div>
+                                        </li>
+                                        <li class="list-row inactive">
+                                            <div class="list-info">
+                                                <div class="list-title">自动点击「下一题」<span class="badge badge-muted">未启用</span></div>
+                                                <p class="list-meta">https://quiz.example.com/* · 页面空闲</p>
+                                            </div>
+                                            <div class="list-actions">
+                                                <label class="switch" title="启用 / 停用">
+                                                    <input type="checkbox" aria-label="启用 自动点击「下一题」">
+                                                    <span class="switch-track" aria-hidden="true"></span>
+                                                </label>
+                                                <button class="chip-btn" type="button"><i data-lucide="pencil"></i>编辑</button>
+                                                <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </section>
+
                                 <section class="settings-card" aria-labelledby="bank-title">
                                     <header class="card-head">
                                         <h3 class="card-title" id="bank-title">题库管理</h3>
@@ -2373,9 +2437,14 @@
                                             <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
                                             <span class="module-name">历史记录</span>
                                         </label>
+                                        <label class="module-check">
+                                            <input type="checkbox" checked aria-label="包含用户脚本">
+                                            <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                            <span class="module-name">用户脚本</span>
+                                        </label>
                                     </div>
                                     <div class="export-row">
-                                        <div class="export-note"><i data-lucide="check"></i><span>已准备导出 6 个模块</span></div>
+                                        <div class="export-note"><i data-lucide="check"></i><span>已准备导出 7 个模块</span></div>
                                         <button class="btn btn-primary" type="button"><i data-lucide="download"></i>导出备份</button>
                                     </div>
                                     <div class="sub-title">导入备份数据</div>
@@ -2426,6 +2495,7 @@
                                     <a class="nav-item" href="#"><i data-lucide="cpu"></i>大模型管理</a>
                                     <a class="nav-item" href="#"><i data-lucide="globe"></i>联网搜索设置</a>
                                     <a class="nav-item" href="#"><i data-lucide="file-text"></i>解析规则管理</a>
+                                    <a class="nav-item" href="#"><i data-lucide="code-2"></i>用户脚本</a>
                                     <a class="nav-item active" href="#" aria-current="page"><i data-lucide="database"></i>题库管理</a>
                                     <a class="nav-item" href="#"><i data-lucide="history"></i>历史记录</a>
                                     <a class="nav-item" href="#"><i data-lucide="archive"></i>备份与恢复</a>
@@ -2434,6 +2504,54 @@
                                 <div class="sidebar-version">v2.4.2</div>
                             </aside>
                             <div class="opt-main">
+                                <section class="settings-card" aria-labelledby="userscript-title-dark">
+                                    <header class="card-head">
+                                        <h3 class="card-title" id="userscript-title-dark">用户脚本</h3>
+                                        <div class="head-actions">
+                                            <button class="chip-btn" type="button"><i data-lucide="plus"></i>添加</button>
+                                        </div>
+                                    </header>
+                                    <p class="form-hint">编写自定义脚本注入到匹配的页面，请仅添加可信代码。</p>
+                                    <div class="userscript-banner" role="status">
+                                        <span class="userscript-banner-icon" aria-hidden="true"><i data-lucide="triangle-alert"></i></span>
+                                        <span class="userscript-banner-text">使用用户脚本功能需要额外的「用户脚本」权限。</span>
+                                        <div class="userscript-banner-actions">
+                                            <button class="chip-btn" type="button"><i data-lucide="plug"></i>启用</button>
+                                            <button class="chip-btn" type="button"><i data-lucide="refresh-cw"></i>重新检测</button>
+                                        </div>
+                                    </div>
+                                    <ul class="plain-list">
+                                        <li class="list-row">
+                                            <div class="list-info">
+                                                <div class="list-title">解除复制粘贴限制<span class="badge badge-success">已启用</span></div>
+                                                <p class="list-meta">https://exam.example.com/* · 页面脚本前</p>
+                                            </div>
+                                            <div class="list-actions">
+                                                <label class="switch" title="启用 / 停用">
+                                                    <input type="checkbox" checked aria-label="启用 解除复制粘贴限制">
+                                                    <span class="switch-track" aria-hidden="true"></span>
+                                                </label>
+                                                <button class="chip-btn" type="button"><i data-lucide="pencil"></i>编辑</button>
+                                                <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                            </div>
+                                        </li>
+                                        <li class="list-row inactive">
+                                            <div class="list-info">
+                                                <div class="list-title">自动点击「下一题」<span class="badge badge-muted">未启用</span></div>
+                                                <p class="list-meta">https://quiz.example.com/* · 页面空闲</p>
+                                            </div>
+                                            <div class="list-actions">
+                                                <label class="switch" title="启用 / 停用">
+                                                    <input type="checkbox" aria-label="启用 自动点击「下一题」">
+                                                    <span class="switch-track" aria-hidden="true"></span>
+                                                </label>
+                                                <button class="chip-btn" type="button"><i data-lucide="pencil"></i>编辑</button>
+                                                <button class="chip-btn chip-danger" type="button"><i data-lucide="trash-2"></i>删除</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </section>
+
                                 <section class="settings-card" aria-labelledby="bank-title-dark">
                                     <header class="card-head">
                                         <h3 class="card-title" id="bank-title-dark">题库管理</h3>
@@ -2568,9 +2686,14 @@
                                             <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
                                             <span class="module-name">历史记录</span>
                                         </label>
+                                        <label class="module-check">
+                                            <input type="checkbox" checked aria-label="包含用户脚本">
+                                            <span class="check-box" aria-hidden="true"><i data-lucide="check"></i></span>
+                                            <span class="module-name">用户脚本</span>
+                                        </label>
                                     </div>
                                     <div class="export-row">
-                                        <div class="export-note"><i data-lucide="check"></i><span>已准备导出 6 个模块</span></div>
+                                        <div class="export-note"><i data-lucide="check"></i><span>已准备导出 7 个模块</span></div>
                                         <button class="btn btn-primary" type="button"><i data-lucide="download"></i>导出备份</button>
                                     </div>
                                     <div class="sub-title">导入备份数据</div>
@@ -2616,7 +2739,7 @@
             <!-- ================= Section 05 · 抽屉 Drawer ================= -->
             <section class="demo2-section sec-drawer stage-drawer" id="sec-drawer" aria-label="抽屉 Drawer">
                 <div class="demo2-section-head"><span class="demo2-num">05</span><h2>抽屉 Drawer</h2></div>
-                <p class="demo2-section-desc">右侧滑出面板的四种典型内容：编辑大模型、配置搜索服务商、编辑解析规则（表单 / JSON）、题库详情。浅色与深色双实例并排对照。</p>
+                <p class="demo2-section-desc">右侧滑出面板的典型内容：编辑大模型、配置搜索服务商、编辑解析规则（表单 / JSON）、题库详情、编辑用户脚本。浅色与深色双实例并排对照。</p>
                 <div class="stage" aria-label="抽屉 Drawer 浅色与深色实例">
                     <figure class="showcase">
                         <figcaption class="showcase-cap"><strong>浅色模式</strong><span>默认状态</span></figcaption>
@@ -2961,6 +3084,58 @@ D. 第三次握手必须携带数据</p>
                                 </div>
                             </div>
 
+                            <!-- 抽屉 5 · 编辑用户脚本 -->
+                            <div class="drawer-stage">
+                                <div class="stage-fake" aria-hidden="true">
+                                    <span class="s-wide"></span>
+                                    <span class="s-pill"></span>
+                                    <span class="s-row"></span>
+                                    <span class="s-row s-short"></span>
+                                    <span class="s-pill"></span>
+                                </div>
+                                <div class="drawer" role="dialog" aria-label="编辑用户脚本" aria-modal="true">
+                                    <header class="drawer-header">
+                                        <div class="drawer-heading">
+                                            <h2 class="drawer-title">编辑用户脚本</h2>
+                                            <p class="drawer-meta">运行于页面 MAIN world，可访问 unsafeWindow</p>
+                                        </div>
+                                        <div class="drawer-actions">
+                                            <button class="btn btn-primary" type="button"><i data-lucide="check"></i>保存</button>
+                                            <button class="btn btn-secondary" type="button">关闭</button>
+                                        </div>
+                                    </header>
+                                    <div class="drawer-body">
+                                        <div class="form-field">
+                                            <span class="form-label">脚本名称</span>
+                                            <input class="field-input" type="text" value="解除复制粘贴限制" placeholder="脚本名称">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">匹配页面（每行匹配一个地址）</span>
+                                            <textarea class="field-textarea code-input" rows="2">https://exam.example.com/*</textarea>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">运行时机</span>
+                                            <div class="seg" role="group" aria-label="运行时机">
+                                                <button type="button" class="active">页面脚本前</button>
+                                                <button type="button">DOM 解析后</button>
+                                                <button type="button">页面空闲</button>
+                                            </div>
+                                        </div>
+                                        <div class="form-section">脚本</div>
+                                        <div class="form-field">
+                                            <span class="form-label">脚本内容（可使用 unsafeWindow）</span>
+                                            <pre class="json-block js-code-block"><code><span class="js-keyword">(function</span> () {
+    <span class="js-string">'use strict'</span>;
+    <span class="js-comment">// 在这里编写你的脚本，unsafeWindow 指向页面真实 window</span>
+    unsafeWindow.addEventListener(<span class="js-string">'load'</span>, () =&gt; {
+        console.log(<span class="js-string">'用户脚本已运行'</span>);
+    });
+})();</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </figure>
 
@@ -3298,6 +3473,58 @@ D. 第三次握手必须携带数据</p>
                                             </div>
                                             <p class="q-label">答案</p>
                                             <span class="q-answer">80</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 抽屉 5 · 编辑用户脚本 -->
+                            <div class="drawer-stage">
+                                <div class="stage-fake" aria-hidden="true">
+                                    <span class="s-wide"></span>
+                                    <span class="s-pill"></span>
+                                    <span class="s-row"></span>
+                                    <span class="s-row s-short"></span>
+                                    <span class="s-pill"></span>
+                                </div>
+                                <div class="drawer" role="dialog" aria-label="编辑用户脚本" aria-modal="true">
+                                    <header class="drawer-header">
+                                        <div class="drawer-heading">
+                                            <h2 class="drawer-title">编辑用户脚本</h2>
+                                            <p class="drawer-meta">运行于页面 MAIN world，可访问 unsafeWindow</p>
+                                        </div>
+                                        <div class="drawer-actions">
+                                            <button class="btn btn-primary" type="button"><i data-lucide="check"></i>保存</button>
+                                            <button class="btn btn-secondary" type="button">关闭</button>
+                                        </div>
+                                    </header>
+                                    <div class="drawer-body">
+                                        <div class="form-field">
+                                            <span class="form-label">脚本名称</span>
+                                            <input class="field-input" type="text" value="解除复制粘贴限制" placeholder="脚本名称">
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">匹配页面（每行匹配一个地址）</span>
+                                            <textarea class="field-textarea code-input" rows="2">https://exam.example.com/*</textarea>
+                                        </div>
+                                        <div class="form-field">
+                                            <span class="form-label">运行时机</span>
+                                            <div class="seg" role="group" aria-label="运行时机">
+                                                <button type="button" class="active">页面脚本前</button>
+                                                <button type="button">DOM 解析后</button>
+                                                <button type="button">页面空闲</button>
+                                            </div>
+                                        </div>
+                                        <div class="form-section">脚本</div>
+                                        <div class="form-field">
+                                            <span class="form-label">脚本内容（可使用 unsafeWindow）</span>
+                                            <pre class="json-block js-code-block"><code><span class="js-keyword">(function</span> () {
+    <span class="js-string">'use strict'</span>;
+    <span class="js-comment">// 在这里编写你的脚本，unsafeWindow 指向页面真实 window</span>
+    unsafeWindow.addEventListener(<span class="js-string">'load'</span>, () =&gt; {
+        console.log(<span class="js-string">'用户脚本已运行'</span>);
+    });
+})();</code></pre>
                                         </div>
                                     </div>
                                 </div>

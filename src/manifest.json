@@ -10,6 +10,9 @@
     "scripting",
     "declarativeNetRequest"
   ],
+  "optional_permissions": [
+    "userScripts"
+  ],
   "host_permissions": [
     "<all_urls>"
   ],

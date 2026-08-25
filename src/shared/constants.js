@@ -21,6 +21,7 @@
     STATUS_CACHE: 'status_cache',
     SYSTEM_PROMPT: 'system_prompt',
     THEME_MODE: 'theme_mode',
+    USER_SCRIPTS: 'user_scripts',
     WEB_SEARCH_ENABLED: 'web_search_enabled',
     ACTIVE_SEARCH_PROVIDER_ID: 'active_search_provider_id',
     WEB_SEARCH_SETTINGS: 'web_search_settings',
@@ -62,9 +63,13 @@
     precise: { concurrency: 10, batchSize: 25, label: i18n.getMessage('importModePreciseLabel') }
   };
 
+  // 用户脚本运行时机选项（文案在设置页按 i18n 映射）
+  const RUN_AT_OPTIONS = ['document_start', 'document_end', 'document_idle'];
+
   globalThis.QuizHelperConstants = {
     DEFAULT_SHORTCUT,
     IMPORT_MODES,
+    RUN_AT_OPTIONS,
     STATUS_LABELS,
     STORAGE_KEYS,
     TYPE_LABELS

@@ -72,6 +72,11 @@ function initBackup({
       id: 'history',
       labelKey: 'optionsModuleHistory',
       keys: ['exam_history']
+    },
+    {
+      id: 'userscripts',
+      labelKey: 'optionsModuleUserScripts',
+      keys: ['user_scripts']
     }
   ];
 

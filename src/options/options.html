@@ -5,13 +5,14 @@
   <title data-i18n="optionsPageTitle">题目助手 - 设置</title>
   <link rel="stylesheet" href="../shared/variables.css">
   <link rel="stylesheet" href="../shared/toggle.css">
-  <link rel="stylesheet" href="options.css?v=14">
+  <link rel="stylesheet" href="options.css?v=21">
   <link rel="stylesheet" href="../lib/katex.min.css">
+  <link rel="stylesheet" href="../lib/codemirror.min.css">
   <!-- 主题引导：独立文件（MV3 扩展 CSP 禁止内联脚本），尽早设置 data-theme-style -->
   <script src="../shared/theme-boot.js"></script>
   <!-- 主题覆盖层：必须位于组件 CSS 之后；?v=10 用于强制刷新浏览器缓存 -->
   <link rel="stylesheet" href="../themes/theme-classic.css?v=10">
-  <link rel="stylesheet" href="../themes/theme-apple.css?v=16">
+  <link rel="stylesheet" href="../themes/theme-apple.css?v=19">
 </head>
 <body>
   <div class="page-layout">
@@ -21,6 +22,7 @@
         <li><a class="nav-item" href="#section-models"><span data-icon="cpu"></span><span data-i18n="optionsModels">大模型管理</span></a></li>
         <li><a class="nav-item" href="#section-search"><span data-icon="globe"></span><span data-i18n="optionsSearch">联网搜索设置</span></a></li>
         <li><a class="nav-item" href="#section-rules"><span data-icon="file-text"></span><span data-i18n="optionsRules">解析规则管理</span></a></li>
+        <li><a class="nav-item" href="#section-userscripts"><span data-icon="code"></span><span data-i18n="optionsUserScripts">用户脚本</span></a></li>
         <li><a class="nav-item" href="#section-bank"><span data-icon="database"></span><span data-i18n="optionsBank">题库管理</span></a></li>
         <li><a class="nav-item" href="#section-history"><span data-icon="history"></span><span data-i18n="optionsHistory">历史记录</span></a></li>
         <li><a class="nav-item" href="#section-backup"><span data-icon="archive"></span><span data-i18n="optionsBackup">备份与恢复</span></a></li>
@@ -166,6 +168,16 @@ exam.example.com"></textarea>
         <div id="parseRuleList"></div>
       </div>
 
+      <div class="card" id="section-userscripts">
+        <div class="switch-row" style="margin-bottom: 12px;">
+          <h2 style="margin:0;" data-i18n="optionsUserScripts">用户脚本</h2>
+          <button class="action-btn action-primary" id="addUserScriptBtn"><span data-icon="plus" aria-hidden="true"></span><span data-i18n="userscriptAddBtn">添加</span></button>
+        </div>
+        <div class="hint" style="margin-bottom: 12px;" data-i18n="optionsUserScriptsHint">编写自定义脚本注入到匹配的页面，请仅添加可信代码。</div>
+        <div id="userscriptStatus"></div>
+        <div id="userScriptList"></div>
+      </div>
+
       <div class="card" id="section-bank">
         <div class="switch-row" style="margin-bottom: 12px;">
           <h2 style="margin:0;" data-i18n="optionsBank">题库管理</h2>
@@ -256,11 +268,15 @@ exam.example.com"></textarea>
               <input type="checkbox" value="history" checked>
               <span data-i18n="optionsModuleHistory">历史记录</span>
             </label>
+            <label class="backup-module-item">
+              <input type="checkbox" value="userscripts" checked>
+              <span data-i18n="optionsModuleUserScripts">用户脚本</span>
+            </label>
           </div>
           <div class="export-row">
             <div class="export-note">
               <span data-icon="check" aria-hidden="true"></span>
-              <span id="backupExportNote">已准备导出 6 个模块</span>
+              <span id="backupExportNote">已准备导出 7 个模块</span>
             </div>
             <button type="button" class="action-btn action-export" id="exportBackupBtn">
               <span data-icon="export"></span>
@@ -351,6 +367,8 @@ exam.example.com"></textarea>
   <script src="../lib/mammoth.browser.min.js"></script>
   <script src="../lib/marked.min.js"></script>
   <script src="../lib/katex.min.js"></script>
+  <script src="../lib/codemirror.min.js"></script>
+  <script src="../lib/mode-javascript.min.js"></script>
   <script src="../icons.js"></script>
   <script src="../shared/i18n-utils.js"></script>
   <script src="../shared/constants.js"></script>
@@ -370,6 +388,7 @@ exam.example.com"></textarea>
   <script src="bank-section.js"></script>
   <script src="rule-section.js"></script>
   <script src="search-section.js"></script>
+  <script src="userscript-section.js"></script>
   <script src="backup-section.js"></script>
   <script src="index.js"></script>
 </body>

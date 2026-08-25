@@ -341,6 +341,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     onCloseDrawer: closeDrawer
   });
 
+  // --- 初始化用户脚本模块 ---
+  const userscriptMod = initUserScripts({
+    listEl: document.getElementById('userScriptList'),
+    statusEl: document.getElementById('userscriptStatus'),
+    addBtnEl: document.getElementById('addUserScriptBtn'),
+    drawerBodyEl, drawerTitleEl, drawerMetaEl, drawerSaveBtn, drawerOverlay,
+    onCloseDrawer: closeDrawer
+  });
+
   // --- 打开抽屉：根据类型分发 ---
   function openDrawer(type, data) {
     currentDrawerId = data.id || data.timestamp;
@@ -417,6 +426,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       modelMod.openModelDrawer(data);
     } else if (type === 'search') {
       searchMod.openSearchDrawer(data);
+    } else if (type === 'userscript') {
+      userscriptMod.openUserScriptDrawer(data);
     }
 
     // 抽屉内容渲染后统一替换图标（否则 data-icon 首次进入不显示，如 API Key 显示/隐藏按钮）
@@ -481,6 +492,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await ruleMod.loadParseRules();
     await bankMod.loadQuestionBanks();
     await historyMod.loadHistory();
+    await userscriptMod.loadUserScripts();
   }
 
   initBackup({
@@ -506,6 +518,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       await modelMod.saveModelFromDrawer();
     } else if (action === 'save-search') {
       await searchMod.saveSearchFromDrawer();
+    } else if (action === 'save-userscript') {
+      await userscriptMod.saveUserScriptFromDrawer();
     }
   });
 

@@ -56,6 +56,9 @@
   "statusTooltipErr": {
     "message": "Error: {0}"
   },
+  "statusScripts": {
+    "message": "Active Scripts"
+  },
   "importModeEcoLabel": {
     "message": "5 concurrent batches of 100 questions each, slower but suitable when tokens are limited or API rate limits are strict"
   },
@@ -292,6 +295,105 @@
   },
   "optionsModuleHistory": {
     "message": "History"
+  },
+  "optionsModuleUserScripts": {
+    "message": "User Scripts"
+  },
+  "optionsUserScripts": {
+    "message": "User Scripts"
+  },
+  "optionsUserScriptsHint": {
+    "message": "Write custom scripts to inject into matching pages. Only add code you trust."
+  },
+  "userscriptStatusUnsupported": {
+    "message": "Current Chrome version is too old (requires 120+). The user scripts feature is unavailable; other features are not affected."
+  },
+  "userscriptStatusPermissionNeeded": {
+    "message": "The user scripts feature requires an additional \"User Scripts\" permission."
+  },
+  "userscriptReadyMsg": {
+    "message": "User scripts feature enabled"
+  },
+  "userscriptEnableBtn": {
+    "message": "Enable"
+  },
+  "userscriptRedetectBtn": {
+    "message": "Re-check"
+  },
+  "userscriptStatusToggleHintAllow": {
+    "message": "Please enable the \"Allow User Scripts\" toggle on the extension details page, then click Re-check."
+  },
+  "userscriptStatusToggleHintDev": {
+    "message": "Please enable Developer mode on the extension details page, then click Re-check."
+  },
+  "userscriptAddBtn": {
+    "message": "Add"
+  },
+  "userscriptEmpty": {
+    "message": "No user scripts"
+  },
+  "userscriptDisabledBadge": {
+    "message": "Disabled"
+  },
+  "userscriptEnabledBadge": {
+    "message": "Enabled"
+  },
+  "userscriptDeleteConfirm": {
+    "message": "Delete this user script?"
+  },
+  "userscriptDeleted": {
+    "message": "User script deleted"
+  },
+  "userscriptSaved": {
+    "message": "User script saved"
+  },
+  "userscriptNameLabel": {
+    "message": "Script name"
+  },
+  "userscriptMatchesLabel": {
+    "message": "Matching pages"
+  },
+  "userscriptMatchesHint": {
+    "message": "One matching address per line, e.g. https://example.com/*; use &lt;all_urls&gt; to match all pages"
+  },
+  "userscriptRunAtLabel": {
+    "message": "Run at"
+  },
+  "userscriptRunAtStart": {
+    "message": "Before page scripts"
+  },
+  "userscriptRunAtEnd": {
+    "message": "After DOM parsed"
+  },
+  "userscriptRunAtIdle": {
+    "message": "Page idle"
+  },
+  "userscriptCodeLabel": {
+    "message": "Script"
+  },
+  "userscriptEnabledLabel": {
+    "message": "Enabled"
+  },
+  "userscriptEditTitle": {
+    "message": "Edit user script"
+  },
+  "userscriptNewTitle": {
+    "message": "New user script"
+  },
+  "userscriptValidationName": {
+    "message": "Please enter a script name"
+  },
+  "userscriptValidationMatches": {
+    "message": "Please fill in at least one matching page"
+  },
+  "userscriptValidationCode": {
+    "message": "Please enter script code"
+  },
+  "userscriptMatchesInvalid": {
+    "message": "Invalid matching address. Use a format like https://example.com/*"
+  },
+  "userscriptRegFailedFormat": {
+    "message": "Script \"$1\" failed to register: $2"
   },
   "optionsExportBackup": {
     "message": "Export Backup"

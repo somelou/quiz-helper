@@ -390,6 +390,11 @@ html[data-theme-style="apple"].dark,
   border: none;
   outline: none;
 }
+/* 用户脚本 CodeMirror 编辑器：focus 与外层输入框一致（边框 + 阴影） */
+[data-theme-style="apple"] .userscript-code-editor .CodeMirror:focus-within {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 1px var(--color-border-focus);
+}
 
 /* ---- 4.7 设置页侧边导航（仅移到左侧 + 胶囊项 + 图标，宽度两主题一致） ---- */
 [data-theme-style="apple"] .sidebar {
@@ -428,6 +433,11 @@ html[data-theme-style="apple"].dark,
 /* ---- 4.8 卡片 / 区块（demo2 .settings-card → --radius 19.2px） ---- */
 [data-theme-style="apple"] .card {
   border-radius: var(--radius-lg);
+}
+
+/* ---- 用户脚本状态横幅：亮色下使用卡片底色（白色），与 demo 稿一致 ---- */
+[data-theme-style="apple"] .userscript-status-banner {
+  background: var(--color-bg);
 }
 
 /* ---- 4.9 列表项 ---- */
@@ -1013,7 +1023,8 @@ html[data-theme-style="apple"].dark .drawer .sub-title,
 [data-theme-style="apple"] .drawer-body .rule-form-group input,
 [data-theme-style="apple"] .drawer-body .rule-form-group textarea,
 [data-theme-style="apple"] .drawer .rule-form-group input,
-[data-theme-style="apple"] .drawer .rule-form-group textarea {
+[data-theme-style="apple"] .drawer .rule-form-group textarea,
+[data-theme-style="apple"] .userscript-code-editor .CodeMirror {
   border-radius: var(--radius-lg);
   border-color: var(--color-input-border);
   background: var(--color-input-bg);

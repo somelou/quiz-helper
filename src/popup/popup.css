@@ -308,7 +308,7 @@ body {
 .status-dot.ok { background: var(--color-success); }
 .status-dot.err { background: var(--color-error); }
 
-/* 统计栅格：启用题库 / 解析规则 */
+/* 统计栅格：生效脚本 / 解析规则 */
 .status-mini-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

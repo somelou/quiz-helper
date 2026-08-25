@@ -59,6 +59,7 @@
       ...question,
       id: index + 1,
       answer: null,
+      thinkingText: null,
       status: 'pending'
     }));
     UI.renderCards();
@@ -106,6 +107,8 @@
         } else if (msg.type === 'done') {
           question.status = 'done';
           question.answer = msg.answer;
+          // 保存思考内容，供 updateCardBody 在作答结束后继续展示思考区
+          question.thinkingText = thinkingText;
           question.webSearchRefs = msg.referenceLinks || [];
           question.searchProviderName = msg.searchProviderName || '';
           UI.updateCardBody(index, UI.formatAnswer(msg.answer));
@@ -208,6 +211,7 @@
     const runId = ++state.analysisRunId;
     question.status = 'loading';
     question.answer = null;
+    question.thinkingText = null;
     question.webSearchRefs = null;
     UI.updateCardBody(index, getMessage('panelAnalyzing'));
 

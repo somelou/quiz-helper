@@ -43,6 +43,7 @@ quiz-helper/
 │   │   ├── question-bank.js       # 题库解析（含分批）与相似题检索
 │   │   ├── search-proxy.js        # 联网搜索代理（Brave/豆包/Tavily）
 │   │   ├── search-usage.js        # 每月搜索次数限额检查与递增（共用）
+│   │   ├── user-scripts.js        # 用户脚本注册（chrome.userScripts + MAIN world，幂等同步）
 │   │   └── webrequest-interceptor.js  # DNR 拦截器（注入认证头/规避 CORS 预检）
 │   ├── content/                   # 内容脚本主逻辑与面板样式
 │   │   ├── index.js               # 编排入口
@@ -66,6 +67,7 @@ quiz-helper/
 │   │   ├── history-section.js     # 历史记录
 │   │   ├── bank-section.js        # 题库导入（port 进度）、管理、渲染
 │   │   ├── rule-section.js        # 解析规则（表单/JSON 双视图编辑器）
+│   │   ├── userscript-section.js  # 用户脚本管理（状态检测 + 列表 + 抽屉编辑器）
 │   │   └── backup-section.js      # 备份与恢复（模块化导入/导出）
 │   ├── popup/                     # 弹窗页
 │   │   ├── popup.html             # 弹窗 HTML
@@ -311,6 +313,7 @@ quiz-helper/
   - `src/options/history-section.js` — 历史记录 CRUD
   - `src/options/bank-section.js` — 题库导入（port 通道分批进度）、管理、渲染
   - `src/options/rule-section.js` — 解析规则管理与表单/JSON 编辑器
+  - `src/options/userscript-section.js` — 用户脚本管理（功能状态检测 + 列表 + 抽屉编辑器，权限按需请求）
   - `src/options/backup-section.js` — 模块化备份导出/导入
   - `src/options/index.js` — 协调层：主题管理 + 侧边导航 + 分段滑块工具 + 抽屉分发 + 数据迁移 + 模块装配
 - 如果后续 AI 要修改设置页，优先先判断是改：
@@ -508,6 +511,11 @@ content 目录 5 个模块的职责划分如下：
   - DNR（declarativeNetRequest）拦截器
   - 动态注入认证头 + Content-Type + X-Traffic-Tag，规避 CORS 预检
   - 监听 `web_search_providers` 变化自动同步 DNR 规则
+
+- `src/background/user-scripts.js`
+  - 用户脚本注入：基于 `chrome.userScripts`（MAIN world），注册前拼 `const unsafeWindow = window;` 前缀
+  - `syncUserScripts()` 幂等全量同步，逐个注册收集失败项；API 不可用时静默降级
+  - 触发点：SW 启动 / `runtime.onInstalled` / `storage.onChanged` / `permissions.onAdded` / `syncUserScripts` 消息
 
 ### 7.2 当前消息动作清单
 
