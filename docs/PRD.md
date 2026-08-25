@@ -51,7 +51,7 @@
 
 ### 3.2 设置页 Options（`src/options/`）
 
-设置页采用**侧边导航 + 滚动内容布局**，包含 8 张卡片与 1 个通用详情抽屉。
+设置页采用**侧边导航 + 滚动内容布局**，包含 9 张卡片与 1 个通用详情抽屉。
 
 #### 3.2.1 基本设置（`#section-settings`）
 
@@ -81,24 +81,32 @@
 - 按域名维护解析规则，支持**表单 / JSON 双视图**编辑器（JSON 带语法高亮与复制）
 - 规则内容：根容器 / 单题容器 / 题型标题 / 题干 / 选项等选择器，题型指示器与文本关键词
 
-#### 3.2.5 题库管理（`#section-bank`）
+#### 3.2.5 用户脚本（`#section-userscripts`）
+
+- **状态检测**：基于 `chrome.userScripts` API（Chrome 120+），未授权时显示"启用"引导，需开发者模式/扩展开关配合时给出操作指引；Chrome < 120 时仅该功能不可用
+- **脚本管理**：名称 / 匹配页面（Chrome match patterns，每行一个，`<all_urls>` 表示所有页面）/ 运行时机（页面脚本前 / DOM 解析后 / 页面空闲）/ 启用开关，代码用 CodeMirror 编辑（JS 语法高亮）
+- **运行方式**：注册到页面 MAIN world，脚本可直接访问页面全局对象（提供 `unsafeWindow`，与 Tampermonkey 语义一致）
+- **默认脚本**：首次初始化种子化「解除页面限制（默认）」脚本（`src/data/default-user-script.json`），可编辑或删除
+- **权限**：`userScripts` 为可选权限，运行时按需请求，未授权不影响其他功能；脚本改动在下次页面加载生效
+
+#### 3.2.6 题库管理（`#section-bank`）
 
 - **启用开关**：`question_bank_enabled`
 - **导入解析模式**：节能 eco / 平衡 balanced / 精细 precise（分段滑块），对应并发数与每批题数
 - **文件导入**：支持 `.xlsx` / `.xls` / `.docx`，后台经 port 通道分批解析并上报进度，支持取消
 - **列表管理**：查看题目明细（含题型、答案、解析）、复制题目、删除题库
 
-#### 3.2.6 历史记录（`#section-history`）
+#### 3.2.7 历史记录（`#section-history`）
 
 - 保存最近 50 条分析记录（时间、URL、标题、题目与答案）
 - 支持单条查看 / 导出 / 删除，以及全量导出 / 清空
 
-#### 3.2.7 备份与恢复（`#section-backup`）
+#### 3.2.8 备份与恢复（`#section-backup`）
 
-- 按模块勾选（settings / models / search / rules / banks / history）导出为 JSON 文件
+- 按模块勾选（settings / models / search / rules / userscripts / banks / history）导出为 JSON 文件
 - 支持导入备份文件并按模块合并/覆盖
 
-#### 3.2.8 关于（`#section-about`）
+#### 3.2.9 关于（`#section-about`）
 
 - 版本、仓库、隐私政策链接
 
@@ -126,6 +134,7 @@
 | `parseQuestionBank` | 题库文本解析（onMessage 单批 + onConnect 分批带进度、可取消） |
 | `searchQuestionBank` | 题库相似题检索（字符集 Jaccard 相似度，内存索引缓存） |
 | `webSearch` | 独立注册的联网搜索动作（含每月限额检查） |
+| `syncUserScripts` | 独立注册的用户脚本重同步消息（幂等全量注册） |
 
 #### 3.4.2 API 能力
 
@@ -154,7 +163,7 @@
 - 本地存储：配置、题库、历史记录均保存在 `chrome.storage.local`
 - 模型请求直接发往用户配置的服务地址，不经过第三方服务器
 - 无埋点、无广告、无第三方追踪
-- 仅 `storage` / `activeTab` / `scripting` / `declarativeNetRequest` 权限 + `<all_urls>` 主机权限
+- 仅 `storage` / `activeTab` / `scripting` / `declarativeNetRequest` 权限 + `<all_urls>` 主机权限 + `userScripts` 可选权限（用户脚本功能按需请求）
 
 ### 4.3 兼容性
 
@@ -176,6 +185,7 @@
 | `panel_shortcut` / `theme_mode` | 快捷键与主题 |
 | `web_search_enabled` / `active_search_provider_id` / `web_search_providers` / `web_search_settings` / `web_search_usage` | 联网搜索配置与月度用量 |
 | `question_bank_enabled` / `question_banks` / `active_bank_id(s)` / `import_mode` | 题库相关 |
+| `user_scripts` | 用户脚本列表（名称、匹配页面、运行时机、启用状态、代码） |
 | `exam_history` | 历史记录（上限 50 条） |
 
 ---

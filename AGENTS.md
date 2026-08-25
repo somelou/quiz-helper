@@ -18,11 +18,11 @@
 
 ## 目录结构
 
-- `src/background/`：后台消息路由、AI 请求、题库检索、联网搜索等逻辑
+- `src/background/`：后台消息路由、AI 请求、题库检索、联网搜索、用户脚本同步注册等逻辑
 - `src/content/`：页面题目解析、面板 UI、分析流程
-- `src/options/`：设置页各分区逻辑
+- `src/options/`：设置页各分区逻辑（含用户脚本管理）
 - `src/shared/`：共享常量、存储、主题、文本与快捷键工具
-- `src/data/`：默认解析规则、提示词模板等静态数据
+- `src/data/`：默认解析规则、默认用户脚本、提示词模板等静态数据
 - `src/popup/`：弹窗页面
 - `docs/`：项目说明文档
 - `src/icons/`：图标资源
@@ -38,6 +38,7 @@
 
 - `docs/structure.md`：当前页面结构、模块职责与维护说明
 - `src/data/default-parse-rule.json`：默认解析规则
+- `src/data/default-user-script.json`：默认用户脚本（首次初始化种子化）
 - `src/data/prompt-templates.json`：AI 提示词模板
 - `src/icons.js`：SVG 图标替换逻辑
 - `src/shared/storage-utils.js`：存储读写工具
@@ -51,6 +52,7 @@
 - `scripting`
 - `declarativeNetRequest`
 - `host_permissions: <all_urls>`
+- `optional_permissions: userScripts`（用户脚本功能，运行时按需请求；Chrome < 120 时仅该功能不可用）
 
 ## Content Script 注入顺序
 
@@ -84,6 +86,7 @@
   - 大模型管理
   - 联网搜索设置
   - 解析规则管理
+  - 用户脚本（自定义注入脚本，基于 chrome.userScripts）
   - 题库管理
   - 历史记录管理
   - 备份与恢复
@@ -105,7 +108,7 @@
 - `parseQuestionBank`
 - `searchQuestionBank`
 
-`src/background/index.js` 额外独立注册 `webSearch` 动作（含每月搜索次数限额检查）。
+`src/background/index.js` 额外独立注册 `webSearch` 动作（含每月搜索次数限额检查）与 `syncUserScripts` 消息（用户脚本重同步）。
 
 `src/background/router.js` 同时注册 `chrome.runtime.onConnect` port 通道：
 

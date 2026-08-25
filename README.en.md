@@ -29,6 +29,7 @@ It extracts question content from the current page, calls the LLM API configured
 - AI selection parsing: manually select a page region and let AI parse the local question content
 - Question-bank import & matching: import question banks and prioritize question-bank matching when answering
 - Web-search enhancement: combine search results to help generate answers when needed
+- User scripts: write custom scripts in the settings page and inject them into matched pages (e.g., to lift copy/paste or right-click restrictions)
 - History management: save local analysis records with viewing, export, and cleanup
 - Backup & restore: export/import local configs and data by module
 - Theme & shortcuts: light/dark theme and panel shortcut configuration
@@ -110,6 +111,7 @@ The settings page is mainly for:
 - Toggling streaming output (whether tests and answers stream character by character)
 - Configuring web search
 - Managing parsing rules
+- Managing user scripts (custom page-injection scripts)
 - Importing and maintaining question banks
 - Viewing, exporting, and clearing history
 - Backing up and restoring local data
@@ -141,6 +143,7 @@ Main permissions used by the extension:
 - `scripting`: inject content scripts and the panel into pages
 - `declarativeNetRequest`: support some web-search / request handling
 - `host_permissions: <all_urls>`: work on any page when actively used by the user
+- `userScripts` (optional): for the user-scripts feature, requested at runtime; other features are unaffected when not granted
 
 Privacy principles:
 

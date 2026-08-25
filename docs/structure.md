@@ -14,8 +14,8 @@
 
 2. `options` 设置页
    - 文件：`src/options/options.html` + `src/options/index.js` + `src/options/options.css`
-   - 作用：负责大模型管理、联网搜索设置、快捷键、域名白名单、解析规则管理、题库管理、历史记录管理、备份与恢复、关于
-   - 采用侧边导航 + 滚动内容布局，含 8 张卡片与 1 个通用详情抽屉
+   - 作用：负责大模型管理、联网搜索设置、快捷键、域名白名单、解析规则管理、用户脚本、题库管理、历史记录管理、备份与恢复、关于
+   - 采用侧边导航 + 滚动内容布局，含 9 张卡片与 1 个通用详情抽屉
 
 3. `content` 注入面板
    - 文件：`src/content/index.js` + `src/content/state.js` + `src/content/dom-parser.js` + `src/content/panel-ui.js` + `src/content/analyzer.js` + `src/content/panel.css`
@@ -52,7 +52,7 @@ quiz-helper/
 │   │   ├── panel-ui.js            # 面板生命周期 + 拖拽 + 卡片渲染（含流式/思考区）
 │   │   ├── analyzer.js            # 分析控制 + AI 选区解析 + AI 作答流程
 │   │   └── panel.css              # 面板样式
-│   ├── data/                      # 静态 JSON 数据（默认解析规则、提示词模板）
+│   ├── data/                      # 静态 JSON 数据（默认解析规则、默认用户脚本、提示词模板）
 │   ├── icons/                     # PNG/SVG 图标资源
 │   ├── lib/                       # 第三方库（xlsx、mammoth、marked、katex）
 │   ├── options/                   # 设置页主逻辑与样式
@@ -114,6 +114,7 @@ quiz-helper/
   - `src/content/panel-ui.js`
   - `src/content/analyzer.js`
   - `src/content/index.js`
+- `optional_permissions`：`userScripts`（用户脚本功能，运行时按需请求；Chrome < 120 时仅该功能不可用）
 - `web_accessible_resources` 放行：`icons/*`、`lib/*`、`data/*.json`、`content/*.css`、`shared/*.css`
 
 说明：
@@ -201,7 +202,7 @@ quiz-helper/
 **侧边导航**（`#sidebar`）：
 
 - IntersectionObserver 实现滚动高亮（激活带 rootMargin `-5% 0px -85% 0px`），点击平滑滚动
-- 导航项对应：基本设置 / 大模型管理 / 联网搜索设置 / 解析规则管理 / 题库管理 / 历史记录 / 备份与恢复 / 关于
+- 导航项对应：基本设置 / 大模型管理 / 联网搜索设置 / 解析规则管理 / 用户脚本 / 题库管理 / 历史记录 / 备份与恢复 / 关于
 
 **卡片区域**：
 
@@ -238,7 +239,14 @@ quiz-helper/
    - 状态提示：`#ruleStatus`
    - 编辑器支持表单 / JSON 双视图切换（`#ruleViewForm` / `#ruleViewJson`），JSON 视图带语法高亮与复制
 
-5. 题库管理卡片（`#section-bank`）
+5. 用户脚本卡片（`#section-userscripts`）
+   - 添加按钮：`#addUserScriptBtn`
+   - 安全提示：`optionsUserScriptsHint`（仅添加可信代码）
+   - 状态横幅：`#userscriptStatus`（unsupported / permission-needed / toggle-needed / ready 四态，含「启用」「重新检测」按钮）
+   - 列表容器：`#userScriptList`（名称、matches 摘要、运行时机、启用开关、编辑/删除）
+   - 抽屉编辑器：名称 / 匹配页面（每行一个 match pattern，`<all_urls>` 表示所有页面）/ 运行时机（document_start / document_end / document_idle 分段控件）/ 代码（CodeMirror JS 高亮）
+
+6. 题库管理卡片（`#section-bank`）
    - 启用开关：`#questionBankEnabled`
    - 导入解析模式：`#importMode`（节能 eco / 平衡 balanced / 精细 precise，分段滑块）+ 提示 `#importModeHint`
    - 文件导入：`#questionBankFile`（accept `.xlsx,.xls,.docx`）
@@ -247,17 +255,17 @@ quiz-helper/
    - 解析进度：`#bankProgress`（含进度条 `#bankProgressFill` + 文本 `#bankProgressText` + 取消按钮 `#bankProgressCancel`）
    - 状态提示：`#bankStatus`
 
-6. 历史记录卡片（`#section-history`）
+7. 历史记录卡片（`#section-history`）
    - 导出按钮：`#exportAllHistory`
    - 清空按钮：`#clearHistory`
    - 列表容器：`#historyList`（每条可查看/导出/删除）
 
-7. 备份与恢复卡片（`#section-backup`）
-   - 模块勾选网格：`#backupModuleList`（settings/models/search/rules/banks/history 六模块）
+8. 备份与恢复卡片（`#section-backup`）
+   - 模块勾选网格：`#backupModuleList`（settings/models/search/rules/userscripts/banks/history 七模块）
    - 导出：`#exportBackupBtn` + 状态 `#backupExportStatus`
    - 导入：`#backupFileInput` + 文件名 `#backupFileName` + `#importBackupBtn` + 状态 `#backupImportStatus`
 
-8. 关于卡片（`#section-about`）
+9. 关于卡片（`#section-about`）
    - 版本、仓库、隐私链接（由 `initAboutSection` 动态填充版本号）
 
 **通用详情抽屉**：
@@ -266,7 +274,7 @@ quiz-helper/
 - 标题：`#drawerTitle`
 - 元信息：`#drawerMeta`
 - 内容区：`#drawerBody`
-- 保存按钮：`#drawerSaveBtn`（根据 `dataset.action` 分发到对应模块：`save-rule` / `save-model` / `save-search`）
+- 保存按钮：`#drawerSaveBtn`（根据 `dataset.action` 分发到对应模块：`save-rule` / `save-model` / `save-search` / `save-userscript`）
 - 关闭按钮：`#drawerCloseBtn`
 
 ### 5.3 `src/options/index.js` 的逻辑分块
@@ -287,7 +295,7 @@ quiz-helper/
    - 全局委托处理所有 `.segmented-control` 按钮点击（更新 `--seg-width` / `--seg-left`）
 
 4. 抽屉分发
-   - `openDrawer(type, data)` 根据类型分发（bank/history/rule/model/search）
+   - `openDrawer(type, data)` 根据类型分发（bank/history/rule/model/search/userscript）
    - `closeDrawer()` 关闭并清理抽屉状态
    - `#drawerSaveBtn` 点击按 `dataset.action` 分发
    - 抽屉内复制题目按钮委托处理（`data-copy-question`）
@@ -298,7 +306,7 @@ quiz-helper/
    - 旧 `system_prompt` → 新 `custom_system_prompts`（`ensurePromptMigration`）
 
 6. 模块装配
-   - `DOMContentLoaded` 后依次初始化：快捷键 → 配置 → 模型 → 搜索 → 规则 → 历史 → 题库 → 备份
+   - `DOMContentLoaded` 后依次初始化：快捷键 → 配置 → 模型 → 搜索 → 规则 → 用户脚本 → 题库 → 历史 → 备份
    - 各模块返回对象，协调层负责串联调用
 
 ### 5.4 维护重点
@@ -469,7 +477,7 @@ content 目录 5 个模块的职责划分如下：
 
 - `src/background/index.js`
   - 启动后台逻辑，注册路由
-  - 独立注册 `webSearch` 消息监听器（早于 router，确保无拦截）
+  - 独立注册 `webSearch` 消息监听器（早于 router，确保无拦截）与 `syncUserScripts` 消息监听器
   - 包含每月搜索次数限制检查和递增逻辑
 
 - `src/background/router.js`
@@ -515,6 +523,7 @@ content 目录 5 个模块的职责划分如下：
 - `src/background/user-scripts.js`
   - 用户脚本注入：基于 `chrome.userScripts`（MAIN world），注册前拼 `const unsafeWindow = window;` 前缀
   - `syncUserScripts()` 幂等全量同步，逐个注册收集失败项；API 不可用时静默降级
+  - `seedDefaultUserScript()` 首次初始化种子化默认脚本（`src/data/default-user-script.json`）
   - 触发点：SW 启动 / `runtime.onInstalled` / `storage.onChanged` / `permissions.onAdded` / `syncUserScripts` 消息
 
 ### 7.2 当前消息动作清单
@@ -549,12 +558,17 @@ content 目录 5 个模块的职责划分如下：
    - 输入：当前题目文本
    - 输出：题库相似题匹配结果（最多 3 条，按相似度排序）
 
-此外，`src/background/index.js` 独立注册了 `webSearch` 动作监听器（早于 router）：
+此外，`src/background/index.js` 独立注册了两个消息监听器（早于 router）：
 
 1. `webSearch`
    - 输入：搜索服务商配置、搜索设置、搜索词
    - 输出：原始搜索结果数据
    - 含每月搜索次数限制检查
+
+2. `syncUserScripts`
+   - 输入：无
+   - 输出：`{ available, failed }`（用户脚本同步结果）
+   - 设置页授予 `userScripts` 权限后手动触发重同步
 
 **port 通道**（`chrome.runtime.onConnect`）：
 
@@ -640,11 +654,15 @@ content 目录 5 个模块的职责划分如下：
 
 ### 8.2 data 目录
 
-当前静态数据有两份：
+当前静态数据有三份：
 
 - `src/data/default-parse-rule.json`
   - 默认解析规则种子（`example.com`）
   - 包含 `selectors` 与 `typeKeywords`
+
+- `src/data/default-user-script.json`
+  - 默认用户脚本「解除页面限制（默认）」
+  - 首次初始化（`user_scripts` 从未写入）时种子化，用户可编辑/删除
 
 - `src/data/prompt-templates.json`
   - AI 答题提示词（按题型）
