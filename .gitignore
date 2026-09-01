@@ -18,6 +18,9 @@ __pycache__/
 dist/
 build/
 
+# 考试页面快照（本地测试用）
+exam-html/
+
 # macOS
 .DS_Store
 

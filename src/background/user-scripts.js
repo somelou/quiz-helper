@@ -5,8 +5,9 @@ import '../shared/constants.js';
 
 const { STORAGE_KEYS, RUN_AT_OPTIONS } = globalThis.QuizHelperConstants;
 
-// MAIN world 下 window 即页面真实 window，与 Tampermonkey 的 unsafeWindow 语义一致
-const PRELUDE = 'const unsafeWindow = window;\n';
+// MAIN world 下 window 即页面真实 window，与 Tampermonkey 的 unsafeWindow 语义一致。
+// 通过可配置的全局属性注入而不是声明 const 变量，避免与脚本自身声明 unsafeWindow 冲突
+const PRELUDE = 'Object.defineProperty(globalThis, "unsafeWindow", { value: window, configurable: true, writable: true });\n';
 
 // 默认用户脚本数据文件（src/data/default-user-script.json），首次初始化时种子化
 const DEFAULT_USER_SCRIPT_URL = chrome.runtime.getURL('data/default-user-script.json');
@@ -27,16 +28,16 @@ function loadDefaultUserScript() {
 }
 
 /**
- * 首次初始化种子化默认脚本。
+ * 首次初始化种子化默认脚本（数据文件为脚本数组）。
  * 仅当 user_scripts 从未写入过（值为 undefined）时写入；用户手动删除后列表为 []，不会重复添加。
  * @returns {Promise<boolean>} 是否执行了种子化
  */
 export async function seedDefaultUserScript() {
   const result = await chrome.storage.local.get([STORAGE_KEYS.USER_SCRIPTS]);
   if (result[STORAGE_KEYS.USER_SCRIPTS] !== undefined) return false;
-  const defaultScript = await loadDefaultUserScript();
+  const defaultScripts = await loadDefaultUserScript();
   await chrome.storage.local.set({
-    [STORAGE_KEYS.USER_SCRIPTS]: [{ ...defaultScript, timestamp: Date.now() }]
+    [STORAGE_KEYS.USER_SCRIPTS]: defaultScripts.map(s => ({ ...s, timestamp: Date.now() }))
   });
   return true;
 }
