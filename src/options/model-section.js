@@ -1,5 +1,107 @@
 // 大模型管理模块
 
+// 中文（CJK 表意文字）字符判断，覆盖基本区与扩展区
+const CJK_RE = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
+
+/**
+ * marked 的 CJK 强调扩展
+ * CommonMark 侧翼规则要求起始 ** 后、结束 ** 前不能是空白或 ASCII 标点，
+ * 大模型输出中 **'选项'**、** 格式 ** 等与中文紧邻的写法会被原样输出、不渲染强调。
+ * 该扩展在默认解析前，将内容含中文的 ***中文*** / **中文** / *中文*
+ * 分别生成为 粗斜体 / 加粗 / 斜体 令牌；不含中文的写法仍交由 marked 严格解析。
+ */
+/**
+ * marked 的破折号列表扩展
+ * CommonMark 仅把 `- ` 识别为无序列表，而大模型输出常用 – / — / － 代替连字符，
+ * 或使用全角空格（`-　`），这些写法会被原样输出为普通段落。
+ * 该扩展将连续的行首破折号/全角空格列表生成为无序列表令牌；
+ * 标准 `- ` 列表仍交由 marked 内置解析，任务列表与嵌套列表不受影响。
+ */
+marked.use({
+  extensions: [
+    {
+      name: 'cjkEmphasis',
+      level: 'inline',
+      start(src) { return src.indexOf('*'); },
+      tokenizer(src) {
+        // 生成纯文本子令牌（marked v15 的 strong/em 渲染依赖 tokens 数组而非 text）
+        const textToken = (text) => ({ type: 'text', raw: text, text });
+
+        // ***中文*** → 斜体内嵌加粗
+        const boldItalic = src.match(/^\*\*\*([^*\n]+?)\*\*\*/);
+        if (boldItalic && CJK_RE.test(boldItalic[1])) {
+          return {
+            type: 'em',
+            raw: boldItalic[0],
+            text: boldItalic[1],
+            tokens: [{
+              type: 'strong',
+              raw: `**${boldItalic[1]}**`,
+              text: boldItalic[1],
+              tokens: [textToken(boldItalic[1])]
+            }]
+          };
+        }
+        // **中文** → 加粗
+        const bold = src.match(/^\*\*([^*\n]+?)\*\*/);
+        if (bold && CJK_RE.test(bold[1])) {
+          return { type: 'strong', raw: bold[0], text: bold[1], tokens: [textToken(bold[1])] };
+        }
+        // *中文* → 斜体
+        const italic = src.match(/^\*([^*\n]+?)\*/);
+        if (italic && CJK_RE.test(italic[1])) {
+          return { type: 'em', raw: italic[0], text: italic[1], tokens: [textToken(italic[1])] };
+        }
+        return undefined;
+      }
+    },
+    {
+      name: 'dashList',
+      level: 'block',
+      start(src) {
+        const m = /^[ \t]*(?:[–—－][ \t\u3000]+|-[\u3000])/m.exec(src);
+        return m ? m.index : -1;
+      },
+      tokenizer(src) {
+        // 收集连续的行首破折号/全角空格列表项
+        const lines = src.split('\n');
+        const items = [];
+        let i = 0;
+        while (i < lines.length) {
+          const m = /^([ \t]*)(?:[–—－][ \t\u3000]+|-[\u3000])(.*)$/.exec(lines[i]);
+          if (!m) break;
+          items.push(m[2]);
+          i++;
+        }
+        if (!items.length) return undefined;
+
+        return {
+          type: 'list',
+          raw: lines.slice(0, i).join('\n'),
+          ordered: false,
+          start: 1,
+          loose: false,
+          items: items.map(text => ({
+            type: 'list_item',
+            raw: text,
+            task: false,
+            checked: undefined,
+            loose: false,
+            text,
+            // 与内置紧列表结构一致：text 块令牌包裹 inline 令牌，避免渲染成 <p>
+            tokens: [{
+              type: 'text',
+              raw: text,
+              text,
+              tokens: this.lexer.inlineTokens(text, [])
+            }]
+          }))
+        };
+      }
+    }
+  ]
+});
+
 // 将思考强度档位映射为提示文案的 locale key 后缀
 function effortHintKey(effort) {
   const map = { low: 'Low', medium: 'Medium', high: 'High', xhigh: 'XHigh', max: 'Max' };

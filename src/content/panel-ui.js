@@ -225,14 +225,7 @@
 
     // 中英文答案标记均可识别：答案：/ Answer: （(.+) 不跨行，可同时避免误吞解析部分）
     const answerMatch = t.match(/(?:答案[：:]|Answer\s*[：:])\s*(.+)/i);
-    if (answerMatch) {
-      const ans = answerMatch[1].trim();
-      const letters = ans.match(/^([A-H]+)$/i);
-      if (letters) return letters[1].toUpperCase();
-      if (/^(正确|对|是|true)$/i.test(ans)) return getMessage('panelAnswerCorrect');
-      if (/^(错误|错|否|false)$/i.test(ans)) return getMessage('panelAnswerWrong');
-      return ans.length > 10 ? ans.slice(0, 10) + '...' : ans;
-    }
+    if (answerMatch) return sanitizeAnswerResult(answerMatch[1].trim());
 
     const optionLines = lines.filter(line => /^[A-H][\.\、\)\s]/.test(line));
     if (optionLines.length >= 2) {
@@ -249,6 +242,38 @@
     if (/^(错误|错|否|false)\b/i.test(firstLine)) return getMessage('panelAnswerWrong');
 
     return firstLine.length > 10 ? firstLine.slice(0, 10) + '...' : firstLine;
+  }
+
+  /**
+   * 清洗 AI 答案文本并提取最精简的结果
+   * 处理大模型输出的异常内容：**B**、B**、A（4个）、`A`、A. 等
+   * @param {string} raw
+   * @returns {string}
+   */
+  function sanitizeAnswerResult(raw) {
+    // 去除残留的 Markdown 强调/代码标记，避免出现 "B**"、"**B**" 这类脏值
+    const cleaned = String(raw || '')
+      .replace(/\*\*/g, '')
+      .replace(/\*/g, '')
+      .replace(/`/g, '')
+      .trim();
+
+    // 纯选项字母：A / AB / ABC
+    const pureLetters = cleaned.match(/^([A-H]{1,8})$/i);
+    if (pureLetters) return pureLetters[1].toUpperCase();
+
+    // 分隔符连接的多选：A、B / A B / A,B / A/B（允许末尾带注释，如 "A、B（多选）"）
+    const multiMatch = cleaned.match(/^([A-H](?:[\s,、，/]+[A-H]){1,7})(?:\s*[.．、,，;；:：)）]\s*|（[^）]*）|\([^)]*\))*$/i);
+    if (multiMatch) return multiMatch[1].replace(/[\s,、，/]/g, '').toUpperCase();
+
+    // 单选字母后带注释/标点：A（4个）、A.、A)、B、
+    const singleMatch = cleaned.match(/^([A-H])(?:\s*[.．、,，;；:：)）]|（[^）]*）|\([^)]*\))/i);
+    if (singleMatch) return singleMatch[1].toUpperCase();
+
+    if (/^(正确|对|是|true)$/i.test(cleaned)) return getMessage('panelAnswerCorrect');
+    if (/^(错误|错|否|false)$/i.test(cleaned)) return getMessage('panelAnswerWrong');
+
+    return cleaned.length > 10 ? cleaned.slice(0, 10) + '...' : cleaned;
   }
 
   // ===== 卡片渲染 =====
