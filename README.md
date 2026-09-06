@@ -21,7 +21,6 @@
   <img src="https://img.shields.io/badge/Edge-0A60BE?style=flat-square" alt="Microsoft Edge" />
 </p>
 
-
 ## 核心功能
 
 - 页面题目提取：从当前网页中识别并提取题目、选项和题型
@@ -53,6 +52,8 @@
 ### 方式一：商店安装
 
 [Microsoft Edge 商店安装链接](https://microsoftedge.microsoft.com/addons/detail/%E9%A2%98%E7%9B%AE%E5%8A%A9%E6%89%8B/enmbkdjfpdjpmnjmpnfhfkhkhljkoiji)
+
+> 因微软商店审核时间，商店版本可能落后于发布版本。
 
 ### 方式二：离线安装
 
@@ -173,5 +174,5 @@ A：DeepSeek-v4 Flash 已自带联网搜索功能。在设置页「大模型管�
 ## 当前版本
 
 - Manifest Version：`3`
-- 插件版本：`3.2.0`
+- 插件版本：`3.3.0`
 
