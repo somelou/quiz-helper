@@ -2,7 +2,7 @@
 
 本文档用于帮助后续 AI 或开发者快速理解 `quiz-helper` 当前的页面入口、页面结构、主要交互、关键脚本与维护落点。
 
-> 说明：本文档描述的是**当前代码实际状态**（对应 `src/manifest.json` 版本 `3.2.0`），不是理想目标状态。
+> 说明：本文档描述的是**当前代码实际状态**（对应 `src/manifest.json` 版本 `3.3.0`），不是理想目标状态。
 
 ## 1. 项目界面入口总览
 
@@ -14,7 +14,7 @@
 
 2. `options` 设置页
    - 文件：`src/options/options.html` + `src/options/index.js` + `src/options/options.css`
-   - 作用：负责大模型管理、联网搜索设置、快捷键、域名白名单、解析规则管理、用户脚本、题库管理、历史记录管理、备份与恢复、关于
+   - 作用：负责大模型管理、联网搜索设置、快捷键、域名白名单/黑名单、规则解析追加模式、解析规则管理、用户脚本、题库管理、历史记录管理、备份与恢复、关于
    - 采用侧边导航 + 滚动内容布局，含 9 张卡片与 1 个通用详情抽屉
 
 3. `content` 注入面板
@@ -104,6 +104,7 @@ quiz-helper/
 - `background.service_worker = background.js`（`type: "module"`）
 - `content_scripts.js` 当前按顺序注入：
   - `src/icons.js`
+  - `src/shared/i18n-utils.js`
   - `src/shared/constants.js`
   - `src/shared/shortcut-utils.js`
   - `src/shared/theme-utils.js`
@@ -121,7 +122,7 @@ quiz-helper/
 
 - `src/background.js` 作为 ES module 薄入口，通过 `import './background/index.js'` 加载主逻辑。这是唯一需要薄入口的场景（MV3 service worker 只能指定一个文件且使用 `type: "module"`）。
 - `content_scripts` 采用 IIFE + `globalThis` 模式按顺序注入。共享工具（`src/shared/`）先于 content 模块加载，content 模块之间通过 `globalThis.QuizHelperContentState` 共享状态，通过 `globalThis.QuizHelperXxx` 调用彼此 API。
-- `src/popup/popup.js` 中 `chrome.scripting.executeScript` 的兜底注入清单与 manifest 的 content_scripts 清单保持一致（11 个文件）。
+- `src/popup/popup.js` 中 `chrome.scripting.executeScript` 的兜底注入清单与 manifest 的 content_scripts 清单保持一致（12 个文件）。
 
 ## 4. Popup 页面
 
@@ -132,13 +133,16 @@ quiz-helper/
 - 样式：`src/popup/popup.css`
 - 图标依赖：`src/icons.js`
 - 公共依赖：
+  - `src/shared/i18n-utils.js`
   - `src/shared/constants.js`
+  - `src/shared/text-utils.js`
   - `src/shared/shortcut-utils.js`
   - `src/shared/theme-utils.js`
+  - `src/shared/status-utils.js`
 
 ### 4.2 页面结构
 
-`src/popup/popup.html` 的结构比较简单，主要分成 4 块：
+`src/popup/popup.html` 的结构主要分成 5 块：
 
 1. 头部
    - 标题：`题目助手`
@@ -149,23 +153,30 @@ quiz-helper/
    - `#analyzeBtn`：分析当前页面题目
    - `#optionsBtn`：打开设置
 
-3. 模型快捷切换
-   - `#modelDropdown`：模型下拉（`#modelDropdownBtn` + `#modelDropdownLabel` + `#modelDropdownMenu`）
-   - 仅展示 `isActive` 的模型，点击 `mousedown` 直接写 `active_model_id`
+3. 状态面板
+   - `#statusPanel`：展示大模型、搜索服务、生效脚本、解析规则的当前状态
+   - 含 `#statusRedetect` 重新检测按钮
+   - 含 `#llmDropdown` / `#searchDropdown` 两个状态下拉
 
 4. 提示区
    - `#popupHint`
-   - 当前主要用于显示唤起助手快捷键
+   - 根据当前域名是否可用，显示快捷键提示或域名不可用提示
+
+5. 页脚
+   - `#popupVersion`
+   - 从 manifest 动态展示当前版本号
 
 ### 4.3 主要逻辑
 
 `src/popup/popup.js` 当前负责：
 
 - 替换 `data-icon` 对应的 SVG 图标
+- 执行页面本地化（处理静态 `__MSG_xxx__` 文案）
 - 读取和保存 `theme_mode`
 - 根据系统主题切换深浅模式
 - 读取 `panel_shortcut` 并格式化展示
-- 加载并展示可用模型下拉，支持快捷切换 `active_model_id`
+- 读取当前标签页域名，按白名单/黑名单规则控制“分析当前页面题目”按钮是否可用
+- 加载状态面板，展示模型、搜索服务、生效脚本与解析规则状态，并支持重新检测
 - 点击“分析当前页面题目”时：
   - 先尝试给当前标签页发送 `analyze` 消息
   - 如果 content script 未加载，则按 `chrome.runtime.getManifest().content_scripts[0].js` 动态注入（单一数据源，与 manifest 自动保持一致）
@@ -197,7 +208,7 @@ quiz-helper/
 
 ### 5.2 页面结构总览
 
-`src/options/options.html` 采用侧边导航 + 滚动内容布局，由侧边栏 `#sidebar` + 8 张卡片 + 1 个通用抽屉层组成：
+`src/options/options.html` 采用侧边导航 + 滚动内容布局，由侧边栏 `#sidebar` + 9 张卡片 + 1 个通用抽屉层组成：
 
 **侧边导航**（`#sidebar`）：
 
@@ -214,6 +225,8 @@ quiz-helper/
    - 补充提示词：`#extraContextPrompt`
    - 面板快捷键显示：`#shortcutDisplay` + 按钮 `#recordShortcutBtn` / `#clearShortcutBtn` / `#resetShortcutBtn` + 提示 `#shortcutHint`
    - 域名白名单：`#allowedDomains`（每行一个域名，留空对所有站点生效）
+   - 域名黑名单：`#blockedDomains`（每行一个域名，命中后插件在该站点完全不生效；黑名单优先）
+   - 规则解析追加模式：`#ruleParseAppendMode`（开启后规则重解析仅追加新题）
    - 操作按钮：`#saveBtn` / `#resetBtn`
    - 状态提示：`#status`
 
@@ -341,7 +354,7 @@ quiz-helper/
 | `src/content/dom-parser.js` | ~466 | DOM 题目提取：题型识别、选项提取、文本清洗、结构化/降级题目提取 |
 | `src/content/panel-ui.js` | ~888 | 面板生命周期（创建/销毁/最小化/恢复）、元素拖拽、卡片渲染、流式答案/思考区渲染 |
 | `src/content/analyzer.js` | ~821 | 分析控制（题库→AI 流程/暂停/继续/重作）+ AI 选区解析 + AI 全页解析 |
-| `src/content/index.js` | ~262 | 编排入口：主题管理、快捷键监听、解析规则 CRUD、域名白名单、`startAnalysis` 总编排、`analyze` 消息监听 |
+| `src/content/index.js` | ~262 | 编排入口：主题管理、快捷键监听、解析规则 CRUD、域名黑白名单校验、`startAnalysis` 总编排、`analyze` 消息监听 |
 | `src/content/panel.css` | — | Shadow DOM 内部面板样式 |
 
 各模块通过 `globalThis.QuizHelperContentState` 共享状态，通过 `globalThis.QuizHelperDomParser` / `QuizHelperPanelUI` / `QuizHelperAnalyzer` / `QuizHelperApp` 调用彼此 API。
@@ -363,11 +376,11 @@ quiz-helper/
 
 4. 注册监听
    - `chrome.storage.onChanged`
-   - `document.addEventListener('keydown', ..., true)`（全局快捷键，可编辑目标与选择器激活时跳过）
+   - `document.addEventListener('keydown', ..., true)`（全局快捷键；可编辑区域、Monaco/CodeMirror、输入法组合态与选择器激活时跳过）
    - `chrome.runtime.onMessage.addListener(...)`（`analyze` 指令）
 
-5. 域名白名单
-   - `checkDomainAllowed()`：`allowed_domains` 为空放行所有站点，否则精确匹配或子域名后缀匹配
+5. 域名黑白名单
+   - `checkDomainAllowed()`：先判断 `blocked_domains`，命中则直接拒绝；否则当 `allowed_domains` 为空时放行所有站点，非空时按精确匹配或子域名后缀匹配
 
 ### 6.3 面板结构
 
@@ -419,7 +432,7 @@ content 目录 5 个模块的职责划分如下：
 
 1. 主题与快捷键（→ `src/content/index.js`）
    - 主题模式同步（system 跟随 `prefers-color-scheme`）
-   - 全局快捷键监听（`Alt+Q` 默认），白名单校验后切换面板
+   - 全局快捷键监听（`Alt+Q` 默认），黑名单/白名单校验通过后切换面板，并跳过输入框、`contenteditable`、Monaco、CodeMirror 与输入法组合态
 
 2. 解析规则与默认规则（→ `src/content/index.js`）
    - 默认规则种子写入（`ensureDefaultRules`）
@@ -440,7 +453,7 @@ content 目录 5 个模块的职责划分如下：
 5. AI 分析流程（→ `src/content/analyzer.js`）
    - `analyzeSingleQuestion(index)` / `analyzeAllQuestions({ resume })`
    - 每道题先 `searchQuestionBank` 查题库 → 命中则 `verifyBankAnswer` 校验选项顺序 → 未命中走 `streamQuestion`（port 通道流式答题）
-   - `togglePauseAnalysis` / `restartAnalysis` / `reparseAndAnalyze`
+   - `togglePauseAnalysis` / `restartAnalysis` / `reparseAndAnalyze`，并支持基于 `rule_parse_append_mode` 的规则重解析追加
    - 分析完成后 `saveHistory`（`exam_history` 最多 50 条）
 
 6. AI 选区解析（→ `src/content/analyzer.js`）

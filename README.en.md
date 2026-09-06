@@ -1,6 +1,6 @@
 # Quiz Helper
 
-[**English**](./README.en.md) | [中文](./README.md)
+**[English](./README.en.md)** | [中文](./README.md)
 
 <p align="center">
   <img src="./docs/previews/png/quiz-helper-small-tile-440x280.png" alt="Quiz Helper" width="440" />
@@ -51,9 +51,9 @@ The extension supports both Chinese and English out of the box, with no configur
 
 ### Option 1: Install from the Store
 
-Search for "题目助手" (Quiz Helper) in the Microsoft Edge Add-ons store, or install directly from the link below:
+[Microsoft Edge Store Installation Link](https://microsoftedge.microsoft.com/addons/detail/%E9%A2%98%E7%9B%AE%E5%8A%A9%E6%89%8B/enmbkdjfpdjpmnjmpnfhfkhkhljkoiji)
 
-<https://microsoftedge.microsoft.com/addons/detail/%E9%A2%98%E7%9B%AE%E5%8A%A9%E6%89%8B/enmbkdjfpdjpmnjmpnfhfkhkhljkoiji>
+> Due to the Microsoft Edge Store approval process, the extension version in the store may lag behind the latest published version.
 
 ### Option 2: Offline Installation
 
@@ -174,4 +174,5 @@ If you'd like to dig deeper, start with these directories:
 ## Current Version
 
 - Manifest Version: `3`
-- Extension Version: `3.2.0`
+- Extension Version: `3.3.0`
+
