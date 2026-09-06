@@ -5,7 +5,9 @@
   const { safeSet } = globalThis.QuizHelperStorageUtils;
   const D = globalThis.QuizHelperDomParser;
   const UI = globalThis.QuizHelperPanelUI;
+  const { STORAGE_KEYS } = globalThis.QuizHelperConstants;
   const { getMessage } = globalThis.QuizHelperI18n;
+  const { normalizeWhitespace } = globalThis.QuizHelperTextUtils;
 
   // 当前正在进行的流式答题通道（暂停时用于立即中断）
   let activeStreamPort = null;
@@ -23,6 +25,125 @@
     } catch (_e) {
       return false;
     }
+  }
+
+  async function loadRuleParseAppendMode() {
+    const result = await chrome.storage.local.get([STORAGE_KEYS.RULE_PARSE_APPEND_MODE]);
+    return result[STORAGE_KEYS.RULE_PARSE_APPEND_MODE] === true;
+  }
+
+  function buildQuestionMergeKey(question) {
+    return normalizeWhitespace(question?.text || '');
+  }
+
+  function reindexQuestions(questions) {
+    questions.forEach((question, index) => {
+      question.id = index + 1;
+    });
+    return questions;
+  }
+
+  function createPendingQuestion(question, index) {
+    return {
+      ...question,
+      id: index + 1,
+      answer: null,
+      thinkingText: null,
+      webSearchRefs: null,
+      bankMatches: null,
+      searchProviderName: '',
+      status: 'pending'
+    };
+  }
+
+  function mergeParsedQuestions(existingQuestions, parsedQuestions) {
+    const mergedQuestions = Array.isArray(existingQuestions) ? existingQuestions.slice() : [];
+    const seenKeys = new Set(mergedQuestions.map(buildQuestionMergeKey).filter(Boolean));
+    let addedCount = 0;
+
+    (parsedQuestions || []).forEach((question) => {
+      const key = buildQuestionMergeKey(question);
+      if (key && seenKeys.has(key)) return;
+      if (key) seenKeys.add(key);
+      mergedQuestions.push(createPendingQuestion(question, mergedQuestions.length));
+      addedCount += 1;
+    });
+
+    return {
+      questions: reindexQuestions(mergedQuestions),
+      addedCount
+    };
+  }
+
+  async function executeRuleReparse({ shouldAutoAnalyze = true, queued = false } = {}) {
+    const appendMode = await loadRuleParseAppendMode();
+    const parsedQuestions = await D.parseExamQuestionsToList();
+
+    state.pendingRuleReparse = false;
+
+    if (!parsedQuestions || parsedQuestions.length === 0) {
+      UI.updateControls();
+      UI.updateProgress();
+
+      if (appendMode && state.questionsData.length > 0) {
+        UI.showPanelMessage(getMessage('panelRuleParseEmpty'));
+        return { restarted: false };
+      }
+
+      state.questionsData = [];
+      UI.createPanel(0);
+      UI.showPanelMessage(getMessage('panelRuleParseEmpty'));
+      return { restarted: false };
+    }
+
+    if (appendMode) {
+      const existingCount = state.questionsData.length;
+      const existingFinished = state.questionsData.length > 0
+        && state.questionsData.every(question => question.status === 'done' || question.status === 'error');
+      const { questions, addedCount } = mergeParsedQuestions(state.questionsData, parsedQuestions);
+      if (addedCount === 0) {
+        UI.updateControls();
+        UI.updateProgress();
+        UI.showPanelMessage(getMessage('panelRuleParseNoNewQuestions'));
+        return { restarted: false };
+      }
+
+      state.questionsData = questions;
+      UI.createPanel(state.questionsData.length);
+      UI.renderCards();
+      UI.updateControls();
+      UI.updateProgress();
+      UI.showPanelMessage(getMessage('panelRuleParseAppended', [String(addedCount)]));
+
+      if (shouldAutoAnalyze && !state.isPaused && !state.isAnalyzing) {
+        await analyzeAllQuestions({ startIndex: existingFinished ? existingCount : 0 });
+      }
+      return { restarted: false };
+    }
+
+    state.questionsData = reindexQuestions(parsedQuestions);
+    UI.createPanel(state.questionsData.length);
+    UI.renderCards();
+    UI.updateControls();
+    UI.updateProgress();
+
+    if (queued) {
+      state.analysisRunId += 1;
+      state.isAnalyzing = false;
+      await runAnalysisFlow();
+      return { restarted: true };
+    }
+
+    if (shouldAutoAnalyze && !state.isPaused) {
+      await runAnalysisFlow();
+    }
+    return { restarted: false };
+  }
+
+  async function processPendingRuleReparse(runId) {
+    if (!state.pendingRuleReparse || runId !== state.analysisRunId) return false;
+    const { restarted } = await executeRuleReparse({ shouldAutoAnalyze: false, queued: true });
+    return restarted;
   }
 
   // ===== 分析控制 =====
@@ -250,15 +371,16 @@
 
       if (!bankMatched) {
         await streamQuestion(question, index, runId, options.forceSearch || false);
-        return;
       }
     } catch (error) {
       if (runId !== state.analysisRunId) return;
       question.status = 'error';
       UI.updateCardBody(index, getMessage('panelCommError', [UI.escapeHtml(error.message)]), true);
     } finally {
-      if (runId === state.analysisRunId && question.status !== 'loading') {
-        finalizeQuestion(index, wasPaused, runId);
+      if (runId !== state.analysisRunId || question.status === 'loading') return;
+      finalizeQuestion(index, wasPaused, runId);
+      if (state.pendingRuleReparse) {
+        await executeRuleReparse({ shouldAutoAnalyze: !state.isPaused, queued: false });
       }
     }
   }
@@ -267,8 +389,9 @@
    * 分析所有题目（优先搜索题库）
    * @param {Object} options
    * @param {boolean} options.resume - 是否从上次暂停处继续
+   * @param {number} options.startIndex - 指定起始题号
    */
-  async function analyzeAllQuestions({ resume = false } = {}) {
+  async function analyzeAllQuestions({ resume = false, startIndex: explicitStartIndex = null } = {}) {
     if (state.questionsData.length === 0) return;
     if (state.isAnalyzing) return;
 
@@ -279,7 +402,9 @@
     UI.updateProgress();
 
     let startIndex = 0;
-    if (resume) {
+    if (typeof explicitStartIndex === 'number' && explicitStartIndex >= 0) {
+      startIndex = explicitStartIndex;
+    } else if (resume) {
       startIndex = getResumeStartIndex();
     }
 
@@ -303,9 +428,9 @@
         const bankMatched = await resolveQuestionFromBank(question, index, runId);
         if (runId !== state.analysisRunId) return;
 
-        if (bankMatched) continue;
-
-        await streamQuestion(question, index, runId);
+        if (!bankMatched) {
+          await streamQuestion(question, index, runId);
+        }
 
         if (runId !== state.analysisRunId) return;
       } catch (error) {
@@ -313,6 +438,10 @@
         question.status = 'error';
         UI.updateCardBody(index, getMessage('panelCommError', [UI.escapeHtml(error.message)]), true);
       }
+
+      if (runId !== state.analysisRunId) return;
+      const restarted = await processPendingRuleReparse(runId);
+      if (restarted) return;
     }
 
     if (runId !== state.analysisRunId) return;
@@ -351,6 +480,7 @@
     // 使进行中的分析流程立即失效并同步收尾，避免点击"继续"时旧流程仍占用状态而无法触发答题
     state.analysisRunId += 1;
     state.isAnalyzing = false;
+    state.pendingRuleReparse = false;
     saveHistory();
 
     UI.updateControls();
@@ -365,16 +495,17 @@
   }
 
   async function reparseAndAnalyze() {
-    if (state.isAnalyzing || state.pickerState) return;
-    const success = await D.parseExamQuestions();
-    if (!success) {
-      state.questionsData = [];
-      UI.createPanel(0);
-      UI.showPanelMessage(getMessage('panelRuleParseEmpty'));
+    if (state.pickerState) return;
+
+    if (state.isAnalyzing) {
+      if (state.pendingRuleReparse) return;
+      state.pendingRuleReparse = true;
+      UI.updateControls();
+      UI.showPanelMessage(getMessage('panelRuleParseQueued'));
       return;
     }
 
-    await runAnalysisFlow();
+    await executeRuleReparse({ shouldAutoAnalyze: !state.isPaused, queued: false });
   }
 
   /**

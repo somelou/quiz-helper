@@ -630,7 +630,10 @@
 
     if (reparseBtn) {
       reparseBtn.style.display = state.currentRule ? '' : 'none';
-      reparseBtn.disabled = state.isAnalyzing || state.pickerState !== null;
+      reparseBtn.textContent = state.pendingRuleReparse
+        ? getMessage('panelRuleParseQueuedBtn')
+        : getMessage('panelRuleParse');
+      reparseBtn.disabled = state.pendingRuleReparse || state.pickerState !== null;
       reparseBtn.classList.toggle('active', !!state.currentRule && !state.pickerState);
     }
 
@@ -985,6 +988,7 @@
     panelThemeRoot = null;
     state.isAnalyzing = false;
     state.isPaused = false;
+    state.pendingRuleReparse = false;
     state.analysisRunId += 1;
     if (clearData) {
       state.questionsData = [];

@@ -182,6 +182,12 @@
   "optionsAllowedDomainsHint": {
     "message": "插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效"
   },
+  "optionsRuleParseAppendMode": {
+    "message": "规则解析追加模式"
+  },
+  "optionsRuleParseAppendModeHint": {
+    "message": "开启后，题面板进行“规则解析”时，新题会追加到现有题目下方。"
+  },
   "optionsSaveSettings": {
     "message": "保存设置"
   },
@@ -1285,6 +1291,18 @@
   },
   "panelRuleParse": {
     "message": "规则解析"
+  },
+  "panelRuleParseQueued": {
+    "message": "规则解析已排队，当前题完成后执行。"
+  },
+  "panelRuleParseQueuedBtn": {
+    "message": "已排队"
+  },
+  "panelRuleParseAppended": {
+    "message": "规则解析已追加 $1 道新题。"
+  },
+  "panelRuleParseNoNewQuestions": {
+    "message": "规则解析未发现新题，已保留当前题目列表。"
   },
   "panelRuleParseEmpty": {
     "message": "规则解析未提取到题目。点击“AI 选区解析”后，在页面中点选包含题目的区域，再由 AI 做局部解析。"

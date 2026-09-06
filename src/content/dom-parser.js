@@ -439,28 +439,37 @@
   }
 
   /**
+   * 解析页面题目并返回结果（结构化提取 → 文本提取降级）
+   * @returns {Promise<Array|null>}
+   */
+  async function parseExamQuestionsToList() {
+    state.currentRule = await globalThis.QuizHelperApp.getDomainRule();
+    if (!state.currentRule) return null;
+
+    const preciseQuestions = extractExamQuestions();
+    if (preciseQuestions && preciseQuestions.length > 0) {
+      await globalThis.QuizHelperApp.incrementRuleUseCount(state.currentRule);
+      return preciseQuestions;
+    }
+
+    const rawText = extractQuestionText();
+    if (!rawText || rawText.length < 5) return null;
+
+    const generalQuestions = splitQuestions(rawText);
+    if (!generalQuestions.length) return null;
+
+    await globalThis.QuizHelperApp.incrementRuleUseCount(state.currentRule);
+    return generalQuestions;
+  }
+
+  /**
    * 解析页面题目（结构化提取 → 文本提取降级）
    * @returns {Promise<boolean>}
    */
   async function parseExamQuestions() {
-    state.currentRule = await globalThis.QuizHelperApp.getDomainRule();
-    if (!state.currentRule) return false;
-
-    const preciseQuestions = extractExamQuestions();
-    if (preciseQuestions && preciseQuestions.length > 0) {
-      state.questionsData = preciseQuestions;
-      await globalThis.QuizHelperApp.incrementRuleUseCount(state.currentRule);
-      return true;
-    }
-
-    const rawText = extractQuestionText();
-    if (!rawText || rawText.length < 5) return false;
-
-    const generalQuestions = splitQuestions(rawText);
-    if (!generalQuestions.length) return false;
-
-    state.questionsData = generalQuestions;
-    await globalThis.QuizHelperApp.incrementRuleUseCount(state.currentRule);
+    const questions = await parseExamQuestionsToList();
+    if (!questions || questions.length === 0) return false;
+    state.questionsData = questions;
     return true;
   }
 
@@ -471,6 +480,7 @@
     sliceWithTail,
     sanitizeOuterHTML,
     getSelectors,
+    parseExamQuestionsToList,
     parseExamQuestions
   };
 })();

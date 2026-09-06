@@ -182,6 +182,12 @@
   "optionsAllowedDomainsHint": {
     "message": "The extension only works on the listed domains, one per line; leave blank to work on all sites"
   },
+  "optionsRuleParseAppendMode": {
+    "message": "Append Rule Parsing"
+  },
+  "optionsRuleParseAppendModeHint": {
+    "message": "When enabled, rule parsing in the answering panel appends new questions below the current list."
+  },
   "optionsSaveSettings": {
     "message": "Save Settings"
   },
@@ -1285,6 +1291,18 @@
   },
   "panelRuleParse": {
     "message": "Rule Parsing"
+  },
+  "panelRuleParseQueued": {
+    "message": "Rule parsing has been queued and will run after the current question finishes."
+  },
+  "panelRuleParseQueuedBtn": {
+    "message": "Queued"
+  },
+  "panelRuleParseAppended": {
+    "message": "Rule parsing appended $1 new questions."
+  },
+  "panelRuleParseNoNewQuestions": {
+    "message": "Rule parsing found no new questions. The current list was kept."
   },
   "panelRuleParseEmpty": {
     "message": "Rule parsing found no questions. Click “AI Select Area” and pick a region containing questions on the page; AI will then parse it locally."

@@ -22,6 +22,7 @@ function initBackup({
         'extra_context_prompt',
         'allowed_domains',
         'panel_shortcut',
+        'rule_parse_append_mode',
         'theme_mode'
       ]
     },

@@ -106,6 +106,16 @@ exam.example.com"></textarea>
           <div class="hint" data-i18n="optionsAllowedDomainsHint">插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效</div>
         </div>
 
+
+        <div class="rule-form-group">
+          <label for="ruleParseAppendMode" data-i18n="optionsRuleParseAppendMode">规则解析追加模式</label>
+          <label class="switch">
+            <input type="checkbox" id="ruleParseAppendMode">
+            <span class="switch-slider"></span>
+          </label>
+          <div class="hint" data-i18n="optionsRuleParseAppendModeHint">开启后，题面板进行“规则解析”时，新题会追加到现有题目下方。</div>
+        </div>
+
         <div class="actions">
           <button class="btn-primary" id="saveBtn"><span data-icon="check" aria-hidden="true"></span><span data-i18n="optionsSaveSettings">保存设置</span></button>
           <button class="btn-secondary" id="resetBtn"><span data-i18n="optionsRestoreDefaults">恢复默认</span></button>

@@ -1,7 +1,7 @@
 // 配置管理模块 - 助手设置 + 提示词配置
 
 function initConfig({
-  extraContextPromptInput, allowedDomainsInput,
+  extraContextPromptInput, allowedDomainsInput, ruleParseAppendModeInput,
   systemPromptTextareas, promptTypeTabs, promptResetBtns,
   saveBtn, resetBtn,
   questionBankEnabledInput, getCurrentShortcut, resetShortcut,
@@ -54,7 +54,7 @@ function initConfig({
 
     const config = await chrome.storage.local.get([
       'custom_system_prompts', 'extra_context_prompt', 'allowed_domains',
-      'panel_shortcut', 'question_bank_enabled'
+      'panel_shortcut', 'question_bank_enabled', 'rule_parse_append_mode'
     ]);
 
     const customPrompts = config.custom_system_prompts || {};
@@ -66,6 +66,9 @@ function initConfig({
 
     extraContextPromptInput.value = config.extra_context_prompt || '';
     allowedDomainsInput.value = (config.allowed_domains || []).join('\n');
+    if (ruleParseAppendModeInput) {
+      ruleParseAppendModeInput.checked = config.rule_parse_append_mode === true;
+    }
     questionBankEnabledInput.checked = config.question_bank_enabled !== false;
 
     switchPromptType(currentPromptType);
@@ -96,6 +99,9 @@ function initConfig({
   });
   extraContextPromptInput.addEventListener('blur', autoSave);
   allowedDomainsInput.addEventListener('blur', autoSave);
+  if (ruleParseAppendModeInput) {
+    ruleParseAppendModeInput.addEventListener('change', autoSave);
+  }
 
   // 收集表单值并写入存储（「保存设置」与自动保存共用）
   async function persistSettings() {
@@ -116,7 +122,8 @@ function initConfig({
       custom_system_prompts: customPrompts,
       extra_context_prompt: extraContextPromptInput.value.trim(),
       allowed_domains: domains,
-      panel_shortcut: getCurrentShortcut()
+      panel_shortcut: getCurrentShortcut(),
+      rule_parse_append_mode: ruleParseAppendModeInput?.checked === true
     });
   }
 
@@ -140,12 +147,13 @@ function initConfig({
     });
     extraContextPromptInput.value = '';
     allowedDomainsInput.value = '';
+    if (ruleParseAppendModeInput) ruleParseAppendModeInput.checked = false;
     questionBankEnabledInput.checked = true;
     resetShortcut();
 
     await chrome.storage.local.remove([
       'custom_system_prompts', 'extra_context_prompt', 'allowed_domains',
-      'panel_shortcut', 'question_bank_enabled', 'theme_mode'
+      'panel_shortcut', 'question_bank_enabled', 'rule_parse_append_mode', 'theme_mode'
     ]);
 
     showStatus(getMessage('optionsSettingsReset'));

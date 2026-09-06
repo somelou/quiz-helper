@@ -275,6 +275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const configMod = initConfig({
     extraContextPromptInput: document.getElementById('extraContextPrompt'),
     allowedDomainsInput: document.getElementById('allowedDomains'),
+    ruleParseAppendModeInput: document.getElementById('ruleParseAppendMode'),
     systemPromptTextareas: {
       single: document.getElementById('systemPrompt-single'),
       multiple: document.getElementById('systemPrompt-multiple'),

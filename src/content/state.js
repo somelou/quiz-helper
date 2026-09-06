@@ -12,6 +12,7 @@
     isPaused: false,
     analysisRunId: 0,
     pickerState: null,
+    pendingRuleReparse: false,
     panelShortcut: null,
     themeMode: 'system',
     isDarkMode: false,
