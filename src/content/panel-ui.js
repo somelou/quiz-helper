@@ -928,7 +928,7 @@
         globalThis.QuizHelperAnalyzer.togglePauseAnalysis();
       });
       state.shadowRoot.getElementById('qh-retry').addEventListener('click', () => {
-        globalThis.QuizHelperAnalyzer.restartAnalysis();
+        globalThis.QuizHelperAnalyzer.reparseAndAnalyze();
       });
       miniBar.addEventListener('click', restorePanel);
 
