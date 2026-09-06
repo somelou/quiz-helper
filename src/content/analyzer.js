@@ -819,11 +819,13 @@
   }
 
   /**
-   * 使用 AI 从选中的元素中提取题目
+   * 使用 AI 从目标元素中提取题目
    * @param {Element} element
+   * @param {Object} [options]
+   * @param {string} [options.loadingMessage] - 自定义加载提示；未传时按现有规则自动选择
    * @returns {Promise<boolean>}
    */
-  async function aiParseQuestionsFromElement(element) {
+  async function aiParseQuestionsFromElement(element, options = {}) {
     if (!element) return false;
 
     const selectedText = D.getCleanText(element);
@@ -834,9 +836,9 @@
 
     // 当前域名已有规则时，提示用户正在进行合并优化
     const existingRule = state.currentRule;
-    const loadingMsg = existingRule
+    const loadingMsg = options.loadingMessage || (existingRule
       ? getMessage('panelAiOptimizingRule', [location.hostname])
-      : getMessage('panelAiParsingSelection');
+      : getMessage('panelAiParsingSelection'));
     UI.ensurePanel(state.questionsData.length || 1);
     UI.showPanelMessage(loadingMsg);
 
@@ -919,12 +921,11 @@
       return;
     }
 
-    UI.showPanelMessage(getMessage('panelAiParsingPage'));
-
-    const success = await aiParseQuestionsFromElement(target);
+    const success = await aiParseQuestionsFromElement(target, {
+      loadingMessage: getMessage('panelAiParsingPage')
+    });
     if (!success) {
       state.questionsData = [];
-      UI.createPanel(0);
       UI.showPanelMessage(getMessage('panelAiParseFailedAuto'));
       return;
     }
@@ -940,7 +941,6 @@
     const success = await aiParseQuestionsFromElement(element);
     if (!success) {
       state.questionsData = [];
-      UI.createPanel(0);
       UI.showPanelMessage(getMessage('panelAiParseFailedRegion'));
       return;
     }

@@ -78,15 +78,26 @@
     }
   }
 
+  // 可编辑区域选择器：标准表单控件 + contenteditable + 常见富文本/代码编辑器容器
+  // 富文本编辑器（Monaco/CodeMirror 等）内部多为普通 div，需一并覆盖避免按其组合键时误弹面板
+  const EDITABLE_SELECTOR = [
+    'input', 'textarea', 'select',
+    '[contenteditable]',
+    '[role="textbox"]', '[role="searchbox"]',
+    '.monaco-editor', '.cm-editor', '.CodeMirror'
+  ].join(',');
+
   function isEditableTarget(target) {
     const element = target instanceof Element ? target : target?.parentElement;
     if (!element) return false;
     // closest 已包含元素自身，无需额外的 matches 判断
-    return !!element.closest('input, textarea, select, [contenteditable="true"]');
+    return !!element.closest(EDITABLE_SELECTOR);
   }
 
   async function handleGlobalShortcut(event) {
     if (event.repeat) return;
+    // 输入法组合状态（含 keyCode 229 兼容场景）下不响应，避免中文输入时误触
+    if (event.isComposing || event.keyCode === 229) return;
     if (state.pickerState) return;
     if (!shortcutMatches(event, state.panelShortcut)) return;
     if (isEditableTarget(event.target)) return;
