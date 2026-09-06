@@ -96,6 +96,8 @@
 
   async function handleGlobalShortcut(event) {
     if (event.repeat) return;
+    // 仅响应浏览器确认的真实用户输入，避免网页脚本合成键盘事件误触发面板
+    if (event.isTrusted !== true) return;
     // 输入法组合状态（含 keyCode 229 兼容场景）下不响应，避免中文输入时误触
     if (event.isComposing || event.keyCode === 229) return;
     if (state.pickerState) return;
