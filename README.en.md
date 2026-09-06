@@ -174,5 +174,5 @@ If you'd like to dig deeper, start with these directories:
 ## Current Version
 
 - Manifest Version: `3`
-- Extension Version: `3.3.0`
+- Extension Version: `3.3.1`
 
