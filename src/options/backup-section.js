@@ -21,6 +21,7 @@ function initBackup({
         'custom_system_prompts',
         'extra_context_prompt',
         'allowed_domains',
+        'blocked_domains',
         'panel_shortcut',
         'rule_parse_append_mode',
         'theme_mode'

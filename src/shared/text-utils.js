@@ -38,7 +38,7 @@
   /**
    * 判断主机名是否匹配目标域名（精确匹配或子域名后缀匹配）
    * @param {string} hostname - 当前页面主机名
-   * @param {string} domain - 白名单/规则域名
+   * @param {string} domain - 白名单/黑名单/规则域名
    * @returns {boolean}
    */
   function isDomainMatch(hostname, domain) {

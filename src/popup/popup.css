@@ -92,6 +92,18 @@ body {
   box-shadow: var(--shadow-primary);
 }
 .btn-primary:hover { box-shadow: 0 4px 14px rgba(99,102,241,0.36); }
+.btn:disabled,
+.btn.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
+  box-shadow: none;
+}
+.btn-primary:disabled,
+.btn-primary.is-disabled {
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-text-muted);
+}
 .btn svg {
   width: 16px;
   height: 16px;
@@ -356,6 +368,9 @@ body {
   line-height: 1.6;
 }
 .hint strong { color: var(--color-primary); letter-spacing: 1px; }
+.hint.hint-disabled {
+  color: var(--color-text-secondary);
+}
 
 /* ===== 底部：提示 + 版本标签同行 ===== */
 .popup-footer {

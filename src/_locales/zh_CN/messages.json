@@ -98,6 +98,9 @@
   "popupShortcutHint": {
     "message": "唤起助手快捷键：<strong>$1</strong>"
   },
+  "popupDomainDisabledHint": {
+    "message": "此页面不生效"
+  },
   "popupSelectModel": {
     "message": "选择模型"
   },
@@ -181,6 +184,12 @@
   },
   "optionsAllowedDomainsHint": {
     "message": "插件仅在列出的域名中生效，每行填写一个域名；留空则默认对所有网站生效"
+  },
+  "optionsBlockedDomains": {
+    "message": "生效域名黑名单"
+  },
+  "optionsBlockedDomainsHint": {
+    "message": "插件在这些域名中完全不生效，每行填写一个域名；黑名单优先于白名单"
   },
   "optionsRuleParseAppendMode": {
     "message": "规则解析追加模式"
@@ -1246,6 +1255,9 @@
   },
   "panelDomainNotAllowed": {
     "message": "当前域名不在白名单中，请在设置页面添加生效域名。"
+  },
+  "panelDomainBlocked": {
+    "message": "当前域名已被加入黑名单，插件在该域名下不生效。"
   },
   "panelEmptyNoQuestions": {
     "message": "<div class=\"qh-empty\">未提取到题目。可先尝试规则解析，或点击“AI 选区解析”后在页面中点选一块题目区域。</div>"

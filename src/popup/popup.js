@@ -12,6 +12,7 @@ globalThis.QuizHelperI18n.localizePage(document);
 
 const popupHint = document.getElementById('popupHint');
 const themeToggle = document.getElementById('themeToggle');
+const analyzeBtn = document.getElementById('analyzeBtn');
 
 // 版本号：与设置页"关于"一致，从 manifest 读取
 const popupVersion = document.getElementById('popupVersion');
@@ -26,7 +27,7 @@ let currentTheme = 'system';
 const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 loadTheme();
-loadShortcutDisplay();
+loadPopupAvailability();
 loadStatusPanel();
 
 // 主题切换按钮事件
@@ -68,7 +69,8 @@ function applyTheme() {
 }
 
 // 分析当前页面按钮
-document.getElementById('analyzeBtn').addEventListener('click', async () => {
+analyzeBtn.addEventListener('click', async () => {
+  if (analyzeBtn.disabled) return;
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
 
@@ -100,18 +102,77 @@ document.getElementById('optionsBtn').addEventListener('click', () => {
   window.close();
 });
 
-async function loadShortcutDisplay() {
-  const config = await chrome.storage.local.get([STORAGE_KEYS.PANEL_SHORTCUT]);
+/**
+ * 复用 content 侧 checkDomainAllowed 的同一规则语义：
+ * - 黑名单优先
+ * - 白名单为空时默认放行
+ * - 白名单非空且未命中时拒绝
+ * @param {string} hostname
+ * @param {string[]} allowedDomains
+ * @param {string[]} blockedDomains
+ * @returns {{ allowed: boolean, reason?: 'blocked' | 'not_in_allowlist' }}
+ */
+function resolveDomainAvailability(hostname, allowedDomains, blockedDomains) {
+  if (!hostname) return { allowed: true };
+
+  const blocked = (blockedDomains || []).some(domain => isDomainMatch(hostname, domain));
+  if (blocked) return { allowed: false, reason: 'blocked' };
+
+  const allowlist = allowedDomains || [];
+  if (allowlist.length === 0) return { allowed: true };
+
+  const allowed = allowlist.some(domain => isDomainMatch(hostname, domain));
+  return allowed ? { allowed: true } : { allowed: false, reason: 'not_in_allowlist' };
+}
+
+function renderPopupHint(shortcutConfig, availability) {
+  popupHint.classList.toggle('hint-disabled', availability.allowed === false);
+  if (availability.allowed === false) {
+    popupHint.textContent = getMessage('popupDomainDisabledHint');
+    return;
+  }
+
   let shortcutText = getMessage('popupNoShortcut');
   // 注意：这里不能改成 `!= null`。存储中从未设置该键时值为 undefined，此时插件实际
   // 使用默认快捷键（见 content 侧 resolvePanelShortcut），应显示默认值；
   // 仅当用户显式清空（值为 null）时才显示"未设置"。
-  if (config[STORAGE_KEYS.PANEL_SHORTCUT] !== null) {
-    const shortcut = normalizeShortcutConfig(config[STORAGE_KEYS.PANEL_SHORTCUT]) || { ...DEFAULT_SHORTCUT };
+  if (shortcutConfig !== null) {
+    const shortcut = normalizeShortcutConfig(shortcutConfig) || { ...DEFAULT_SHORTCUT };
     shortcutText = formatShortcutDisplay(shortcut);
   }
 
   popupHint.innerHTML = getMessage('popupShortcutHint', [shortcutText]);
+}
+
+function applyAnalyzeAvailability(availability) {
+  const disabled = availability.allowed === false;
+  analyzeBtn.disabled = disabled;
+  analyzeBtn.classList.toggle('is-disabled', disabled);
+}
+
+async function loadPopupAvailability() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let hostname = '';
+  try {
+    hostname = tab?.url ? new URL(tab.url).hostname : '';
+  } catch (e) {
+    hostname = '';
+  }
+
+  const config = await chrome.storage.local.get([
+    STORAGE_KEYS.PANEL_SHORTCUT,
+    STORAGE_KEYS.ALLOWED_DOMAINS,
+    STORAGE_KEYS.BLOCKED_DOMAINS
+  ]);
+
+  const availability = resolveDomainAvailability(
+    hostname,
+    config[STORAGE_KEYS.ALLOWED_DOMAINS] || [],
+    config[STORAGE_KEYS.BLOCKED_DOMAINS] || []
+  );
+
+  applyAnalyzeAvailability(availability);
+  renderPopupHint(config[STORAGE_KEYS.PANEL_SHORTCUT], availability);
 }
 
 // ===== 状态面板 =====

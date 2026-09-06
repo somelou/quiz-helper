@@ -4,6 +4,7 @@
     ACTIVE_BANK_IDS: 'active_bank_ids',
     ACTIVE_MODEL_ID: 'active_model_id',
     ALLOWED_DOMAINS: 'allowed_domains',
+    BLOCKED_DOMAINS: 'blocked_domains',
     API_KEY: 'api_key',
     API_URL: 'api_url',
     CUSTOM_SYSTEM_PROMPTS: 'custom_system_prompts',

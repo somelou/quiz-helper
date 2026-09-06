@@ -98,6 +98,9 @@
   "popupShortcutHint": {
     "message": "Assistant shortcut: <strong>$1</strong>"
   },
+  "popupDomainDisabledHint": {
+    "message": "Disabled on this page"
+  },
   "popupSelectModel": {
     "message": "Select model"
   },
@@ -1246,6 +1249,9 @@
   },
   "panelDomainNotAllowed": {
     "message": "The current domain is not on the allowlist. Add it in the settings page to enable it."
+  },
+  "panelDomainBlocked": {
+    "message": "The current domain is on the blocklist, the extension is disabled on this domain."
   },
   "panelEmptyNoQuestions": {
     "message": "<div class=\"qh-empty\">No questions extracted. Try rule-based parsing first, or click “AI Select Area” and then pick a question region on the page.</div>"

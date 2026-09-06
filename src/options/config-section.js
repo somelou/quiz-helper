@@ -1,13 +1,14 @@
 // 配置管理模块 - 助手设置 + 提示词配置
 
 function initConfig({
-  extraContextPromptInput, allowedDomainsInput, ruleParseAppendModeInput,
+  extraContextPromptInput, allowedDomainsInput, blockedDomainsInput, ruleParseAppendModeInput,
   systemPromptTextareas, promptTypeTabs, promptResetBtns,
   saveBtn, resetBtn,
   questionBankEnabledInput, getCurrentShortcut, resetShortcut,
   loadQuestionBanks
 }) {
   const { safeSet } = globalThis.QuizHelperStorageUtils;
+  const { STORAGE_KEYS } = globalThis.QuizHelperConstants;
   let currentPromptType = 'single';
   let defaultPrompts = {};
 
@@ -53,23 +54,29 @@ function initConfig({
     await loadDefaultPrompts();
 
     const config = await chrome.storage.local.get([
-      'custom_system_prompts', 'extra_context_prompt', 'allowed_domains',
-      'panel_shortcut', 'question_bank_enabled', 'rule_parse_append_mode'
+      STORAGE_KEYS.CUSTOM_SYSTEM_PROMPTS,
+      STORAGE_KEYS.EXTRA_CONTEXT_PROMPT,
+      STORAGE_KEYS.ALLOWED_DOMAINS,
+      STORAGE_KEYS.BLOCKED_DOMAINS,
+      STORAGE_KEYS.PANEL_SHORTCUT,
+      STORAGE_KEYS.QUESTION_BANK_ENABLED,
+      STORAGE_KEYS.RULE_PARSE_APPEND_MODE
     ]);
 
-    const customPrompts = config.custom_system_prompts || {};
+    const customPrompts = config[STORAGE_KEYS.CUSTOM_SYSTEM_PROMPTS] || {};
     Object.keys(systemPromptTextareas).forEach(type => {
       if (systemPromptTextareas[type]) {
         systemPromptTextareas[type].value = customPrompts[type] || '';
       }
     });
 
-    extraContextPromptInput.value = config.extra_context_prompt || '';
-    allowedDomainsInput.value = (config.allowed_domains || []).join('\n');
+    extraContextPromptInput.value = config[STORAGE_KEYS.EXTRA_CONTEXT_PROMPT] || '';
+    allowedDomainsInput.value = (config[STORAGE_KEYS.ALLOWED_DOMAINS] || []).join('\n');
+    blockedDomainsInput.value = (config[STORAGE_KEYS.BLOCKED_DOMAINS] || []).join('\n');
     if (ruleParseAppendModeInput) {
-      ruleParseAppendModeInput.checked = config.rule_parse_append_mode === true;
+      ruleParseAppendModeInput.checked = config[STORAGE_KEYS.RULE_PARSE_APPEND_MODE] === true;
     }
-    questionBankEnabledInput.checked = config.question_bank_enabled !== false;
+    questionBankEnabledInput.checked = config[STORAGE_KEYS.QUESTION_BANK_ENABLED] !== false;
 
     switchPromptType(currentPromptType);
   }
@@ -93,22 +100,26 @@ function initConfig({
     });
   }
 
-  // 输入区失焦自动保存：提示词 / 补充提示词 / 白名单
+  // 输入区失焦自动保存：提示词 / 补充提示词 / 白名单 / 黑名单
   Object.values(systemPromptTextareas).forEach(textarea => {
     if (textarea) textarea.addEventListener('blur', autoSave);
   });
   extraContextPromptInput.addEventListener('blur', autoSave);
   allowedDomainsInput.addEventListener('blur', autoSave);
+  blockedDomainsInput.addEventListener('blur', autoSave);
   if (ruleParseAppendModeInput) {
     ruleParseAppendModeInput.addEventListener('change', autoSave);
   }
 
   // 收集表单值并写入存储（「保存设置」与自动保存共用）
   async function persistSettings() {
-    const domains = allowedDomainsInput.value
+    const parseDomains = input => input.value
       .split('\n')
       .map(d => d.trim())
       .filter(d => d.length > 0);
+
+    const domains = parseDomains(allowedDomainsInput);
+    const blockedDomains = parseDomains(blockedDomainsInput);
 
     const customPrompts = {};
     Object.keys(systemPromptTextareas).forEach(type => {
@@ -119,11 +130,12 @@ function initConfig({
     });
 
     await safeSet({
-      custom_system_prompts: customPrompts,
-      extra_context_prompt: extraContextPromptInput.value.trim(),
-      allowed_domains: domains,
-      panel_shortcut: getCurrentShortcut(),
-      rule_parse_append_mode: ruleParseAppendModeInput?.checked === true
+      [STORAGE_KEYS.CUSTOM_SYSTEM_PROMPTS]: customPrompts,
+      [STORAGE_KEYS.EXTRA_CONTEXT_PROMPT]: extraContextPromptInput.value.trim(),
+      [STORAGE_KEYS.ALLOWED_DOMAINS]: domains,
+      [STORAGE_KEYS.BLOCKED_DOMAINS]: blockedDomains,
+      [STORAGE_KEYS.PANEL_SHORTCUT]: getCurrentShortcut(),
+      [STORAGE_KEYS.RULE_PARSE_APPEND_MODE]: ruleParseAppendModeInput?.checked === true
     });
   }
 
@@ -132,9 +144,26 @@ function initConfig({
     persistSettings().catch(() => {});
   }
 
+  // 域名输入实时保存（防抖）：刷新/关页时 blur 不触发会丢内容，输入停顿即落盘
+  let domainsSaveTimer = null;
+  function scheduleDomainsSave() {
+    clearTimeout(domainsSaveTimer);
+    domainsSaveTimer = setTimeout(autoSave, 500);
+  }
+  allowedDomainsInput.addEventListener('input', scheduleDomainsSave);
+  blockedDomainsInput.addEventListener('input', scheduleDomainsSave);
+
   saveBtn.addEventListener('click', async () => {
-    await persistSettings();
-    showStatus(getMessage('optionsSettingsSaved'));
+    try {
+      await persistSettings();
+      showStatus(getMessage('optionsSettingsSaved'));
+      // 诊断：输出本次保存的域名配置，便于定位保存链路问题
+      const diag = await chrome.storage.local.get([STORAGE_KEYS.ALLOWED_DOMAINS, STORAGE_KEYS.BLOCKED_DOMAINS]);
+      console.log('[QuizHelper] 保存完成，存储值 =', JSON.stringify(diag));
+    } catch (err) {
+      console.error('[QuizHelper] 保存设置失败:', err);
+      globalThis.QuizHelperMessage.error('保存失败：' + ((err && err.message) || err));
+    }
   });
 
   resetBtn.addEventListener('click', async () => {
@@ -147,13 +176,20 @@ function initConfig({
     });
     extraContextPromptInput.value = '';
     allowedDomainsInput.value = '';
+    blockedDomainsInput.value = '';
     if (ruleParseAppendModeInput) ruleParseAppendModeInput.checked = false;
     questionBankEnabledInput.checked = true;
     resetShortcut();
 
     await chrome.storage.local.remove([
-      'custom_system_prompts', 'extra_context_prompt', 'allowed_domains',
-      'panel_shortcut', 'question_bank_enabled', 'rule_parse_append_mode', 'theme_mode'
+      STORAGE_KEYS.CUSTOM_SYSTEM_PROMPTS,
+      STORAGE_KEYS.EXTRA_CONTEXT_PROMPT,
+      STORAGE_KEYS.ALLOWED_DOMAINS,
+      STORAGE_KEYS.BLOCKED_DOMAINS,
+      STORAGE_KEYS.PANEL_SHORTCUT,
+      STORAGE_KEYS.QUESTION_BANK_ENABLED,
+      STORAGE_KEYS.RULE_PARSE_APPEND_MODE,
+      STORAGE_KEYS.THEME_MODE
     ]);
 
     showStatus(getMessage('optionsSettingsReset'));

@@ -130,10 +130,26 @@
   }
 
   /**
-   * 检查当前域名是否在白名单中
+   * 检查当前域名是否被黑名单拦截
+   * @returns {Promise<boolean>}
+   */
+  async function isDomainBlocked() {
+    const config = await chrome.storage.local.get(['blocked_domains']);
+    const domains = config.blocked_domains || [];
+    if (domains.length === 0) return false;
+    const hostname = location.hostname;
+    return domains.some(domain => isDomainMatch(hostname, domain));
+  }
+
+  /**
+   * 检查当前域名是否允许生效：黑名单优先于白名单
+   * - 命中黑名单 → 直接拒绝（即使同时命中白名单）
+   * - 白名单为空 → 默认放行
+   * - 白名单非空且未命中 → 拒绝
    * @returns {Promise<boolean>}
    */
   async function checkDomainAllowed() {
+    if (await isDomainBlocked()) return false;
     const config = await chrome.storage.local.get(['allowed_domains']);
     const domains = config.allowed_domains || [];
     if (domains.length === 0) return true;
@@ -261,7 +277,10 @@
     const allowed = await checkDomainAllowed();
     if (!allowed) {
       globalThis.QuizHelperPanelUI.createPanel(0);
-      globalThis.QuizHelperPanelUI.showPanelMessage(getMessage('panelDomainNotAllowed'));
+      const blocked = await isDomainBlocked();
+      globalThis.QuizHelperPanelUI.showPanelMessage(
+        blocked ? getMessage('panelDomainBlocked') : getMessage('panelDomainNotAllowed')
+      );
       return;
     }
 
