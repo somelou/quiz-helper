@@ -92,7 +92,7 @@
 
       state.questionsData = [];
       UI.createPanel(0);
-      UI.showPanelMessage(getMessage('panelRuleParseEmpty'));
+      await UI.showPanelMessage(getMessage('panelRuleParseEmpty'));
       return { restarted: false };
     }
 
@@ -104,7 +104,7 @@
       if (addedCount === 0) {
         UI.updateControls();
         UI.updateProgress();
-        UI.showPanelMessage(getMessage('panelRuleParseNoNewQuestions'));
+        await UI.showPanelMessage(getMessage('panelRuleParseNoNewQuestions'));
         return { restarted: false };
       }
 
@@ -113,7 +113,7 @@
       UI.renderCards();
       UI.updateControls();
       UI.updateProgress();
-      UI.showPanelMessage(getMessage('panelRuleParseAppended', [String(addedCount)]));
+      await UI.showPanelMessage(getMessage('panelRuleParseAppended', [String(addedCount)]));
 
       if (shouldAutoAnalyze && !state.isPaused && !state.isAnalyzing) {
         await analyzeAllQuestions({ startIndex: existingFinished ? existingCount : 0 });
@@ -501,7 +501,7 @@
       if (state.pendingRuleReparse) return;
       state.pendingRuleReparse = true;
       UI.updateControls();
-      UI.showPanelMessage(getMessage('panelRuleParseQueued'));
+      await UI.showPanelMessage(getMessage('panelRuleParseQueued'));
       return;
     }
 
@@ -823,14 +823,19 @@
    * @param {Element} element
    * @param {Object} [options]
    * @param {string} [options.loadingMessage] - 自定义加载提示；未传时按现有规则自动选择
+   * @param {boolean} [options.loadingShowIcon=true] - 加载提示是否显示图标
    * @returns {Promise<boolean>}
    */
   async function aiParseQuestionsFromElement(element, options = {}) {
     if (!element) return false;
 
+    // 记录本次解析对应的分析运行 ID：面板在 AI 解析期间被关闭时，
+    // destroyPanel 会使 analysisRunId 自增，据此终止后续的自动建面板与写状态
+    const runId = state.analysisRunId;
+
     const selectedText = D.getCleanText(element);
     if (!selectedText || selectedText.length < 10) {
-      UI.showPanelMessage(getMessage('panelSelectionTooShort'));
+      await UI.showPanelMessage(getMessage('panelSelectionTooShort'));
       return false;
     }
 
@@ -839,8 +844,9 @@
     const loadingMsg = options.loadingMessage || (existingRule
       ? getMessage('panelAiOptimizingRule', [location.hostname])
       : getMessage('panelAiParsingSelection'));
-    UI.ensurePanel(state.questionsData.length || 1);
-    UI.showPanelMessage(loadingMsg);
+    await UI.showPanelMessage(loadingMsg, {
+      showIcon: options.loadingShowIcon !== false
+    });
 
     // 获取已有规则的上下文信息用于提示词
     const existingRuleContext = getExistingRuleContext(existingRule);
@@ -854,6 +860,9 @@
         elementHint: describeElement(element),
         existingRule: existingRuleContext
       });
+
+      // AI 解析期间面板已被关闭：后台返回后不再自动创建面板、不再写规则
+      if (runId !== state.analysisRunId) return false;
 
       if (response.success && Array.isArray(response.questions) && response.questions.length > 0) {
         state.questionsData = response.questions.map(createQuestionPayload);
@@ -880,6 +889,7 @@
       console.log('[QuizHelper] AI 提取失败:', response.error);
       return false;
     } catch (error) {
+      if (runId !== state.analysisRunId) return false;
       console.log('[QuizHelper] AI 提取异常:', error);
       return false;
     }
@@ -917,16 +927,20 @@
     const target = findMainContentElement();
     if (!target) {
       UI.createPanel(0);
-      UI.showPanelMessage(getMessage('panelNoMainContent'));
+      await UI.showPanelMessage(getMessage('panelNoMainContent'));
       return;
     }
 
+    const runId = state.analysisRunId;
     const success = await aiParseQuestionsFromElement(target, {
-      loadingMessage: getMessage('panelAiParsingPage')
+      loadingMessage: getMessage('panelAiParsingPage'),
+      loadingShowIcon: false
     });
+    // 解析期间面板已被关闭（runId 已变化）：不再自动创建面板或发起分析
+    if (runId !== state.analysisRunId) return;
     if (!success) {
       state.questionsData = [];
-      UI.showPanelMessage(getMessage('panelAiParseFailedAuto'));
+      await UI.showPanelMessage(getMessage('panelAiParseFailedAuto'));
       return;
     }
 
@@ -938,10 +952,13 @@
    * @param {Element} element
    */
   async function aiParseAndAnalyze(element) {
+    const runId = state.analysisRunId;
     const success = await aiParseQuestionsFromElement(element);
+    // 解析期间面板已被关闭（runId 已变化）：不再自动创建面板或发起分析
+    if (runId !== state.analysisRunId) return;
     if (!success) {
       state.questionsData = [];
-      UI.showPanelMessage(getMessage('panelAiParseFailedRegion'));
+      await UI.showPanelMessage(getMessage('panelAiParseFailedRegion'));
       return;
     }
 

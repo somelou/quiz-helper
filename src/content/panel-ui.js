@@ -328,17 +328,20 @@
   /**
    * 在面板中显示消息
    * @param {string} message
+   * @param {Object} [options]
+   * @param {boolean} [options.showIcon=true] - 是否显示空状态图标
    */
-  function showPanelMessage(message) {
-    ensurePanel(state.questionsData.length);
+  async function showPanelMessage(message, options = {}) {
+    await ensurePanel(state.questionsData.length);
     const body = state.shadowRoot.getElementById('qh-body');
     if (body) {
+      const showIcon = options.showIcon !== false;
       body.innerHTML = `
         <div class="qh-empty">
-          <span class="qh-empty-icon" data-icon="help-circle" aria-hidden="true"></span>
+          ${showIcon ? '<span class="qh-empty-icon" data-icon="help-circle" aria-hidden="true"></span>' : ''}
           <span>${escapeHtml(message).replace(/\n/g, '<br>')}</span>
         </div>`;
-      window.QuizHelperIcons?.replaceIcons(body);
+      await window.QuizHelperIcons?.replaceIcons(body);
     }
     updateControls();
     updateProgress();
@@ -935,7 +938,7 @@
 
       renderCards();
       refreshModelNameDisplay();
-      window.QuizHelperIcons?.replaceIcons(state.shadowRoot);
+      await window.QuizHelperIcons?.replaceIcons(state.shadowRoot);
 
       // 分段控件滑块跟随布局变化自动校准：
       // panel.css 经 <link> 异步加载，首次渲染时样式可能未生效（块级布局），
@@ -957,9 +960,9 @@
    * 确保面板已创建
    * @param {number} totalQuestions
    */
-  function ensurePanel(totalQuestions = state.questionsData.length) {
+  async function ensurePanel(totalQuestions = state.questionsData.length) {
     if (state.panelElement) return;
-    createPanel(totalQuestions);
+    await createPanel(totalQuestions);
   }
 
   /**

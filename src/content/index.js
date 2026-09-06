@@ -10,6 +10,7 @@
   const { normalizeShortcutConfig, shortcutMatches, getDefaultShortcut } = globalThis.QuizHelperShortcutUtils;
   const { isDomainMatch } = globalThis.QuizHelperTextUtils;
   const { getMessage } = globalThis.QuizHelperI18n;
+  let extensionContextInvalidated = false;
 
   // ===== 初始化 =====
 
@@ -19,11 +20,12 @@
   ensureDefaultRules();
   chrome.storage.onChanged.addListener(handleStorageChange);
   document.addEventListener('keydown', handleGlobalShortcut, true);
+  chrome.runtime.onMessage.addListener(handleRuntimeMessage);
 
   // ===== 主题管理 =====
 
   async function loadThemeMode() {
-    const config = await chrome.storage.local.get(['theme_mode']);
+    const config = await safeLocalGet(['theme_mode']);
     state.themeMode = config.theme_mode || 'system';
     updateDarkMode();
   }
@@ -46,8 +48,43 @@
   // ===== 工具函数 =====
 
   async function loadPanelShortcut() {
-    const config = await chrome.storage.local.get(['panel_shortcut']);
+    const config = await safeLocalGet(['panel_shortcut']);
     state.panelShortcut = resolvePanelShortcut(config.panel_shortcut);
+  }
+
+  function isExtensionContextInvalidatedError(error) {
+    const message = (error && error.message) ? error.message : String(error || '');
+    return /Extension context invalidated/i.test(message);
+  }
+
+  function isExtensionContextAvailable() {
+    return !extensionContextInvalidated && !!globalThis.chrome?.runtime?.id;
+  }
+
+  function teardownInvalidatedContext(error) {
+    if (extensionContextInvalidated) return;
+    extensionContextInvalidated = true;
+    document.removeEventListener('keydown', handleGlobalShortcut, true);
+    try {
+      chrome.storage.onChanged.removeListener(handleStorageChange);
+    } catch (_error) {}
+    try {
+      chrome.runtime.onMessage.removeListener(handleRuntimeMessage);
+    } catch (_error) {}
+    console.info('[QuizHelper] 扩展上下文已失效，已停止当前页面旧脚本响应:', error?.message || error || '');
+  }
+
+  async function safeLocalGet(keys, fallback = {}) {
+    if (!isExtensionContextAvailable()) return fallback;
+    try {
+      return await chrome.storage.local.get(keys);
+    } catch (error) {
+      if (isExtensionContextInvalidatedError(error)) {
+        teardownInvalidatedContext(error);
+        return fallback;
+      }
+      throw error;
+    }
   }
 
   /**
@@ -62,6 +99,7 @@
   }
 
   function handleStorageChange(changes, areaName) {
+    if (!isExtensionContextAvailable()) return;
     if (areaName !== 'local') return;
     if (changes.panel_shortcut) {
       state.panelShortcut = resolvePanelShortcut(changes.panel_shortcut.newValue);
@@ -95,6 +133,7 @@
   }
 
   async function handleGlobalShortcut(event) {
+    if (!isExtensionContextAvailable()) return;
     if (event.repeat) return;
     // 仅响应浏览器确认的真实用户输入，避免网页脚本合成键盘事件误触发面板
     if (event.isTrusted !== true) return;
@@ -126,6 +165,12 @@
     state.isStarting = true;
     try {
       await startAnalysis();
+    } catch (error) {
+      if (isExtensionContextInvalidatedError(error)) {
+        teardownInvalidatedContext(error);
+        return;
+      }
+      throw error;
     } finally {
       state.isStarting = false;
     }
@@ -136,7 +181,7 @@
    * @returns {Promise<boolean>}
    */
   async function isDomainBlocked() {
-    const config = await chrome.storage.local.get(['blocked_domains']);
+    const config = await safeLocalGet(['blocked_domains']);
     const domains = config.blocked_domains || [];
     if (domains.length === 0) return false;
     const hostname = location.hostname;
@@ -152,7 +197,7 @@
    */
   async function checkDomainAllowed() {
     if (await isDomainBlocked()) return false;
-    const config = await chrome.storage.local.get(['allowed_domains']);
+    const config = await safeLocalGet(['allowed_domains']);
     const domains = config.allowed_domains || [];
     if (domains.length === 0) return true;
     const hostname = location.hostname;
@@ -166,7 +211,7 @@
    * @returns {Promise<Object|null>}
    */
   async function getDomainRule() {
-    const result = await chrome.storage.local.get(['parse_rules']);
+    const result = await safeLocalGet(['parse_rules']);
     const rules = result.parse_rules || [];
     const hostname = location.hostname;
     return rules.find(r => isDomainMatch(hostname, r.domain)) || null;
@@ -178,7 +223,7 @@
    */
   async function saveParseRule(rule) {
     const { safeSet } = globalThis.QuizHelperStorageUtils;
-    const result = await chrome.storage.local.get(['parse_rules']);
+    const result = await safeLocalGet(['parse_rules']);
     const rules = result.parse_rules || [];
     const existingIdx = rules.findIndex(r => r.domain === rule.domain);
     if (existingIdx >= 0) {
@@ -198,7 +243,7 @@
   async function incrementRuleUseCount(rule) {
     if (!rule || !rule.domain) return;
     const { safeSet } = globalThis.QuizHelperStorageUtils;
-    const result = await chrome.storage.local.get(['parse_rules']);
+    const result = await safeLocalGet(['parse_rules']);
     const rules = result.parse_rules || [];
     const idx = rules.findIndex(r => r.domain === rule.domain);
     if (idx >= 0) {
@@ -215,6 +260,7 @@
    */
   async function ensureDefaultRules() {
     const { safeSet } = globalThis.QuizHelperStorageUtils;
+    if (!isExtensionContextAvailable()) return;
     if (!state.defaultRuleSeedPromise) {
       state.defaultRuleSeedPromise = fetch(chrome.runtime.getURL('data/default-parse-rule.json')).then(async res => {
         if (!res.ok) {
@@ -224,7 +270,7 @@
       });
     }
 
-    const result = await chrome.storage.local.get(['parse_rules', 'default_parse_rule_seeded_v1']);
+    const result = await safeLocalGet(['parse_rules', 'default_parse_rule_seeded_v1']);
     const rules = result.parse_rules || [];
     const seeded = result.default_parse_rule_seeded_v1 === true;
     if (seeded && rules.some(r => r.id === 'default-example')) return;
@@ -278,9 +324,9 @@
   async function startAnalysis() {
     const allowed = await checkDomainAllowed();
     if (!allowed) {
-      globalThis.QuizHelperPanelUI.createPanel(0);
+      await globalThis.QuizHelperPanelUI.createPanel(0);
       const blocked = await isDomainBlocked();
-      globalThis.QuizHelperPanelUI.showPanelMessage(
+      await globalThis.QuizHelperPanelUI.showPanelMessage(
         blocked ? getMessage('panelDomainBlocked') : getMessage('panelDomainNotAllowed')
       );
       return;
@@ -295,8 +341,8 @@
         return;
       }
       state.questionsData = [];
-      globalThis.QuizHelperPanelUI.createPanel(0);
-      globalThis.QuizHelperPanelUI.showPanelMessage(getMessage('panelRuleParseFailUpdate'));
+      await globalThis.QuizHelperPanelUI.createPanel(0);
+      await globalThis.QuizHelperPanelUI.showPanelMessage(getMessage('panelRuleParseFailUpdate'));
       return;
     }
 
@@ -305,19 +351,28 @@
 
   // ===== 消息监听 =====
 
-  chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+  function handleRuntimeMessage(request, _sender, sendResponse) {
+    if (!isExtensionContextAvailable()) return false;
     if (request.action === 'analyze') {
       if (state.isStarting) {
         sendResponse({ status: 'already_starting' });
         return true;
       }
       state.isStarting = true;
-      startAnalysis().finally(() => { state.isStarting = false; });
+      startAnalysis()
+        .catch(error => {
+          if (isExtensionContextInvalidatedError(error)) {
+            teardownInvalidatedContext(error);
+            return;
+          }
+          console.error('[QuizHelper] 内容脚本启动分析失败:', error);
+        })
+        .finally(() => { state.isStarting = false; });
       sendResponse({ status: 'started' });
       return true;
     }
     return false;
-  });
+  }
 
   // 导出 API（供其他模块运行时调用）
   globalThis.QuizHelperApp = {
