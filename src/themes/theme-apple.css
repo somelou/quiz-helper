@@ -386,6 +386,10 @@ html[data-theme-style="apple"].dark,
   border-color: transparent;
   box-shadow: none;
 }
+/* JSON 编辑器外层圆角对齐 apple 主题的大圆角 */
+[data-theme-style="apple"] .rule-json-editor {
+  border-radius: var(--radius-lg);
+}
 [data-theme-style="apple"] #rule-json {
   border: none;
   outline: none;

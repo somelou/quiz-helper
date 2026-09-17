@@ -1,32 +1,5 @@
 // 解析规则管理模块
 
-function highlightJson(json) {
-  if (typeof json !== 'string') {
-    try { json = JSON.stringify(json, null, 2); } catch (e) { return ''; }
-  }
-  let escaped = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  return escaped.replace(
-    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?|[{}\[\],:])/g,
-    (match) => {
-      let cls = 'json-punctuation';
-      if (/^"/.test(match)) {
-        if (/:$/.test(match)) {
-          cls = 'json-key';
-        } else {
-          cls = 'json-string';
-        }
-      } else if (/true|false/.test(match)) {
-        cls = 'json-boolean';
-      } else if (/null/.test(match)) {
-        cls = 'json-null';
-      } else if (/^-?\d/.test(match)) {
-        cls = 'json-number';
-      }
-      return `<span class="${cls}">${match}</span>`;
-    }
-  );
-}
-
 function initRules({
   ruleListEl, drawerBodyEl, drawerTitleEl, drawerMetaEl,
   drawerSaveBtn, drawerOverlay, onCloseDrawer
@@ -35,6 +8,8 @@ function initRules({
   const paginationState = { rule: 1 };
   let ruleEditorView = 'form';
   let currentRuleEditingBase = null;
+  // JSON 视图的代码编辑器（CodeMirror 实例），抽屉重开前需销毁
+  let ruleJsonEditor = null;
 
   function showRuleStatus(msg) {
     globalThis.QuizHelperMessage.info(msg);
@@ -127,6 +102,9 @@ function initRules({
   }
 
   function renderRuleForm(rule) {
+    // 先销毁上一个 JSON 编辑器实例，避免残留 DOM / 事件
+    destroyRuleJsonEditor();
+
     const selectors = rule.selectors || {};
     const typeKeywords = rule.typeKeywords || {};
     const typeIndicators = selectors.typeIndicators || {};
@@ -233,7 +211,6 @@ function initRules({
         <div class="rule-form-group">
           <label>${getMessage('optionsRuleJsonLabel')}</label>
           <div class="rule-json-editor">
-            <pre id="rule-json-highlight"><code></code></pre>
             <textarea id="rule-json" spellcheck="false"></textarea>
           </div>
           <div class="hint" style="margin-top: 6px;">${getMessage('optionsRuleJsonHint')}</div>
@@ -253,41 +230,23 @@ function initRules({
       });
     }
 
-    const jsonTextarea = drawerBodyEl.querySelector('#rule-json');
-    if (jsonTextarea) {
-      jsonTextarea.addEventListener('input', updateJsonHighlight);
-      jsonTextarea.addEventListener('scroll', syncJsonScroll);
-      // 阻止鼠标滚轮穿透到主页面
-      jsonTextarea.addEventListener('wheel', (e) => {
-        const { scrollTop, scrollHeight, clientHeight } = jsonTextarea;
-        const atTop = scrollTop <= 0;
-        const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-        const scrollingUp = e.deltaY < 0;
-        const scrollingDown = e.deltaY > 0;
-        // 未到边界时阻止事件传播
-        if (!((scrollingUp && atTop) || (scrollingDown && atBottom))) {
-          e.stopPropagation();
-        }
-      });
-    }
-
     const copyBtn = drawerBodyEl.querySelector('#ruleCopyJsonBtn');
     if (copyBtn) {
       copyBtn.addEventListener('click', async () => {
-        const textarea = drawerBodyEl.querySelector('#rule-json');
-        if (!textarea) return;
+        const text = getRuleJsonValue();
         try {
-          await navigator.clipboard.writeText(textarea.value);
-          const originalText = copyBtn.textContent;
-          copyBtn.textContent = getMessage('optionsCopied');
-          setTimeout(() => { copyBtn.textContent = originalText; }, 1500);
+          await navigator.clipboard.writeText(text);
         } catch (e) {
-          textarea.select();
-          document.execCommand('copy');
-          const originalText = copyBtn.textContent;
-          copyBtn.textContent = getMessage('optionsCopied');
-          setTimeout(() => { copyBtn.textContent = originalText; }, 1500);
+          // 剪贴板 API 不可用时降级：全选编辑器内容后复制
+          if (ruleJsonEditor) {
+            ruleJsonEditor.focus();
+            ruleJsonEditor.setSelection({ line: 0, ch: 0 }, { line: ruleJsonEditor.lastLine() });
+            document.execCommand('copy');
+          }
         }
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = getMessage('optionsCopied');
+        setTimeout(() => { copyBtn.textContent = originalText; }, 1500);
       });
     }
   }
@@ -395,27 +354,44 @@ function initRules({
     return { ...base, ...updatedFields, selectors: updatedFields.selectors || {}, typeKeywords: updatedFields.typeKeywords || {} };
   }
 
-  function updateJsonHighlight() {
-    const jsonTextarea = drawerBodyEl.querySelector('#rule-json');
-    const jsonHighlight = drawerBodyEl.querySelector('#rule-json-highlight code');
-    if (!jsonTextarea || !jsonHighlight) return;
-    jsonHighlight.innerHTML = highlightJson(jsonTextarea.value);
+  // ---- JSON 编辑器（CodeMirror，与用户脚本代码编辑器同款实现，避免透明层叠加导致光标与内容错位） ----
+
+  function getRuleJsonValue() {
+    if (ruleJsonEditor) return ruleJsonEditor.getValue();
+    return drawerBodyEl.querySelector('#rule-json')?.value || '';
   }
 
-  function syncJsonScroll() {
-    const jsonTextarea = drawerBodyEl.querySelector('#rule-json');
-    const jsonHighlight = drawerBodyEl.querySelector('#rule-json-highlight');
-    if (!jsonTextarea || !jsonHighlight) return;
-    // 用百分比同步，避免 font render 差异导致内容滚动不到位
-    const taMaxScroll = jsonTextarea.scrollHeight - jsonTextarea.clientHeight;
-    const preMaxScroll = jsonHighlight.scrollHeight - jsonHighlight.clientHeight;
-    if (taMaxScroll > 0) {
-      const pct = jsonTextarea.scrollTop / taMaxScroll;
-      jsonHighlight.scrollTop = pct * preMaxScroll;
-    } else {
-      jsonHighlight.scrollTop = 0;
+  function setRuleJsonValue(text) {
+    if (ruleJsonEditor) {
+      ruleJsonEditor.setValue(text);
+      return;
     }
-    jsonHighlight.scrollLeft = jsonTextarea.scrollLeft;
+    const textarea = drawerBodyEl.querySelector('#rule-json');
+    if (textarea) textarea.value = text;
+  }
+
+  function destroyRuleJsonEditor() {
+    if (!ruleJsonEditor) return;
+    try {
+      ruleJsonEditor.toTextArea();
+    } catch (e) {
+      // 编辑器 DOM 已被清空时忽略
+    }
+    ruleJsonEditor = null;
+  }
+
+  function initRuleJsonEditor() {
+    const textarea = drawerBodyEl.querySelector('#rule-json');
+    if (ruleJsonEditor || !textarea || typeof CodeMirror === 'undefined') return;
+    // javascript 模式的 json 选项提供 JSON 语法高亮
+    ruleJsonEditor = CodeMirror.fromTextArea(textarea, {
+      mode: { name: 'javascript', json: true },
+      theme: 'quiz-helper',
+      lineNumbers: false,
+      lineWrapping: false,
+      indentUnit: 2,
+      tabSize: 2
+    });
   }
 
   function setRuleEditorView(view) {
@@ -424,9 +400,8 @@ function initRules({
 
     const formPanel = drawerBodyEl.querySelector('#ruleViewForm');
     const jsonPanel = drawerBodyEl.querySelector('#ruleViewJson');
-    const jsonTextarea = drawerBodyEl.querySelector('#rule-json');
     const copyBtn = drawerBodyEl.querySelector('#ruleCopyJsonBtn');
-    if (!formPanel || !jsonPanel || !jsonTextarea) return;
+    if (!formPanel || !jsonPanel) return;
 
     if (targetView === 'json') {
       const updatedFields = getRuleUpdatedFieldsFromForm();
@@ -435,17 +410,17 @@ function initRules({
         return;
       }
       const fullRule = buildRuleObjectForJson(currentRuleEditingBase, updatedFields);
-      jsonTextarea.value = JSON.stringify(fullRule, null, 2);
-      updateJsonHighlight();
       formPanel.style.display = 'none';
       jsonPanel.style.display = 'flex';
-      // 显示后同步滚动和滚动条位置
-      requestAnimationFrame(() => syncJsonScroll());
+      // 面板可见后再初始化 / 刷新，CodeMirror 才能测量到正确尺寸
+      initRuleJsonEditor();
+      setRuleJsonValue(JSON.stringify(fullRule, null, 2));
+      requestAnimationFrame(() => ruleJsonEditor?.refresh());
       if (copyBtn) copyBtn.style.display = '';
     } else {
       let parsed;
       try {
-        parsed = JSON.parse(jsonTextarea.value || '');
+        parsed = JSON.parse(getRuleJsonValue() || '');
       } catch (e) {
         showRuleStatus(getMessage('optionsRuleJsonInvalidBack'));
         return;
@@ -475,7 +450,7 @@ function initRules({
     const view = drawerBodyEl.dataset.ruleView || 'form';
     let updatedFields = null;
     if (view === 'json') {
-      const jsonText = drawerBodyEl.querySelector('#rule-json')?.value || '';
+      const jsonText = getRuleJsonValue();
       let parsed;
       try { parsed = JSON.parse(jsonText); } catch (e) {
         showRuleStatus(getMessage('optionsRuleJsonInvalidSave'));

@@ -1086,72 +1086,40 @@ button:hover,
   background: var(--color-input-bg);
   overflow: hidden;
 }
-.rule-json-editor textarea,
-.rule-json-editor pre {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+/* JSON 编辑器（CodeMirror，与用户脚本代码编辑器同款实现，避免透明层叠加导致光标与内容错位） */
+.rule-json-editor .CodeMirror {
   height: 100%;
-  margin: 0;
-  padding: 12px 14px;
+  clip-path: none !important; /* 去掉 CodeMirror 库自带的裁剪，避免影响边框与聚焦阴影 */
+  border: none; /* 边框由外层 .rule-json-editor 提供 */
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-input-text);
   font-family: var(--font-code);
   font-size: 13px;
-  line-height: 1.8;
-  white-space: pre;
-  word-wrap: normal;
-  overflow: auto;
-  tab-size: 2;
-  box-sizing: border-box;
+  line-height: 1.6;
 }
-.rule-json-editor textarea {
-  color: transparent !important;
-  caret-color: var(--color-input-text);
-  background: transparent !important;
-  border: none;
-  outline: none;
-  resize: none;
-  z-index: 2;
+/* CodeMirror 文本内容与输入框边缘保持一点内边距（默认紧贴边框） */
+.rule-json-editor .CodeMirror-lines {
+  padding: 12px 14px;
+}
+/* 去掉每行默认的 4px 内边距，避免与上方内边距叠加导致左右边距过大 */
+.rule-json-editor .CodeMirror pre.CodeMirror-line,
+.rule-json-editor .CodeMirror pre.CodeMirror-line-like {
+  padding: 0;
+}
+/* 编辑器内部自行滚动，滚轮不穿透到抽屉其它区域 */
+.rule-json-editor .CodeMirror-scroll {
   overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
-.rule-json-editor pre {
-  z-index: 1;
-  pointer-events: none;
-}
-/* 隐藏 pre 滚动条，滚动由 textarea 驱动 */
-.rule-json-editor pre::-webkit-scrollbar,
-.rule-json-editor textarea::-webkit-scrollbar {
-  display: none;
-}
-/* 取消 pre 上的 color，避免继承覆盖 span 高亮颜色 */
-.rule-json-editor pre,
-.rule-json-editor pre code {
-  color: inherit;
-}
+/* 隐藏的输入层不参与聚焦样式，聚焦环统一由外层 .rule-json-editor 呈现 */
 .rule-json-editor textarea:focus {
   border-color: transparent;
+  box-shadow: none;
   outline: none;
 }
 .rule-json-editor:focus-within {
   border-color: var(--color-border-focus);
-}
-.json-key {
-  color: #e06c75;
-}
-.json-string {
-  color: #98c379;
-}
-.json-number {
-  color: #d19a66;
-}
-.json-boolean {
-  color: #56b6c2;
-}
-.json-null {
-  color: #7f848e;
-}
-.json-punctuation {
-  color: var(--color-text-muted);
 }
 .rule-json .hint {
   flex-shrink: 0;
