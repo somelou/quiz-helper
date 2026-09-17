@@ -95,7 +95,6 @@ function convertTimeRange(unifiedValue, providerId) {
  */
 export async function executeWebSearch(provider, settings, query, signal) {
   const params = buildSearchRequest(provider, settings, query);
-  console.log('[search-proxy] 搜索请求:', { provider: provider.id, endpoint: provider.endpoint, query, params });
 
   const isGet = provider.id === 'brave-search';
   const url = isGet
@@ -113,11 +112,7 @@ export async function executeWebSearch(provider, settings, query, signal) {
     fetchOptions.body = JSON.stringify(params);
   }
 
-  console.log('[search-proxy] fetch', fetchOptions.method, url);
-
   const response = await fetch(url, fetchOptions);
-
-  console.log('[search-proxy] 响应状态:', response.status, response.statusText);
 
   if (!response.ok) {
     const body = await response.text();
@@ -127,9 +122,7 @@ export async function executeWebSearch(provider, settings, query, signal) {
     throw err;
   }
 
-  const data = await response.json();
-  console.log('[search-proxy] 搜索成功，数据大小:', JSON.stringify(data).length, 'bytes');
-  return data;
+  return response.json();
 }
 
 /**

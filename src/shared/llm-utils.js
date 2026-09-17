@@ -33,6 +33,7 @@
    */
   async function parseOpenAISSE(reader, onEvent) {
     let fullText = '';
+    let parseErrors = 0;
     await readSSELines(reader, (line) => {
       if (!line.startsWith('data: ')) return;
       const data = line.slice(6).trim();
@@ -50,8 +51,11 @@
           fullText += delta.content;
           onEvent({ type: 'text', content: delta.content });
         }
-      } catch (_) { /* 忽略解析错误 */ }
+      } catch (_) {
+        parseErrors += 1;
+      }
     });
+    notifyParseWarnings(onEvent, parseErrors);
     return fullText;
   }
 
@@ -64,6 +68,7 @@
   async function parseAnthropicSSE(reader, onEvent) {
     let fullText = '';
     let currentEvent = '';
+    let parseErrors = 0;
     await readSSELines(reader, (line) => {
       if (line.startsWith('event: ')) {
         currentEvent = line.slice(7).trim();
@@ -85,8 +90,11 @@
             onEvent({ type: 'text', content: text });
           }
         }
-      } catch (_) { /* 忽略解析错误 */ }
+      } catch (_) {
+        parseErrors += 1;
+      }
     });
+    notifyParseWarnings(onEvent, parseErrors);
     return fullText;
   }
 
@@ -100,6 +108,7 @@
     let fullText = '';
     let currentEvent = '';
     const annotations = [];
+    let parseErrors = 0;
     await readSSELines(reader, (line) => {
       if (line.startsWith('event: ')) {
         currentEvent = line.slice(7).trim();
@@ -143,9 +152,27 @@
             }
           }
         }
-      } catch (_) { /* 忽略解析错误 */ }
+      } catch (_) {
+        parseErrors += 1;
+      }
     });
+    notifyParseWarnings(onEvent, parseErrors);
     return { text: fullText, annotations };
+  }
+
+  /**
+   * 流解析出现解析失败时向上游发送 warning 事件，避免截断响应被静默吞掉
+   * @param {Function} onEvent
+   * @param {number} parseErrors - 解析失败次数
+   */
+  function notifyParseWarnings(onEvent, parseErrors) {
+    if (parseErrors > 0 && typeof onEvent === 'function') {
+      try {
+        onEvent({ type: 'warning', message: 'stream_parse_error', count: parseErrors });
+      } catch (_) {
+        // 事件回调自身异常不影响主流程
+      }
+    }
   }
 
   /**

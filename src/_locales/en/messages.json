@@ -1298,6 +1298,9 @@
   "panelRequestFailed": {
     "message": "Request failed: $1"
   },
+  "panelStreamParseWarning": {
+    "message": "\n\n[Notice] The model response may be incomplete (stream parsing broke $1 time(s)); refer to what's shown on the page."
+  },
   "panelRuleParse": {
     "message": "Rule Parsing"
   },

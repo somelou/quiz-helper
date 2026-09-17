@@ -1304,6 +1304,9 @@
   "panelRequestFailed": {
     "message": "请求失败：$1"
   },
+  "panelStreamParseWarning": {
+    "message": "\n\n【提示】大模型返回内容可能不完整（解析中断 $1 次），请以页面实际显示为准。"
+  },
   "panelRuleParse": {
     "message": "规则解析"
   },

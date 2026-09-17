@@ -230,6 +230,7 @@
       activeStreamPort = port;
       let thinkingText = '';
       let answerText = '';
+      let parseWarningCount = 0;
 
       port.onMessage.addListener((msg) => {
         if (!msg || !msg.type) return;
@@ -237,20 +238,27 @@
         if (runId !== state.analysisRunId) { port.disconnect(); resolve(); return; }
 
         if (msg.type === 'connected') return;
-        if (msg.type === 'thinking') {
+        if (msg.type === 'warning' && msg.message === 'stream_parse_error') {
+          // 流解析中断提示：最后一次 done 时附加到答案末尾
+          parseWarningCount += msg.count || 0;
+        } else if (msg.type === 'thinking') {
           thinkingText += msg.content;
           UI.updateAnswerStream(index, thinkingText, answerText, !answerText);
         } else if (msg.type === 'text') {
           answerText += msg.content;
           UI.updateAnswerStream(index, thinkingText, answerText, false);
         } else if (msg.type === 'done') {
+          let finalAnswer = msg.answer;
+          if (parseWarningCount > 0) {
+            finalAnswer += getMessage('panelStreamParseWarning', [String(parseWarningCount)]);
+          }
           question.status = 'done';
-          question.answer = msg.answer;
+          question.answer = finalAnswer;
           // 保存思考内容，供 updateCardBody 在作答结束后继续展示思考区
           question.thinkingText = thinkingText;
           question.webSearchRefs = msg.referenceLinks || [];
           question.searchProviderName = msg.searchProviderName || '';
-          UI.updateCardBody(index, UI.formatAnswer(msg.answer));
+          UI.updateCardBody(index, UI.formatAnswer(finalAnswer));
           port.disconnect();
           resolve();
         } else if (msg.type === 'error') {
@@ -616,9 +624,19 @@
     };
 
     const onMouseMove = event => {
-      const element = getPickableElement(event.target);
-      moveOverlayTo(element);
-      state.pickerState.currentElement = element;
+      // rAF 节流：拾取模式下 mousemove 高频触发且 getPickableElement 可能克隆 DOM，
+      // 限制每帧只计算一次，避免大页面卡顿
+      const picker = state.pickerState;
+      if (!picker || picker._rafPending) return;
+      picker._rafPending = true;
+      requestAnimationFrame(() => {
+        // 回调执行时拾取可能已结束（stopElementPicker 置 null），需兜底判空
+        if (!state.pickerState || state.pickerState !== picker) return;
+        state.pickerState._rafPending = false;
+        const element = getPickableElement(event.target);
+        moveOverlayTo(element);
+        state.pickerState.currentElement = element;
+      });
     };
 
     const onClick = async event => {
@@ -911,6 +929,8 @@
     let best = null;
     let bestLen = 0;
     document.querySelectorAll('div, section, article').forEach(el => {
+      // 粗筛：textContent 不足 200 字符时克隆后必然更短，跳过可避免克隆整棵子树
+      if (el.textContent.length <= 200) return;
       const len = D.getCleanText(el).length;
       if (len > bestLen && len > 200) {
         bestLen = len;
