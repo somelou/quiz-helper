@@ -33,6 +33,7 @@
         "shared/theme-utils.js",
         "shared/storage-utils.js",
         "shared/text-utils.js",
+        "shared/parse-rule-utils.js",
         "content/state.js",
         "content/dom-parser.js",
         "content/panel-ui.js",
