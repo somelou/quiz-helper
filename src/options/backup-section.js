@@ -24,7 +24,8 @@ function initBackup({
         'blocked_domains',
         'panel_shortcut',
         'rule_parse_append_mode',
-        'theme_mode'
+        'theme_mode',
+        'theme_style'
       ]
     },
     {
@@ -37,7 +38,8 @@ function initBackup({
         'model_extract_id',
         'api_url',
         'api_key',
-        'model'
+        'model',
+        'stream_output'
       ]
     },
     {

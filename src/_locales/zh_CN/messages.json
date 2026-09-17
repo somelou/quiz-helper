@@ -497,6 +497,9 @@
   "optionsBackupSelectModule": {
     "message": "请至少选择一个导出模块"
   },
+  "optionsBackupRestoreFormat": {
+    "message": "将恢复以下模块：$1"
+  },
   "optionsBankCancelling": {
     "message": "正在取消..."
   },
