@@ -1,10 +1,12 @@
 // 状态面板全量探测（仅「重新检测」按钮手动触发）
 // 大模型：探测当前生效模型；搜索：探测所有已配置 key 的服务商；
 // 结果写入 status_cache（shared/status-utils.js），popup 下次打开直接读取。
+import '../shared/constants.js';
 import '../shared/status-utils.js';
 import '../shared/llm-utils.js';
 import { executeWebSearch } from './search-proxy.js';
 
+const { STORAGE_KEYS } = globalThis.QuizHelperConstants;
 const { getMessage } = globalThis.QuizHelperI18n;
 const { buildOpenAIBody, buildAnthropicBody, buildResponsesBody } = globalThis.QuizHelperLLMUtils;
 
@@ -106,12 +108,12 @@ async function probeSearch(provider, settings) {
  */
 export async function handleDetectStatus() {
   const storage = await chrome.storage.local.get([
-    'llm_models',
-    'web_search_providers',
-    'web_search_settings'
+    STORAGE_KEYS.LLM_MODELS,
+    STORAGE_KEYS.WEB_SEARCH_PROVIDERS,
+    STORAGE_KEYS.WEB_SEARCH_SETTINGS
   ]);
 
-  const models = storage.llm_models || [];
+  const models = storage[STORAGE_KEYS.LLM_MODELS] || [];
   const activeModels = models.filter(m => m.isActive);
 
   // ---- 大模型：并行探测所有 active 模型（每个模型都有各自状态点） ----
@@ -132,9 +134,9 @@ export async function handleDetectStatus() {
   }));
 
   // ---- 搜索：并行探测所有配置过 key 的 provider ----
-  const providers = storage.web_search_providers || [];
+  const providers = storage[STORAGE_KEYS.WEB_SEARCH_PROVIDERS] || [];
   const providersWithKey = providers.filter(p => p.apiKey && p.endpoint);
-  const settings = storage.web_search_settings || { count: 5, timeRange: '', language: 'zh' };
+  const settings = storage[STORAGE_KEYS.WEB_SEARCH_SETTINGS] || { count: 5, timeRange: '', language: 'zh' };
   const searchMap = {};
 
   await Promise.all(providersWithKey.map(async provider => {

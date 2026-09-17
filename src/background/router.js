@@ -5,7 +5,9 @@ import { handleParseQuestionBank, handleParseQuestionBankBatched, handleSearchQu
 import { executeWebSearch, extractSearchResults, formatSearchResultsForLLM } from './search-proxy.js';
 import { checkMonthlySearchLimit, incrementMonthlySearchCount } from './search-usage.js';
 import { handleDetectStatus } from './status.js';
+import '../shared/constants.js';
 
+const { STORAGE_KEYS } = globalThis.QuizHelperConstants;
 const { getMessage } = globalThis.QuizHelperI18n;
 
 /**
@@ -35,8 +37,8 @@ function filterReferencedLinks(answer, referenceLinks) {
  * @returns {Promise<boolean>}
  */
 async function isStreamOutputEnabled() {
-  const { stream_output } = await chrome.storage.local.get(['stream_output']);
-  return stream_output !== false;
+  const { [STORAGE_KEYS.STREAM_OUTPUT]: streamOutput } = await chrome.storage.local.get([STORAGE_KEYS.STREAM_OUTPUT]);
+  return streamOutput !== false;
 }
 
 async function handleFetchAnswer(questionText, questionType, sendChunk) {
@@ -183,15 +185,15 @@ function fallbackToCleanedAnswer(firstFull, sendChunk) {
 
 async function handleFetchAnswerWithSearch(questionText, questionType, forceSearch = false, sendChunk) {
   const storage = await chrome.storage.local.get([
-    'web_search_enabled',
-    'active_search_provider_id',
-    'web_search_providers',
-    'web_search_settings'
+    STORAGE_KEYS.WEB_SEARCH_ENABLED,
+    STORAGE_KEYS.ACTIVE_SEARCH_PROVIDER_ID,
+    STORAGE_KEYS.WEB_SEARCH_PROVIDERS,
+    STORAGE_KEYS.WEB_SEARCH_SETTINGS
   ]);
 
-  const enabled = storage.web_search_enabled === true;
-  const activeId = storage.active_search_provider_id || '';
-  const providers = storage.web_search_providers || [];
+  const enabled = storage[STORAGE_KEYS.WEB_SEARCH_ENABLED] === true;
+  const activeId = storage[STORAGE_KEYS.ACTIVE_SEARCH_PROVIDER_ID] || '';
+  const providers = storage[STORAGE_KEYS.WEB_SEARCH_PROVIDERS] || [];
   const activeProvider = providers.find(p => p.id === activeId && p.apiKey);
 
   // 搜索不可用/达限额时降级为普通答题（流式/非流式两态）
@@ -233,7 +235,7 @@ async function handleFetchAnswerWithSearch(questionText, questionType, forceSear
   }
 
   const searchQuery = needSearchMatch ? (needSearchMatch[1] || '').trim() : questionText.slice(0, 200);
-  const settings = storage.web_search_settings || { count: 10, timeRange: '', language: 'zh' };
+  const settings = storage[STORAGE_KEYS.WEB_SEARCH_SETTINGS] || { count: 10, timeRange: '', language: 'zh' };
 
   let referenceLinks = [];
   let searchResultsText = '';

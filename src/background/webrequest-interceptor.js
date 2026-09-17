@@ -1,5 +1,8 @@
 // DNR (declarativeNetRequest) 拦截器：注入认证头 + CORS 响应头
 // MV3 中只有 DNR 能在不触发预检的情况下修改请求/响应头
+import '../shared/constants.js';
+
+const { STORAGE_KEYS } = globalThis.QuizHelperConstants;
 
 // 动态规则 ID 起始值（确保不冲突）
 const RULE_ID_BASE = 1000;
@@ -57,8 +60,8 @@ function buildDynamicRules(providers) {
 
 async function syncRules() {
   try {
-    const result = await chrome.storage.local.get(['web_search_providers']);
-    const providers = result.web_search_providers || [];
+    const result = await chrome.storage.local.get([STORAGE_KEYS.WEB_SEARCH_PROVIDERS]);
+    const providers = result[STORAGE_KEYS.WEB_SEARCH_PROVIDERS] || [];
 
     const rules = buildDynamicRules(providers);
 
@@ -79,7 +82,7 @@ async function syncRules() {
 
 // 监听 storage 变化，自动同步规则
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === 'local' && changes.web_search_providers) {
+  if (areaName === 'local' && changes[STORAGE_KEYS.WEB_SEARCH_PROVIDERS]) {
     console.log('[dnr-interceptor] 检测到服务商变更，重新同步规则...');
     syncRules();
   }

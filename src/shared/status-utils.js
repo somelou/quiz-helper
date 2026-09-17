@@ -2,7 +2,9 @@
 // 提供状态缓存的统一读写：检测结果按模型 / 搜索服务商分别存储，
 // popup 打开时读取显示上次检测状态，options 测试与后台探测写入。
 (() => {
-  const STORAGE_KEY = 'status_cache';
+  // storage key 单一来源（shared/constants.js）；取不到时回退字面量以保证独立加载也可用
+  const { STORAGE_KEYS } = globalThis.QuizHelperConstants || {};
+  const STORAGE_KEY = STORAGE_KEYS?.STATUS_CACHE || 'status_cache';
 
   async function readCache() {
     const result = await chrome.storage.local.get(STORAGE_KEY);

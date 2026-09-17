@@ -3,7 +3,10 @@ const DEFAULT_MODEL = 'deepseek-v4-pro';
 const DEFAULT_TIMEOUT_MS = 120_000; // 2 分钟超时
 
 // 大模型请求与 SSE 解析统一实现于 shared/llm-utils.js（background 与 options 测试共用）
+import '../shared/constants.js';
 import '../shared/llm-utils.js';
+
+const { STORAGE_KEYS } = globalThis.QuizHelperConstants;
 
 const {
   parseOpenAISSE,
@@ -24,16 +27,16 @@ const { getMessage } = globalThis.QuizHelperI18n;
  */
 export async function getApiConfig(taskType) {
   const storageKeys = [
-    'llm_models',
-    'active_model_id',
-    'model_bank_id',
-    'model_extract_id',
-    'custom_system_prompts',
-    'extra_context_prompt',
-    'api_url',
-    'api_key',
-    'model',
-    'system_prompt'
+    STORAGE_KEYS.LLM_MODELS,
+    STORAGE_KEYS.ACTIVE_MODEL_ID,
+    STORAGE_KEYS.MODEL_BANK_ID,
+    STORAGE_KEYS.MODEL_EXTRACT_ID,
+    STORAGE_KEYS.CUSTOM_SYSTEM_PROMPTS,
+    STORAGE_KEYS.EXTRA_CONTEXT_PROMPT,
+    STORAGE_KEYS.API_URL,
+    STORAGE_KEYS.API_KEY,
+    STORAGE_KEYS.MODEL,
+    STORAGE_KEYS.SYSTEM_PROMPT
   ];
   const config = await chrome.storage.local.get(storageKeys);
 

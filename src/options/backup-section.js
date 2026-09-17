@@ -12,75 +12,77 @@ function initBackup({
   onImportComplete
 }) {
   const { safeSet } = globalThis.QuizHelperStorageUtils;
+  const { STORAGE_KEYS: K } = globalThis.QuizHelperConstants;
 
+  // 模块 → 存储 key 映射（key 统一来自 shared/constants.js 单一来源，避免字面量漂移）
   const MODULE_DEFS = [
     {
       id: 'settings',
       labelKey: 'optionsModuleSettings',
       keys: [
-        'custom_system_prompts',
-        'extra_context_prompt',
-        'allowed_domains',
-        'blocked_domains',
-        'panel_shortcut',
-        'rule_parse_append_mode',
-        'theme_mode',
-        'theme_style'
+        K.CUSTOM_SYSTEM_PROMPTS,
+        K.EXTRA_CONTEXT_PROMPT,
+        K.ALLOWED_DOMAINS,
+        K.BLOCKED_DOMAINS,
+        K.PANEL_SHORTCUT,
+        K.RULE_PARSE_APPEND_MODE,
+        K.THEME_MODE,
+        K.THEME_STYLE
       ]
     },
     {
       id: 'models',
       labelKey: 'optionsModuleModels',
       keys: [
-        'llm_models',
-        'active_model_id',
-        'model_bank_id',
-        'model_extract_id',
-        'api_url',
-        'api_key',
-        'model',
-        'stream_output'
+        K.LLM_MODELS,
+        K.ACTIVE_MODEL_ID,
+        K.MODEL_BANK_ID,
+        K.MODEL_EXTRACT_ID,
+        K.API_URL,
+        K.API_KEY,
+        K.MODEL,
+        K.STREAM_OUTPUT
       ]
     },
     {
       id: 'search',
       labelKey: 'optionsModuleSearch',
       keys: [
-        'web_search_enabled',
-        'active_search_provider_id',
-        'web_search_settings',
-        'web_search_providers',
-        'web_search_usage'
+        K.WEB_SEARCH_ENABLED,
+        K.ACTIVE_SEARCH_PROVIDER_ID,
+        K.WEB_SEARCH_SETTINGS,
+        K.WEB_SEARCH_PROVIDERS,
+        K.WEB_SEARCH_USAGE
       ]
     },
     {
       id: 'rules',
       labelKey: 'optionsModuleRules',
       keys: [
-        'parse_rules',
-        'default_parse_rule_seeded_v1'
+        K.PARSE_RULES,
+        K.DEFAULT_PARSE_RULE_SEEDED
       ]
     },
     {
       id: 'banks',
       labelKey: 'optionsModuleBanks',
       keys: [
-        'question_banks',
-        'active_bank_id',
-        'active_bank_ids',
-        'question_bank_enabled',
-        'import_mode'
+        K.QUESTION_BANKS,
+        K.ACTIVE_BANK_ID,
+        K.ACTIVE_BANK_IDS,
+        K.QUESTION_BANK_ENABLED,
+        K.IMPORT_MODE
       ]
     },
     {
       id: 'history',
       labelKey: 'optionsModuleHistory',
-      keys: ['exam_history']
+      keys: [K.EXAM_HISTORY]
     },
     {
       id: 'userscripts',
       labelKey: 'optionsModuleUserScripts',
-      keys: ['user_scripts']
+      keys: [K.USER_SCRIPTS]
     }
   ];
 

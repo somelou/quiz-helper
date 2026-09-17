@@ -1,33 +1,12 @@
 // 选项页协调层：主题管理 + 抽屉 + 模块装配
 
 const { safeSet } = globalThis.QuizHelperStorageUtils;
+// 剪贴板复制统一使用 shared/text-utils.js（面板与设置页共用，避免双份实现）
+const { copyText } = globalThis.QuizHelperTextUtils;
+const { STORAGE_KEYS } = globalThis.QuizHelperConstants;
 
 // 兜底本地化：处理浏览器未自动替换的 __MSG_xxx__ 静态文案（popup/options 页面脚本）
 globalThis.QuizHelperI18n.localizePage(document);
-
-async function copyText(text) {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.setAttribute('readonly', 'readonly');
-  textarea.style.position = 'fixed';
-  textarea.style.top = '-9999px';
-  textarea.style.left = '-9999px';
-  document.body.appendChild(textarea);
-  textarea.select();
-
-  try {
-    if (!document.execCommand('copy')) {
-      throw new Error('copy failed');
-    }
-  } finally {
-    textarea.remove();
-  }
-}
 
 function buildDrawerQuestionCopyText(q) {
   const typeLabel = TYPE_LABELS[q.type] || getMessage('typeUnknown');
@@ -592,12 +571,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   let defaultRuleSeedPromise = null;
 
   async function ensureDefaultParseRuleSeeded() {
-    const markerKey = 'default_parse_rule_seeded_v1';
-    const result = await chrome.storage.local.get(['parse_rules', markerKey]);
+    const markerKey = STORAGE_KEYS.DEFAULT_PARSE_RULE_SEEDED;
+    const result = await chrome.storage.local.get([STORAGE_KEYS.PARSE_RULES, markerKey]);
     if (result[markerKey]) return;
 
-    const rules = result.parse_rules || [];
-    const now = Date.now();
+    const rules = result[STORAGE_KEYS.PARSE_RULES] || [];
     const updates = { [markerKey]: true };
     if (!defaultRuleSeedPromise) {
       defaultRuleSeedPromise = fetch(chrome.runtime.getURL('data/default-parse-rule.json')).then(async res => {
@@ -606,36 +584,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
     const defaultRule = await defaultRuleSeedPromise;
-    const seedRule = { ...defaultRule, lastUsed: now, timestamp: now, useCount: 1 };
+    const seedRule = { ...defaultRule, lastUsed: Date.now(), timestamp: Date.now(), useCount: 1 };
 
-    const idx = rules.findIndex(r => r && r.id === 'default-example');
-    if (idx >= 0) {
-      // 已有同 ID 规则：保留用户修改字段，仅合并补齐缺失的种子字段（与 content 侧 ensureDefaultRules 一致）
-      const existing = rules[idx] || {};
-      const seedSelectors = seedRule.selectors || {};
-      const existingSelectors = existing.selectors || {};
-      rules[idx] = {
-        ...existing,
-        id: existing.id || seedRule.id,
-        domain: existing.domain || seedRule.domain,
-        name: existing.name || seedRule.name,
-        selectors: {
-          ...seedSelectors,
-          ...existingSelectors,
-          typeIndicators: {
-            ...(seedSelectors.typeIndicators || {}),
-            ...(existingSelectors.typeIndicators || {})
-          }
-        },
-        typeKeywords: {
-          ...(seedRule.typeKeywords || {}),
-          ...(existing.typeKeywords || {})
-        }
-      };
-    } else {
-      rules.push(seedRule);
-    }
-    updates.parse_rules = rules;
+    // 合并/推送统一走共享工具（与 content 侧 ensureDefaultRules 同一语义）
+    updates[STORAGE_KEYS.PARSE_RULES] = globalThis.QuizHelperParseRuleUtils.applySeedRule(rules, seedRule);
     await safeSet(updates);
   }
 
