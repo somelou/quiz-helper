@@ -283,6 +283,10 @@ function deduplicateQuestions(questions) {
 
 // 内存保护：索引条目（题目）超过该数量时不缓存，避免大库拖垮 SW
 const MAX_INDEX_ENTRIES = 3000;
+// 题库命中相似度阈值（低于该值不视为匹配）
+const BANK_MATCH_SCORE_THRESHOLD = 0.6;
+// 最多返回的匹配条数
+const BANK_TOP_MATCHES = 3;
 
 let searchBankIndexCache = null; // { key: string, entries: Array }
 
@@ -364,7 +368,7 @@ export async function handleSearchQuestionBank(questionText) {
   for (const { question, normalized, charSet, source } of indexEntries) {
     const score = calculateSimilarity(searchText, normalized, searchCharSet, charSet);
 
-    if (score >= 0.6) {
+    if (score >= BANK_MATCH_SCORE_THRESHOLD) {
       allMatches.push({
         answer: question.answer,
         analysis: question.analysis || '',
@@ -377,7 +381,7 @@ export async function handleSearchQuestionBank(questionText) {
   }
 
   allMatches.sort((a, b) => b.score - a.score);
-  const topMatches = allMatches.slice(0, 3);
+  const topMatches = allMatches.slice(0, BANK_TOP_MATCHES);
   return topMatches.length > 0
     ? { success: true, found: true, matches: topMatches }
     : { success: true, found: false, matches: [] };
@@ -392,7 +396,7 @@ function getActiveBankIds(result, banks) {
   return [...new Set(activeIds.filter(id => bankIds.has(id)))];
 }
 
-function parseQuestionBankByRules(text) {
+export function parseQuestionBankByRules(text) {
   const lines = String(text || '')
     .replace(/\r/g, '\n')
     .split('\n')
@@ -539,10 +543,15 @@ function normalizeAnswer(answer) {
 
 function inferQuestionType(line, answer) {
   const value = String(line || '');
-  if (value.includes('多选')) return 'multiple';
-  if (value.includes('单选')) return 'single';
-  if (value.includes('判断')) return 'judge';
-  if (value.includes('填空')) return 'fill';
+  // 中文题型词单一来源（shared/constants.js）；未加载时回退内置词，保持与原字面量判定一致
+  const cn = globalThis.QuizHelperConstants?.TYPE_CN_KEYWORDS || {
+    single: ['单选'], multiple: ['多选'], judge: ['判断'], fill: ['填空']
+  };
+  const has = (kws) => Array.isArray(kws) && kws.some(kw => value.includes(kw));
+  if (has(cn.multiple)) return 'multiple';
+  if (has(cn.single)) return 'single';
+  if (has(cn.judge)) return 'judge';
+  if (has(cn.fill)) return 'fill';
   if (answer === '对' || answer === '错') return 'judge';
   if (/multiple|multi[- ]?select/i.test(value)) return 'multiple';
   if (/single[- ]?choice|single[- ]?select/i.test(value)) return 'single';
@@ -562,7 +571,7 @@ function inferQuestionType(line, answer) {
  * @param {Set} [set2] - s2 的预计算字符集
  * @returns {number}
  */
-function calculateSimilarity(s1, s2, set1 = null, set2 = null) {
+export function calculateSimilarity(s1, s2, set1 = null, set2 = null) {
   if (!s1 || !s2) return 0;
   if (s1 === s2) return 1;
 

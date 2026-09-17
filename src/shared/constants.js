@@ -11,6 +11,7 @@
     DEFAULT_PARSE_RULE_SEEDED: 'default_parse_rule_seeded_v1',
     EXAM_HISTORY: 'exam_history',
     EXTRA_CONTEXT_PROMPT: 'extra_context_prompt',
+    IMPORT_MODE: 'import_mode',
     LLM_MODELS: 'llm_models',
     MODEL: 'model',
     MODEL_BANK_ID: 'model_bank_id',
@@ -21,8 +22,10 @@
     QUESTION_BANKS: 'question_banks',
     RULE_PARSE_APPEND_MODE: 'rule_parse_append_mode',
     STATUS_CACHE: 'status_cache',
+    STREAM_OUTPUT: 'stream_output',
     SYSTEM_PROMPT: 'system_prompt',
     THEME_MODE: 'theme_mode',
+    THEME_STYLE: 'theme_style',
     USER_SCRIPTS: 'user_scripts',
     WEB_SEARCH_ENABLED: 'web_search_enabled',
     ACTIVE_SEARCH_PROVIDER_ID: 'active_search_provider_id',
@@ -68,12 +71,22 @@
   // 用户脚本运行时机选项（文案在设置页按 i18n 映射）
   const RUN_AT_OPTIONS = ['document_start', 'document_end', 'document_idle'];
 
+  // 题型中文关键词单一来源（判断题/填空题标题、题库行解析、AI 输出归一化共用）
+  // 各消费者保留自身判定顺序与优先级，只共享同一份词表，避免改词时多处联动
+  const TYPE_CN_KEYWORDS = {
+    single: ['单选'],
+    multiple: ['多选'],
+    judge: ['判断'],
+    fill: ['填空']
+  };
+
   globalThis.QuizHelperConstants = {
     DEFAULT_SHORTCUT,
     IMPORT_MODES,
     RUN_AT_OPTIONS,
     STATUS_LABELS,
     STORAGE_KEYS,
+    TYPE_CN_KEYWORDS,
     TYPE_LABELS
   };
 })();

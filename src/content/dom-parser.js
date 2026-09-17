@@ -117,10 +117,15 @@
    */
   function getHeadingType(text) {
     const title = normalizeWhitespace(text);
-    if (title.includes('单选')) return 'single';
-    if (title.includes('多选')) return 'multiple';
-    if (title.includes('判断')) return 'judge';
-    if (title.includes('填空')) return 'fill';
+    // 中文题型词单一来源（shared/constants.js）；未加载时回退内置词，保持与原字面量判定一致
+    const cn = globalThis.QuizHelperConstants?.TYPE_CN_KEYWORDS || {
+      single: ['单选'], multiple: ['多选'], judge: ['判断'], fill: ['填空']
+    };
+    const has = (kws) => Array.isArray(kws) && kws.some(kw => title.includes(kw));
+    if (has(cn.single)) return 'single';
+    if (has(cn.multiple)) return 'multiple';
+    if (has(cn.judge)) return 'judge';
+    if (has(cn.fill)) return 'fill';
     return 'unknown';
   }
 
