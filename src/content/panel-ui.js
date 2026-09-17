@@ -2,7 +2,7 @@
   'use strict';
 
   const state = globalThis.QuizHelperContentState;
-  const { escapeHtml, normalizeWhitespace } = globalThis.QuizHelperTextUtils;
+  const { escapeHtml, normalizeWhitespace, copyText } = globalThis.QuizHelperTextUtils;
   const { TYPE_LABELS, STATUS_LABELS } = globalThis.QuizHelperConstants;
   const { getMessage } = globalThis.QuizHelperI18n;
 
@@ -133,35 +133,6 @@
   }
 
   /**
-   * 复制文本到剪贴板，优先使用 Clipboard API，失败时降级到 execCommand。
-   * @param {string} text
-   * @returns {Promise<void>}
-   */
-  async function copyText(text) {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
-      return;
-    }
-
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', 'readonly');
-    textarea.style.position = 'fixed';
-    textarea.style.top = '-9999px';
-    textarea.style.left = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.select();
-
-    try {
-      if (!document.execCommand('copy')) {
-        throw new Error('copy failed');
-      }
-    } finally {
-      textarea.remove();
-    }
-  }
-
-  /**
    * 构造题目复制文案。
    * @param {Object} question
    * @returns {string}
@@ -204,13 +175,15 @@
   }
 
   /**
-   * 获取题目摘要（第一行前44字符）
+   * 获取题目摘要（第一行前 SUMMARY_MAX_LEN 字符）
    * @param {string} text
    * @returns {string}
    */
+  const SUMMARY_MAX_LEN = 44;
+
   function getSummary(text) {
     const firstLine = normalizeWhitespace((text || '').split('\n')[0] || '');
-    return firstLine.length > 44 ? firstLine.slice(0, 44) + '...' : firstLine;
+    return firstLine.length > SUMMARY_MAX_LEN ? firstLine.slice(0, SUMMARY_MAX_LEN) + '...' : firstLine;
   }
 
   /**
@@ -998,13 +971,20 @@
     }
   }
 
+  // 面板还原时的布局几何常量（与 panel.css 的面板尺寸保持一致）
+  const PANEL_MIN_BAR_SIZE = 48;
+  const PANEL_GAP = 12;
+  const PANEL_MARGIN = 20;
+  const PANEL_WIDTH = 420;
+  const PANEL_MAX_HEIGHT = 600;
+
   function minimizePanel(event) {
     if (!state.panelElement || !state.shadowRoot) return;
 
     const bar = state.shadowRoot.getElementById('qh-mini-bar');
     if (!bar) return;
 
-    const barSize = 48;
+    const barSize = PANEL_MIN_BAR_SIZE;
     let barCX, barCY;
     if (event && typeof event.clientX === 'number') {
       barCX = event.clientX;
@@ -1036,10 +1016,6 @@
 
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      const gap = 12;
-      const margin = 20;
-      const panelW = 420;
-      const panelMaxH = 600;
 
       const openLeft = barCX > vw / 2;
       const openTop = barCY > vh / 2;
@@ -1050,28 +1026,28 @@
       state.panelElement.style.bottom = 'auto';
 
       if (openLeft) {
-        let rightVal = vw - barCX + barHalf + gap;
-        const leftEdge = vw - rightVal - panelW;
-        if (leftEdge < margin) rightVal = vw - margin - panelW;
-        if (rightVal < margin) rightVal = margin;
+        let rightVal = vw - barCX + barHalf + PANEL_GAP;
+        const leftEdge = vw - rightVal - PANEL_WIDTH;
+        if (leftEdge < PANEL_MARGIN) rightVal = vw - PANEL_MARGIN - PANEL_WIDTH;
+        if (rightVal < PANEL_MARGIN) rightVal = PANEL_MARGIN;
         state.panelElement.style.right = `${rightVal}px`;
       } else {
-        let leftVal = barCX + barHalf + gap;
-        if (leftVal + panelW > vw - margin) leftVal = vw - margin - panelW;
-        if (leftVal < margin) leftVal = margin;
+        let leftVal = barCX + barHalf + PANEL_GAP;
+        if (leftVal + PANEL_WIDTH > vw - PANEL_MARGIN) leftVal = vw - PANEL_MARGIN - PANEL_WIDTH;
+        if (leftVal < PANEL_MARGIN) leftVal = PANEL_MARGIN;
         state.panelElement.style.left = `${leftVal}px`;
       }
 
       if (openTop) {
-        let bottomVal = vh - barCY + barHalf + gap;
-        const topEdge = vh - bottomVal - panelMaxH;
-        if (topEdge < margin) bottomVal = vh - margin - panelMaxH;
-        if (bottomVal < margin) bottomVal = margin;
+        let bottomVal = vh - barCY + barHalf + PANEL_GAP;
+        const topEdge = vh - bottomVal - PANEL_MAX_HEIGHT;
+        if (topEdge < PANEL_MARGIN) bottomVal = vh - PANEL_MARGIN - PANEL_MAX_HEIGHT;
+        if (bottomVal < PANEL_MARGIN) bottomVal = PANEL_MARGIN;
         state.panelElement.style.bottom = `${bottomVal}px`;
       } else {
-        let topVal = barCY + barHalf + gap;
-        if (topVal + panelMaxH > vh - margin) topVal = vh - margin - panelMaxH;
-        if (topVal < margin) topVal = margin;
+        let topVal = barCY + barHalf + PANEL_GAP;
+        if (topVal + PANEL_MAX_HEIGHT > vh - PANEL_MARGIN) topVal = vh - PANEL_MARGIN - PANEL_MAX_HEIGHT;
+        if (topVal < PANEL_MARGIN) topVal = PANEL_MARGIN;
         state.panelElement.style.top = `${topVal}px`;
       }
 

@@ -4,7 +4,7 @@ window.QuizHelperIcons?.replaceIcons(document);
 const { DEFAULT_SHORTCUT, STORAGE_KEYS } = globalThis.QuizHelperConstants;
 const { getMessage } = globalThis.QuizHelperI18n;
 const { normalizeShortcutConfig, formatShortcutDisplay } = globalThis.QuizHelperShortcutUtils;
-const { isDomainMatch } = globalThis.QuizHelperTextUtils;
+const { isDomainMatch, matchesUrlPattern } = globalThis.QuizHelperTextUtils;
 const { applyBodyTheme, loadThemeMode, saveThemeMode, updateThemeToggleUI } = globalThis.QuizHelperThemeUtils;
 
 // 兜底本地化：处理 Chrome 未自动替换的 __MSG_xxx__ 静态文案
@@ -330,28 +330,7 @@ function renderSearchStatus() {
   });
 }
 
-// Chrome match pattern 简单匹配：判断当前页面 URL 是否命中脚本的「匹配页面」
-function matchUrlAgainstPattern(url, pattern) {
-  if (!url || !pattern) return false;
-  const p = String(pattern).trim();
-  if (p === '<all_urls>') return true;
-  const m = /^(\*|https?|file|ftp):\/\/([^/]*)(\/.*)?$/.exec(p);
-  if (!m) return false;
-  const scheme = m[1];
-  const host = m[2];
-  const pathGlob = m[3] || '/';
-  if (scheme !== '*' && url.protocol.replace(/:$/, '') !== scheme) return false;
-  if (host !== '*') {
-    if (host.startsWith('*.')) {
-      const base = host.slice(2);
-      if (url.hostname !== base && !url.hostname.endsWith('.' + base)) return false;
-    } else if (url.hostname !== host) {
-      return false;
-    }
-  }
-  const pathRegex = new RegExp('^' + pathGlob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$');
-  return pathRegex.test(url.pathname + url.search);
-}
+// 用户脚本匹配复用 shared/text-utils.js 的 matchesUrlPattern（与注册端同源，避免双份解析）
 
 async function renderScriptStatus(result) {
   const scripts = result[STORAGE_KEYS.USER_SCRIPTS] || [];
@@ -363,7 +342,7 @@ async function renderScriptStatus(result) {
       const url = tab?.url ? new URL(tab.url) : null;
       if (url) {
         // 命中当前页面 URL 的启用脚本数
-        activeCount = enabled.filter(s => (s.matches || []).some(p => matchUrlAgainstPattern(url, p))).length;
+        activeCount = enabled.filter(s => (s.matches || []).some(p => matchesUrlPattern(url.toString(), p))).length;
       }
     } catch (e) {
       activeCount = 0;
