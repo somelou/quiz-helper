@@ -86,7 +86,7 @@
       UI.updateProgress();
 
       if (appendMode && state.questionsData.length > 0) {
-        UI.showPanelMessage(getMessage('panelRuleParseEmpty'));
+        await UI.showPanelNotice(getMessage('panelRuleParseEmpty'));
         return { restarted: false };
       }
 
@@ -104,16 +104,16 @@
       if (addedCount === 0) {
         UI.updateControls();
         UI.updateProgress();
-        await UI.showPanelMessage(getMessage('panelRuleParseNoNewQuestions'));
+        await UI.showPanelNotice(getMessage('panelRuleParseNoNewQuestions'));
         return { restarted: false };
       }
 
       state.questionsData = questions;
-      UI.createPanel(state.questionsData.length);
-      UI.renderCards();
+      // createPanel 内部会重建面板并渲染卡片，此处等待完成后再插入提示条
+      await UI.createPanel(state.questionsData.length);
       UI.updateControls();
       UI.updateProgress();
-      await UI.showPanelMessage(getMessage('panelRuleParseAppended', [String(addedCount)]));
+      await UI.showPanelNotice(getMessage('panelRuleParseAppended', [String(addedCount)]));
 
       if (shouldAutoAnalyze && !state.isPaused && !state.isAnalyzing) {
         await analyzeAllQuestions({ startIndex: existingFinished ? existingCount : 0 });
@@ -509,7 +509,7 @@
       if (state.pendingRuleReparse) return;
       state.pendingRuleReparse = true;
       UI.updateControls();
-      await UI.showPanelMessage(getMessage('panelRuleParseQueued'));
+      await UI.showPanelNotice(getMessage('panelRuleParseQueued'));
       return;
     }
 

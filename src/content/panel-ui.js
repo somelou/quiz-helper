@@ -320,13 +320,30 @@
     updateProgress();
   }
 
+  // 面板内联提示自动消失时间（毫秒）
+  const NOTICE_DURATION = 4000;
+  let panelNoticeTimer = null;
+
   /**
-   * 更新单张卡片的内容区域
-   * @param {number} index
-   * @param {string} content
-   * @param {boolean} isError
-   * @param {boolean} [silent=false] - 为 true 时跳过进度/按钮刷新（批量渲染时由调用方统一刷新）
+   * 在面板头部下方显示一条内联提示
+   * 提示条位于题目列表之外，永远不会影响题目卡片的渲染
+   * @param {string} message
    */
+  async function showPanelNotice(message) {
+    await ensurePanel(state.questionsData.length);
+    const noticeEl = state.shadowRoot?.getElementById('qh-notice');
+    if (!noticeEl) return;
+
+    noticeEl.textContent = message;
+    noticeEl.hidden = false;
+
+    clearTimeout(panelNoticeTimer);
+    panelNoticeTimer = setTimeout(() => {
+      noticeEl.hidden = true;
+      noticeEl.textContent = '';
+    }, NOTICE_DURATION);
+  }
+
   /**
    * 同步卡片头部的状态标签与答案预览
    * @param {number} qIndex - 题目下标
@@ -865,6 +882,7 @@
             <button class="qh-header-btn" id="qh-close" title="${getMessage('commonClose')}"><span data-icon="close"></span></button>
           </div>
         </div>
+        <div class="qh-notice" id="qh-notice" hidden></div>
         <div class="qh-body" id="qh-body"></div>
         <div class="qh-footer">
           <span class="qh-model-name" id="qh-model-name"></span>
@@ -1071,6 +1089,7 @@
     removePanel,
     renderCards,
     showPanelMessage,
+    showPanelNotice,
     updateAnswerStream,
     updateCardBody,
     updateProgress,

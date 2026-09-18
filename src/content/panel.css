@@ -721,6 +721,20 @@
   opacity: 0.8;
 }
 .qh-empty-icon svg { width: 28px; height: 28px; display: block; }
+
+/* 内联提示条：位于头部与题目列表之间，展示解析状态，不占用题目列表区域 */
+.qh-notice {
+  flex-shrink: 0;
+  margin: 8px 12px 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  word-break: break-word;
+}
+.qh-notice[hidden] { display: none; }
 .qh-mini-bar {
   position: fixed;
   bottom: 24px;
