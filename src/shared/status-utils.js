@@ -24,11 +24,6 @@
     await chrome.storage.local.set({ [STORAGE_KEY]: cache });
   }
 
-  /** 读取完整状态缓存 */
-  async function getStatusCache() {
-    return readCache();
-  }
-
   /**
    * 更新单个模型的状态缓存条目
    * @param {string} modelId - 模型 id
@@ -61,7 +56,6 @@
   }
 
   globalThis.QuizHelperStatusUtils = {
-    getStatusCache,
     updateLlmStatus,
     updateSearchProviderStatus,
     setStatusCache

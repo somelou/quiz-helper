@@ -94,7 +94,6 @@
 
   globalThis.QuizHelperI18n = {
     getMessage,
-    t: getMessage,
     getPromptTemplatesUrl,
     localizePage
   };
